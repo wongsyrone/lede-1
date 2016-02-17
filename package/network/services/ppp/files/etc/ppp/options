@@ -5,6 +5,9 @@ noaccomp
 nopcomp
 nocrtscts
 lock
+asyncmap 0
+persist
+holdoff 2
 maxfail 0
 lcp-echo-failure 5
-lcp-echo-interval 1
+lcp-echo-interval 30
