@@ -9,15 +9,15 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=iptables
-PKG_VERSION:=1.4.21
-PKG_RELEASE:=2
+PKG_VERSION:=1.6.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://www.netfilter.org/projects/iptables/files \
 	ftp://ftp.be.netfilter.org/pub/netfilter/iptables/ \
 	ftp://ftp.de.netfilter.org/pub/netfilter/iptables/ \
 	ftp://ftp.no.netfilter.org/pub/netfilter/iptables/
-PKG_MD5SUM:=536d048c8e8eeebcd9757d0863ebb0c0
+PKG_MD5SUM:=27ba3451cb622467fc9267a176f19a31
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -435,7 +435,8 @@ CONFIGURE_ARGS += \
 	--with-kernel="$(LINUX_DIR)/user_headers" \
 	--with-xtlibdir=/usr/lib/iptables \
 	--enable-static \
-	$(if $(CONFIG_IPV6),,--disable-ipv6)
+	$(if $(CONFIG_IPV6),,--disable-ipv6) \
+	--disable-nftables
 
 MAKE_FLAGS := \
 	$(TARGET_CONFIGURE_OPTS) \

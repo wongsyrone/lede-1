@@ -1,6 +1,6 @@
 --- a/configure
 +++ b/configure
-@@ -12367,77 +12367,7 @@ fi
+@@ -12488,77 +12488,7 @@ fi
  fi
  
  
@@ -81,7 +81,7 @@
  else
 --- a/configure.ac
 +++ b/configure.ac
-@@ -111,9 +111,7 @@ if test "x$enable_bpfc" = "xyes" || test
+@@ -119,9 +119,7 @@ if test "x$enable_bpfc" = "xyes" || test
  	AC_CHECK_LIB(pcap, pcap_compile,, AC_MSG_ERROR(missing libpcap library required by bpf compiler or nfsynproxy tool))
  fi
  
@@ -90,5 +90,5 @@
 -AM_CONDITIONAL([HAVE_LIBNFNETLINK], [test "$nfnetlink" = 1])
 +AM_CONDITIONAL([HAVE_LIBNFNETLINK], [false])
  
- regular_CFLAGS="-Wall -Waggregate-return -Wmissing-declarations \
- 	-Wmissing-prototypes -Wredundant-decls -Wshadow -Wstrict-prototypes \
+ if test "x$enable_nftables" = "xyes"; then
+ 	PKG_CHECK_MODULES([libmnl], [libmnl >= 1.0], [mnl=1], [mnl=0])
