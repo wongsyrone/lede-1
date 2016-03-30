@@ -16,7 +16,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
 
 --- a/src/drivers/driver.h
 +++ b/src/drivers/driver.h
-@@ -573,6 +573,8 @@ struct wpa_driver_associate_params {
+@@ -583,6 +583,8 @@ struct wpa_driver_associate_params {
  
  	unsigned char rates[NL80211_MAX_SUPP_RATES];
  	int mcast_rate;
@@ -27,7 +27,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  	 * bssid_hint - BSSID of a proposed AP
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -4550,6 +4550,22 @@ retry:
+@@ -4625,6 +4625,22 @@ retry:
  		nla_put_u32(msg, NL80211_ATTR_MCAST_RATE, params->mcast_rate);
  	}
  
@@ -134,7 +134,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  #endif /* CONFIG_MACSEC */
 --- a/wpa_supplicant/config_ssid.h
 +++ b/wpa_supplicant/config_ssid.h
-@@ -701,6 +701,8 @@ struct wpa_ssid {
+@@ -710,6 +710,8 @@ struct wpa_ssid {
  
  	unsigned char rates[NL80211_MAX_SUPP_RATES];
  	double mcast_rate;
@@ -145,7 +145,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  	/**
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -2428,6 +2428,8 @@ static void wpas_start_assoc_cb(struct w
+@@ -2495,6 +2495,8 @@ static void wpas_start_assoc_cb(struct w
  			i++;
  		}
  		params.mcast_rate = ssid->mcast_rate;

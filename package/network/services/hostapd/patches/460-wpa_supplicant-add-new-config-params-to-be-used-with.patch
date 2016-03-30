@@ -22,7 +22,7 @@ Signed-hostap: Antonio Quartulli <ordex@autistici.org>
  #include "common/defs.h"
  #include "common/ieee802_11_defs.h"
  #include "utils/list.h"
-@@ -570,6 +571,9 @@ struct wpa_driver_associate_params {
+@@ -580,6 +581,9 @@ struct wpa_driver_associate_params {
  	 * responsible for selecting with which BSS to associate. */
  	const u8 *bssid;
  
@@ -160,7 +160,7 @@ Signed-hostap: Antonio Quartulli <ordex@autistici.org>
  
  
  #define DEFAULT_EAP_WORKAROUND ((unsigned int) -1)
-@@ -698,6 +699,9 @@ struct wpa_ssid {
+@@ -707,6 +708,9 @@ struct wpa_ssid {
  	 */
  	void *parent_cred;
  
@@ -172,7 +172,7 @@ Signed-hostap: Antonio Quartulli <ordex@autistici.org>
  	 * macsec_policy - Determines the policy for MACsec secure session
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -2421,6 +2421,13 @@ static void wpas_start_assoc_cb(struct w
+@@ -2488,6 +2488,13 @@ static void wpas_start_assoc_cb(struct w
  			params.beacon_int = ssid->beacon_int;
  		else
  			params.beacon_int = wpa_s->conf->beacon_int;
