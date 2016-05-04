@@ -178,6 +178,7 @@ foreach my $mirror (@ARGV) {
 			push @mirrors, "http://downloads.sourceforge.net/$1";
 		}
 	} elsif ($mirror =~ /^\@APACHE\/(.+)$/) {
+		push @mirrors, "http://mirrors.ustc.edu.cn/apache/$1";
 		push @mirrors, "http://ftp.tudelft.nl/apache/$1";
 		push @mirrors, "http://apache.openmirror.de/$1";
 		push @mirrors, "http://mirrors.ocf.berkeley.edu/apache/$1";
@@ -189,6 +190,7 @@ foreach my $mirror (@ARGV) {
 			push @mirrors, "https://raw.githubusercontent.com/$1";
 		}
 	} elsif ($mirror =~ /^\@GNU\/(.+)$/) {
+		push @mirrors, "http://mirrors.ustc.edu.cn/gnu/$1";
 		push @mirrors, "http://ftpmirror.gnu.org/$1";
 		push @mirrors, "http://ftp.gnu.org/pub/gnu/$1";
 		push @mirrors, "ftp://ftp.belnet.be/mirror/ftp.gnu.org/gnu/$1";
@@ -207,10 +209,14 @@ foreach my $mirror (@ARGV) {
 			push @extra, "$extra[0]/longterm/v$1";
 		}		
 		foreach my $dir (@extra) {
+			# http://mirror.bjtu.edu.cn/kernel/linux/kernel/
+			# http://mirror.tuna.tsinghua.edu.cn/kernel/linux/kernel/
+			push @mirrors, "http://mirrors.ustc.edu.cn/kernel.org/$dir";
 			push @mirrors, "https://kernel.org/pub/$dir";
 			push @mirrors, "ftp://kernel.org/pub/$dir";
 		}
     } elsif ($mirror =~ /^\@GNOME\/(.+)$/) {
+		push @mirrors, "http://mirrors.ustc.edu.cn/gnome/sources/$1";
 		push @mirrors, "http://ftp.gnome.org/pub/GNOME/sources/$1";
 		push @mirrors, "http://www.mirrorservice.org/sites/ftp.gnome.org/pub/GNOME/sources/$1";
 		push @mirrors, "http://fr2.rpmfind.net/linux/gnome.org/sources/$1";
