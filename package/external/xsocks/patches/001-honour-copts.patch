@@ -1,0 +1,35 @@
+--- a/Makefile
++++ b/Makefile
+@@ -43,10 +43,10 @@ OPENWRT = 1
+ endif
+ 
+ ifdef CROSS_COMPILE
+-CPPFLAGS = -DCROSS_COMPILE
++CPPFLAGS += -DCROSS_COMPILE
+ endif
+ 
+-CFLAGS = \
++CFLAGS += \
+ 	-Os	\
+ 	-g \
+ 	-std=gnu99 \
+@@ -82,7 +82,7 @@ ifdef ANDROID
+ 	CPPFLAGS += -I3rd/libancillary
+ endif
+ 
+-LDFLAGS = -Wl,--gc-sections
++LDFLAGS += -Wl,--gc-sections
+ 
+ ifdef ANDROID
+ LDFLAGS += -pie -fPIE
+--- a/3rd/libuv/Makefile.am
++++ b/3rd/libuv/Makefile.am
+@@ -22,7 +22,7 @@ include_HEADERS=include/uv.h include/uv-
+ CLEANFILES =
+ 
+ lib_LTLIBRARIES = libuv.la
+-libuv_la_CFLAGS = @CFLAGS@
++libuv_la_CFLAGS = -Os
+ libuv_la_LDFLAGS = -no-undefined -version-info 1:0:0
+ libuv_la_SOURCES = src/fs-poll.c \
+                    src/heap-inl.h \

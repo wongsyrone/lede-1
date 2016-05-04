@@ -1,0 +1,326 @@
+From 658d55d5cd6e7610bcd699f1e01178028a84366c Mon Sep 17 00:00:00 2001
+From: Syrone Wong <wong.syrone@gmail.com>
+Date: Sun, 17 Apr 2016 21:49:19 +0800
+Subject: [PATCH] Fix errno handling
+
+Added a macro to reset errno based on platform
+
+Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
+---
+ src/local.c   |  7 +++++++
+ src/manager.c |  2 ++
+ src/redir.c   |  6 ++++++
+ src/server.c  |  8 ++++++++
+ src/tunnel.c  |  6 ++++++
+ src/utils.c   |  6 ++++++
+ src/utils.h   | 14 ++++++++++++++
+ 7 files changed, 49 insertions(+)
+
+--- a/src/local.c
++++ b/src/local.c
+@@ -222,6 +222,7 @@ static void server_recv_cb(EV_P_ ev_io *
+         buf = remote->buf;
+     }
+ 
++    ss_set_errno(0);
+     r = recv(server->fd, buf->array, BUF_SIZE, 0);
+ 
+     if (r == 0) {
+@@ -311,6 +312,7 @@ static void server_recv_cb(EV_P_ ev_io *
+                         s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
+                     }
+ #else
++                    ss_set_errno(0);
+                     int s = sendto(remote->fd, remote->buf->array, remote->buf->len, MSG_FASTOPEN,
+                                    (struct sockaddr *)&(remote->addr), remote->addr_len);
+ #endif
+@@ -348,6 +350,7 @@ static void server_recv_cb(EV_P_ ev_io *
+ #endif
+                 }
+             } else {
++                ss_set_errno(0);
+                 int s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
+                 if (s == -1) {
+                     if (errno == EAGAIN || errno == EWOULDBLOCK) {
+@@ -580,6 +583,7 @@ static void server_send_cb(EV_P_ ev_io *
+         return;
+     } else {
+         // has data to send
++        ss_set_errno(0);
+         ssize_t s = send(server->fd, server->buf->array + server->buf->idx,
+                          server->buf->len, 0);
+         if (s < 0) {
+@@ -644,6 +648,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+     stat_update_cb(loop);
+ #endif
+ 
++    ss_set_errno(0);
+     ssize_t r = recv(remote->fd, server->buf->array, BUF_SIZE, 0);
+ 
+     if (r == 0) {
+@@ -679,6 +684,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+         }
+     }
+ 
++    ss_set_errno(0);
+     int s = send(server->fd, server->buf->array, server->buf->len, 0);
+ 
+     if (s == -1) {
+@@ -741,6 +747,7 @@ static void remote_send_cb(EV_P_ ev_io *
+         return;
+     } else {
+         // has data to send
++        ss_set_errno(0);
+         ssize_t s = send(remote->fd, remote->buf->array + remote->buf->idx,
+                          remote->buf->len, 0);
+         if (s < 0) {
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -769,6 +769,7 @@ int main(int argc, char **argv)
+     const char *homedir = pw->pw_dir;
+     snprintf(working_dir, PATH_MAX, "%s/.shadowsocks", homedir);
+ 
++    ss_set_errno(0);
+     int err = mkdir(working_dir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+     if (err != 0 && errno != EEXIST) {
+         ERROR("mkdir");
+@@ -799,6 +800,7 @@ int main(int argc, char **argv)
+ 
+         setnonblocking(sfd);
+ 
++        ss_set_errno(0);
+         if (remove(manager_address) == -1 && errno != ENOENT) {
+             ERROR("bind");
+             exit(EXIT_FAILURE);
+--- a/src/redir.c
++++ b/src/redir.c
+@@ -174,6 +174,7 @@ static void server_recv_cb(EV_P_ ev_io *
+     server_t *server              = server_recv_ctx->server;
+     remote_t *remote              = server->remote;
+ 
++    ss_set_errno(0);
+     ssize_t r = recv(server->fd, remote->buf->array, BUF_SIZE, 0);
+ 
+     if (r == 0) {
+@@ -235,6 +236,7 @@ static void server_recv_cb(EV_P_ ev_io *
+         return;
+     }
+ 
++    ss_set_errno(0);
+     int s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
+ 
+     if (s == -1) {
+@@ -271,6 +273,7 @@ static void server_send_cb(EV_P_ ev_io *
+         return;
+     } else {
+         // has data to send
++        ss_set_errno(0);
+         ssize_t s = send(server->fd, server->buf->array + server->buf->idx,
+                          server->buf->len, 0);
+         if (s < 0) {
+@@ -314,6 +317,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+     remote_t *remote              = remote_recv_ctx->remote;
+     server_t *server              = remote->server;
+ 
++    ss_set_errno(0);
+     ssize_t r = recv(remote->fd, server->buf->array, BUF_SIZE, 0);
+ 
+     if (r == 0) {
+@@ -343,6 +347,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+         close_and_free_server(EV_A_ server);
+         return;
+     }
++    ss_set_errno(0);
+     int s = send(server->fd, server->buf->array, server->buf->len, 0);
+ 
+     if (s == -1) {
+@@ -447,6 +452,7 @@ static void remote_send_cb(EV_P_ ev_io *
+         return;
+     } else {
+         // has data to send
++        ss_set_errno(0);
+         ssize_t s = send(remote->fd, remote->buf->array + remote->buf->idx,
+                          remote->buf->len, 0);
+         if (s < 0) {
+--- a/src/server.c
++++ b/src/server.c
+@@ -273,6 +273,7 @@ int setfastopen(int fd)
+ #else
+         int opt = 5;
+ #endif
++        ss_set_errno(0);
+         s = setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &opt, sizeof(opt));
+ 
+         if (s == -1) {
+@@ -453,6 +454,7 @@ static remote_t *connect_to_remote(struc
+             s = len;
+         }
+ #else
++        ss_set_errno(0);
+         ssize_t s = sendto(sockfd, server->buf->array + server->buf->idx,
+                            server->buf->len, MSG_FASTOPEN, res->ai_addr,
+                            res->ai_addrlen);
+@@ -502,6 +504,7 @@ static void server_recv_cb(EV_P_ ev_io *
+         len    = 0;
+     }
+ 
++    ss_set_errno(0);
+     ssize_t r = recv(server->fd, buf->array + len, BUF_SIZE - len, 0);
+ 
+     if (r == 0) {
+@@ -564,6 +567,7 @@ static void server_recv_cb(EV_P_ ev_io *
+             close_and_free_remote(EV_A_ remote);
+             return;
+         }
++        ss_set_errno(0);
+         int s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
+         if (s == -1) {
+             if (errno == EAGAIN || errno == EWOULDBLOCK) {
+@@ -834,6 +838,7 @@ static void server_send_cb(EV_P_ ev_io *
+         return;
+     } else {
+         // has data to send
++        ss_set_errno(0);
+         ssize_t s = send(server->fd, server->buf->array + server->buf->idx,
+                          server->buf->len, 0);
+         if (s < 0) {
+@@ -949,6 +954,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+ 
+     ev_timer_again(EV_A_ & server->recv_ctx->watcher);
+ 
++    ss_set_errno(0);
+     ssize_t r = recv(remote->fd, server->buf->array, BUF_SIZE, 0);
+ 
+     if (r == 0) {
+@@ -984,6 +990,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+         return;
+     }
+ 
++    ss_set_errno(0);
+     int s = send(server->fd, server->buf->array, server->buf->len, 0);
+ 
+     if (s == -1) {
+@@ -1056,6 +1063,7 @@ static void remote_send_cb(EV_P_ ev_io *
+         return;
+     } else {
+         // has data to send
++        ss_set_errno(0);
+         ssize_t s = send(remote->fd, remote->buf->array + remote->buf->idx,
+                          remote->buf->len, 0);
+         if (s == -1) {
+--- a/src/tunnel.c
++++ b/src/tunnel.c
+@@ -187,6 +187,7 @@ static void server_recv_cb(EV_P_ ev_io *
+         return;
+     }
+ 
++    ss_set_errno(0);
+     ssize_t r = recv(server->fd, remote->buf->array, BUF_SIZE, 0);
+ 
+     if (r == 0) {
+@@ -222,6 +223,7 @@ static void server_recv_cb(EV_P_ ev_io *
+         return;
+     }
+ 
++    ss_set_errno(0);
+     int s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
+ 
+     if (s == -1) {
+@@ -258,6 +260,7 @@ static void server_send_cb(EV_P_ ev_io *
+         return;
+     } else {
+         // has data to send
++        ss_set_errno(0);
+         ssize_t s = send(server->fd, server->buf->array + server->buf->idx,
+                          server->buf->len, 0);
+         if (s < 0) {
+@@ -311,6 +314,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+     remote_t *remote              = remote_recv_ctx->remote;
+     server_t *server              = remote->server;
+ 
++    ss_set_errno(0);
+     ssize_t r = recv(remote->fd, server->buf->array, BUF_SIZE, 0);
+ 
+     if (r == 0) {
+@@ -342,6 +346,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+         return;
+     }
+ 
++    ss_set_errno(0);
+     int s = send(server->fd, server->buf->array, server->buf->len, 0);
+ 
+     if (s == -1) {
+@@ -472,6 +477,7 @@ static void remote_send_cb(EV_P_ ev_io *
+             return;
+         } else {
+             // has data to send
++            ss_set_errno(0);
+             ssize_t s = send(remote->fd, remote->buf->array + remote->buf->idx,
+                              remote->buf->len, 0);
+             if (s < 0) {
+--- a/src/utils.c
++++ b/src/utils.c
+@@ -102,10 +102,12 @@ int run_as(const char *user)
+             /* Note that we use getpwnam_r() instead of getpwnam(),
+              * which returns its result in a statically allocated buffer and
+              * cannot be considered thread safe. */
++            ss_set_errno(0);
+             err = getpwnam_r(user, &pwdbuf, buf, buflen, &pwd);
+ 
+             if (err == 0 && pwd) {
+                 /* setgid first, because we may not be allowed to do it anymore after setuid */
++                ss_set_errno(0);
+                 if (setgid(pwd->pw_gid) != 0) {
+                     LOGE(
+                         "Could not change group id to that of run_as user '%s': %s",
+@@ -113,6 +115,7 @@ int run_as(const char *user)
+                     return 0;
+                 }
+ 
++                ss_set_errno(0);
+                 if (setuid(pwd->pw_uid) != 0) {
+                     LOGE(
+                         "Could not change user id to that of run_as user '%s': %s",
+@@ -147,11 +150,13 @@ int run_as(const char *user)
+             return 0;
+         }
+         /* setgid first, because we may not allowed to do it anymore after setuid */
++        ss_set_errno(0);
+         if (setgid(pwd->pw_gid) != 0) {
+             LOGE("Could not change group id to that of run_as user '%s': %s",
+                  user, strerror(errno));
+             return 0;
+         }
++        ss_set_errno(0);
+         if (setuid(pwd->pw_uid) != 0) {
+             LOGE("Could not change user id to that of run_as user '%s': %s",
+                  user, strerror(errno));
+@@ -358,6 +363,7 @@ int set_nofile(int nofile)
+         FATAL("nofile must be greater than 0\n");
+     }
+ 
++    ss_set_errno(0);
+     if (setrlimit(RLIMIT_NOFILE, &limit) < 0) {
+         if (errno == EPERM) {
+             LOGE(
+--- a/src/utils.h
++++ b/src/utils.h
+@@ -228,4 +228,18 @@ inline void *ss_realloc(void *ptr, size_
+     return new;
+ }
+ 
++/*
++ * errno handling
++ * Detect Win32/Win64
++ *
++ */
++#if defined(__CYGWIN__) || defined(__MINGW32__) \
++    || (!defined(SAG_COM) && (defined(WIN64) || defined(_WIN64) || defined(__WIN64__))) \
++    || (!defined(SAG_COM) && (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__))) \
++    || (defined(__MWERKS__) && defined(__INTEL__))
++#define ss_set_errno(value) _set_errno(value)
++#else
++#define ss_set_errno(value) errno = value
++#endif
++
+ #endif // _UTILS_H
