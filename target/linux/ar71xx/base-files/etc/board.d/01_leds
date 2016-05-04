@@ -532,6 +532,11 @@ tl-wdr3320-v2)
 	ucidef_set_led_wlan "wlan5g" "WLAN5G" "tp-link:green:wlan5g" "phy0tpt"
 	;;
 
+tl-wr2041n-v1)
+	# switch0 port_mask need investigate;luci network_switch ports reversed
+	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:green:wlan" "phy1tpt"
+	;;
+
 tl-wdr3500)
 	ucidef_set_led_usbdev "usb" "USB" "tp-link:green:usb" "1-1"
 	ucidef_set_led_wlan "wlan2g" "WLAN2G" "tp-link:green:wlan2g" "phy0tpt"
