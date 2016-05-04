@@ -93,6 +93,7 @@ menuconfig DEVEL
 
 	config BUILD_LOG
 		bool "Enable log files during build process" if DEVEL
+		default y
 		help
 		  If enabled, log files will be written to the ./log directory.
 
