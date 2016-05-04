@@ -1,6 +1,6 @@
 --- a/mac80211.c
 +++ b/mac80211.c
-@@ -597,10 +597,13 @@ static int mwl_mac80211_get_survey(struc
+@@ -600,10 +600,13 @@ static int mwl_mac80211_get_survey(struc
  
  static int mwl_mac80211_ampdu_action(struct ieee80211_hw *hw,
  				     struct ieee80211_vif *vif,

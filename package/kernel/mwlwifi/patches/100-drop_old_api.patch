@@ -1,6 +1,6 @@
 --- a/main.c
 +++ b/main.c
-@@ -418,11 +418,7 @@ static void mwl_set_ht_caps(struct mwl_p
+@@ -423,11 +423,7 @@ static void mwl_set_ht_caps(struct mwl_p
  	band->ht_cap.cap |= IEEE80211_HT_CAP_SGI_20;
  	band->ht_cap.cap |= IEEE80211_HT_CAP_SGI_40;
  
@@ -12,7 +12,7 @@
  	band->ht_cap.ampdu_factor = IEEE80211_HT_MAX_AMPDU_64K;
  	band->ht_cap.ampdu_density = IEEE80211_HT_MPDU_DENSITY_4;
  
-@@ -524,29 +520,16 @@ static int mwl_wl_init(struct mwl_priv *
+@@ -529,29 +525,16 @@ static int mwl_wl_init(struct mwl_priv *
  	hw->queues = SYSADPT_TX_WMM_QUEUES;
  
  	/* Set rssi values to dBm */
@@ -41,10 +41,10 @@
 -#endif
  
  	hw->wiphy->flags |= WIPHY_FLAG_IBSS_RSN;
- 
+ 	hw->wiphy->flags |= WIPHY_FLAG_HAS_CHANNEL_SWITCH;
 --- a/dev.h
 +++ b/dev.h
-@@ -484,10 +484,6 @@ static inline struct mwl_sta *mwl_dev_ge
+@@ -504,10 +504,6 @@ static inline struct mwl_sta *mwl_dev_ge
  	return (struct mwl_sta *)&sta->drv_priv;
  }
  
@@ -57,7 +57,7 @@
  
 --- a/mac80211.c
 +++ b/mac80211.c
-@@ -572,19 +572,11 @@ static int mwl_mac80211_get_survey(struc
+@@ -598,19 +598,11 @@ static int mwl_mac80211_get_survey(struc
  	return 0;
  }
  
@@ -77,6 +77,30 @@
  {
  	int rc = 0;
  	struct mwl_priv *priv = hw->priv;
+@@ -713,7 +705,6 @@ static int mwl_mac80211_ampdu_action(str
+ 	return rc;
+ }
+ 
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)
+ static int mwl_mac80211_chnl_switch(struct ieee80211_hw *hw,
+ 				    struct ieee80211_vif *vif,
+ 				    struct ieee80211_channel_switch *ch_switch)
+@@ -725,7 +716,6 @@ static int mwl_mac80211_chnl_switch(stru
+ 
+ 	return rc;
+ }
+-#endif
+ 
+ const struct ieee80211_ops mwl_mac80211_ops = {
+ 	.tx                 = mwl_mac80211_tx,
+@@ -744,7 +734,5 @@ const struct ieee80211_ops mwl_mac80211_
+ 	.get_stats          = mwl_mac80211_get_stats,
+ 	.get_survey         = mwl_mac80211_get_survey,
+ 	.ampdu_action       = mwl_mac80211_ampdu_action,
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0)
+ 	.pre_channel_switch = mwl_mac80211_chnl_switch,
+-#endif
+ };
 --- a/rx.c
 +++ b/rx.c
 @@ -232,10 +232,8 @@ static inline void mwl_rx_prepare_status
@@ -90,3 +114,28 @@
  		if (gi == RX_RATE_INFO_SHORT_INTERVAL)
  			status->flag |= RX_FLAG_SHORT_GI;
  		status->vht_nss = (nss + 1);
+--- a/debugfs.c
++++ b/debugfs.c
+@@ -395,11 +395,9 @@ static ssize_t mwl_debugfs_dfs_channel_r
+ 					 channel->hw_value,
+ 					 channel->center_freq,
+ 					 channel->flags, channel->dfs_state);
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)
+ 			len += scnprintf(p + len, size - len,
+ 					 "cac timer: %d ms\n",
+ 					 channel->dfs_cac_ms);
+-#endif
+ 		}
+ 	}
+ 	len += scnprintf(p + len, size - len, "\n");
+@@ -450,10 +448,8 @@ static ssize_t mwl_debugfs_dfs_channel_w
+ 		channel = &sband->channels[i];
+ 		if (channel->flags & IEEE80211_CHAN_RADAR) {
+ 			channel->dfs_state = dfs_state;
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)
+ 			if (cac_time != -1)
+ 				channel->dfs_cac_ms = cac_time * 1000;
+-#endif
+ 		}
+ 	}
+ 	ret = count;
