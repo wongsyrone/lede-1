@@ -14,6 +14,7 @@ PKG_SOURCE_URL:=https://github.com/westes/flex/releases/download/v$(PKG_VERSION)
 PKG_MD5SUM:=cd3c86290fc2676a641aefafeb10848a
 
 HOST_BUILD_PARALLEL:=1
+HOST_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/host-build.mk
 
