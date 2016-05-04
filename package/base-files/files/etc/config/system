@@ -1,6 +1,7 @@
 config system
 	option hostname	lede
-	option timezone	UTC
+	option zonename 'Asia/Shanghai'
+	option timezone	'CST-8'
 	option ttylogin	0
 
 config timeserver ntp
