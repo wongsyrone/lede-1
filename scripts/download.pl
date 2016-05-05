@@ -210,7 +210,7 @@ foreach my $mirror (@ARGV) {
 		}		
 		foreach my $dir (@extra) {
 			# http://mirror.bjtu.edu.cn/kernel/linux/kernel/
-			# http://mirror.tuna.tsinghua.edu.cn/kernel/linux/kernel/
+			# https://mirror.tuna.tsinghua.edu.cn/kernel/v4.x/
 			push @mirrors, "http://mirrors.ustc.edu.cn/kernel.org/$dir";
 			push @mirrors, "https://kernel.org/pub/$dir";
 			push @mirrors, "ftp://kernel.org/pub/$dir";
