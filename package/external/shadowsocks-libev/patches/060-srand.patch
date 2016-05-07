@@ -9,8 +9,6 @@ Subject: [PATCH] rand
  src/tunnel.c | 4 ++++
  3 files changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/src/local.c b/src/local.c
-index c3e4048..99d108e 100644
 --- a/src/local.c
 +++ b/src/local.c
 @@ -31,6 +31,7 @@
@@ -21,7 +19,7 @@ index c3e4048..99d108e 100644
  #include <unistd.h>
  #include <getopt.h>
  
-@@ -985,6 +986,7 @@ int main(int argc, char **argv)
+@@ -973,6 +974,7 @@ int main(int argc, char **argv)
      char *iface      = NULL;
  
      srand(time(NULL));
@@ -29,7 +27,7 @@ index c3e4048..99d108e 100644
  
      int remote_num = 0;
      ss_addr_t remote_addr[MAX_REMOTE_NUM];
-@@ -1286,8 +1288,6 @@ int main(int argc, char **argv)
+@@ -1274,8 +1276,6 @@ int main(int argc, char **argv)
  
  int start_ss_local_server(profile_t profile)
  {
@@ -38,11 +36,9 @@ index c3e4048..99d108e 100644
      char *remote_host = profile.remote_host;
      char *local_addr  = profile.local_addr;
      char *method      = profile.method;
-diff --git a/src/redir.c b/src/redir.c
-index 886daa2..61a7284 100644
 --- a/src/redir.c
 +++ b/src/redir.c
-@@ -674,6 +674,9 @@ int main(int argc, char **argv)
+@@ -677,6 +677,9 @@ int main(int argc, char **argv)
      char *pid_path   = NULL;
      char *conf_path  = NULL;
  
@@ -52,8 +48,6 @@ index 886daa2..61a7284 100644
      int remote_num = 0;
      ss_addr_t remote_addr[MAX_REMOTE_NUM];
      char *remote_port = NULL;
-diff --git a/src/tunnel.c b/src/tunnel.c
-index 304944c..8041070 100644
 --- a/src/tunnel.c
 +++ b/src/tunnel.c
 @@ -27,6 +27,7 @@
@@ -64,7 +58,7 @@ index 304944c..8041070 100644
  #include <unistd.h>
  #include <getopt.h>
  
-@@ -696,6 +697,9 @@ int main(int argc, char **argv)
+@@ -684,6 +685,9 @@ int main(int argc, char **argv)
      char *conf_path  = NULL;
      char *iface      = NULL;
  

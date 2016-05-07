@@ -18,7 +18,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
 
 --- a/src/local.c
 +++ b/src/local.c
-@@ -222,6 +222,7 @@ static void server_recv_cb(EV_P_ ev_io *
+@@ -209,6 +209,7 @@ static void server_recv_cb(EV_P_ ev_io *
          buf = remote->buf;
      }
  
@@ -26,7 +26,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      r = recv(server->fd, buf->array, BUF_SIZE, 0);
  
      if (r == 0) {
-@@ -311,6 +312,7 @@ static void server_recv_cb(EV_P_ ev_io *
+@@ -298,6 +299,7 @@ static void server_recv_cb(EV_P_ ev_io *
                          s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
                      }
  #else
@@ -34,7 +34,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
                      int s = sendto(remote->fd, remote->buf->array, remote->buf->len, MSG_FASTOPEN,
                                     (struct sockaddr *)&(remote->addr), remote->addr_len);
  #endif
-@@ -348,6 +350,7 @@ static void server_recv_cb(EV_P_ ev_io *
+@@ -335,6 +337,7 @@ static void server_recv_cb(EV_P_ ev_io *
  #endif
                  }
              } else {
@@ -42,7 +42,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
                  int s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
                  if (s == -1) {
                      if (errno == EAGAIN || errno == EWOULDBLOCK) {
-@@ -580,6 +583,7 @@ static void server_send_cb(EV_P_ ev_io *
+@@ -567,6 +570,7 @@ static void server_send_cb(EV_P_ ev_io *
          return;
      } else {
          // has data to send
@@ -50,7 +50,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
          ssize_t s = send(server->fd, server->buf->array + server->buf->idx,
                           server->buf->len, 0);
          if (s < 0) {
-@@ -644,6 +648,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+@@ -631,6 +635,7 @@ static void remote_recv_cb(EV_P_ ev_io *
      stat_update_cb(loop);
  #endif
  
@@ -58,7 +58,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      ssize_t r = recv(remote->fd, server->buf->array, BUF_SIZE, 0);
  
      if (r == 0) {
-@@ -679,6 +684,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+@@ -666,6 +671,7 @@ static void remote_recv_cb(EV_P_ ev_io *
          }
      }
  
@@ -66,7 +66,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      int s = send(server->fd, server->buf->array, server->buf->len, 0);
  
      if (s == -1) {
-@@ -741,6 +747,7 @@ static void remote_send_cb(EV_P_ ev_io *
+@@ -728,6 +734,7 @@ static void remote_send_cb(EV_P_ ev_io *
          return;
      } else {
          // has data to send
@@ -144,7 +144,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
          if (s < 0) {
 --- a/src/server.c
 +++ b/src/server.c
-@@ -273,6 +273,7 @@ int setfastopen(int fd)
+@@ -275,6 +275,7 @@ int setfastopen(int fd)
  #else
          int opt = 5;
  #endif
@@ -152,7 +152,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
          s = setsockopt(fd, IPPROTO_TCP, TCP_FASTOPEN, &opt, sizeof(opt));
  
          if (s == -1) {
-@@ -453,6 +454,7 @@ static remote_t *connect_to_remote(struc
+@@ -450,6 +451,7 @@ static remote_t *connect_to_remote(struc
              s = len;
          }
  #else
@@ -160,7 +160,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
          ssize_t s = sendto(sockfd, server->buf->array + server->buf->idx,
                             server->buf->len, MSG_FASTOPEN, res->ai_addr,
                             res->ai_addrlen);
-@@ -502,6 +504,7 @@ static void server_recv_cb(EV_P_ ev_io *
+@@ -499,6 +501,7 @@ static void server_recv_cb(EV_P_ ev_io *
          len    = 0;
      }
  
@@ -168,7 +168,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      ssize_t r = recv(server->fd, buf->array + len, BUF_SIZE - len, 0);
  
      if (r == 0) {
-@@ -564,6 +567,7 @@ static void server_recv_cb(EV_P_ ev_io *
+@@ -561,6 +564,7 @@ static void server_recv_cb(EV_P_ ev_io *
              close_and_free_remote(EV_A_ remote);
              return;
          }
@@ -176,7 +176,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
          int s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
          if (s == -1) {
              if (errno == EAGAIN || errno == EWOULDBLOCK) {
-@@ -834,6 +838,7 @@ static void server_send_cb(EV_P_ ev_io *
+@@ -831,6 +835,7 @@ static void server_send_cb(EV_P_ ev_io *
          return;
      } else {
          // has data to send
@@ -184,7 +184,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
          ssize_t s = send(server->fd, server->buf->array + server->buf->idx,
                           server->buf->len, 0);
          if (s < 0) {
-@@ -949,6 +954,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+@@ -946,6 +951,7 @@ static void remote_recv_cb(EV_P_ ev_io *
  
      ev_timer_again(EV_A_ & server->recv_ctx->watcher);
  
@@ -192,7 +192,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      ssize_t r = recv(remote->fd, server->buf->array, BUF_SIZE, 0);
  
      if (r == 0) {
-@@ -984,6 +990,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+@@ -981,6 +987,7 @@ static void remote_recv_cb(EV_P_ ev_io *
          return;
      }
  
@@ -200,7 +200,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      int s = send(server->fd, server->buf->array, server->buf->len, 0);
  
      if (s == -1) {
-@@ -1056,6 +1063,7 @@ static void remote_send_cb(EV_P_ ev_io *
+@@ -1053,6 +1060,7 @@ static void remote_send_cb(EV_P_ ev_io *
          return;
      } else {
          // has data to send
@@ -210,7 +210,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
          if (s == -1) {
 --- a/src/tunnel.c
 +++ b/src/tunnel.c
-@@ -187,6 +187,7 @@ static void server_recv_cb(EV_P_ ev_io *
+@@ -174,6 +174,7 @@ static void server_recv_cb(EV_P_ ev_io *
          return;
      }
  
@@ -218,7 +218,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      ssize_t r = recv(server->fd, remote->buf->array, BUF_SIZE, 0);
  
      if (r == 0) {
-@@ -222,6 +223,7 @@ static void server_recv_cb(EV_P_ ev_io *
+@@ -209,6 +210,7 @@ static void server_recv_cb(EV_P_ ev_io *
          return;
      }
  
@@ -226,7 +226,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      int s = send(remote->fd, remote->buf->array, remote->buf->len, 0);
  
      if (s == -1) {
-@@ -258,6 +260,7 @@ static void server_send_cb(EV_P_ ev_io *
+@@ -245,6 +247,7 @@ static void server_send_cb(EV_P_ ev_io *
          return;
      } else {
          // has data to send
@@ -234,7 +234,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
          ssize_t s = send(server->fd, server->buf->array + server->buf->idx,
                           server->buf->len, 0);
          if (s < 0) {
-@@ -311,6 +314,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+@@ -298,6 +301,7 @@ static void remote_recv_cb(EV_P_ ev_io *
      remote_t *remote              = remote_recv_ctx->remote;
      server_t *server              = remote->server;
  
@@ -242,7 +242,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      ssize_t r = recv(remote->fd, server->buf->array, BUF_SIZE, 0);
  
      if (r == 0) {
-@@ -342,6 +346,7 @@ static void remote_recv_cb(EV_P_ ev_io *
+@@ -329,6 +333,7 @@ static void remote_recv_cb(EV_P_ ev_io *
          return;
      }
  
@@ -250,7 +250,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
      int s = send(server->fd, server->buf->array, server->buf->len, 0);
  
      if (s == -1) {
-@@ -472,6 +477,7 @@ static void remote_send_cb(EV_P_ ev_io *
+@@ -459,6 +464,7 @@ static void remote_send_cb(EV_P_ ev_io *
              return;
          } else {
              // has data to send
