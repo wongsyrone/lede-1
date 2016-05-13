@@ -16,7 +16,7 @@ GRUB_SERIAL_CONFIG =
 GRUB_TERMINAL_CONFIG =
 GRUB_CONSOLE_CMDLINE =
 
-USE_ATKBD = generic kvm_guest
+USE_ATKBD = generic 64
 
 ifneq ($(strip $(foreach subtarget,$(USE_ATKBD),$(CONFIG_TARGET_x86_$(subtarget)))),)
   GRUB2_MODULES += at_keyboard
@@ -172,37 +172,6 @@ endif
 
 define Image/BuildKernel
 	$(CP) $(KDIR)/bzImage $(BIN_DIR)/$(IMG_PREFIX)-vmlinuz
-  ifneq ($(CONFIG_X86_ETHERBOOT_IMAGES),)
-	rm -f $(BIN_DIR)/$(IMG_PREFIX)-etherboot
-	$(STAGING_DIR_HOST)/bin/mkelfImage \
-		--append=$(CONFIG_X86_ETHERBOOT_BOOTOPTS) \
-		$(KDIR)/bzImage \
-		$(BIN_DIR)/$(IMG_PREFIX)-etherboot
-  endif
-endef
-
-define Image/Build/Profile/ar525w
-	cp $(KDIR)/bzImage $(KDIR)/bzImage.tmp
-	$(SCRIPT_DIR)/pad_image $(1) $(KDIR)/bzImage.tmp $(KDIR)/root.$(1) 32
-	$(STAGING_DIR_HOST)/bin/airlink -b 1 $(KDIR)/bzImage.tmp $(KDIR)/root.$(1) \
-		$(BIN_DIR)/$(IMG_PREFIX)-$(1)-ar525w.img
-	$(STAGING_DIR_HOST)/bin/airlink -e -b 1 $(KDIR)/bzImage.tmp $(KDIR)/root.$(1) \
-		$(BIN_DIR)/$(IMG_PREFIX)-$(1)-ar525w-web.img
-endef
-
-define Image/Build/Profile/sitecom
-	cp $(KDIR)/bzImage $(KDIR)/bzImage.tmp
-	#32k config data + 20 bytes header + 2 bytes checksum after kernel image
-	$(SCRIPT_DIR)/pad_image $(1) $(KDIR)/bzImage.tmp $(KDIR)/root.$(1) 32790
-	$(TOPDIR)/target/linux/rdc/image/mkimg_sitecom.pl $(KDIR)/bzImage.tmp > $(KDIR)/tmp.img
-	cat $(KDIR)/root.$(1) >> $(KDIR)/tmp.img
-	cp $(KDIR)/tmp.img $(BIN_DIR)/$(IMG_PREFIX)-$(1)-sitecom.img
-	rm $(KDIR)/tmp.img $(KDIR)/bzImage.tmp
-endef
-
-define Image/Build/Profile/bifferboard
-	$(TOPDIR)/target/linux/rdc/image/mkimg_bifferboard.py $(KDIR)/bzImage $(KDIR)/root.$(1) \
-		$(BIN_DIR)/$(IMG_PREFIX)-$(1)-bifferboard.img
 endef
 
 define Image/Prepare

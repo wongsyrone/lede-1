@@ -46,6 +46,7 @@ all0239-3g|\
 hw550-3g|\
 mofi3500-3gn|\
 sap-g3200u3|\
+sk-wb8|\
 wf-2881)
 	set_usb_led "$board:green:usb"
 	;;
@@ -205,6 +206,10 @@ mpr-a2)
 mr-102n)
 	set_wifi_led "$board:green:wlan"
 	set_usb_led "$board:green:usb"
+	;;
+mzk-ex750np)
+	ucidef_set_led_default "power" "power" "$board:red:power" "1"
+	set_wifi_led "$board:red:wifi"
 	;;
 na930)
 	set_usb_led "$board:blue:status"

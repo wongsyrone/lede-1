@@ -41,7 +41,8 @@ get_status_led() {
 	hlk-rm04|\
 	jhr-n825r|\
 	mpr-a1|\
-	mpr-a2)
+	mpr-a2|\
+	mzk-ex750np)
 		status_led="$board:red:power"
 		;;
 	ai-br100|\
@@ -78,6 +79,7 @@ get_status_led() {
 		;;
 	awapn2403|\
 	dir-645|\
+	sk-wb8|\
 	wrh-300cr)
 		status_led="$board:green:wps"
 		;;
@@ -143,7 +145,8 @@ get_status_led() {
 		status_led="$board:amber:cpu"
 		;;
 	oy-0001|\
-	sl-r7205)
+	sl-r7205|\
+	zbt-we826)
 		status_led="$board:green:wifi"
 		;;
 	psr-680w)

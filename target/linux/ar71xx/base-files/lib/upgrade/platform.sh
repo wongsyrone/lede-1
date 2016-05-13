@@ -268,7 +268,8 @@ platform_check_image() {
 	wlae-ag300n | \
 	nbg460n_550n_550nh | \
 	unifi | \
-	unifiac | \
+	unifiac-lite | \
+	unifiac-pro | \
 	unifi-outdoor | \
 	carambola2 | \
 	weio )
@@ -379,6 +380,7 @@ platform_check_image() {
 	tl-wr720n-v3 | \
 	tl-wr741nd | \
 	tl-wr741nd-v4 | \
+	tl-wr810n | \
 	tl-wr841n-v1 | \
 	tl-wa830re-v2 | \
 	tl-wr841n-v7 | \

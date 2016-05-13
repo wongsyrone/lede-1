@@ -21,6 +21,7 @@ BUILD_DATE_PREFIX := $(shell date +"%F")
 
 sanitize = $(call tolower,$(subst _,-,$(1)))
 
+SUBTARGET ?= default
 DIST_SANITIZED:=$(call sanitize,$(VERSION_DIST))
 EXTRA_NAME_SANITIZED=$(call sanitize,$(EXTRA_IMAGE_NAME))
 
@@ -439,7 +440,11 @@ endef
 
 define Device/Init
   PROFILES := $(PROFILE)
+  SUBTARGETS := $(SUBTARGET)
   DEVICE_NAME := $(1)
+  DEVICE_TITLE :=
+  DEVICE_PACKAGES :=
+  DEVICE_DESCRIPTION = Build firmware images for $$(DEVICE_TITLE)
   KERNEL:=
   KERNEL_INITRAMFS = $$(KERNEL)
   KERNEL_SIZE:=
@@ -471,8 +476,8 @@ define Device/Export
 endef
 
 define Device/Check
-  _TARGET = $$(if $$(filter $(PROFILE),$$(PROFILES)),install,install-disabled)
-  _COMPILE_TARGET = $$(if $(if $(IB),,$(CONFIG_IB)$$(filter $(PROFILE),$$(PROFILES))),compile,compile-disabled)
+  _TARGET = $$(if $$(and $$(filter $(SUBTARGET),$$(SUBTARGETS)),$$(filter $(PROFILE),$$(PROFILES) DEVICE_$(1))),install,install-disabled)
+  _COMPILE_TARGET = $$(if $(if $(IB),,$(CONFIG_IB)$$(filter $(PROFILE),$$(PROFILES) DEVICE_$(1))),compile,compile-disabled)
 endef
 
 ifndef IB
@@ -549,16 +554,38 @@ define Device/Build
       $$(call Device/Build/image,$$(fs),$$(image),$(1)))))
 endef
 
+define Device/DumpInfo
+Target-Profile: DEVICE_$(1)
+Target-Profile-Name: $(DEVICE_TITLE)
+Target-Profile-Packages: $(DEVICE_PACKAGES)
+Target-Profile-Description:
+$(DEVICE_DESCRIPTION)
+@@
+
+endef
+
+DEVICE_PROFILE_CHECK=$(and $(DEVICE_TITLE),$(filter $(SUBTARGET),$(SUBTARGETS)))
+
+define Device/Dump
+$$(eval $$(if $$(DEVICE_PROFILE_CHECK),$$(info $$(call Device/DumpInfo,$(1)))))
+endef
+
 define Device
   $(call Device/Init,$(1))
   $(call Device/Default,$(1))
   $(call Device/Check,$(1))
   $(call Device/$(1),$(1))
-  $(call Device/Build,$(1))
+  $(call Device/$(if $(DUMP),Dump,Build),$(1))
 
 endef
 
 define BuildImage
+
+  ifneq ($(DUMP),)
+    all: dumpinfo
+    dumpinfo: FORCE
+	@true
+  endif
 
   download:
   prepare:

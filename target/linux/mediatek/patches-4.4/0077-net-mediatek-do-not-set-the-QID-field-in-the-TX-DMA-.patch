@@ -1,7 +1,7 @@
-From 6a6f264e82649f8d9933271f2e9b08af94daad50 Mon Sep 17 00:00:00 2001
+From 2675e2a40d78c55fc2d578ec71cc990170cacc42 Mon Sep 17 00:00:00 2001
 From: John Crispin <blogic@openwrt.org>
 Date: Thu, 7 Apr 2016 17:36:23 +0200
-Subject: [PATCH 77/90] net: mediatek: do not set the QID field in the TX DMA
+Subject: [PATCH 77/91] net: mediatek: do not set the QID field in the TX DMA
  descriptors
 
 The QID field gets set to the mac id. This made the DMA linked list queue
@@ -18,11 +18,9 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
  drivers/net/ethernet/mediatek/mtk_eth_soc.c |    3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index bbcd607..bab5d45 100644
 --- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
 +++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -603,8 +603,7 @@ static int mtk_tx_map(struct sk_buff *skb, struct net_device *dev,
+@@ -603,8 +603,7 @@ static int mtk_tx_map(struct sk_buff *sk
  			WRITE_ONCE(txd->txd1, mapped_addr);
  			WRITE_ONCE(txd->txd3, (TX_DMA_SWC |
  					       TX_DMA_PLEN0(frag_map_size) |
@@ -32,6 +30,3 @@ index bbcd607..bab5d45 100644
  			WRITE_ONCE(txd->txd4, 0);
  
  			tx_buf->skb = (struct sk_buff *)MTK_DMA_DUMMY_DESC;
--- 
-1.7.10.4
-

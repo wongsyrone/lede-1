@@ -90,6 +90,7 @@ platform_check_image() {
 	mzk-750dhp|\
 	mzk-dp150n|\
 	mzk-ex300np|\
+	mzk-ex750np|\
 	mzk-w300nh2|\
 	mzk-wdpr|\
 	nbg-419n|\
@@ -111,6 +112,7 @@ platform_check_image() {
 	rt-n56u|\
 	rut5xx|\
 	sap-g3200u3|\
+	sk-wb8|\
 	sl-r7205|\
 	tew-691gr|\
 	tew-692gr|\

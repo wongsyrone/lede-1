@@ -934,6 +934,9 @@ ar71xx_board_detect() {
 	*"TL-WR720N"*)
 		name="tl-wr720n-v3"
 		;;
+	*"TL-WR810N")
+		name="tl-wr810n"
+		;;
 	*"TL-MR10U")
 		name="tl-mr10u"
 		;;
@@ -952,8 +955,11 @@ ar71xx_board_detect() {
 	*UniFi)
 		name="unifi"
 		;;
-	*"UniFi-AC")
-		name="unifiac"
+	*"UniFi-AC-LITE")
+		name="unifiac-lite"
+		;;
+	*"UniFi-AC-PRO")
+		name="unifiac-pro"
 		;;
 	*"UniFi AP Pro")
 		name="uap-pro"

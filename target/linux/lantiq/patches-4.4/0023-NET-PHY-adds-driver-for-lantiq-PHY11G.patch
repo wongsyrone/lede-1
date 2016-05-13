@@ -20,7 +20,7 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
 +config LANTIQ_PHY
 +	tristate "Driver for Lantiq PHYs"
 +	---help---
-+	  Supports the 11G and 22E PHYs.
++	  Supports the 11G and 22F PHYs.
 +
  config FIXED_PHY
  	tristate "Driver for MDIO Bus/PHY emulation with fixed speed/link PHYs"
@@ -165,14 +165,14 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
 +
 +	vr9_gphy_mmd_write(phydev, 0x1e0, 0xc5);
 +	vr9_gphy_mmd_write(phydev, 0x1e1, 0x67);
-+	vr9_gphy_mmd_write(phydev, 0x1e2, 0x42);
-+	vr9_gphy_mmd_write(phydev, 0x1e3, 0x10);
++	vr9_gphy_mmd_write(phydev, 0x1e2, 0x70);
++	vr9_gphy_mmd_write(phydev, 0x1e3, 0x03);
 +	vr9_gphy_mmd_write(phydev, 0x1e4, 0x70);
 +	vr9_gphy_mmd_write(phydev, 0x1e5, 0x03);
-+	vr9_gphy_mmd_write(phydev, 0x1e6, 0x20);
-+	vr9_gphy_mmd_write(phydev, 0x1e7, 0x00);
-+	vr9_gphy_mmd_write(phydev, 0x1e8, 0x40);
-+	vr9_gphy_mmd_write(phydev, 0x1e9, 0x20);
++	vr9_gphy_mmd_write(phydev, 0x1e6, 0x70);
++	vr9_gphy_mmd_write(phydev, 0x1e7, 0x03);
++	vr9_gphy_mmd_write(phydev, 0x1e8, 0x70);
++	vr9_gphy_mmd_write(phydev, 0x1e9, 0x03);
 +
 +	vr9_gphy_of_reg_init(phydev);
 +
@@ -378,7 +378,7 @@ Signed-off-by: John Crispin <blogic@openwrt.org>
 +=========================================
 +
 +Field	Bits	Type	Description
-+FBC	7:6	RW	Fast Blink Frequency
++FBF	7:6	RW	Fast Blink Frequency
 +			---
 +			0x0 (00b) F02HZ 2 Hz blinking frequency
 +			0x1 (01b) F04HZ 4 Hz blinking frequency
