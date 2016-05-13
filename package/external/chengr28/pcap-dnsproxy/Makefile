@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
-PKG_VERSION:=0.4.6.1
+PKG_VERSION:=0.4.6.2
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=56b712d406efa5609a0679687a38b84f640cb9a4
+PKG_SOURCE_VERSION:=92eadb2bce1229a9067d272dc80850a8b9b7c869
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -153,6 +153,8 @@ define Package/pcap-dnsproxy/install
 	$(INSTALL_DATA) ./files/pcap-dnsproxy.config $(1)/etc/config/pcap-dnsproxy
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/pcap-dnsproxy.init $(1)/etc/init.d/pcap-dnsproxy
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) ./files/pcap-dnsproxy.hotplug $(1)/etc/hotplug.d/iface/99-pcap-dnsproxy
 	$(INSTALL_DIR) $(1)/etc/pcap-dnsproxy
 	$(SED) 's,^\xEF\xBB\xBF,,g'                                                       $(PKG_BUILD_DIR)/Source/ExampleConfig/*
 	$(SED) 's,\x0D,,g'                                                                $(PKG_BUILD_DIR)/Source/ExampleConfig/*
