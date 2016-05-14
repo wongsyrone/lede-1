@@ -1,0 +1,56 @@
+--- a/include/mbedtls/config.h
++++ b/include/mbedtls/config.h
+@@ -322,7 +322,7 @@
+  *
+  * Enable Cipher Feedback mode (CFB) for symmetric ciphers.
+  */
+-//#define MBEDTLS_CIPHER_MODE_CFB
++#define MBEDTLS_CIPHER_MODE_CFB
+ 
+ /**
+  * \def MBEDTLS_CIPHER_MODE_CTR
+@@ -1246,7 +1246,7 @@
+  *
+  * Uncomment this to enable pthread mutexes.
+  */
+-//#define MBEDTLS_THREADING_PTHREAD
++#define MBEDTLS_THREADING_PTHREAD
+ 
+ /**
+  * \def MBEDTLS_VERSION_FEATURES
+@@ -1460,7 +1460,7 @@
+  *      MBEDTLS_TLS_RSA_PSK_WITH_RC4_128_SHA
+  *      MBEDTLS_TLS_PSK_WITH_RC4_128_SHA
+  */
+-//#define MBEDTLS_ARC4_C
++#define MBEDTLS_ARC4_C
+ 
+ /**
+  * \def MBEDTLS_ASN1_PARSE_C
+@@ -1525,7 +1525,7 @@
+  *
+  * Module:  library/blowfish.c
+  */
+-//#define MBEDTLS_BLOWFISH_C
++#define MBEDTLS_BLOWFISH_C
+ 
+ /**
+  * \def MBEDTLS_CAMELLIA_C
+@@ -1580,7 +1580,7 @@
+  *      MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256
+  *      MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256
+  */
+-//#define MBEDTLS_CAMELLIA_C
++#define MBEDTLS_CAMELLIA_C
+ 
+ /**
+  * \def MBEDTLS_CCM_C
+@@ -2261,7 +2261,7 @@
+  *
+  * Enable this layer to allow use of mutexes within mbed TLS
+  */
+-//#define MBEDTLS_THREADING_C
++#define MBEDTLS_THREADING_C
+ 
+ /**
+  * \def MBEDTLS_TIMING_C
