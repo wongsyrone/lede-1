@@ -15,8 +15,6 @@ FIND="${FIND:-$(which gfind)}"
 TAR="${TAR:-$(which tar)}"
 SVN="$(which svn)"
 GIT="$(which git)"
-#export GZIP="-n"
-# fix 'gzip: warning: GZIP environment variable is deprecated; use an alias or script'
 GZIP="$(which gzip)"
 
 # look up date of last commit
