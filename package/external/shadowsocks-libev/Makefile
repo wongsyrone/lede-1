@@ -89,6 +89,10 @@ CONFIGURE_ARGS += --enable-system-shared-lib --disable-ssp
 # Check whether compiler follows our inline suggestion
 TARGET_CFLAGS += -Wno-error=inline -Winline
 
+# Use Link time optimization
+TARGET_CFLAGS += -flto
+TARGET_LDFLAGS += -Wl,-flto
+
 ifeq ($(BUILD_VARIANT),polarssl)
 	CONFIGURE_ARGS += --with-crypto-library=polarssl
 endif
