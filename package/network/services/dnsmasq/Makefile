@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dnsmasq
 PKG_VERSION:=2.75
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://thekelleys.org.uk/dnsmasq
@@ -41,6 +41,7 @@ endef
 define Package/dnsmasq
 $(call Package/dnsmasq/Default)
   VARIANT:=nodhcpv6
+  DEPENDS:=+kmod-ipt-ipset
 endef
 
 define Package/dnsmasq-dhcpv6
@@ -119,10 +120,10 @@ ifeq ($(BUILD_VARIANT),full)
 		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_dnssec),-DHAVE_DNSSEC) \
 		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_auth),,-DNO_AUTH) \
 		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_ipset),,-DNO_IPSET) \
-		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_conntrack),-DHAVE_CONNTRACK,)
+		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_conntrack),-DHAVE_CONNTRACK)
 	COPTS += $(if $(CONFIG_LIBNETTLE_MINI),-DNO_GMP,)
 else
-	COPTS += -DNO_AUTH -DNO_IPSET
+	COPTS += -DNO_AUTH
 endif
 
 MAKE_FLAGS := \
