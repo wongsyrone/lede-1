@@ -53,7 +53,7 @@ define Build/InstallDev
 		$(1)/usr/include/libnfnetlink/
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) \
-		$(PKG_INSTALL_DIR)/usr/lib/libnfnetlink.{a,so*} \
+		$(PKG_INSTALL_DIR)/usr/lib/libnfnetlink.{so*,a,la} \
 		$(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) \
