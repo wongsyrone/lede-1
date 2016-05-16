@@ -21,7 +21,6 @@ BUILD_DATE_PREFIX := $(shell date +"%F")
 
 sanitize = $(call tolower,$(subst _,-,$(1)))
 
-SUBTARGET ?= default
 DIST_SANITIZED:=$(call sanitize,$(VERSION_DIST))
 EXTRA_NAME_SANITIZED=$(call sanitize,$(EXTRA_IMAGE_NAME))
 
@@ -476,7 +475,7 @@ define Device/Export
 endef
 
 define Device/Check
-  _TARGET = $$(if $$(and $$(filter $(SUBTARGET),$$(SUBTARGETS)),$$(filter $(PROFILE),$$(PROFILES) DEVICE_$(1))),install,install-disabled)
+  _TARGET = $$(if $$(and $(if $(SUBTARGET),,1)$$(filter $(SUBTARGET),$$(SUBTARGETS)),$$(filter $(PROFILE),$$(PROFILES) DEVICE_$(1))),install,install-disabled)
   _COMPILE_TARGET = $$(if $(if $(IB),,$(CONFIG_IB)$$(filter $(PROFILE),$$(PROFILES) DEVICE_$(1))),compile,compile-disabled)
 endef
 
@@ -564,7 +563,7 @@ $(DEVICE_DESCRIPTION)
 
 endef
 
-DEVICE_PROFILE_CHECK=$(and $(DEVICE_TITLE),$(filter $(SUBTARGET),$(SUBTARGETS)))
+DEVICE_PROFILE_CHECK=$(and $(DEVICE_TITLE),$(if $(SUBTARGET),,1)$(filter $(SUBTARGET),$(SUBTARGETS)))
 
 define Device/Dump
 $$(eval $$(if $$(DEVICE_PROFILE_CHECK),$$(info $$(call Device/DumpInfo,$(1)))))

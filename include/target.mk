@@ -67,19 +67,12 @@ ifndef Profile
 define Profile
   $(eval $(call ProfileDefault))
   $(eval $(call Profile/$(1)))
-  dumpinfo : $(call shexport,Profile/$(1)/Config)
   dumpinfo : $(call shexport,Profile/$(1)/Description)
   DUMPINFO += \
 	echo "Target-Profile: $(1)"; \
 	$(if $(PRIORITY), echo "Target-Profile-Priority: $(PRIORITY)"; ) \
 	echo "Target-Profile-Name: $(NAME)"; \
 	echo "Target-Profile-Packages: $(PACKAGES) $(call extra_packages,$(DEFAULT_PACKAGES) $(PACKAGES))"; \
-	if [ -f ./config/profile-$(1) ]; then \
-		echo "Target-Profile-Kconfig: yes"; \
-	fi; \
-	echo "Target-Profile-Config: "; \
-	echo "$$$$$$$$$(call shvar,Profile/$(1)/Config)"; \
-	echo "@@"; \
 	echo "Target-Profile-Description:"; \
 	echo "$$$$$$$$$(call shvar,Profile/$(1)/Description)"; \
 	echo "@@"; \
@@ -216,6 +209,7 @@ ifeq ($(DUMP),1)
     CPU_CFLAGS_24kec = -mips32r2 -mtune=24kec
     CPU_CFLAGS_34kc = -mips32r2 -mtune=34kc
     CPU_CFLAGS_74kc = -mips32r2 -mtune=74kc
+    CPU_CFLAGS_1004kc = -mips32r2 -mtune=1004kc
     CPU_CFLAGS_octeon = -march=octeon -mabi=64
     CPU_CFLAGS_dsp = -mdsp
     CPU_CFLAGS_dsp2 = -mdspr2
@@ -273,7 +267,7 @@ endif
 
 CUR_SUBTARGET:=$(SUBTARGET)
 ifeq ($(SUBTARGETS),)
-  CUR_SUBTARGET ?= default
+  CUR_SUBTARGET := default
 endif
 
 define BuildTargets/DumpCurrent
