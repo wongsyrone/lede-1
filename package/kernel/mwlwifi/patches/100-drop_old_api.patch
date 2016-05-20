@@ -12,7 +12,7 @@
  	band->ht_cap.ampdu_factor = IEEE80211_HT_MAX_AMPDU_64K;
  	band->ht_cap.ampdu_density = IEEE80211_HT_MPDU_DENSITY_4;
  
-@@ -529,29 +525,16 @@ static int mwl_wl_init(struct mwl_priv *
+@@ -563,29 +559,16 @@ static int mwl_wl_init(struct mwl_priv *
  	hw->queues = SYSADPT_TX_WMM_QUEUES;
  
  	/* Set rssi values to dBm */
@@ -44,7 +44,7 @@
  	hw->wiphy->flags |= WIPHY_FLAG_HAS_CHANNEL_SWITCH;
 --- a/dev.h
 +++ b/dev.h
-@@ -504,10 +504,6 @@ static inline struct mwl_sta *mwl_dev_ge
+@@ -506,10 +506,6 @@ static inline struct mwl_sta *mwl_dev_ge
  	return (struct mwl_sta *)&sta->drv_priv;
  }
  
