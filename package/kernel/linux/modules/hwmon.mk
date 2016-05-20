@@ -78,6 +78,21 @@ endef
 $(eval $(call KernelPackage,hwmon-adt7475))
 
 
+define KernelPackage/hwmon-ina209
+  TITLE:=INA209 monitoring support
+  KCONFIG:=CONFIG_SENSORS_INA209
+  FILES:=$(LINUX_DIR)/drivers/hwmon/ina209.ko
+  AUTOLOAD:=$(call AutoProbe,ina209)
+  $(call AddDepends/hwmon,+kmod-i2c-core)
+endef
+
+define KernelPackage/hwmon-ina209/description
+ Kernel module for ina209 dc power monitor chips
+endef
+
+$(eval $(call KernelPackage,hwmon-ina209))
+
+
 define KernelPackage/hwmon-ina2xx
   TITLE:=INA2XX monitoring support
   KCONFIG:=CONFIG_SENSORS_INA2XX
@@ -92,6 +107,20 @@ endef
 
 $(eval $(call KernelPackage,hwmon-ina2xx))
 
+
+define KernelPackage/hwmon-it87
+  TITLE:=IT87 monitoring support
+  KCONFIG:=CONFIG_SENSORS_IT87
+  FILES:=$(LINUX_DIR)/drivers/hwmon/it87.ko
+  AUTOLOAD:=$(call AutoProbe,it87)
+  $(call AddDepends/hwmon,+kmod-i2c-core +kmod-hwmon-vid +PACKAGE_kmod-thermal:kmod-thermal)
+endef
+
+define KernelPackage/hwmon-it87/description
+ Kernel module for it87 thermal and voltage monitor chip
+endef
+
+$(eval $(call KernelPackage,hwmon-it87))
 
 define KernelPackage/hwmon-lm63
   TITLE:=LM63/64 monitoring support
@@ -194,6 +223,20 @@ define KernelPackage/hwmon-lm95241/description
 endef
 
 $(eval $(call KernelPackage,hwmon-lm95241))
+
+define KernelPackage/hwmon-ltc4151
+  TITLE:=LTC4151 monitoring support
+  KCONFIG:=CONFIG_SENSORS_LTC4151
+  FILES:=$(LINUX_DIR)/drivers/hwmon/ltc4151.ko
+  AUTOLOAD:=$(call AutoProbe,ltc4151)
+  $(call AddDepends/hwmon,+kmod-i2c-core)
+endef
+
+define KernelPackage/hwmon-ltc4151/description
+ Kernel module for Linear Technology LTC4151 current and voltage monitor chip
+endef
+
+$(eval $(call KernelPackage,hwmon-ltc4151))
 
 define KernelPackage/hwmon-sht21
   TITLE:=Sensiron SHT21 and compat. monitoring support

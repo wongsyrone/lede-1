@@ -60,9 +60,6 @@ SQUASHFSOPT := -b $(SQUASHFS_BLOCKSIZE)
 SQUASHFSOPT += -p '/dev d 755 0 0' -p '/dev/console c 600 0 0 5 1'
 SQUASHFSCOMP := gzip
 LZMA_XZ_OPTIONS := -Xpreset 9 -Xe -Xlc 0 -Xlp 2 -Xpb 2
-ifeq ($(CONFIG_SQUASHFS_LZMA),y)
-  SQUASHFSCOMP := lzma $(LZMA_XZ_OPTIONS)
-endif
 ifeq ($(CONFIG_SQUASHFS_XZ),y)
   ifneq ($(filter arm x86 powerpc sparc,$(LINUX_KARCH)),)
     BCJ_FILTER:=-Xbcj $(LINUX_KARCH)
@@ -77,6 +74,7 @@ fs-types-$(CONFIG_TARGET_ROOTFS_JFFS2) += $(addprefix jffs2-,$(JFFS2_BLOCKSIZE))
 fs-types-$(CONFIG_TARGET_ROOTFS_JFFS2_NAND) += $(addprefix jffs2-nand-,$(NAND_BLOCKSIZE))
 fs-types-$(CONFIG_TARGET_ROOTFS_EXT4FS) += ext4
 fs-types-$(CONFIG_TARGET_ROOTFS_ISO) += iso
+fs-types-$(CONFIG_TARGET_ROOTFS_UBIFS) += ubifs
 fs-subtypes-$(CONFIG_TARGET_ROOTFS_JFFS2) += $(addsuffix -raw,$(addprefix jffs2-,$(JFFS2_BLOCKSIZE)))
 fs-subtypes-$(CONFIG_TARGET_ROOTFS_CPIOGZ) += cpiogz
 fs-subtypes-$(CONFIG_TARGET_ROOTFS_TARGZ) += targz
