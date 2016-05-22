@@ -4,7 +4,7 @@
  
  	if (pcmd->cmd_hdr.result != 0) {
  		mutex_unlock(&priv->fwcmd_mutex);
--		wiphy_err(hw->wiphy, "check ba result error %d\n",
+-		wiphy_debug(hw->wiphy, "check ba result error %d\n",
 -			  le16_to_cpu(pcmd->cmd_hdr.result));
  		return -EINVAL;
  	}
@@ -15,8 +15,8 @@
  		spin_lock_bh(&priv->stream_lock);
  		if (rc) {
  			mwl_fwcmd_remove_stream(hw, stream);
--			wiphy_err(hw->wiphy,
--				  "ampdu start error code: %d\n", rc);
+-			wiphy_debug(hw->wiphy,
+-				    "ampdu start error code: %d\n", rc);
  			rc = -EPERM;
  			break;
  		}
