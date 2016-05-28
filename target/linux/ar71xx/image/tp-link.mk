@@ -123,6 +123,17 @@ $(Device/tplink-8mlzma)
   TPLINK_HWID := 0x43000001
 endef
 
+define Device/tl-wr2041n-v1
+$(Device/tplink-4mlzma)
+  BOARDNAME = TL-WR2041N-v1
+  # DEVICE_PROFILE in generic/profile/tp-link.mk
+  # and there's no MultiProfile in new build code.
+  # if you need it, use $(Device/tl-origin-device) instead
+  DEVICE_PROFILE = TLWR2041
+  TPLINK_HWID := 0x20410001
+endef
+TARGET_DEVICES += tl-wr2041n-v1
+
 define Device/tl-wdr3500-v1
 $(Device/tl-wdr4300-v1)
   BOARDNAME = TL-WDR3500

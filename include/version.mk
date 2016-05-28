@@ -9,7 +9,7 @@
 # Substituted by SDK, do not remove
 # REVISION:=x
 
-RELEASE:=Reboot
+RELEASE:=Reboot by wongsyrone
 
 PKG_CONFIG_DEPENDS += \
 	CONFIG_VERSION_NUMBER \
