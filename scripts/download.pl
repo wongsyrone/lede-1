@@ -212,8 +212,8 @@ foreach my $mirror (@ARGV) {
 			# http://mirror.bjtu.edu.cn/kernel/linux/kernel/
 			# https://mirror.tuna.tsinghua.edu.cn/kernel/v4.x/
 			push @mirrors, "http://mirrors.ustc.edu.cn/kernel.org/$dir";
-			push @mirrors, "https://kernel.org/pub/$dir";
-			push @mirrors, "ftp://kernel.org/pub/$dir";
+			push @mirrors, "https://cdn.kernel.org/pub/$dir";
+			push @mirrors, "https://www.kernel.org/pub/$dir";
 		}
     } elsif ($mirror =~ /^\@GNOME\/(.+)$/) {
 		push @mirrors, "http://mirrors.ustc.edu.cn/gnome/sources/$1";

@@ -176,7 +176,8 @@ get_status_led() {
 	mr600v2)
 		status_led="mr600:blue:power"
 		;;
-	mr1750)
+	mr1750 | \
+	mr1750v2)
 		status_led="mr1750:blue:power"
 		;;
 	mr900 | \
@@ -207,6 +208,7 @@ get_status_led() {
 	om2pv2 | \
 	om2p-hs | \
 	om2p-hsv2 | \
+	om2p-hsv3 | \
 	om2p-lc)
 		status_led="om2p:blue:power"
 		;;

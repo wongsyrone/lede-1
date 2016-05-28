@@ -51,6 +51,7 @@ enum ath79_mach_type {
 	ATH79_MACH_CAP4200AG,		/* Senao CAP4200AG */
 	ATH79_MACH_CARAMBOLA2,		/* 8devices Carambola2 */
 	ATH79_MACH_CF_E316N_V2,		/* COMFAST CF-E316N v2 */
+	ATH79_MACH_CPE210,		/* TP-LINK CPE210 */
 	ATH79_MACH_CPE510,		/* TP-LINK CPE510 */
 	ATH79_MACH_CR3000,		/* PowerCloud CR3000 */
 	ATH79_MACH_CR5000,		/* PowerCloud CR5000 */
@@ -97,6 +98,7 @@ enum ath79_mach_type {
 	ATH79_MACH_MR16,		/* Cisco Meraki MR16 */
 	ATH79_MACH_MR18,		/* Cisco Meraki MR18 */
 	ATH79_MACH_MR1750,		/* OpenMesh MR1750 */
+	ATH79_MACH_MR1750V2,		/* OpenMesh MR1750v2 */
 	ATH79_MACH_MR600V2,		/* OpenMesh MR600v2 */
 	ATH79_MACH_MR600,		/* OpenMesh MR600 */
 	ATH79_MACH_MR900,		/* OpenMesh MR900 */
@@ -110,6 +112,7 @@ enum ath79_mach_type {
 	ATH79_MACH_NBG6616,		/* Zyxel NBG6616 */
 	ATH79_MACH_NBG6716,		/* Zyxel NBG6716 */
 	ATH79_MACH_OM2P_HSv2,		/* OpenMesh OM2P-HSv2 */
+	ATH79_MACH_OM2P_HSv3,		/* OpenMesh OM2P-HSv3 */
 	ATH79_MACH_OM2P_HS,		/* OpenMesh OM2P-HS */
 	ATH79_MACH_OM2P_LC,		/* OpenMesh OM2P-LC */
 	ATH79_MACH_OM2Pv2,		/* OpenMesh OM2Pv2 */

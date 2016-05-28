@@ -280,6 +280,7 @@ platform_check_image() {
 		return 0
 		;;
 
+	cpe210|\
 	cpe510)
 		tplink_pharos_check_image "$1" && return 0
 		return 1
@@ -314,6 +315,7 @@ platform_check_image() {
 		return 0;
 		;;
 	mr1750 | \
+	mr1750v2 | \
 	mr600 | \
 	mr600v2 | \
 	mr900 | \
@@ -322,6 +324,7 @@ platform_check_image() {
 	om2pv2 | \
 	om2p-hs | \
 	om2p-hsv2 | \
+	om2p-hsv3 | \
 	om2p-lc | \
 	om5p | \
 	om5p-an | \
@@ -574,6 +577,7 @@ platform_do_upgrade() {
 		platform_do_upgrade_dir825b "$ARGV"
 		;;
 	mr1750 | \
+	mr1750v2 | \
 	mr600 | \
 	mr600v2 | \
 	mr900 | \
@@ -582,6 +586,7 @@ platform_do_upgrade() {
 	om2pv2 | \
 	om2p-hs | \
 	om2p-hsv2 | \
+	om2p-hsv3 | \
 	om2p-lc | \
 	om5p | \
 	om5p-an | \

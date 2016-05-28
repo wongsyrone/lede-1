@@ -437,7 +437,6 @@ endef
 
 define Device/Init
   PROFILES := $(PROFILE)
-  SUBTARGETS := $(SUBTARGET)
   DEVICE_NAME := $(1)
   DEVICE_TITLE :=
   DEVICE_PACKAGES :=
