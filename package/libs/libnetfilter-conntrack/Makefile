@@ -16,7 +16,7 @@ PKG_SOURCE_URL:= \
 	http://www.netfilter.org/projects/libnetfilter_conntrack/files/ \
 	ftp://ftp.netfilter.org/pub/libnetfilter_conntrack/
 PKG_MD5SUM:=6aa1bd3c1d0723235ac897087b4cd4e5
-PKG_MAINTAINER:=Jo-Philipp Wich <jow@openwrt.org>
+PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 
 PKG_FIXUP:=autoreconf
 PKG_LICENSE:=GPL-2.0+
