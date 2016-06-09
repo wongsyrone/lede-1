@@ -70,7 +70,7 @@
  };
 --- a/lib/utils.c
 +++ b/lib/utils.c
-@@ -710,6 +710,7 @@ const char *rt_addr_n2a(int af, int len,
+@@ -711,6 +711,7 @@ const char *rt_addr_n2a_r(int af, int le
  		return inet_ntop(af, addr, buf, buflen);
  	case AF_MPLS:
  		return mpls_ntop(af, addr, buf, buflen);
@@ -78,7 +78,7 @@
  	case AF_IPX:
  		return ipx_ntop(af, addr, buf, buflen);
  	case AF_DECnet:
-@@ -718,6 +719,7 @@ const char *rt_addr_n2a(int af, int len,
+@@ -719,6 +720,7 @@ const char *rt_addr_n2a_r(int af, int le
  		memcpy(dna.a_addr, addr, 2);
  		return dnet_ntop(af, &dna, buf, buflen);
  	}

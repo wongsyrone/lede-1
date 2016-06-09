@@ -8,13 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iproute2
-PKG_VERSION:=4.4.0
-PKG_RELEASE:=2
+PKG_VERSION:=4.6.0
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/utils/net/iproute2
-PKG_MD5SUM:=d762653ec3e1ab0d4a9689e169ca184f
-PKG_BUILD_PARALLEL:=1
+PKG_MD5SUM:=d015e437e4f744d51d3a1a53341826d5
+PKG_BUILD_PARALLEL:=0
+PKG_BUILD_DEPENDS:=iptables
 PKG_LICENSE:=GPL-2.0
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
@@ -71,6 +72,7 @@ ifeq ($(BUILD_VARIANT),tiny)
 endif
 
 define Build/Configure
+	$(call Build/Configure/Default)
 	$(SED) "s,-I/usr/include/db3,," $(PKG_BUILD_DIR)/Makefile
 	$(SED) "s,^KERNEL_INCLUDE.*,KERNEL_INCLUDE=$(LINUX_DIR)/include," \
 		$(PKG_BUILD_DIR)/Makefile

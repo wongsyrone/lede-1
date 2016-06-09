@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -38,7 +38,7 @@ CCOPTS = -O2 $(EXTRA_CCOPTS)
+@@ -39,7 +39,7 @@ CCOPTS = -O2 $(EXTRA_CCOPTS)
  WFLAGS := -Wall -Wstrict-prototypes  -Wmissing-prototypes
  WFLAGS += -Wmissing-declarations -Wold-style-definition -Wformat=2
  
@@ -8,4 +8,4 @@
 +CFLAGS := $(WFLAGS) -I../include $(EXTRA_CCOPTS) $(DEFINES) $(CFLAGS)
  YACCFLAGS = -d -t -v
  
- SUBDIRS=lib ip tc bridge misc genl tipc man
+ SUBDIRS=lib ip tc bridge misc genl tipc devlink man

@@ -23,7 +23,7 @@
  #ifndef _LINUX_IN6_H
  #define _LINUX_IN6_H
  
-@@ -291,3 +292,4 @@ struct in6_flowlabel_req {
+@@ -292,3 +293,4 @@ struct in6_flowlabel_req {
   * MRT6_MAX
   */
  #endif /* _LINUX_IN6_H */
