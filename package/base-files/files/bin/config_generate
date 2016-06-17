@@ -230,6 +230,7 @@ generate_static_system() {
 		set system.@system[-1].timezone='CST-8'
 		set system.@system[-1].zonename='Asia/Shanghai'
 		set system.@system[-1].ttylogin='0'
+		set system.@system[-1].log_size='64'
 
 		delete system.ntp
 		set system.ntp='timeserver'
