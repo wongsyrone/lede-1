@@ -218,7 +218,7 @@
  {
  	struct wpa_supplicant *wpa_s = ctx;
  	int resched;
-@@ -4049,7 +4049,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -4046,7 +4046,7 @@ void wpa_supplicant_event(void *ctx, enu
  #endif /* CONFIG_AP */
  		break;
  	case EVENT_ACS_CHANNEL_SELECTED:
@@ -227,7 +227,7 @@
  		if (!wpa_s->ap_iface)
  			break;
  		hostapd_acs_channel_selected(wpa_s->ap_iface->bss[0],
-@@ -4063,7 +4063,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -4060,7 +4060,7 @@ void wpa_supplicant_event(void *ctx, enu
  }
  
  
