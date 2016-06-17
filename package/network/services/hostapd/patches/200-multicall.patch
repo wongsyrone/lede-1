@@ -132,7 +132,7 @@
  wpa_cli.exe: wpa_cli
 --- a/src/drivers/driver.h
 +++ b/src/drivers/driver.h
-@@ -4794,8 +4794,8 @@ union wpa_event_data {
+@@ -4775,8 +4775,8 @@ union wpa_event_data {
   * Driver wrapper code should call this function whenever an event is received
   * from the driver.
   */
@@ -143,7 +143,7 @@
  
  /**
   * wpa_supplicant_event_global - Report a driver event for wpa_supplicant
-@@ -4807,7 +4807,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -4788,7 +4788,7 @@ void wpa_supplicant_event(void *ctx, enu
   * Same as wpa_supplicant_event(), but we search for the interface in
   * wpa_global.
   */
@@ -218,7 +218,7 @@
  {
  	struct wpa_supplicant *wpa_s = ctx;
  	int resched;
-@@ -4051,7 +4051,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -4049,7 +4049,7 @@ void wpa_supplicant_event(void *ctx, enu
  #endif /* CONFIG_AP */
  		break;
  	case EVENT_ACS_CHANNEL_SELECTED:
@@ -227,7 +227,7 @@
  		if (!wpa_s->ap_iface)
  			break;
  		hostapd_acs_channel_selected(wpa_s->ap_iface->bss[0],
-@@ -4065,7 +4065,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -4063,7 +4063,7 @@ void wpa_supplicant_event(void *ctx, enu
  }
  
  
@@ -238,7 +238,7 @@
  	struct wpa_supplicant *wpa_s;
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -4972,7 +4972,6 @@ struct wpa_interface * wpa_supplicant_ma
+@@ -4967,7 +4967,6 @@ struct wpa_interface * wpa_supplicant_ma
  	return NULL;
  }
  
@@ -246,7 +246,7 @@
  /**
   * wpa_supplicant_match_existing - Match existing interfaces
   * @global: Pointer to global data from wpa_supplicant_init()
-@@ -5009,6 +5008,11 @@ static int wpa_supplicant_match_existing
+@@ -5004,6 +5003,11 @@ static int wpa_supplicant_match_existing
  
  #endif /* CONFIG_MATCH_IFACE */
  
@@ -258,7 +258,7 @@
  
  /**
   * wpa_supplicant_add_iface - Add a new network interface
-@@ -5264,6 +5268,8 @@ struct wpa_global * wpa_supplicant_init(
+@@ -5259,6 +5263,8 @@ struct wpa_global * wpa_supplicant_init(
  #ifndef CONFIG_NO_WPA_MSG
  	wpa_msg_register_ifname_cb(wpa_supplicant_msg_ifname_cb);
  #endif /* CONFIG_NO_WPA_MSG */
@@ -269,7 +269,7 @@
  		wpa_debug_open_file(params->wpa_debug_file_path);
 --- a/hostapd/main.c
 +++ b/hostapd/main.c
-@@ -535,6 +535,11 @@ static int hostapd_get_ctrl_iface_group(
+@@ -526,6 +526,11 @@ static int hostapd_get_ctrl_iface_group(
  	return 0;
  }
  
@@ -281,7 +281,7 @@
  
  #ifdef CONFIG_WPS
  static int gen_uuid(const char *txt_addr)
-@@ -610,6 +615,8 @@ int main(int argc, char *argv[])
+@@ -601,6 +606,8 @@ int main(int argc, char *argv[])
  	interfaces.global_ctrl_sock = -1;
  	dl_list_init(&interfaces.global_ctrl_dst);
  

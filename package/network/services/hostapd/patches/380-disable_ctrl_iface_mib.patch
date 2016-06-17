@@ -167,7 +167,7 @@
  
 --- a/wpa_supplicant/ap.c
 +++ b/wpa_supplicant/ap.c
-@@ -1114,7 +1114,7 @@ int wpas_ap_wps_nfc_report_handover(stru
+@@ -1109,7 +1109,7 @@ int wpas_ap_wps_nfc_report_handover(stru
  #endif /* CONFIG_WPS */
  
  
