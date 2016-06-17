@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vlmcsd
-PKG_VERSION:=svn818
+PKG_VERSION:=svn906
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/$(PKG_NAME)-$(PKG_VERSION)
@@ -38,8 +38,7 @@ MAKE_FLAGS+= \
 	$(if $(CONFIG_USE_MUSL)$(CONFIG_GLIBC_VERSION_2_21),AUXV=1)
 
 #-D_PEDANTIC      Report rare error/warning conditions instead of silently ignoring them.
-TARGET_CFLAGS+= \
-	-D_PEDANTIC
+TARGET_CFLAGS+= -D_PEDANTIC
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections
