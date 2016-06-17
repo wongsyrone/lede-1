@@ -207,7 +207,7 @@
  	os_memset(&global, 0, sizeof(global));
 --- a/wpa_supplicant/events.c
 +++ b/wpa_supplicant/events.c
-@@ -3384,8 +3384,8 @@ static void wpa_supplicant_event_assoc_a
+@@ -3375,8 +3375,8 @@ static void wpa_supplicant_event_assoc_a
  }
  
  
@@ -218,7 +218,7 @@
  {
  	struct wpa_supplicant *wpa_s = ctx;
  	int resched;
-@@ -4046,7 +4046,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -4037,7 +4037,7 @@ void wpa_supplicant_event(void *ctx, enu
  #endif /* CONFIG_AP */
  		break;
  	case EVENT_ACS_CHANNEL_SELECTED:
@@ -227,7 +227,7 @@
  		if (!wpa_s->ap_iface)
  			break;
  		hostapd_acs_channel_selected(wpa_s->ap_iface->bss[0],
-@@ -4060,7 +4060,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -4051,7 +4051,7 @@ void wpa_supplicant_event(void *ctx, enu
  }
  
  
