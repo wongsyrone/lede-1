@@ -57,15 +57,6 @@ define Image/Build/squashfs
 	$(call prepare_generic_squashfs,$(BIN_DIR)/$(IMG_PREFIX)-$(2)-$(1).image)
 endef
 
-define Image/BuildNAND/squashfs
-
-ifneq ($($(PROFILE)_UBI_OPTS),)
-	$(call prepare_generic_squashfs,$(KDIR)/root.$(1))
-	$(call Image/Build/UbinizeImage,$(PROFILE),,squashfs,$($(PROFILE)_UBI_OPTS))
-	$(call Image/Build/SysupgradeNAND,$(PROFILE),$(1),$(KDIR)/uImage-$(PROFILE))
-endif
-endef
-
 DGN3500_SKERNEL=0x50000
 DGN3500_SKERNEL_DECIMAL=327680
 define Image/BuildDGN3500/squashfs
@@ -108,21 +99,6 @@ define Image/BuildEVA/squashfs
 	$(call prepare_generic_squashfs,$(BIN_DIR)/$(IMG_PREFIX)-$(2)-$(1).image.eva)
 endef
 
-define Image/BuildEVA/ubifs
-
-ifneq ($($(PROFILE)_UBIFS_OPTS),)
-	$(CP) $(KDIR)/root.ubifs $(BIN_DIR)/$(IMG_PREFIX)-$(PROFILE)-rootfs.ubifs
-endif
-endef
-
-define Image/BuildEVA/ubi
-
-ifneq ($($(PROFILE)_UBI_OPTS),)
-	$(CP) $(KDIR)/root.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(PROFILE)-rootfs.ubi
-	$(CP) $(KDIR)/root-overlay.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(PROFILE)-rootfs-overlay.ubi
-endif
-endef
-
 define Image/BuildLoader/squashfs
 	dd if=$(KDIR)/loader-$(2).bin of=$(KDIR)/loader-$(2).bin.padded bs=3072k conv=sync
 	cat $(KDIR)/loader-$(2).bin.padded $(KDIR)/root.$(1) > $(BIN_DIR)/$(IMG_PREFIX)-$(2)-$(1).image
@@ -148,85 +124,45 @@ define Image/Build/jffs2-256k
 	cat $(KDIR)/uImage-$(2)-$(1) $(KDIR)/root.$(1) > $(BIN_DIR)/$(IMG_PREFIX)-$(2)-$(1).image
 endef
 
-define Image/Build/ubifs
-
-ifneq ($($(PROFILE)_UBIFS_OPTS),)
-	$(CP) $(KDIR)/root.ubifs $(BIN_DIR)/$(IMG_PREFIX)-$(PROFILE)-rootfs.ubifs
+ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+  define Image/BuildKernel/InitramfsTemplate
+	$(call PatchKernelLzma,$(1),-initramfs)
+	$(call MkImageLzma,$(1),-initramfs)
+	$(CP) $(KDIR)/uImage-$(1)-initramfs $(BIN_DIR)/$(IMG_PREFIX)-$(1)-uImage-initramfs
+  endef
 endif
-endef
-
-define Image/Build/ubi
-
-ifneq ($($(PROFILE)_UBI_OPTS),)
-	$(CP) $(KDIR)/root.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(PROFILE)-rootfs.ubi
-	$(CP) $(KDIR)/root-overlay.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(PROFILE)-rootfs-overlay.ubi
-endif
-endef
-
-
-define Image/BuildNAND/ubifs
-
-ifneq ($($(PROFILE)_UBIFS_OPTS),)
-ifneq ($($(PROFILE)_UBI_OPTS),)
-	$(call Image/Build/UbinizeImage,$(PROFILE),,ubifs,$($(PROFILE)_UBI_OPTS))
-	$(call Image/Build/SysupgradeNAND,$(PROFILE),$(1),$(KDIR)/uImage-$(PROFILE))
-endif
-endif
-endef
-
-
-define Image/InstallKernel/Template
-
-ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_KERNEL),)
-	$(INSTALL_DIR) $(TARGET_DIR)/boot
-
-ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_UIMAGE),)
-	$(CP) $(BIN_DIR)/$(IMG_PREFIX)-$(1)-uImage $(TARGET_DIR)/boot/
-	ln -sf $(IMG_PREFIX)-$(1)-uImage $(TARGET_DIR)/boot/uImage
-endif
-
-ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_ZIMAGE),)
-	$(CP) $(BIN_DIR)/$(IMG_PREFIX)-$(1)-zImage $(TARGET_DIR)/boot/
-	ln -sf $(IMG_PREFIX)-$(1)-zImage $(TARGET_DIR)/boot/zImage
-endif
-endif
-
-ifneq ($(CONFIG_TARGET_ROOTFS_INCLUDE_DTB),)
-	$(INSTALL_DIR) $(TARGET_DIR)/boot
-
-ifneq ($(1),)
-	$(CP) $(KDIR)/$(1).dtb $(TARGET_DIR)/boot/
-endif
-endif
-endef
 
 define Image/BuildKernel/Template
 	$(call PatchKernelLzma,$(1))
 	$(call MkImageLzma,$(1))
 	$(CP) $(KDIR)/uImage-$(1) $(BIN_DIR)/$(IMG_PREFIX)-$(1)-uImage
-ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
-	$(call PatchKernelLzma,$(1),-initramfs)
-	$(call MkImageLzma,$(1),-initramfs)
-	$(CP) $(KDIR)/uImage-$(1)-initramfs $(BIN_DIR)/$(IMG_PREFIX)-$(1)-uImage-initramfs
-endif
+	$(Image/BuildKernel/InitramfsTemplate)
 endef
+
+ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+  define Image/BuildKernelLoader/InitramfsTemplate
+	$(CP) $(KDIR)/loader-initramfs-$(1).bin $(BIN_DIR)/$(IMG_PREFIX)-$(1)-vmlinux-initramfs-loader
+	$(CP) $(KDIR)/vmlinux-initramfs-$(1) $(BIN_DIR)/$(IMG_PREFIX)-$(1)-vmlinux-initramfs
+  endef
+endif
 
 define Image/BuildKernelLoader/Template
 	$(CP) $(KDIR)/loader-$(1).bin $(BIN_DIR)/$(IMG_PREFIX)-$(1)-vmlinux-loader
 	$(CP) $(KDIR)/vmlinux-$(1) $(BIN_DIR)/$(IMG_PREFIX)-$(1)-vmlinux
-ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
-	$(CP) $(KDIR)/loader-initramfs-$(1).bin $(BIN_DIR)/$(IMG_PREFIX)-$(1)-vmlinux-initramfs-loader
-	$(CP) $(KDIR)/vmlinux-initramfs-$(1) $(BIN_DIR)/$(IMG_PREFIX)-$(1)-vmlinux-initramfs
-endif
+	$(Image/BuildKernelLoader/InitramfsTemplate)
 endef
 
-define Image/Prepare/Profile
-	$(call PatchKernelLzma,$(1))
-	$(call Image/BuildLoader/Template,$(1))
 ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+  define Image/Prepare/InitramfsTemplate
 	$(call PatchKernelLzma,$(1),-initramfs)
 	$(call Image/BuildLoader/Template,$(1),-initramfs)
+  endef
 endif
+
+define Image/Prepare/Template
+	$(call PatchKernelLzma,$(1))
+	$(call Image/BuildLoader/Template,$(1))
+	$(Image/Prepare/InitramfsTemplate)
 endef
 
 define Image/BuildKernelEVA/Template
@@ -234,12 +170,6 @@ define Image/BuildKernelEVA/Template
 	$(call MkImageEVA,$(1))
 	$(CP) $(KDIR)/$(1).eva.align.64k $(BIN_DIR)/$(IMG_PREFIX)-$(1).eva.align.64k
 	$(CP) $(KDIR)/$(1).eva.align.128k $(BIN_DIR)/$(IMG_PREFIX)-$(1).eva.align.128k
-ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
-	$(call PatchKernelLzma,$(1),-initramfs)
-	$(call MkImageEVA,$(1),-initramfs)
-	$(CP) $(KDIR)/$(1)-initramfs.eva.align.64k $(BIN_DIR)/$(IMG_PREFIX)-$(1)-initramfs.eva.align.64k
-	$(CP) $(KDIR)/$(1)-initramfs.eva.align.128k $(BIN_DIR)/$(IMG_PREFIX)-$(1)-initramfs.eva.align.128k
-endif
 endef
 
 
@@ -351,8 +281,8 @@ endif
 ifeq ($(SUBTARGET),xway)
 
 # Danube
-BTHOMEHUBV2B_UBIFS_OPTS:="-m 512 -e 15872 -c 1959"
-BTHOMEHUBV2B_UBI_OPTS:="-m 512 -p 16KiB -s 256"
+DEVICE_BTHOMEHUBV2B_UBIFS_OPTS:="-m 512 -e 15872 -c 1959"
+DEVICE_BTHOMEHUBV2B_UBI_OPTS:="-m 512 -p 16KiB -s 256"
 
 Image/BuildKernel/Profile/BTHOMEHUBV2B=$(call Image/BuildKernel/Template,BTHOMEHUBV2B)
 Image/Build/Profile/BTHOMEHUBV2B=$(call Image/BuildNAND/$(1),$(1),BTHOMEHUBV2B)
@@ -522,8 +452,8 @@ TARGET_DEVICES += GIGASX76X
 
 
 # AR9
-BTHOMEHUBV3A_UBIFS_OPTS:="-m 512 -e 15872 -c 1959"
-BTHOMEHUBV3A_UBI_OPTS:="-m 512 -p 16KiB -s 256"
+DEVICE_BTHOMEHUBV3A_UBIFS_OPTS:="-m 512 -e 15872 -c 1959"
+DEVICE_BTHOMEHUBV3A_UBI_OPTS:="-m 512 -p 16KiB -s 256"
 
 Image/BuildKernel/Profile/BTHOMEHUBV3A=$(call Image/BuildKernel/Template,BTHOMEHUBV3A)
 Image/Build/Profile/BTHOMEHUBV3A=$(call Image/BuildNAND/$(1),$(1),BTHOMEHUBV3A)
@@ -652,8 +582,8 @@ endif
 ifeq ($(SUBTARGET),xrx200)
 
 # VR9
-P2812HNUF1_UBIFS_OPTS:="-m 2048 -e 126KiB -c 4096"
-P2812HNUF1_UBI_OPTS:="-m 2048 -p 128KiB -s 512"
+DEVICE_P2812HNUF1_UBIFS_OPTS:="-m 2048 -e 126KiB -c 4096"
+DEVICE_P2812HNUF1_UBI_OPTS:="-m 2048 -p 128KiB -s 512"
 
 Image/BuildKernel/Profile/P2812HNUF1=$(call Image/BuildKernel/Template,P2812HNUF1)
 Image/Build/Profile/P2812HNUF1=$(call Image/BuildNAND/$(1),$(1),P2812HNUF1)
@@ -664,8 +594,8 @@ define LegacyDevice/P2812HNUF1
 endef
 LEGACY_DEVICES += P2812HNUF1
 
-P2812HNUF3_UBIFS_OPTS:="-m 2048 -e 126KiB -c 4096"
-P2812HNUF3_UBI_OPTS:="-m 2048 -p 128KiB -s 512"
+DEVICE_P2812HNUF3_UBIFS_OPTS:="-m 2048 -e 126KiB -c 4096"
+DEVICE_P2812HNUF3_UBI_OPTS:="-m 2048 -p 128KiB -s 512"
 
 Image/BuildKernel/Profile/P2812HNUF3=$(call Image/BuildKernel/Template,P2812HNUF3)
 Image/Build/Profile/P2812HNUF3=$(call Image/BuildNAND/$(1),$(1),P2812HNUF3)
@@ -685,8 +615,8 @@ endef
 TARGET_DEVICES += ARV7519RW22
 
 
-BTHOMEHUBV5A_UBIFS_OPTS:="-m 2048 -e 126KiB -c 4096"
-BTHOMEHUBV5A_UBI_OPTS:="-m 2048 -p 128KiB -s 512"
+DEVICE_BTHOMEHUBV5A_UBIFS_OPTS:="-m 2048 -e 126KiB -c 4096"
+DEVICE_BTHOMEHUBV5A_UBI_OPTS:="-m 2048 -p 128KiB -s 512"
 
 Image/BuildKernel/Profile/BTHOMEHUBV5A=$(call Image/BuildKernel/Template,BTHOMEHUBV5A)
 Image/Build/Profile/BTHOMEHUBV5A=$(call Image/BuildNAND/$(1),$(1),BTHOMEHUBV5A)
@@ -714,8 +644,8 @@ endef
 TARGET_DEVICES += EASY80920NOR
 
 
-FRITZ3370_UBIFS_OPTS:="-m 2048 -e 126KiB -c 4096"
-FRITZ3370_UBI_OPTS:="-m 2048 -p 128KiB -s 512"
+DEVICE_FRITZ3370_UBIFS_OPTS:="-m 2048 -e 126KiB -c 4096"
+DEVICE_FRITZ3370_UBI_OPTS:="-m 2048 -p 128KiB -s 512"
 
 Image/BuildKernel/Profile/FRITZ3370=$(call Image/BuildKernelEVA/Template,FRITZ3370)
 Image/Build/Profile/FRITZ3370=$(call Image/BuildEVA/$(1),$(1),FRITZ3370)
@@ -735,6 +665,7 @@ define LegacyDevice/FRITZ7360SL
 endef
 LEGACY_DEVICES += FRITZ7360L
 
+Image/Prepare/Profile/VG3503J=$(call Image/Prepare/Template,VG3503J)
 Image/BuildKernel/Profile/VG3503J=$(call Image/BuildKernelLoader/Template,VG3503J)
 Image/Build/Profile/VG3503J=$(call Image/BuildLoader/$(1),$(1),VG3503J)
 
@@ -793,31 +724,51 @@ define Device/VGV7519BRN
 endef
 TARGET_DEVICES += VGV7519BRN
 
+endif
+
+ifneq ($($(PROFILE)_UBI_OPTS),)
+  define Image/BuildNAND/squashfs
+	$(call prepare_generic_squashfs,$(KDIR)/root.$(1))
+	$(call Image/Build/UbinizeImage,$(2),,squashfs,$($(PROFILE)_UBI_OPTS))
+	$(call Image/Build/SysupgradeNAND,$(2),$(1),$(KDIR)/uImage-$(2))
+  endef
+
+  define Image/Build/ubifs
+	$(CP) $(KDIR)/root.ubifs $(BIN_DIR)/$(IMG_PREFIX)-$(2)-rootfs.ubifs
+  endef
+
+  define Image/Build/ubi
+	$(CP) $(KDIR)/root.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(2)-rootfs.ubi
+	$(CP) $(KDIR)/root-overlay.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(2)-rootfs-overlay.ubi
+  endef
+
+  define Image/BuildEVA/ubi
+	$(CP) $(KDIR)/root.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(2)-rootfs.ubi
+	$(CP) $(KDIR)/root-overlay.ubi $(BIN_DIR)/$(IMG_PREFIX)-$(2)-rootfs-overlay.ubi
+  endef
+
+ifneq ($($(PROFILE)_UBIFS_OPTS),)
+  define Image/BuildNAND/ubifs
+	$(call Image/Build/UbinizeImage,$(2),,ubifs,$($(PROFILE)_UBI_OPTS))
+	$(call Image/Build/SysupgradeNAND,$(2),$(1),$(KDIR)/uImage-$(2))
+  endef
+
+  define Image/BuildEVA/ubifs
+	$(CP) $(KDIR)/root.ubifs $(BIN_DIR)/$(IMG_PREFIX)-$(2)-rootfs.ubifs
+  endef
+endif
+endif
+
 define Image/Prepare/Profile
-	$(call Image/Build/Profile/$(1),loader)
+	$(call Image/Prepare/Profile/$(1))
+endef
+
+define Image/BuildKernel/Profile
+	$(call Image/BuildKernel/Profile/$(1))
 endef
 
 define Image/Build/Profile
-	$(call Image/Build/Profile/$(1),buildkernel)
 	$(call Image/Build/Profile/$(1),$(2))
-endef
-
-define Image/Prepare
-	$(call Image/Prepare/Profile,VG3503J)
-endef
-
-endif
-
-define Image/BuildKernel
-	$(call Image/BuildKernel/Profile/$(PROFILE))
-endef
-
-define Image/InstallKernel
-	$(call Image/InstallKernel/Template/$(PROFILE))
-endef
-
-define Image/Build
-	$(call Image/Build/Profile/$(PROFILE),$(1))
 endef
 
 $(eval $(call BuildImage))
