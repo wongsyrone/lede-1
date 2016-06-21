@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
-PKG_VERSION:=0.4.6.2
+PKG_VERSION:=0.4.6.5
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=92eadb2bce1229a9067d272dc80850a8b9b7c869
+PKG_SOURCE_VERSION:=588ccc0f4fbe46dc64f7fda63a7a376f359ccdd0
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -57,35 +57,17 @@ define Package/pcap-dnsproxy/config
 		  You can customize the listen port of Pcap_DNSProxy.
 		  Note that you should NOT set the value to 53, which
 		  conflicts with DNSMasq in OpenWrt.
-	menu "Tools and miscellaneous"
-		config PACKAGE_pcap-dnsproxy_KeyPairGenerator
-			bool "Bundle KeyPairGenerator."
-			default n
-			help
-			  Package KeyPairGenerator into final IPK.
+	config PACKAGE_pcap-dnsproxy_advancedoptions
+		bool "Compile with advanced options. (for expert only)"
+		default n
+		help
+		  Enable this option to use link-time optimization and
+		  other GCC compile flags to reduce binary size.
 
-			  Unless you really need it, you should
-			  probably say N here.
-		config PACKAGE_pcap-dnsproxy_FileHash
-			bool "Bundle FileHash."
-			default n
-			help
-			  Package FileHash into final IPK.
+		  Please refer to Makefile for details.
 
-			  Unless you really need it, you should
-			  probably say N here.
-		config PACKAGE_pcap-dnsproxy_advancedoptions
-			bool "Compile with advanced options. (for expert only)"
-			default n
-			help
-			  Enable this option to use link-time optimization and
-			  other GCC compile flags to reduce binary size.
-
-			  Please refer to Makefile for details.
-
-			  Unless you know what you are doing, you
-			  should probably say N here.
-	endmenu
+		  Unless you know what you are doing, you
+		  should probably say N here.
 endef
 
 # Note: GCC 4.6 and 4.8 dont have complete C++11 support
@@ -146,8 +128,6 @@ endef
 
 define Package/pcap-dnsproxy/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(if $(CONFIG_PACKAGE_pcap-dnsproxy_KeyPairGenerator),$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/KeyPairGenerator $(1)/usr/sbin/KeyPairGenerator)
-	$(if $(CONFIG_PACKAGE_pcap-dnsproxy_FileHash),$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/FileHash $(1)/usr/sbin/FileHash)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/Pcap_DNSProxy $(1)/usr/sbin/Pcap_DNSProxy
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./files/pcap-dnsproxy.config $(1)/etc/config/pcap-dnsproxy
@@ -165,7 +145,7 @@ define Package/pcap-dnsproxy/install
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/ExampleConfig/Hosts.ini $(1)/etc/pcap-dnsproxy/Hosts.conf
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/ExampleConfig/IPFilter.ini $(1)/etc/pcap-dnsproxy/IPFilter.conf
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/ExampleConfig/Routing.txt $(1)/etc/pcap-dnsproxy/Routing.txt
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/ExampleConfig/WhiteList.txt $(1)/etc/pcap-dnsproxy/WhiteList.txt
+	$(INSTALL_CONF) ./files/configs/WhiteList.txt $(1)/etc/pcap-dnsproxy/WhiteList.txt
 endef
 
 
