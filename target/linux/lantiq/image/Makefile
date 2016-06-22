@@ -188,6 +188,21 @@ define Build/mkbrnimg
    mkbrnimg -s $(SIGNATURE) -m $(MAGIC) -p $(CRC32_POLY) -o $@ $(word 1,$^) $(word 2,$^)
 endef
 
+define Build/fullimage
+	mkimage -A mips -O linux -C lzma -T filesystem -a 0x00  \
+		-e 0x00 -n 'LEDE RootFS' \
+		-d $(word 2,$^) $(word 2,$^).new
+
+	cat $(word 1,$^) $(word 2,$^).new > $@.tmp
+
+	mkimage -A mips -O linux -T multi -a 0x00 -C none \
+		-e 0x00 -n 'OpenWrt fullimage' \
+		-d $@.tmp $@
+
+	rm $(word 2,$^).new
+	rm $@.tmp
+endef
+
 # Shared device definition: applies to every defined device
 define Device/Default
   PROFILES = Default $$(DEVICE_PROFILE)
@@ -210,6 +225,12 @@ define Device/lantiqBrnImage
   IMAGE/factory.bin := mkbrnimg | check-size $$$$(IMAGE_SIZE)
 endef
 DEVICE_VARS += SIGNATURE MAGIC CRC32_POLY
+
+define Device/lantiqFullImage
+  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma | pad-offset 4 0
+  IMAGES := sysupgrade.bin fullimage.img
+  IMAGE/fullimage.img := fullimage | check-size $$$$(IMAGE_SIZE)
+endef
 
 ifeq ($(SUBTARGET),xway_legacy)
 
@@ -468,7 +489,7 @@ define LegacyDevice/BTHOMEHUBV3A
 	kmod-ath9k wpad-mini \
 	swconfig uboot-envtools
 endef
-LEGACY_DEVICES += BTHOMEHUBV3AB
+LEGACY_DEVICES += BTHOMEHUBV3A
 
 Image/BuildKernel/Profile/DGN3500=$(call Image/BuildKernel/Template,DGN3500)
 Image/Build/Profile/DGN3500=$(call Image/BuildDGN3500/$(1),$(1),DGN3500)
@@ -628,6 +649,7 @@ endef
 LEGACY_DEVICES += BTHOMEHUBV5A
 
 define Device/EASY80920NAND
+  $(Device/lantiqFullImage)
   DEVICE_PROFILE := EASY80920NAND
   IMAGE_SIZE := 64512k
   DEVICE_TITLE := Lantiq VR9 - EASY80920NAND
