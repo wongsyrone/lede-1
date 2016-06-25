@@ -19,3 +19,9 @@ stop() {
 	service_stop /usr/bin/ss-redir
 	service_stop /usr/bin/ss-tunnel
 }
+
+restart() {
+	stop
+	sleep 3
+	start
+}
