@@ -1,3 +1,4 @@
+include ./legacy-devices.mk
 rootfs_type=$(patsubst jffs2-%,jffs2,$(patsubst squashfs-%,squashfs,$(1)))
 
 # $(1): rootfs type.
@@ -145,16 +146,16 @@ endif
 # $(6): padding size.
 define CatFiles
 	if [ $(2) -eq 0 ]; then \
-		filename="$(3)"; fstype=$$$${filename##*\.}; \
-		case "$$$${fstype}" in \
+		filename="$(3)"; fstype=$${filename##*\.}; \
+		case "$${fstype}" in \
 		"jffs2-64k") bs=65536;; \
 		"jffs2-128k") bs=131072;; \
 		"jffs2-256k") bs=262144;; \
 		*) bs=`stat -c%s $(1)`;; \
 		esac; \
-		( dd if=$(1) bs=$$$${bs} conv=sync;  cat $(3) ) > $(5); \
+		( dd if=$(1) bs=$${bs} conv=sync;  cat $(3) ) > $(5); \
 		if [ -n "$(6)" ]; then \
-			case "$$$${fstype}" in \
+			case "$${fstype}" in \
 			squashfs*) \
 				padjffs2 $(5) $(6); \
 				;; \
@@ -285,7 +286,6 @@ f9k1115v2_mtdlayout=mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env),14464k(rootfs
 dlrtdev_mtdlayout=mtdparts=spi0.0:256k(uboot)ro,64k(config)ro,6208k(firmware),64k(caldata)ro,640k(certs),960k(unknown)ro,64k@0x7f0000(caldata_copy)
 dlrtdev_mtdlayout_fat=mtdparts=spi0.0:256k(uboot)ro,64k(config)ro,7168k(firmware),640k(certs),64k(caldata)ro,64k@0x660000(caldata_orig),6208k@0x50000(firmware_orig)
 dragino2_mtdlayout=mtdparts=spi0.0:256k(u-boot)ro,16000k(firmware),64k(config)ro,64k(art)ro
-hiwifi_hc6361_mtdlayout=mtdparts=spi0.0:64k(u-boot)ro,64k(bdinfo)ro,1280k(kernel),14848k(rootfs),64k(backup)ro,64k(art)ro,16128k@0x20000(firmware)
 mr12_mtdlayout=mtdparts=spi0.0:256k(u-boot)ro,256k(u-boot-env)ro,13440k(rootfs),2304k(kernel),128k(art)ro,15744k@0x80000(firmware)
 mr16_mtdlayout=mtdparts=spi0.0:256k(u-boot)ro,256k(u-boot-env)ro,13440k(rootfs),2304k(kernel),128k(art)ro,15744k@0x80000(firmware)
 pb92_mtdlayout=mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,2752k(rootfs),896k(kernel),64k(nvram),64k(art)ro,3648k@0x50000(firmware)
@@ -359,7 +359,7 @@ endef
 define Image/Build/CameoAP94
 	$(eval fwsize=$(call mtdpartsize,firmware,$(4)))
 	$(eval fwsize_fat=$(call mtdpartsize,firmware,$(5)))
-	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$$$(($(fwsize)-4*64*1024)),64)
+	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$(($(fwsize)-4*64*1024)),64)
 	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
 		( \
 			dd if=$(call sysupname,$(1),$(2)); \
@@ -374,7 +374,7 @@ define Image/Build/CameoAP94
 			) > $(call factoryname,$(1),$(2)); \
 		fi; \
 	fi
-	$(call CatFiles,$(KDIR_TMP)/vmlinux-$(2)-fat.uImage,0,$(KDIR)/root.$(1),$$$$(($(fwsize_fat)-4*64*1024)),$(KDIR_TMP)/$(2)-fat.bin,64)
+	$(call CatFiles,$(KDIR_TMP)/vmlinux-$(2)-fat.uImage,0,$(KDIR)/root.$(1),$$(($(fwsize_fat)-4*64*1024)),$(KDIR_TMP)/$(2)-fat.bin,64)
 	if [ -e "$(KDIR_TMP)/$(2)-fat.bin" ]; then \
 		echo -n "" > $(KDIR_TMP)/$(2)-fat.dummy; \
 		sh $(TOPDIR)/scripts/combined-image.sh \
@@ -385,7 +385,7 @@ define Image/Build/CameoAP94
 endef
 
 define Image/Build/WZRHP
-	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$$$(($(3)-4*$(4)*1024)),$(4))
+	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$(($(3)-4*$(4)*1024)),$(4))
 	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
 		( \
 			echo -n -e "# Airstation Public Fmt1\x00\x00\x00\x00\x00\x00\x00\x00"; \
@@ -415,7 +415,7 @@ Image/Build/WHRHPG300N/initramfs=$(call MkuImageLzma/initramfs,$(2),$(3) $(4))
 
 define Image/Build/WHRHPG300N
 	$(eval fwsize=$(call mtdpartsize,firmware,$(4)))
-	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$$$(($(fwsize)-4*64*1024)),64)
+	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$(($(fwsize)-4*64*1024)),64)
 	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
 		( \
 			echo -n -e "# Airstation Public Fmt1\x00\x00\x00\x00\x00\x00\x00\x00"; \
@@ -434,11 +434,11 @@ endef
 
 define Image/Build/Cameo
 	$(eval fwsize=$(call mtdpartsize,firmware,$(4)))
-	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$$$(($(fwsize)-4*64*1024)),64)
+	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$(($(fwsize)-4*64*1024)),64)
 	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
-		factory_size=$$$$(($(fwsize) - $(6))); \
+		factory_size=$$(($(fwsize) - $(6))); \
 		( \
-			dd if=$(call sysupname,$(1),$(2)) bs=$$$${factory_size} conv=sync; \
+			dd if=$(call sysupname,$(1),$(2)) bs=$${factory_size} conv=sync; \
 			echo -n $(5); \
 		) > $(call factoryname,$(1),$(2)); \
 	fi
@@ -474,7 +474,7 @@ Image/Build/CameoDB120_8M/initramfs=$(call MkuImageLzma/initramfs,$(2),$(3) $(ca
 
 define Image/Build/CameoHornet
 	$(eval fwsize=$(call mtdpartsize,firmware,$(4)))
-	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$$$(($(fwsize)-4*64*1024)),64)
+	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$(($(fwsize)-4*64*1024)),64)
 	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
 		for r in $(7); do \
 			[ -n "$$$$r" ] && dashr="-$$$$r" || dashr=; \
@@ -579,22 +579,6 @@ Image/Build/EnGenius/buildkernel=$(call MkuImageLzma,$(2),$(3) $(4))
 Image/Build/EnGenius/initramfs=$(call MkuImageLzma/initramfs,$(2),$(3) $(4))
 
 
-define MkuImageHiWiFi
-	# Field ih_name needs to start with "tw150v1"
-	mkimage -A mips -O linux -T kernel -a 0x80060000 -C $(1) $(2) \
-		-e 0x80060000 -n 'tw150v1 MIPS OpenWrt Linux-$(LINUX_VERSION)' \
-		-d $(3) $(4)
-endef
-
-define MkuImageLzmaHiWiFi
-	$(call PatchKernelLzma,$(1),$(2),$(3),$(4))
-	$(call MkuImageHiWiFi,lzma,$(5),$(KDIR_TMP)/vmlinux$(4)-$(1).bin.lzma,$(KDIR_TMP)/vmlinux$(4)-$(1).uImage)
-endef
-
-Image/Build/HiWiFi/buildkernel=$(call MkuImageLzmaHiWiFi,$(2),$(3) $(4))
-Image/Build/HiWiFi=$(call Image/Build/Ath,$(1),$(2),$(3),$(4),$(5),$(6),$(7))
-Image/Build/HiWiFi/initramfs=$(call MkuImageLzma/initramfs,$(2),$(3) $(4))
-
 Image/Build/PB4X/buildkernel=$(call PatchKernelLzma,$(2),$(3))
 
 define Image/Build/PB4X
@@ -642,7 +626,7 @@ endef
 
 define Image/Build/Planex
 	$(eval fwsize=$(call mtdpartsize,firmware,$(planex_mtdlayout)))
-	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$$$(($(fwsize)-4*64*1024)),64)
+	$(call Sysupgrade/KRuImage,$(1),$(2),0,$$(($(fwsize)-4*64*1024)),64)
 	if [ -e "$(call sysupname,$(1),$(2))" ]; then \
 		$(STAGING_DIR_HOST)/bin/mkplanexfw \
 			-B $(2) \
@@ -679,7 +663,7 @@ define Image/Build/Seama
 	[ -e "$(KDIR)/loader-$(2).bin" ]
 	$(call CompressLzma,$(KDIR)/loader-$(2).bin,$(KDIR_TMP)/loader-$(2).bin.lzma)
 	-rm -f $(KDIR_TMP)/image-$(2).tmp
-	$(call CatFiles,$(KDIR_TMP)/loader-$(2).bin.lzma,$$$$(($(6) - 64)),$(KDIR)/root.$(1),$(7),$(KDIR_TMP)/image-$(2).tmp)
+	$(call CatFiles,$(KDIR_TMP)/loader-$(2).bin.lzma,$$(($(6) - 64)),$(KDIR)/root.$(1),$(7),$(KDIR_TMP)/image-$(2).tmp)
 	[ -e "$(KDIR_TMP)/image-$(2).tmp" ] && { \
 		head -c -4 "$(KDIR_TMP)/image-$(2).tmp" > "$(KDIR_TMP)/image-$(2).no-jffs2mark.tmp"; \
 		$(STAGING_DIR_HOST)/bin/seama \
@@ -1080,8 +1064,6 @@ $(eval $(call SingleProfile,EnGenius,64k,ESR900,esr900,ESR900,ttyS0,115200,$$(es
 $(eval $(call SingleProfile,EnGenius,64k,ESR1750,esr1750,ESR1750,ttyS0,115200,$$(esr1750_mtdlayout),KRuImage,,0x61))
 $(eval $(call SingleProfile,EnGenius,64k,EPG5000,epg5000,EPG5000,ttyS0,115200,$$(epg5000_mtdlayout),KRuImage,,0x71))
 
-$(eval $(call SingleProfile,HiWiFi,64k,HIWIFI_HC6361,hiwifi-hc6361,HiWiFi-HC6361,ttyATH0,115200,$$(hiwifi_hc6361_mtdlayout),KRuImage))
-
 $(eval $(call SingleProfile,MyLoader,64k,WP543_2M,wp543,,ttyS0,115200,0x200000,2M))
 $(eval $(call SingleProfile,MyLoader,64k,WP543_4M,wp543,,ttyS0,115200,0x400000,4M))
 $(eval $(call SingleProfile,MyLoader,64k,WP543_8M,wp543,,ttyS0,115200,0x800000,8M))
@@ -1227,10 +1209,4 @@ endef
 define Image/Build/Profile
 	$(call Image/Build/Profile/$(1),buildkernel)
 	$(call Image/Build/Profile/$(1),$(2))
-endef
-
-# $(1): filesystem type.
-define Image/Build
-	$(call Image/Build/$(call rootfs_type,$(1)),$(1))
-	$(call Image/Build/Profile/$(IMAGE_PROFILE),$(1))
 endef

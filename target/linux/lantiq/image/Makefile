@@ -174,11 +174,6 @@ endef
 
 
 ### Kernel scripts ###
-define Build/append-dtb
-	$(call Image/BuildDTB,../dts/$(DEVICE_DTS).dts,$@.dtb)
-	cat $@.dtb >> $@
-endef
-
 define Build/mkbrncmdline
    mkbrncmdline -i $@ -o $@.new BRN-BOOT
    mv $@.new $@
@@ -213,11 +208,12 @@ define Device/Default
   FILESYSTEMS := squashfs
   DEVICE_PROFILE :=
   DEVICE_DTS = $$(DEVICE_PROFILE)
+  DEVICE_DTS_DIR := ../dts
   IMAGE_SIZE :=
   IMAGES := sysupgrade.bin
   IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE)
 endef
-DEVICE_VARS += DEVICE_PROFILE DEVICE_DTS IMAGE_SIZE
+DEVICE_VARS += DEVICE_PROFILE DEVICE_DTS DEVICE_DTS_DIR IMAGE_SIZE
 
 define Device/lantiqBrnImage
   KERNEL := kernel-bin | append-dtb | mkbrncmdline | lzma-no-dict
@@ -374,6 +370,18 @@ define Device/ARV4519PW
 	swconfig
 endef
 TARGET_DEVICES += ARV4519PW
+
+define Device/ARV7506PW11
+  DEVICE_PROFILE := ARV7506PW11
+  IMAGE_SIZE := 7808k
+  DEVICE_TITLE := Alice/O2 IAD 4421 - ARV7506PW11
+  DEVICE_PACKAGES := kmod-ltq-adsl-danube-mei kmod-ltq-adsl-danube \
+	kmod-ltq-adsl-danube-fw-b kmod-ltq-atm-danube \
+	ltq-adsl-app ppp-mod-pppoa \
+	kmod-rt2800-pci wpad-mini \
+	swconfig
+endef
+TARGET_DEVICES += ARV7506PW11
 
 define Device/ARV7510PW22
   DEVICE_PROFILE := ARV7510PW22
@@ -560,14 +568,6 @@ define LegacyDevice/FRITZ7320
 	kmod-ath9k wpad-mini
 endef
 LEGACY_DEVICES += FRITZ7320
-
-define Device/GR7000
-  DEVICE_PROFILE := GR7000
-  IMAGE_SIZE := 7808k
-  DEVICE_TITLE := Aztech GR7000
-  DEVICE_PACKAGES := kmod-ltq-deu-ar9 kmod-usb-dwc2 swconfig
-endef
-TARGET_DEVICES += GR7000
 
 define Device/H201L
   DEVICE_PROFILE := H201L
