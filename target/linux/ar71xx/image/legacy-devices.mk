@@ -547,7 +547,7 @@ LEGACY_DEVICES += MZKW300NH
 
 define LegacyDevice/QIHOO360
 	DEVICE_TITLE := Qihoo 360 C301
-	DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev kmod-ath10k
+	DEVICE_PACKAGES := kmod-usb-core kmod-usb2 uboot-envtools kmod-ledtrig-usbdev kmod-ath9k kmod-ath10k
 endef
 LEGACY_DEVICES += QIHOO360
 

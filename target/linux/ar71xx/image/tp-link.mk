@@ -120,6 +120,7 @@ endef
 
 define Device/tl-wr2041n-v1
 $(Device/tplink-4mlzma)
+  DEVICE_TITLE := TP-LINK TL-WR2041N v1
   BOARDNAME = TL-WR2041N-v1
   # DEVICE_PROFILE in generic/profile/tp-link.mk
   # and there's no MultiProfile in new build code.
