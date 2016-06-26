@@ -413,6 +413,8 @@ define Package/libxtables
  SECTION:=libs
  CATEGORY:=Libraries
  TITLE:=IPv4/IPv6 firewall - shared xtables library
+ DEPENDS:= +PACKAGE_dnsmasq_full_conntrack:libnetfilter-conntrack \
+	+PACKAGE_dnsmasq_full_conntrack:libnfnetlink
 endef
 
 TARGET_CPPFLAGS := \
@@ -438,7 +440,7 @@ CONFIGURE_ARGS += \
 	--enable-static \
 	$(if $(CONFIG_IPV6),,--disable-ipv6) \
 	--disable-nftables \
-	--disable-libnfnetlink
+	$(if $(CONFIG_PACKAGE_dnsmasq_full_conntrack),--enable,--disable)-libnfnetlink
 
 MAKE_FLAGS := \
 	$(TARGET_CONFIGURE_OPTS) \
