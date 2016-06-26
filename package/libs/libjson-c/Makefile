@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=json-c
-PKG_VERSION:=0.12
+PKG_VERSION:=0.12.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://s3.amazonaws.com/json-c_releases/releases/
-PKG_MD5SUM:=3ca4bbb881dfc4017e8021b5e0a8c491
+PKG_MD5SUM:=55f7853f7d8cf664554ce3fa71bf1c7d
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
@@ -31,7 +31,7 @@ define Package/libjson-c
   SECTION:=libs
   CATEGORY:=Libraries
   TITLE:=javascript object notation
-  URL:=http://oss.metaparadigm.com/json-c/
+  URL:=https://github.com/json-c/json-c
 endef
 
 define Package/libjson-c/description
