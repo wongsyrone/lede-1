@@ -1,94 +1,66 @@
---- a/configure
-+++ b/configure
-@@ -12488,77 +12488,7 @@ fi
- fi
- 
- 
--pkg_failed=no
--{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for libnfnetlink" >&5
--$as_echo_n "checking for libnfnetlink... " >&6; }
--
--if test -n "$libnfnetlink_CFLAGS"; then
--    pkg_cv_libnfnetlink_CFLAGS="$libnfnetlink_CFLAGS"
-- elif test -n "$PKG_CONFIG"; then
--    if test -n "$PKG_CONFIG" && \
--    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnfnetlink >= 1.0\""; } >&5
--  ($PKG_CONFIG --exists --print-errors "libnfnetlink >= 1.0") 2>&5
--  ac_status=$?
--  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
--  test $ac_status = 0; }; then
--  pkg_cv_libnfnetlink_CFLAGS=`$PKG_CONFIG --cflags "libnfnetlink >= 1.0" 2>/dev/null`
--		      test "x$?" != "x0" && pkg_failed=yes
--else
--  pkg_failed=yes
--fi
-- else
--    pkg_failed=untried
--fi
--if test -n "$libnfnetlink_LIBS"; then
--    pkg_cv_libnfnetlink_LIBS="$libnfnetlink_LIBS"
-- elif test -n "$PKG_CONFIG"; then
--    if test -n "$PKG_CONFIG" && \
--    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnfnetlink >= 1.0\""; } >&5
--  ($PKG_CONFIG --exists --print-errors "libnfnetlink >= 1.0") 2>&5
--  ac_status=$?
--  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
--  test $ac_status = 0; }; then
--  pkg_cv_libnfnetlink_LIBS=`$PKG_CONFIG --libs "libnfnetlink >= 1.0" 2>/dev/null`
--		      test "x$?" != "x0" && pkg_failed=yes
--else
--  pkg_failed=yes
--fi
-- else
--    pkg_failed=untried
--fi
--
--
--
--if test $pkg_failed = yes; then
--   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
--$as_echo "no" >&6; }
--
--if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
--        _pkg_short_errors_supported=yes
--else
--        _pkg_short_errors_supported=no
--fi
--        if test $_pkg_short_errors_supported = yes; then
--	        libnfnetlink_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libnfnetlink >= 1.0" 2>&1`
--        else
--	        libnfnetlink_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libnfnetlink >= 1.0" 2>&1`
--        fi
--	# Put the nasty error message in config.log where it belongs
--	echo "$libnfnetlink_PKG_ERRORS" >&5
--
--	nfnetlink=0
--elif test $pkg_failed = untried; then
--     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
--$as_echo "no" >&6; }
--	nfnetlink=0
--else
--	libnfnetlink_CFLAGS=$pkg_cv_libnfnetlink_CFLAGS
--	libnfnetlink_LIBS=$pkg_cv_libnfnetlink_LIBS
--        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
--$as_echo "yes" >&6; }
--	nfnetlink=1
--fi
-- if test "$nfnetlink" = 1; then
-+if false; then
-   HAVE_LIBNFNETLINK_TRUE=
-   HAVE_LIBNFNETLINK_FALSE='#'
- else
+[PATCH] configure: Add option to enable/disable libnfnetlink
+
+This changes the configure behaviour from autodetecting
+for libnfnetlink to having an option to disable it explicitly
+
+Upstream-Status: Pending
+
+Signed-off-by: Khem Raj <raj.khem@gmail.com>
+Signed-off-by: Maxin B. John <maxin.john@intel.com>
+
+Package libnetfilter-conntrack depends on package libnfnetlink. iptables
+checks package libnetfilter-conntrack whatever its package config
+libnfnetlink is enabled or not. When libnfnetlink is disabled but
+package libnetfilter-conntrack exists, it fails randomly with:
+
+| In file included from .../iptables/1.4.21-r0/iptables-1.4.21/extensions/libxt_connlabel.c:8:0:
+| .../tmp/sysroots/qemumips/usr/include/libnetfilter_conntrack/libnetfilter_conntrack.h:14:42: fatal error: libnfnetlink/linux_nfnetlink.h: No such file or directory
+| compilation terminated.
+| GNUmakefile:96: recipe for target 'libxt_connlabel.oo' failed
+
+Only check libnetfilter-conntrack when libnfnetlink is enabled to fix it.
+
+Upstream-Status: Pending
+
+Signed-off-by: Kai Kang <kai.kang@windriver.com>
+---
 --- a/configure.ac
 +++ b/configure.ac
-@@ -119,9 +119,7 @@ if test "x$enable_bpfc" = "xyes" || test
+@@ -63,6 +63,9 @@ AC_ARG_WITH([pkgconfigdir], AS_HELP_STRI
+ AC_ARG_ENABLE([nftables],
+ 	AS_HELP_STRING([--disable-nftables], [Do not build nftables compat]),
+ 	[enable_nftables="$enableval"], [enable_nftables="yes"])
++AC_ARG_ENABLE([libnfnetlink],
++    AS_HELP_STRING([--disable-libnfnetlink], [Do not use netfilter netlink library]),
++    [enable_libnfnetlink="$enableval"], [enable_libnfnetlink="yes"])
+ 
+ libiptc_LDFLAGS2="";
+ AX_CHECK_LINKER_FLAGS([-Wl,--no-as-needed],
+@@ -93,8 +96,12 @@ if test "$ac_cv_header_linux_ip_vs_h" !=
+ 	blacklist_modules="$blacklist_modules ipvs";
+ fi;
+ 
+-PKG_CHECK_MODULES([libnetfilter_conntrack], [libnetfilter_conntrack >= 1.0.4],
++nfconntrack=0
++AS_IF([test "x$enable_libnfnetlink" = "xyes"], [
++  PKG_CHECK_MODULES([libnetfilter_conntrack], [libnetfilter_conntrack >= 1.0.4],
+ 	[nfconntrack=1], [nfconntrack=0])
++  ])
++
+ AM_CONDITIONAL([HAVE_LIBNETFILTER_CONNTRACK], [test "$nfconntrack" = 1])
+ 
+ if test "$nfconntrack" -ne 1; then
+@@ -119,9 +126,10 @@ if test "x$enable_bpfc" = "xyes" || test
  	AC_CHECK_LIB(pcap, pcap_compile,, AC_MSG_ERROR(missing libpcap library required by bpf compiler or nfsynproxy tool))
  fi
  
 -PKG_CHECK_MODULES([libnfnetlink], [libnfnetlink >= 1.0],
 -	[nfnetlink=1], [nfnetlink=0])
 -AM_CONDITIONAL([HAVE_LIBNFNETLINK], [test "$nfnetlink" = 1])
-+AM_CONDITIONAL([HAVE_LIBNFNETLINK], [false])
++AS_IF([test "x$enable_libnfnetlink" = "xyes"], [
++    PKG_CHECK_MODULES([libnfnetlink], [libnfnetlink >= 1.0])
++    ])
++AM_CONDITIONAL([HAVE_LIBNFNETLINK], [test "x$enable_libnfnetlink" = "xyes"])
  
  if test "x$enable_nftables" = "xyes"; then
  	PKG_CHECK_MODULES([libmnl], [libmnl >= 1.0], [mnl=1], [mnl=0])

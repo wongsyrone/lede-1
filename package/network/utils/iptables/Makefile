@@ -429,6 +429,7 @@ TARGET_CFLAGS += \
 TARGET_LDFLAGS += \
 	-Wl,--gc-sections
 
+# --disable-libnfnetlink comes from openembedded, added in 030-no-libnfnetlink.patch
 CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-devel \
@@ -436,7 +437,8 @@ CONFIGURE_ARGS += \
 	--with-xtlibdir=/usr/lib/iptables \
 	--enable-static \
 	$(if $(CONFIG_IPV6),,--disable-ipv6) \
-	--disable-nftables
+	--disable-nftables \
+	--disable-libnfnetlink
 
 MAKE_FLAGS := \
 	$(TARGET_CONFIGURE_OPTS) \
