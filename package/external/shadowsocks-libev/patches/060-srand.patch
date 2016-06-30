@@ -19,7 +19,7 @@ Subject: [PATCH] rand
  #include <unistd.h>
  #include <getopt.h>
  
-@@ -982,6 +983,7 @@ int main(int argc, char **argv)
+@@ -991,6 +992,7 @@ int main(int argc, char **argv)
      char *iface      = NULL;
  
      srand(time(NULL));
@@ -27,7 +27,7 @@ Subject: [PATCH] rand
  
      int remote_num = 0;
      ss_addr_t remote_addr[MAX_REMOTE_NUM];
-@@ -1283,8 +1285,6 @@ int main(int argc, char **argv)
+@@ -1296,8 +1298,6 @@ int main(int argc, char **argv)
  
  int start_ss_local_server(profile_t profile)
  {
@@ -38,7 +38,7 @@ Subject: [PATCH] rand
      char *method      = profile.method;
 --- a/src/redir.c
 +++ b/src/redir.c
-@@ -685,6 +685,9 @@ int main(int argc, char **argv)
+@@ -691,6 +691,9 @@ int main(int argc, char **argv)
      char *pid_path   = NULL;
      char *conf_path  = NULL;
  
@@ -58,7 +58,7 @@ Subject: [PATCH] rand
  #include <unistd.h>
  #include <getopt.h>
  
-@@ -691,6 +692,9 @@ int main(int argc, char **argv)
+@@ -698,6 +699,9 @@ int main(int argc, char **argv)
      char *conf_path  = NULL;
      char *iface      = NULL;
  
