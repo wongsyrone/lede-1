@@ -188,176 +188,176 @@ endef
 TARGET_DEVICES += cr5000-nocloud
 
 define Device/antminer-s1
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := Antminer-S1
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-crypto-manager kmod-i2c-gpio-custom kmod-usb-hid
-    BOARDNAME := ANTMINER-S1
-    DEVICE_PROFILE := ANTMINERS1
-    TPLINK_HWID := 0x04440101
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := Antminer-S1
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-crypto-manager kmod-i2c-gpio-custom kmod-usb-hid
+  BOARDNAME := ANTMINER-S1
+  DEVICE_PROFILE := ANTMINERS1
+  TPLINK_HWID := 0x04440101
+  CONSOLE := ttyATH0,115200
 endef
 
 define Device/antminer-s3
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := Antminer-S3
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-crypto-manager kmod-i2c-gpio-custom kmod-usb-hid
-    BOARDNAME := ANTMINER-S3
-    DEVICE_PROFILE := ANTMINERS3
-    TPLINK_HWID := 0x04440301
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := Antminer-S3
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-crypto-manager kmod-i2c-gpio-custom kmod-usb-hid
+  BOARDNAME := ANTMINER-S3
+  DEVICE_PROFILE := ANTMINERS3
+  TPLINK_HWID := 0x04440301
+  CONSOLE := ttyATH0,115200
 endef
 
 define Device/antrouter-r1
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := Antrouter-R1
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2
-    BOARDNAME := ANTROUTER-R1
-    DEVICE_PROFILE := ANTROUTERR1
-    TPLINK_HWID := 0x44440101
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := Antrouter-R1
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME := ANTROUTER-R1
+  DEVICE_PROFILE := ANTROUTERR1
+  TPLINK_HWID := 0x44440101
+  CONSOLE := ttyATH0,115200
 endef
 
 define Device/el-m150
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := EasyLink EL-M150
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2
-    BOARDNAME := EL-M150
-    DEVICE_PROFILE := ELM150
-    TPLINK_HWID := 0x01500101
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := EasyLink EL-M150
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME := EL-M150
+  DEVICE_PROFILE := ELM150
+  TPLINK_HWID := 0x01500101
+  CONSOLE := ttyATH0,115200
 endef
 
 define Device/el-mini
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := EasyLink EL-MINI
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2
-    BOARDNAME := EL-MINI
-    DEVICE_PROFILE := ELMINI
-    TPLINK_HWID := 0x01530001
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := EasyLink EL-MINI
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME := EL-MINI
+  DEVICE_PROFILE := ELMINI
+  TPLINK_HWID := 0x01530001
+  CONSOLE := ttyATH0,115200
 endef
 TARGET_DEVICES += antminer-s1 antminer-s3 antrouter-r1 el-m150 el-mini
 
 define Device/gl-inet-6408A-v1
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := GL.iNet 6408
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2
-    BOARDNAME := GL-INET
-    DEVICE_PROFILE := GLINET
-    TPLINK_HWID := 0x08000001
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := GL.iNet 6408
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME := GL-INET
+  DEVICE_PROFILE := GLINET
+  TPLINK_HWID := 0x08000001
+  CONSOLE := ttyATH0,115200
 endef
 
 define Device/gl-inet-6416A-v1
-    $(Device/tplink-16mlzma)
-    DEVICE_TITLE := GL.iNet 6416
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2
-    BOARDNAME := GL-INET
-    DEVICE_PROFILE := GLINET
-    TPLINK_HWID := 0x08000001
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := GL.iNet 6416
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME := GL-INET
+  DEVICE_PROFILE := GLINET
+  TPLINK_HWID := 0x08000001
+  CONSOLE := ttyATH0,115200
 endef
 TARGET_DEVICES += gl-inet-6408A-v1 gl-inet-6416A-v1
 
 define Device/rnx-n360rt
-    $(Device/tplink-4m)
-    DEVICE_TITLE := Rosewill RNX-N360RT
-    BOARDNAME := TL-WR941ND
-    DEVICE_PROFILE := RNXN360RT
-    TPLINK_HWID := 0x09410002
-    TPLINK_HWREV := 0x00420001
+  $(Device/tplink-4m)
+  DEVICE_TITLE := Rosewill RNX-N360RT
+  BOARDNAME := TL-WR941ND
+  DEVICE_PROFILE := RNXN360RT
+  TPLINK_HWID := 0x09410002
+  TPLINK_HWREV := 0x00420001
 endef
 TARGET_DEVICES += rnx-n360rt
 
 define Device/mc-mac1200r
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := MERCURY MAC1200R
-    DEVICE_PACKAGES := kmod-ath10k
-    BOARDNAME := MC-MAC1200R
-    DEVICE_PROFILE := MAC1200R
-    TPLINK_HWID := 0x12000001
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := MERCURY MAC1200R
+  DEVICE_PACKAGES := kmod-ath10k
+  BOARDNAME := MC-MAC1200R
+  DEVICE_PROFILE := MAC1200R
+  TPLINK_HWID := 0x12000001
 endef
 TARGET_DEVICES += mc-mac1200r
 
 define Device/minibox-v1
-    $(Device/tplink-16mlzma)
-    DEVICE_TITLE := Gainstrong MiniBox V1.0
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2  kmod-ledtrig-usbdev
-    BOARDNAME := MINIBOX-V1
-    DEVICE_PROFILE := MINIBOXV1
-    TPLINK_HWID := 0x3C000201
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := Gainstrong MiniBox V1.0
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2  kmod-ledtrig-usbdev
+  BOARDNAME := MINIBOX-V1
+  DEVICE_PROFILE := MINIBOXV1
+  TPLINK_HWID := 0x3C000201
+  CONSOLE := ttyATH0,115200
 endef
 TARGET_DEVICES += minibox-v1
 
 define Device/omy-g1
-    $(Device/tplink-16mlzma)
-    DEVICE_TITLE := OMYlink OMY-G1
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2
-    BOARDNAME := OMY-G1
-    DEVICE_PROFILE := OMYG1
-    TPLINK_HWID := 0x06660101
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := OMYlink OMY-G1
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME := OMY-G1
+  DEVICE_PROFILE := OMYG1
+  TPLINK_HWID := 0x06660101
 endef
 
 define Device/omy-x1
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := OMYlink OMY-X1
-    BOARDNAME := OMY-X1
-    DEVICE_PROFILE := OMYX1
-    TPLINK_HWID := 0x06660201
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := OMYlink OMY-X1
+  BOARDNAME := OMY-X1
+  DEVICE_PROFILE := OMYX1
+  TPLINK_HWID := 0x06660201
 endef
 TARGET_DEVICES += omy-g1 omy-x1
 
 define Device/onion-omega
-    $(Device/tplink-16mlzma)
-    DEVICE_TITLE := Onion Omega
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-storage kmod-i2c-core kmod-i2c-gpio-custom kmod-spi-bitbang kmod-spi-dev kmod-spi-gpio kmod-spi-gpio-custom kmod-usb-serial
-    BOARDNAME := ONION-OMEGA
-    DEVICE_PROFILE := OMEGA
-    TPLINK_HWID := 0x04700001
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := Onion Omega
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-storage kmod-i2c-core kmod-i2c-gpio-custom kmod-spi-bitbang kmod-spi-dev kmod-spi-gpio kmod-spi-gpio-custom kmod-usb-serial
+  BOARDNAME := ONION-OMEGA
+  DEVICE_PROFILE := OMEGA
+  TPLINK_HWID := 0x04700001
+  CONSOLE := ttyATH0,115200
 endef
 TARGET_DEVICES += onion-omega
 
 define Device/smart-300
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := NC-LINK SMART-300
-    BOARDNAME := SMART-300
-    DEVICE_PROFILE := SMART-300
-    TPLINK_HWID := 0x93410001
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := NC-LINK SMART-300
+  BOARDNAME := SMART-300
+  DEVICE_PROFILE := SMART-300
+  TPLINK_HWID := 0x93410001
 endef
 TARGET_DEVICES += smart-300
 
 define Device/som9331
-    $(Device/tplink-8mlzma)
-    DEVICE_TITLE := OpenEmbed SOM9331
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-storage kmod-i2c-core kmod-i2c-gpio-custom kmod-spi-bitbang kmod-spi-dev kmod-spi-gpio kmod-spi-gpio-custom kmod-usb-serial
-    BOARDNAME := SOM9331
-    DEVICE_PROFILE := SOM9331
-    TPLINK_HWID := 0x04800054
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-8mlzma)
+  DEVICE_TITLE := OpenEmbed SOM9331
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-storage kmod-i2c-core kmod-i2c-gpio-custom kmod-spi-bitbang kmod-spi-dev kmod-spi-gpio kmod-spi-gpio-custom kmod-usb-serial
+  BOARDNAME := SOM9331
+  DEVICE_PROFILE := SOM9331
+  TPLINK_HWID := 0x04800054
+  CONSOLE := ttyATH0,115200
 endef
 TARGET_DEVICES += som9331
 
 define Device/tellstick-znet-lite
-    $(Device/tplink-16mlzma)
-    DEVICE_TITLE := TellStick ZNet Lite
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-acm kmod-usb-serial kmod-usb-serial-pl2303
-    BOARDNAME := TELLSTICK-ZNET-LITE
-    DEVICE_PROFILE := TELLSTICKZNETLITE
-    TPLINK_HWID := 0x00726001
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := TellStick ZNet Lite
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-acm kmod-usb-serial kmod-usb-serial-pl2303
+  BOARDNAME := TELLSTICK-ZNET-LITE
+  DEVICE_PROFILE := TELLSTICKZNETLITE
+  TPLINK_HWID := 0x00726001
+  CONSOLE := ttyATH0,115200
 endef
 TARGET_DEVICES += tellstick-znet-lite
 
 define Device/oolite
-    $(Device/tplink-16mlzma)
-    DEVICE_TITLE := Gainstrong OOLITE
-    DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev
-    BOARDNAME := GS-OOLITE
-    DEVICE_PROFILE := OOLITE
-    TPLINK_HWID := 0x3C000101
-    CONSOLE := ttyATH0,115200
+  $(Device/tplink-16mlzma)
+  DEVICE_TITLE := Gainstrong OOLITE
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev
+  BOARDNAME := GS-OOLITE
+  DEVICE_PROFILE := OOLITE
+  TPLINK_HWID := 0x3C000101
+  CONSOLE := ttyATH0,115200
 endef
 TARGET_DEVICES += oolite
 
@@ -421,11 +421,95 @@ define Build/uImageHiWiFi
 endef
 
 define Device/hiwifi-hc6361
-    BOARDNAME := HiWiFi-HC6361
-    DEVICE_PROFILE := HIWIFI_HC6361
-    IMAGE_SIZE := 16128k
-    KERNEL := kernel-bin | patch-cmdline | lzma | uImageHiWiFi lzma
-    CONSOLE := ttyATH0,115200
-    MTDPARTS := spi0.0:64k(u-boot)ro,64k(bdinfo)ro,16128k(firmware),64k(backup)ro,64k(art)ro
+  DEVICE_TITLE := HiWiFi HC6361
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-storage \
+	kmod-fs-ext4 kmod-nls-iso8859-1 e2fsprogs
+  BOARDNAME := HiWiFi-HC6361
+  DEVICE_PROFILE := HIWIFI_HC6361
+  IMAGE_SIZE := 16128k
+  KERNEL := kernel-bin | patch-cmdline | lzma | uImageHiWiFi lzma
+  CONSOLE := ttyATH0,115200
+  MTDPARTS := spi0.0:64k(u-boot)ro,64k(bdinfo)ro,16128k(firmware),64k(backup)ro,64k(art)ro
 endef
 TARGET_DEVICES += hiwifi-hc6361
+
+
+# The pre-filled 64 bytes consist of
+# - 28 bytes seama_header
+# - 36 bytes of META data (4-bytes aligned)
+#
+# And as the 4 bytes jffs2 marker will be erased on first boot, they need to
+# be excluded from the calculation of checksum
+define Build/seama-factory
+	( dd if=/dev/zero bs=64 count=1; cat $(word 1,$^) ) >$@.loader.tmp
+	( dd if=$@.loader.tmp bs=64k conv=sync; dd if=$(word 2,$^) ) >$@.tmp.0
+	tail -c +65 $@.tmp.0 >$@.tmp.1
+	head -c -4 $@.tmp.1 >$@.tmp.2
+	$(STAGING_DIR_HOST)/bin/seama \
+		-i $@.tmp.2 \
+		-m "dev=/dev/mtdblock/1" -m "type=firmware"
+	$(STAGING_DIR_HOST)/bin/seama \
+		-s $@ \
+		-m "signature=$(1)" \
+		-i $@.tmp.2.seama
+	tail -c 4 $@.tmp.1 >>$@
+	rm -f $@.loader.tmp $@.tmp.*
+endef
+
+define Build/seama-sysupgrade
+	$(STAGING_DIR_HOST)/bin/seama \
+		-i $(word 1,$^) \
+		-m "dev=/dev/mtdblock/1" -m "type=firmware"
+	( dd if=$(word 1,$^).seama bs=64k conv=sync; dd if=$(word 2,$^) ) >$@
+endef
+
+define Build/seama-initramfs
+	$(STAGING_DIR_HOST)/bin/seama \
+		-i $@ \
+		-m "dev=/dev/mtdblock/1" -m "type=firmware"
+	mv $@.seama $@
+endef
+
+define Device/seama
+  CONSOLE := ttyS0,115200
+  KERNEL := kernel-bin | loader-kernel-cmdline | lzma
+  KERNEL_INITRAMFS := kernel-bin | patch-cmdline | lzma | seama-initramfs
+  KERNEL_INITRAMFS_SUFFIX = $$(KERNEL_SUFFIX).seama
+  IMAGES := sysupgrade.bin factory.bin
+  IMAGE/sysupgrade.bin := seama-sysupgrade $$$$(SEAMA_SIGNATURE) | check-size $$$$(IMAGE_SIZE)
+  IMAGE/factory.bin := seama-factory $$$$(SEAMA_SIGNATURE) | check-size $$$$(IMAGE_SIZE)
+  SEAMA_SIGNATURE :=
+  DEVICE_VARS := SEAMA_SIGNATURE
+endef
+
+define Device/mynet-n600
+$(Device/seama)
+  DEVICE_TITLE := Western Digital My Net N600
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME = MYNET-N600
+  IMAGE_SIZE = 15808k
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,64k(devdata)ro,64k(devconf)ro,15872k(firmware),64k(radiocfg)ro
+  SEAMA_SIGNATURE := wrgnd16_wd_db600
+endef
+
+define Device/mynet-n750
+$(Device/seama)
+  DEVICE_TITLE := Western Digital My Net N750
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME = MYNET-N750
+  IMAGE_SIZE = 15808k
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,64k(devdata)ro,64k(devconf)ro,15872k(firmware),64k(radiocfg)ro
+  SEAMA_SIGNATURE := wrgnd13_wd_av
+endef
+
+define Device/qihoo-c301
+$(Device/seama)
+  DEVICE_TITLE := Qihoo C301
+  DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev kmod-ath10k
+  BOARDNAME = QIHOO-C301
+  IMAGE_SIZE = 15744k
+  MTDPARTS = mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env),64k(devdata),64k(devconf),15744k(firmware),64k(warm_start),64k(action_image_config),64k(radiocfg)ro;spi0.1:15360k(upgrade2),1024k(privatedata)
+  SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
+endef
+
+TARGET_DEVICES += mynet-n600 mynet-n750 qihoo-c301
