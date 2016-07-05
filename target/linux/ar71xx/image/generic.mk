@@ -502,14 +502,33 @@ $(Device/seama)
   SEAMA_SIGNATURE := wrgnd13_wd_av
 endef
 
-define Device/qihoo-c301
+define Device/qihoo-c301-flash1-16m
 $(Device/seama)
-  DEVICE_TITLE := Qihoo C301
-  DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev kmod-ath10k
+  DEVICE_TITLE := Qihoo C301 (Use 1st flash)
+  DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 uboot-envtools kmod-ledtrig-usbdev kmod-ath9k kmod-ath10k
   BOARDNAME = QIHOO-C301
   IMAGE_SIZE = 15744k
-  MTDPARTS = mtdparts=spi0.0:256k(u-boot)ro,64k(u-boot-env),64k(devdata),64k(devconf),15744k(firmware),64k(warm_start),64k(action_image_config),64k(radiocfg)ro;spi0.1:15360k(upgrade2),1024k(privatedata)
+  MTDPARTS = mtdparts=spi0.0:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),15744k(firmware),64k(warm_start),64k(action_image_config),64k(radiocfg);spi0.1:15360k(upgrade2),1024k(privatedata)
   SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
 endef
 
-TARGET_DEVICES += mynet-n600 mynet-n750 qihoo-c301
+define Device/qihoo-c301-flash2-16m
+$(Device/seama)
+  DEVICE_TITLE := Qihoo C301 (Use 2nd flash)
+  DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 uboot-envtools kmod-ledtrig-usbdev kmod-ath9k kmod-ath10k
+  BOARDNAME = QIHOO-C301
+  IMAGE_SIZE = 15360k
+  MTDPARTS = mtdparts=spi0.0:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),15744k(upgrade1),64k(warm_start),64k(action_image_config),64k(radiocfg);spi0.1:15360k(firmware),1024k(privatedata)
+  SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
+endef
+
+define Device/qihoo-c301-dual-flash-32m
+$(Device/seama)
+  DEVICE_TITLE := Qihoo C301 (Use dual flash)
+  DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 uboot-envtools kmod-ledtrig-usbdev kmod-ath9k kmod-ath10k
+  BOARDNAME = QIHOO-C301
+  IMAGE_SIZE = 32256k
+  MTDPARTS = mtdparts=flash:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),32256k(firmware),64k(radiocfg)
+  SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
+endef
+TARGET_DEVICES += mynet-n600 mynet-n750 qihoo-c301-flash1-16m qihoo-c301-flash2-16m qihoo-c301-dual-flash-32m
