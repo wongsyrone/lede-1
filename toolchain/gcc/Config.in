@@ -4,6 +4,7 @@ choice
 	prompt "GCC compiler Version" if TOOLCHAINOPTS
 	default GCC_USE_VERSION_4_8_ARC if arc
 	default GCC_USE_VERSION_5
+	default GCC_USE_VERSION_6
 	help
 	  Select the version of gcc you wish to use.
 
@@ -15,6 +16,11 @@ choice
 	config GCC_USE_VERSION_5
 		select GCC_VERSION_5
 		bool "gcc 5.x"
+		depends on !arc
+
+	config GCC_USE_VERSION_6
+		select GCC_VERSION_6
+		bool "gcc 6.x"
 		depends on !arc
 
 endchoice

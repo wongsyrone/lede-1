@@ -32,6 +32,10 @@ ifeq ($(PKG_VERSION),5.3.0)
   PKG_MD5SUM:=c9616fd448f980259c31de613e575719
 endif
 
+ifeq ($(PKG_VERSION),6.1.0)
+  PKG_MD5SUM:=8fb6cb98b8459f5863328380fbf06bd1
+endif
+
 ifneq ($(CONFIG_GCC_VERSION_4_8_ARC),)
     PKG_VERSION:=4.8.5
     PKG_SOURCE_URL:=https://github.com/foss-for-synopsys-dwc-arc-processors/gcc/archive/arc-2016.03
