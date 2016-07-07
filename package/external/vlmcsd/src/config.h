@@ -556,6 +556,19 @@
 
 
 
+#ifndef NO_PRIVATE_IP_DETECT
+/*
+ * Disables the ability to protect vlmcsd against KMS requests from public IP addresses.
+ * Removes -o from the command line.
+ */
+
+//#define NO_PRIVATE_IP_DETECT
+
+#endif // NO_PRIVATE_IP_DETECT
+
+
+
+
 #ifndef NO_SOCKETS
 /*
  * Disables standalone startup of vlmcsd. If you use this config directive, you must start vlmcsd from an internet
@@ -631,7 +644,6 @@
 //#define SIMPLE_SOCKETS
 
 #endif // SIMPLE_SOCKETS
-
 
 
 

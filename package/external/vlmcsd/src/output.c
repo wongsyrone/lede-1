@@ -616,6 +616,13 @@ void printServerFlags()
 		" NO_FREEBIND"
 #		endif //!HAVE_FREEBIND
 
+#		if !HAVE_GETIFADDR
+		" !HAVE_GETIFADDR"
+#		endif // !HAVE_GETIFADDR
+
+#		if defined(NO_PRIVATE_IP_DETECT)
+		" NO_PRIVATE_IP_DETECT"
+#		endif // defined(NO_PRIVATE_IP_DETECT)
 	);
 }
 #endif // NO_VERSION_INFORMATION

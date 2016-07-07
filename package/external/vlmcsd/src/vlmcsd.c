@@ -73,9 +73,9 @@
 #include "helpers.h"
 
 #ifdef ENABLE_DEPRECATED_OPTIONS
-static const char* const optstring = "N:B:m:t:w:0:3:H:A:R:u:g:L:p:i:P:l:r:U:W:C:F:SsfeDd46VvIqkZ";
+static const char* const optstring = "N:B:m:t:w:0:3:H:A:R:u:g:L:p:i:P:l:r:U:W:C:F:o:SsfeDd46VvIqkZ";
 #else // !ENABLE_DEPRECATED_OPTIONS
-static const char* const optstring = "N:B:m:t:w:0:3:H:A:R:u:g:L:p:i:P:l:r:U:W:C:F:SseDdVvqkZ";
+static const char* const optstring = "N:B:m:t:w:0:3:H:A:R:u:g:L:p:i:P:l:r:U:W:C:F:o:SseDdVvqkZ";
 #endif // !ENABLE_DEPRECATED_OPTIONS
 
 #if !defined(NO_SOCKETS) && !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
@@ -115,7 +115,7 @@ static IniFileParameter_t IniFileParameterList[] =
 		{ "RandomizationLevel", INI_PARAM_RANDOMIZATION_LEVEL },
 		{ "LCID", INI_PARAM_LCID },
 #	endif // NO_RANDOM_EPID
-#	if !defined(NO_SOCKETS) && (defined(USE_MSRPC) || defined(SIMPLE_SOCKETS))
+#	if !defined(NO_SOCKETS) && (defined(USE_MSRPC) || defined(SIMPLE_SOCKETS) || defined(HAVE_GETIFADDR))
 		{ "Port", INI_PARAM_PORT },
 #	endif // defined(USE_MSRPC) || defined(SIMPLE_SOCKETS)
 #	if !defined(NO_SOCKETS) && !defined(USE_MSRPC)
@@ -154,6 +154,9 @@ static IniFileParameter_t IniFileParameterList[] =
 		{ "user", INI_PARAM_UID },
 		{ "group", INI_PARAM_GID},
 #	endif // !defined(NO_USER_SWITCH) && !defined(_WIN32)
+#	if !defined(NO_PRIVATE_IP_DETECT)
+		{"PublicIPProtectionLevel", INI_PARAM_PUBLIC_IP_PROTECTION_LEVEL },
+#	endif
 };
 
 #endif // NO_INI_FILE
@@ -279,6 +282,13 @@ static __noreturn void usage()
 			"  -r 0|1|2\t\tset ePID randomization level (default 1)\n"
 			"  -C <LCID>\t\tuse fixed <LCID> in random ePIDs\n"
 			#endif // NO_RANDOM_EPID
+			#if !defined(NO_PRIVATE_IP_DETECT)
+			#if HAVE_GETIFADDR
+			"  -o 0|1|2|3\t\tset protection level against clients with public IP addresses (default 0)\n"
+			#else // !HAVE_GETIFADDR
+			"  -o 0|2\t\tset protection level against clients with public IP addresses (default 0)\n"
+			#endif // !HAVE_GETIFADDR
+			#endif // !defined(NO_PRIVATE_IP_DETECT)
 			#ifndef NO_SOCKETS
 			#if !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
 			"  -L <address>[:<port>]\tlisten on IP address <address> with optional <port>\n"
@@ -613,6 +623,23 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 			break;
 
 #	endif // HAVE_FREEBIND
+
+#	if !defined(NO_PRIVATE_IP_DETECT)
+
+		case INI_PARAM_PUBLIC_IP_PROTECTION_LEVEL:
+			success = getIniFileArgumentInt(&PublicIPProtectionLevel, iniarg, 0, 3);
+
+#			if !HAVE_GETIFADDR
+			if (PublicIPProtectionLevel & 1)
+			{
+				IniFileErrorMessage = "Must be 0 or 2";
+				success = FALSE;
+			}
+#			endif // !HAVE_GETIFADDR
+
+			break;
+
+#	endif // !defined(NO_PRIVATE_IP_DETECT)
 
 		default:
 			return FALSE;
@@ -1160,6 +1187,18 @@ static void parseGeneralArguments() {
 		#endif // NO_VERBOSE_LOG
 		#endif // NO_LOG
 
+		#if !defined(NO_PRIVATE_IP_DETECT)
+		case 'o':
+			ignoreIniFileParameter(INI_PARAM_PUBLIC_IP_PROTECTION_LEVEL);
+			PublicIPProtectionLevel = getOptionArgumentInt(o, 0, 3);
+
+			#if !HAVE_GETIFADDR
+			if (PublicIPProtectionLevel & 1) usage();
+			#endif // !HAVE_GETIFADDR
+
+			break;
+		#endif // !defined(NO_PRIVATE_IP_DETECT)
+
 		#ifndef NO_SOCKETS
 		#if !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
 		case 'L':
@@ -1183,7 +1222,7 @@ static void parseGeneralArguments() {
 			#ifdef _WIN32
 				"e"
 			#else // !_WIN32
-				"de"
+				"De"
 			#endif // !_WIN32
 				" instead.\n"
 			);
@@ -1505,7 +1544,14 @@ static void allocateSemaphore(void)
 int setupListeningSockets()
 {
 	int o;
+#	if HAVE_GETIFADDR
+	char** privateIPList;
+	int numPrivateIPs = 0;
+	if (PublicIPProtectionLevel & 1) getPrivateIPAddresses(&numPrivateIPs, &privateIPList);
+	uint_fast8_t allocsockets = maxsockets ? (maxsockets + numPrivateIPs) : ((PublicIPProtectionLevel & 1) ? numPrivateIPs : 2);
+#	else // !HAVE_GETIFADDR
 	uint_fast8_t allocsockets = maxsockets ? maxsockets : 2;
+#	endif // !HAVE_GETIFADDR
 
 	SocketList = (SOCKET*)vlmcsd_malloc((size_t)allocsockets * sizeof(SOCKET));
 
@@ -1569,10 +1615,33 @@ int setupListeningSockets()
 	}
 #	endif
 
+#	if HAVE_GETIFADDR
+	if (PublicIPProtectionLevel & 1)
+	{
+		int i;
+		for (i = 0; i < numPrivateIPs; i++)
+		{
+			addListeningSocket(privateIPList[i]);
+			free(privateIPList[i]);
+		}
+
+		free(privateIPList);
+	}
+#	endif // HAVE_GETIFADDR
+
 	// if -L hasn't been specified on the command line, use default sockets (all IP addresses)
 	// maxsocket results from first pass parsing the arguments
 	if (!maxsockets)
 	{
+#		if HAVE_GETIFADDR
+#		ifdef ENABLE_DEPRECATED_OPTIONS
+		if (!usePrivateIPAdresses && haveIPv6Stack && (v6required || !v4required)) addListeningSocket("::");
+		if (!usePrivateIPAdresses && haveIPv4Stack && (v4required || !v6required)) addListeningSocket("0.0.0.0");
+#		else // !ENABLE_DEPRECATED_OPTIONS
+		if (!(PublicIPProtectionLevel & 1) && haveIPv6Stack) addListeningSocket("::");
+		if (!(PublicIPProtectionLevel & 1) && haveIPv4Stack) addListeningSocket("0.0.0.0");
+#		endif // !ENABLE_DEPRECATED_OPTIONS
+#		else // !HAVE_GETIFADDR
 #		ifdef ENABLE_DEPRECATED_OPTIONS
 		if (haveIPv6Stack && (v6required || !v4required)) addListeningSocket("::");
 		if (haveIPv4Stack && (v4required || !v6required)) addListeningSocket("0.0.0.0");
@@ -1580,6 +1649,7 @@ int setupListeningSockets()
 		if (haveIPv6Stack) addListeningSocket("::");
 		if (haveIPv4Stack) addListeningSocket("0.0.0.0");
 #		endif // !ENABLE_DEPRECATED_OPTIONS
+#		endif // !HAVE_GETIFADDR
 	}
 
 	if (!numsockets)

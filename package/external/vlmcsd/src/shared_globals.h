@@ -102,6 +102,10 @@ extern int_fast8_t UseRpcBTFN;
 extern const char *defaultport;
 #endif // NO_SOCKETS
 
+#if !defined(NO_PRIVATE_IP_DETECT)
+extern uint32_t PublicIPProtectionLevel;
+#endif
+
 #if !defined(NO_SOCKETS) && !defined(NO_SIGHUP) && !defined(_WIN32)
 extern int_fast8_t IsRestarted;
 #endif // !defined(NO_SOCKETS) && !defined(NO_SIGHUP) && !defined(_WIN32)

@@ -24,6 +24,10 @@ int_fast8_t UseRpcBTFN = TRUE;
 const char *defaultport = "1688";
 #endif // NO_SOCKETS
 
+#if !defined(NO_PRIVATE_IP_DETECT)
+uint32_t PublicIPProtectionLevel = 0;
+#endif
+
 KmsResponseParam_t KmsResponseParameters[MAX_KMSAPPS];
 
 #if !defined(NO_SOCKETS) && !defined(NO_SIGHUP) && !defined(_WIN32)
