@@ -1,0 +1,68 @@
+--- a/bin/Makefile
++++ b/bin/Makefile
+@@ -43,7 +43,7 @@ endif
+ 	echo 'fi' >> $@
+ 	echo '' >> $@
+ ifeq ($(DODEBUG),y)
+-	echo 'echo $(CXX) $(GEN_CFLAGS) $(GEN_CXXFLAGS) $(EH_CXXFLAGS) $$WRAPPER_INCLUDEDIR $$WRAPPER_OPTIONS' >> $@
++	echo 'echo $(CXX) -std=gnu++98 $(GEN_CFLAGS) $(GEN_CXXFLAGS) $(EH_CXXFLAGS) $$WRAPPER_INCLUDEDIR $$WRAPPER_OPTIONS' >> $@
+ endif
+-	echo 'exec $(CXX) $(GEN_CFLAGS) $(GEN_CXXFLAGS) $(EH_CXXFLAGS) $$WRAPPER_INCLUDEDIR $$WRAPPER_OPTIONS' >> $@
++	echo 'exec $(CXX) -std=gnu++98 $(GEN_CFLAGS) $(GEN_CXXFLAGS) $(EH_CXXFLAGS) $$WRAPPER_INCLUDEDIR $$WRAPPER_OPTIONS' >> $@
+ 	chmod 755 $@
+--- /dev/null
++++ b/src/del_ops.cpp
+@@ -0,0 +1,25 @@
++/*
++ * =====================================================================================
++ *
++ *       Filename:  del_ops.cpp
++ *
++ *
++ *
++ *        Version:  1.0
++ *        Created:  
++ *       Revision:  none
++ *       Compiler:  gcc
++ *
++ *         Author:  YOUR NAME (), 
++ *   Organization:  
++ *
++ * =====================================================================================
++ */
++#include <new>
++#include <cstdlib>
++#include <func_exception>
++
++_UCXXEXPORT void operator delete(void* ptr, size_t size) throw(){
++	free(ptr);
++}
++
+--- /dev/null
++++ b/src/del_opvs.cpp
+@@ -0,0 +1,25 @@
++/*
++ * =====================================================================================
++ *
++ *       Filename:  del_opvs.cpp
++ *
++ *    Description:  
++ *
++ *        Version:  1.0
++ *        Created:  
++ *       Revision:  none
++ *       Compiler:  gcc
++ *
++ *         Author:  YOUR NAME (), 
++ *   Organization:  
++ *
++ * =====================================================================================
++ */
++#include <new>
++#include <cstdlib>
++#include <func_exception>
++
++_UCXXEXPORT void operator delete[](void * ptr, size_t size) throw(){
++	free(ptr);
++}
++
