@@ -461,6 +461,7 @@ define Build/seama-sysupgrade
 		-i $(word 1,$^) \
 		-m "dev=/dev/mtdblock/1" -m "type=firmware"
 	( dd if=$(word 1,$^).seama bs=64k conv=sync; dd if=$(word 2,$^) ) >$@
+	rm -f $(word 1,$^).seama
 endef
 
 define Build/seama-initramfs
@@ -472,14 +473,15 @@ endef
 
 define Device/seama
   CONSOLE := ttyS0,115200
-  KERNEL := kernel-bin | loader-kernel-cmdline | lzma
+  LOADER_TYPE := bin
+  KERNEL := kernel-bin | lzma | loader-kernel-cmdline | lzma
   KERNEL_INITRAMFS := kernel-bin | patch-cmdline | lzma | seama-initramfs
   KERNEL_INITRAMFS_SUFFIX = $$(KERNEL_SUFFIX).seama
   IMAGES := sysupgrade.bin factory.bin
   IMAGE/sysupgrade.bin := seama-sysupgrade $$$$(SEAMA_SIGNATURE) | check-size $$$$(IMAGE_SIZE)
   IMAGE/factory.bin := seama-factory $$$$(SEAMA_SIGNATURE) | check-size $$$$(IMAGE_SIZE)
   SEAMA_SIGNATURE :=
-  DEVICE_VARS := SEAMA_SIGNATURE
+  DEVICE_VARS += SEAMA_SIGNATURE
 endef
 
 define Device/mynet-n600
@@ -508,7 +510,7 @@ $(Device/seama)
   DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 uboot-envtools kmod-ledtrig-usbdev kmod-ath9k kmod-ath10k
   BOARDNAME = QIHOO-C301
   IMAGE_SIZE = 15744k
-  MTDPARTS = mtdparts=spi0.0:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),15744k(firmware),64k(warm_start),64k(action_image_config),64k(radiocfg);spi0.1:15360k(upgrade2),1024k(privatedata)
+  MTDPARTS = spi0.0:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),15744k(firmware),64k(warm_start),64k(action_image_config),64k(radiocfg);spi0.1:15360k(upgrade2),1024k(privatedata)
   SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
 endef
 
@@ -518,7 +520,7 @@ $(Device/seama)
   DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 uboot-envtools kmod-ledtrig-usbdev kmod-ath9k kmod-ath10k
   BOARDNAME = QIHOO-C301
   IMAGE_SIZE = 15360k
-  MTDPARTS = mtdparts=spi0.0:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),15744k(upgrade1),64k(warm_start),64k(action_image_config),64k(radiocfg);spi0.1:15360k(firmware),1024k(privatedata)
+  MTDPARTS = spi0.0:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),15744k(upgrade1),64k(warm_start),64k(action_image_config),64k(radiocfg);spi0.1:15360k(firmware),1024k(privatedata)
   SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
 endef
 
@@ -528,7 +530,7 @@ $(Device/seama)
   DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 uboot-envtools kmod-ledtrig-usbdev kmod-ath9k kmod-ath10k
   BOARDNAME = QIHOO-C301
   IMAGE_SIZE = 32256k
-  MTDPARTS = mtdparts=flash:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),32256k(firmware),64k(radiocfg)
+  MTDPARTS = flash:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),32256k(firmware),64k(radiocfg)
   SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
 endef
 TARGET_DEVICES += mynet-n600 mynet-n750 qihoo-c301-flash1-16m qihoo-c301-flash2-16m qihoo-c301-dual-flash-32m
