@@ -6,7 +6,7 @@ config BINUTILS_VERSION_2_25_1
 	bool
 
 config BINUTILS_VERSION_2_26_1
-	default y if (!TOOLCHAINOPTS && !arc)
+	default y if (!TOOLCHAINOPTS && !arc && DEVEL)
 	bool
 
 config BINUTILS_VERSION_2_26_ARC
