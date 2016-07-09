@@ -10,7 +10,7 @@ CONFIG=/etc/shadowsocks.json
 
 start() {
 	#service_start /usr/bin/ss-local -c $CONFIG -b 0.0.0.0
-	service_start /usr/bin/ss-redir -c $CONFIG -b 0.0.0.0 -t 600
+	service_start /usr/bin/ss-redir -c $CONFIG -b 0.0.0.0 -t 600 -u
 	service_start /usr/bin/ss-tunnel -c $CONFIG -b 0.0.0.0 -t 20 -l 5353 -L 8.8.8.8:53 -u
 }
 
