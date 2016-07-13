@@ -14,7 +14,7 @@ PKG_RELEASE:=1
 PKG_USE_MIPS16:=0
 
 PKG_SOURCE:=$(SRC_PKG_NAME)-$(PKG_VERSION)-gpl.tgz
-PKG_SOURCE_URL:=https://polarssl.org/download/
+PKG_SOURCE_URL:=https://tls.mbed.org/download/
 PKG_MD5SUM:=f5beb43e850283915e3e0f8d37495eade3bfb5beedfb61e7b8da70d4c68edb82
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(SRC_PKG_NAME)-$(PKG_VERSION)
