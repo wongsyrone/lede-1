@@ -9,8 +9,8 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=shadowsocks-libev
 PKG_VERSION:=2.4.7
-PKG_RELEASE:=2
-PKG_REV:=69fc73a14df53e17367f828114ccaeb0412651b1
+PKG_RELEASE:=3
+PKG_REV:=ad17d91b425517c3060a0ed0bfa6131a466d1f5f
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_REV)
@@ -56,7 +56,7 @@ endef
 Package/shadowsocks-libev-mbedtls/conffiles = $(Package/shadowsocks-libev/conffiles)
 
 # Use shared lib provided by OpenWrt, and use our SSP settings
-CONFIGURE_ARGS += --enable-system-shared-lib --disable-ssp
+CONFIGURE_ARGS += --enable-system-shared-lib --disable-documentation --disable-ssp
 # Check whether compiler follows our inline suggestion
 TARGET_CFLAGS += -Wno-error=inline -Winline
 

@@ -67,7 +67,7 @@
  libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)
 --- a/configure.ac
 +++ b/configure.ac
-@@ -290,9 +290,9 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
+@@ -305,11 +305,11 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
                   Makefile
                   libcork/Makefile
                   libipset/Makefile
@@ -78,4 +78,6 @@
 -  [AC_CONFIG_FILES([libudns/Makefile
 -                 libev/Makefile])])
 +  [AC_CONFIG_FILES([libev/Makefile])])
- AC_OUTPUT
+ 
+ AM_COND_IF([ENABLE_DOCUMENTATION],
+   [AC_CONFIG_FILES([doc/Makefile])
