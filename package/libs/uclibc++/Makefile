@@ -55,6 +55,10 @@ ifeq ($(CONFIG_USE_MUSL),y)
 SSP_LIB=-lssp_nonshared
 endif
 
+ifeq ($(CONFIG_GCC_VERSION_6),y)
+ADDITIONAL_LIB = -lsupc++
+endif
+
 MAKE_FLAGS:= \
 	TOPDIR="$(PKG_BUILD_DIR)/" \
 	$(TARGET_CONFIGURE_OPTS) \
@@ -62,7 +66,7 @@ MAKE_FLAGS:= \
 	CROSS="$(TARGET_CROSS)" \
 	LDFLAGS="-Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc -Wl,-z,defs $(TARGET_LDFLAGS)" \
 	CP="$(CP)" \
-	GEN_LIBS="-lc $(LIBGCC_S) $(SSP_LIB)" \
+	GEN_LIBS="-lc $(LIBGCC_S) $(ADDITIONAL_LIB) $(SSP_LIB)" \
 	check_as_needed=
 
 # check_as_needed overrides dependency on libgcc_s
@@ -71,10 +75,6 @@ define Build/Prepare
 	$(PKG_UNPACK)
 	$(SED) 's/\r$$$$//' $(PKG_BUILD_DIR)/include/unwind-cxx.h
 	$(Build/Patch)
-	$(if $(CONFIG_GCC_VERSION_6),\
-		( cp ./files/040-fix-gcc-6.patch $(PKG_BUILD_DIR)/;\
-		cd $(PKG_BUILD_DIR);\
-		patch -p1 < ./040-fix-gcc-6.patch;))
 endef
 
 define Build/Configure
