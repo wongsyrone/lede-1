@@ -28,10 +28,12 @@
 #if HAVE_GETIFADDR
 
 #if __ANDROID__
-#include "ifaddrs.h"
-#else // !__ANDROID__
+#include "ifaddrs-android.h"
+#elif defined(GETIFADDRS_MUSL)
+#include "ifaddrs-musl.h"
+#else // getifaddrs from OS
 #include <ifaddrs.h>
-#endif // !__ANDROID__
+#endif // getifaddrs from OS
 
 #endif // HAVE_GETIFADDR
 #endif // !WIN32

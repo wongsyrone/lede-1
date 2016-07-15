@@ -83,26 +83,6 @@
 
 
 /*
- * -------------------------------
- * Backward compatibility
- * -------------------------------
- */
-
-
-#if !defined(ENABLE_DEPRECATED_OPTIONS)
-/*
- * comment out the following line if you want vlmcsd no to support command line options
- * that have been present in previous versions of vlmcsd and are now obsolete
- */
-
-//#define ENABLE_DEPRECATED_OPTIONS
-
-#endif // ENABLE_DEPRECATED_OPTIONS
-
-
-
-
-/*
  * ----------------------------------------------------------------------------------------
  * Troubleshooting options. Please note that disabling features may also help troubleshooting.
  * If you have an old OS that does not support features like pthreads, shared memory or

@@ -47,6 +47,7 @@ uint32_t MaxTasks = SEM_VALUE_MAX;
 #endif // !defined(NO_LIMIT) && !defined (NO_SOCKETS) && !__minix__
 
 #ifndef NO_LOG
+int_fast8_t LogDateAndTime = TRUE;
 char *fn_log = NULL;
 int_fast8_t logstdout = 0;
 #ifndef NO_VERBOSE_LOG

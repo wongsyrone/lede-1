@@ -72,19 +72,11 @@
 #include "ntservice.h"
 #include "helpers.h"
 
-#ifdef ENABLE_DEPRECATED_OPTIONS
-static const char* const optstring = "N:B:m:t:w:0:3:H:A:R:u:g:L:p:i:P:l:r:U:W:C:F:o:SsfeDd46VvIqkZ";
-#else // !ENABLE_DEPRECATED_OPTIONS
-static const char* const optstring = "N:B:m:t:w:0:3:H:A:R:u:g:L:p:i:P:l:r:U:W:C:F:o:SseDdVvqkZ";
-#endif // !ENABLE_DEPRECATED_OPTIONS
+static const char* const optstring = "N:B:m:t:w:0:3:H:A:R:u:g:L:p:i:P:l:r:U:W:C:F:o:T:SseDdVvqkZ";
 
 #if !defined(NO_SOCKETS) && !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
 static uint_fast8_t maxsockets = 0;
 
-#ifdef ENABLE_DEPRECATED_OPTIONS
-static int_fast8_t v6required = 0;
-static int_fast8_t v4required = 0;
-#endif // ENABLE_DEPRECATED_OPTIONS
 #endif // !defined(NO_SOCKETS) && !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
 
 #ifdef _NTSERVICE
@@ -141,6 +133,7 @@ static IniFileParameter_t IniFileParameterList[] =
 		{ "PIDFile", INI_PARAM_PID_FILE },
 #	endif // NO_PID_FILE
 #	ifndef NO_LOG
+		{ "LogDateAndTime", INI_PARAM_LOG_DATE_AND_TIME },
 		{ "LogFile", INI_PARAM_LOG_FILE },
 #	ifndef NO_VERBOSE_LOG
 		{ "LogVerbose", INI_PARAM_LOG_VERBOSE },
@@ -345,6 +338,7 @@ static __noreturn void usage()
 			"  -l syslog		log to syslog\n"
 			#endif // _WIN32
 			"  -l <file>		log to <file>\n"
+			"  -T0, -T1\t\tdisable/enable logging with time and date (default -T1)\n"
 			#ifndef NO_VERBOSE_LOG
 			"  -v\t\t\tlog verbose\n"
 			"  -q\t\t\tdon't log verbose (default)\n"
@@ -530,13 +524,13 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 
 #	endif // NO_RANDOM_EPID
 
-#	if (defined(USE_MSRPC) || defined(SIMPLE_SOCKETS)) && !defined(NO_SOCKETS)
+#	if (defined(USE_MSRPC) || defined(SIMPLE_SOCKETS) || defined(HAVE_GETIFADDR)) && !defined(NO_SOCKETS)
 
 		case INI_PARAM_PORT:
 			defaultport = allocateStringArgument(iniarg);
 			break;
 
-#	endif // (defined(USE_MSRPC) || defined(SIMPLE_SOCKETS)) && !defined(NO_SOCKETS
+#	endif // (defined(USE_MSRPC) || defined(SIMPLE_SOCKETS) || defined(HAVE_GETIFADDR)) && !defined(NO_SOCKETS)
 
 #	if !defined(NO_SOCKETS) && !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
 
@@ -569,6 +563,10 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 
 		case INI_PARAM_LOG_FILE:
 			fn_log = allocateStringArgument(iniarg);
+			break;
+
+		case INI_PARAM_LOG_DATE_AND_TIME:
+			success = getIniFileArgumentBool(&LogDateAndTime, iniarg);
 			break;
 
 #	ifndef NO_VERBOSE_LOG
@@ -1112,29 +1110,14 @@ static void parseGeneralArguments() {
 
 		#ifndef NO_SOCKETS
 
-		#ifndef USE_MSRPC
-		#ifdef ENABLE_DEPRECATED_OPTIONS
-		#ifndef SIMPLE_SOCKETS
-		case '4':
-		case '6':
-			printerrorf("Warning: Option -%c is deprecated. Use -L instead.\n", o);
-			/* no break */
-		#endif // SIMPLE_SOCKETS
-		#endif // ENABLE_DEPRECATED_OPTIONS
 		case 'P':
-			if (o == 'P') defaultport = optarg;
-			#ifdef SIMPLE_SOCKETS
 			ignoreIniFileParameter(INI_PARAM_PORT);
-			#else // !SIMPLE_SOCKETS
+			#if !defined(SIMPLE_SOCKETS) && !defined(USE_MSRPC)
 			ignoreIniFileParameter(INI_PARAM_LISTEN);
+			#else
+			defaultport = optarg;
 			#endif // !SIMPLE_SOCKETS
 			break;
-		#else // USE_MSRPC
-		case 'P':
-			defaultport = optarg;
-			ignoreIniFileParameter(INI_PARAM_PORT);
-			break;
-		#endif // USE_MSRPC
 
 		#if !defined(NO_LIMIT) && !__minix__
 
@@ -1172,6 +1155,12 @@ static void parseGeneralArguments() {
 		#endif
 
 		#ifndef NO_LOG
+
+		case 'T':
+			if (!getArgumentBool(&LogDateAndTime, optarg)) usage();
+			ignoreIniFileParameter(INI_PARAM_LOG_DATE_AND_TIME);
+			break;
+
 		case 'l':
 			fn_log = getCommandLineArg(optarg);
 			ignoreIniFileParameter(INI_PARAM_LOG_FILE);
@@ -1213,32 +1202,6 @@ static void parseGeneralArguments() {
 		#endif // HAVE_FREEBIND
 		#endif // !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
 
-		#if defined(ENABLE_DEPRECATED_OPTIONS)
-		case 'f':
-			#if !defined(_WIN32) || !defined(NO_LOG)
-			printerrorf
-			(
-				"Warning: Option -f is deprecated. Use -"
-			#ifdef _WIN32
-				"e"
-			#else // !_WIN32
-				"De"
-			#endif // !_WIN32
-				" instead.\n"
-			);
-			#ifndef _WIN32
-			nodaemon = 1;
-			#endif // _WIN32
-			#ifndef NO_LOG
-			logstdout = 1;
-			#endif
-			#if defined(_PEDANTIC) && defined(_WIN32) && defined(NO_LOG)
-			printerrorf("Warning: Option -f has no effect in a Windows version of vlmcsd that has been compiled with logging disabled.\n");
-			#endif // defined(_PEDANTIC) && defined(_WIN32) && defined(NO_LOG)
-			#endif // !defined(_WIN32) || !defined(NO_LOG)
-			break;
-		#endif // ENABLE_DEPRECATED_OPTIONS
-
 		#ifdef _NTSERVICE
 		case 'U':
 			ServiceUser = optarg;
@@ -1271,16 +1234,13 @@ static void parseGeneralArguments() {
 			break;
 
 		#ifndef NO_LOG
+
 		case 'e':
 			logstdout = 1;
 			break;
+
 		#endif // NO_LOG
 		#endif // NO_SOCKETS
-
-		#if !defined(_WIN32) && defined(ENABLE_DEPRECATED_OPTIONS)
-		case 'I': // Backward compatibility with svn681 and earlier
-			break;
-		#endif // !defined(_WIN32) && defined(ENABLE_DEPRECATED_OPTIONS)
 
 		#ifndef NO_RANDOM_EPID
 		case 'r':
@@ -1563,42 +1523,16 @@ int setupListeningSockets()
 
 	for (opterr = 0; ( o = getopt(global_argc, (char* const*)global_argv, optstring) ) > 0; ) switch (o)
 	{
-#	ifdef ENABLE_DEPRECATED_OPTIONS
+		case 'P':
+			defaultport = optarg;
+			break;
 
-	case '4':
+		case 'L':
+			addListeningSocket(optarg);
+			break;
 
-		if (!haveIPv4Stack)
-		{
-			printerrorf("Fatal: Your system does not support %s.\n", cIPv4);
-			return !0;
-		}
-		v4required = 1;
-		break;
-
-	case '6':
-
-		if (!haveIPv6Stack)
-		{
-			printerrorf("Fatal: Your system does not support %s.\n", cIPv6);
-			return !0;
-		}
-		v6required = 1;
-		break;
-
-#	endif // ENABLE_DEPRECATED_OPTIONS
-
-	case 'P':
-
-		defaultport = optarg;
-		break;
-
-	case 'L':
-
-		addListeningSocket(optarg);
-		break;
-
-	default:
-		break;
+		default:
+			break;
 	}
 
 
@@ -1634,21 +1568,11 @@ int setupListeningSockets()
 	if (!maxsockets)
 	{
 #		if HAVE_GETIFADDR
-#		ifdef ENABLE_DEPRECATED_OPTIONS
-		if (!usePrivateIPAdresses && haveIPv6Stack && (v6required || !v4required)) addListeningSocket("::");
-		if (!usePrivateIPAdresses && haveIPv4Stack && (v4required || !v6required)) addListeningSocket("0.0.0.0");
-#		else // !ENABLE_DEPRECATED_OPTIONS
 		if (!(PublicIPProtectionLevel & 1) && haveIPv6Stack) addListeningSocket("::");
 		if (!(PublicIPProtectionLevel & 1) && haveIPv4Stack) addListeningSocket("0.0.0.0");
-#		endif // !ENABLE_DEPRECATED_OPTIONS
 #		else // !HAVE_GETIFADDR
-#		ifdef ENABLE_DEPRECATED_OPTIONS
-		if (haveIPv6Stack && (v6required || !v4required)) addListeningSocket("::");
-		if (haveIPv4Stack && (v4required || !v6required)) addListeningSocket("0.0.0.0");
-#		else // !ENABLE_DEPRECATED_OPTIONS
 		if (haveIPv6Stack) addListeningSocket("::");
 		if (haveIPv4Stack) addListeningSocket("0.0.0.0");
-#		endif // !ENABLE_DEPRECATED_OPTIONS
 #		endif // !HAVE_GETIFADDR
 	}
 

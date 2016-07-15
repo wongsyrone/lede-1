@@ -350,12 +350,25 @@ else
   SRCS += network.c rpc.c  
 endif
 
-#ifeq ($(ANDROID),1)
-#  VLMCSD_SRCS += ifaddrs.c
-#  MULTI_SRCS += ifaddrs.c
-#  DLL_SRCS += ifaddrs.c
-#  MULTI_OBJS += ifaddrs.o
-#endif
+ifeq ($(GETIFADDRS),musl)
+ifneq ($(NO_GETIFADDRS),1)
+  BASECFLAGS += -DGETIFADDRS_MUSL
+  VLMCSD_SRCS += getifaddrs-musl.c
+  MULTI_SRCS += getifaddrs-musl.c
+  VLMCS_SRCS += getifaddrs-musl.c
+  DLL_SRCS += getifaddrs-musl.c
+  MULTI_OBJS += getifaddrs-musl.o
+endif
+endif
+
+ifeq ($(ANDROID),1)
+ifneq ($(NO_GETIFADDRS),1)
+  VLMCSD_SRCS += ifaddrs-android.c
+  MULTI_SRCS += ifaddrs-android.c
+  DLL_SRCS += ifaddrs-android.c
+  MULTI_OBJS += ifaddrs-android.o
+endif
+endif
 
 ifeq "$(WIN)" "1"
 	VLMCSD_SRCS += ntservice.c
@@ -631,7 +644,6 @@ help:
 	@echo "    -DNO_LIMIT                   Don't support limiting concurrent clients in $(PROGRAM_NAME)."
 	@echo "    -DNO_SIGHUP                  Don't support SIGHUP handling in $(PROGRAM_NAME)."
 	@echo "    -DNO_VERSION_INFORMATION     Don't support displaying version information in $(PROGRAM_NAME) and $(CLIENT_NAME). Removes -V option."
-	@echo "    -DENABLE_DEPRECATED_OPTIONS  Enable command line options that provide compatibility with previous versions of $(PROGRAM_NAME)."
 	@echo "    -DNO_PRIVATE_IP_DETECT       Don't support protection against clients with public IP addresses in $(PROGRAM_NAME)"	
 	@echo ""
 	@echo "Troubleshooting options"
@@ -645,7 +657,8 @@ help:
 	@echo "    NO_TIMEOUT=1                 Do not set timeouts for sockets (for systems that don't support it)."
 	@echo "    CHILD_HANDLER=1              Install a handler for SIGCHLD (for systems that don't support SA_NOCLDWAIT)."
 	@echo "    NO_DNS=1                     Compile $(CLIENT_NAME) without support for detecting KMS servers via DNS."
-	@echo "    NO_GETIFADDRS=1              Compile $(PROGRAM_NAME) without using getifaddrs(). Required for Android and older uClibc."
+	@echo "    NO_GETIFADDRS=1              Compile $(PROGRAM_NAME) without using getifaddrs()."
+	@echo "    GETIFADDRS=musl              Compile $(PROGRAM_NAME) with its own implementation of getifaddrs() based on musl."
 	@echo "    DNS_PARSER=internal          Use $(CLIENT_NAME) internal DNS parsing routines. No effect on MingW (native Windows)."
 	@echo ""
 	@echo "Other useful CFLAGS"

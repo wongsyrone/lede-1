@@ -47,7 +47,7 @@
 #define HAVE_FREEBIND 1
 #endif
 
-#if !defined(NO_GETIFADDRS) && !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS) && !defined(NO_SOCKETS) && !defined(NO_PRIVATE_IP_DETECT) && !__ANDROID__
+#if !defined(NO_GETIFADDRS) && !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS) && !defined(NO_SOCKETS) && !defined(NO_PRIVATE_IP_DETECT) 
 #define HAVE_GETIFADDR 1
 #endif 
 
