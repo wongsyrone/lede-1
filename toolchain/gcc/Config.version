@@ -15,7 +15,3 @@ config GCC_VERSION_4_8
 config GCC_VERSION_5
 	default y if (!TOOLCHAINOPTS && !arc)
 	bool
-
-config GCC_VERSION_6
-	default y if (!TOOLCHAINOPTS && !arc)
-	bool
