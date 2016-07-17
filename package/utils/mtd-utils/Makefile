@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mtd-utils
-PKG_REV:=aea36417067dade75192bafa03af70b6eb2677b1
+PKG_REV:=e4c8885bddac201ba0ef88560d6444f39e1ff870
 PKG_VERSION:=1.5.2
 PKG_RELEASE:=1
 
