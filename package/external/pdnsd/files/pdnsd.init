@@ -1,13 +1,13 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) & wongsyrone
+# Copyright (C) 2016 wongsyrone
 
 . /lib/functions.sh
 
 START=95
 
-EXECUTEBIN="usr/sbin/pdnsd"
+EXECUTEBIN="/usr/sbin/pdnsd"
 PIDFILE="/var/run/pdnsd.pid"
-INIFILE="/etc/pdnsd.conf"
+CONFFILE="/etc/pdnsd.conf"
 CACHEDIR=/var/pdnsd
 CACHE=$CACHEDIR/pdnsd.cache
 ENABLED=0
@@ -16,8 +16,7 @@ GROUP=nogroup
 
 config_load "pdnsd"
 
-parse_pdnsd()
-{
+parse_pdnsd() {
 	config_get ENABLED "$section" "enabled"
 }
 config_foreach parse_pdnsd 'pdnsd'
@@ -33,7 +32,7 @@ gen_cache() {
 start() {
 	if [ "1" = "$ENABLED" ] || [ "on" = "$ENABLED" ] || [ "true" = "$ENABLED" ]; then
 		gen_cache
-		$EXECUTEBIN --daemon -p $PIDFILE
+		$EXECUTEBIN --daemon -c $CONFFILE -p $PIDFILE
 	else
 		echo "pdnsd is disabled!"
 	fi
