@@ -11,9 +11,14 @@ include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/host.mk
 include $(INCLUDE_DIR)/version.mk
 include $(INCLUDE_DIR)/image-commands.mk
+include $(INCLUDE_DIR)/image-legacy.mk
 
 override MAKE:=$(_SINGLE)$(SUBMAKE)
 override NO_TRACE_MAKE:=$(_SINGLE)$(NO_TRACE_MAKE)
+
+param_get = $(patsubst $(1)=%,%,$(filter $(1)=%,$(2)))
+param_mangle = $(subst $(space),_,$(strip $(1)))
+param_unmangle = $(subst _,$(space),$(1))
 
 KDIR=$(KERNEL_BUILD_DIR)
 KDIR_TMP=$(KDIR)/tmp
@@ -201,46 +206,17 @@ ifneq ($(CONFIG_NAND_SUPPORT),)
 
 endif
 
-ifneq ($(CONFIG_TARGET_ROOTFS_UBIFS),)
-    define Image/mkfs/ubifs/generate
-	$(CP) ./ubinize$(1).cfg $(KDIR)
-	( cd $(KDIR); \
-		$(STAGING_DIR_HOST)/bin/ubinize \
-		$(if $($(PROFILE)_UBI_OPTS), \
-			$(shell echo $($(PROFILE)_UBI_OPTS)), \
-			$(shell echo $(UBI_OPTS)) \
-		) \
-		-o $(KDIR)/root$(1).ubi \
-		ubinize$(1).cfg \
-	)
-    endef
-
-    define Image/mkfs/ubifs
-
-        ifneq ($($(PROFILE)_UBIFS_OPTS)$(UBIFS_OPTS),)
-		$(STAGING_DIR_HOST)/bin/mkfs.ubifs \
-			$(if $($(PROFILE)_UBIFS_OPTS), \
-				$(shell echo $($(PROFILE)_UBIFS_OPTS)), \
-				$(shell echo $(UBIFS_OPTS)) \
-			) \
-			$(if $(CONFIG_TARGET_UBIFS_FREE_SPACE_FIXUP),--space-fixup) \
-			$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_NONE),--force-compr=none) \
-			$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_LZO),--force-compr=lzo) \
-			$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_ZLIB),--force-compr=zlib) \
-			$(if $(shell echo $(CONFIG_TARGET_UBIFS_JOURNAL_SIZE)),--jrn-size=$(CONFIG_TARGET_UBIFS_JOURNAL_SIZE)) \
-			--squash-uids \
-			-o $(KDIR)/root.ubifs \
-			-d $(TARGET_DIR)
-        endif
-	$(call Image/Build,ubifs)
-
-        ifneq ($($(PROFILE)_UBI_OPTS)$(UBI_OPTS),)
-		$(if $(wildcard ./ubinize.cfg),$(call Image/mkfs/ubifs/generate,))
-		$(if $(wildcard ./ubinize-overlay.cfg),$(call Image/mkfs/ubifs/generate,-overlay))
-        endif
-	$(if $(wildcard ./ubinize.cfg),$(call Image/Build,ubi))
-    endef
-endif
+define Image/mkfs/ubifs
+	$(STAGING_DIR_HOST)/bin/mkfs.ubifs \
+		$(UBIFS_OPTS) $(call param_unmangle,$(call param_get,fs,$(1))) \
+		$(if $(CONFIG_TARGET_UBIFS_FREE_SPACE_FIXUP),--space-fixup) \
+		$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_NONE),--force-compr=none) \
+		$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_LZO),--force-compr=lzo) \
+		$(if $(CONFIG_TARGET_UBIFS_COMPRESSION_ZLIB),--force-compr=zlib) \
+		$(if $(shell echo $(CONFIG_TARGET_UBIFS_JOURNAL_SIZE)),--jrn-size=$(CONFIG_TARGET_UBIFS_JOURNAL_SIZE)) \
+		--squash-uids \
+		-o $@ -d $(TARGET_DIR)
+endef
 
 define Image/mkfs/cpiogz
 	( cd $(TARGET_DIR); find . | cpio -o -H newc | gzip -9n >$(BIN_DIR)/$(IMG_PREFIX)-rootfs.cpio.gz )
@@ -284,16 +260,8 @@ define Image/Checksum
 	)
 endef
 
-define BuildImage/mkfs
-  install-images: mkfs-$(1)
-  .PHONY: mkfs-$(1)
-  mkfs-$(1): kernel_prepare
-	$(Image/mkfs/$(1))
-	$(call Build/mkfs/default,$(1))
-	$(call Build/mkfs/$(1),$(1))
-  $(KDIR)/root.$(1): mkfs-$(1)
-
-endef
+$(KDIR)/root.%: kernel_prepare
+	$(call Image/mkfs/$(word 1,$(subst +,$(space),$*)),$(subst +,$(space),$*))
 
 define Device/InitProfile
   PROFILES := $(PROFILE)
@@ -309,6 +277,7 @@ define Device/Init
   KERNEL_SIZE:=
   CMDLINE:=
 
+  IMAGES :=
   IMAGE_PREFIX := $(IMG_PREFIX)-$(1)
   IMAGE_NAME = $$(IMAGE_PREFIX)-$$(1)-$$(2)
   KERNEL_PREFIX = $$(IMAGE_PREFIX)
@@ -328,19 +297,25 @@ define Device/Init
   BLOCKSIZE :=
   PAGESIZE :=
   SUBPAGESIZE :=
+  VID_HDR_OFFSET :=
   UBINIZE_OPTS := -E 5
+  MKUBIFS_OPTS :=
+
+  FS_OPTIONS/ubifs = $$(MKUBIFS_OPTS)
 
   DEVICE_DTS :=
   DEVICE_DTS_DIR :=
+
+  BOARD_NAME :=
 
   FILESYSTEMS := $(TARGET_FILESYSTEMS)
 endef
 
 DEFAULT_DEVICE_VARS := \
   DEVICE_NAME KERNEL KERNEL_INITRAMFS KERNEL_INITRAMFS_IMAGE \
-  DEVICE_DTS DEVICE_DTS_DIR \
+  DEVICE_DTS DEVICE_DTS_DIR BOARD_NAME \
   UBOOTENV_IN_UBI KERNEL_IN_UBI \
-  BLOCKSIZE PAGESIZE SUBPAGESIZE \
+  BLOCKSIZE PAGESIZE SUBPAGESIZE VID_HDR_OFFSET \
   UBINIZE_OPTS
 
 define Device/ExportVar
@@ -353,7 +328,7 @@ define Device/Export
 endef
 
 ifdef IB
-  DEVICE_CHECK_PROFILE = $(filter $(1),$(PROFILE))
+  DEVICE_CHECK_PROFILE = $(filter $(1),DEVICE_$(PROFILE) $(PROFILE))
 else
   DEVICE_CHECK_PROFILE = $(CONFIG_TARGET_$(if $(CONFIG_TARGET_MULTI_PROFILE),DEVICE_)$(call target_conf,$(BOARD)$(if $(SUBTARGET),_$(SUBTARGET)))_$(1))
 endif
@@ -417,7 +392,7 @@ endef
 define Device/Build/image
   $$(_TARGET): $(BIN_DIR)/$(call IMAGE_NAME,$(1),$(2))
   $(eval $(call Device/Export,$(KDIR)/tmp/$(call IMAGE_NAME,$(1),$(2)),$(1)))
-  $(KDIR)/tmp/$(call IMAGE_NAME,$(1),$(2)): $(KDIR)/$$(KERNEL_IMAGE) $(KDIR)/root.$(1)
+  $(KDIR)/tmp/$(call IMAGE_NAME,$(1),$(2)): $(KDIR)/$$(KERNEL_IMAGE) $(KDIR)/root.$(1)$$(if $$(FS_OPTIONS/$(1)),+fs=$$(call param_mangle,$$(FS_OPTIONS/$(1))))
 	@rm -f $$@
 	[ -f $$(word 1,$$^) -a -f $$(word 2,$$^) ]
 	$$(call concat_cmd,$(if $(IMAGE/$(2)/$(1)),$(IMAGE/$(2)/$(1)),$(IMAGE/$(2))))
@@ -453,7 +428,6 @@ endef
 define Device/Dump
 $$(eval $$(if $$(DEVICE_TITLE),$$(info $$(call Device/DumpInfo,$(1)))))
 endef
-LegacyDevice/Dump = $(Device/Dump)
 
 define Device
   $(call Device/InitProfile,$(1))
@@ -462,42 +436,6 @@ define Device
   $(call Device/$(1),$(1))
   $(call Device/Check,$(1))
   $(call Device/$(if $(DUMP),Dump,Build),$(1))
-
-endef
-
-define LegacyDevice/Check
-  _PROFILE_SET = $$(strip $$(foreach profile,$$(PROFILES) DEVICE_$(1),$$(call DEVICE_CHECK_PROFILE,$$(profile))))
-  _TARGET_PREPARE := $$(if $$(_PROFILE_SET),legacy-images-prepare,prepare-disabled)
-  _TARGET := $$(if $$(_PROFILE_SET),legacy-images,install-disabled)
-  $$(if $$(_PROFILE_SET),install: legacy-images-make)
-  ifndef IB
-    $$(if $$(_PROFILE_SET),mkfs_prepare: legacy-images-prepare-make)
-  endif
-endef
-
-define LegacyDevice/Build
-  $$(_TARGET): legacy-image-$(1)
-  $$(_TARGET_PREPARE): legacy-image-prepare-$(1)
-  .PHONY: legacy-image-prepare-$(1) legacy-image-$(1)
-
-  legacy-image-prepare-$(1):
-	$$(call Image/Prepare/Profile,$(1))
-
-  legacy-image-$(1):
-	$$(call Image/BuildKernel/Profile,$(1))
-	$(foreach fs,$(TARGET_FILESYSTEMS),
-		$$(call Image/Build/Profile,$(1),$(fs))
-	)
-
-endef
-
-define LegacyDevice
-  $(call Device/InitProfile,$(1))
-  $(call Device/Default,$(1))
-  $(call LegacyDevice/Default,$(1))
-  $(call LegacyDevice/$(1),$(1))
-  $(call LegacyDevice/Check,$(1))
-  $(call LegacyDevice/$(if $(DUMP),Dump,Build),$(1))
 
 endef
 
@@ -547,15 +485,14 @@ define BuildImage
 
   $(foreach device,$(TARGET_DEVICES),$(call Device,$(device)))
   $(foreach device,$(LEGACY_DEVICES),$(call LegacyDevice,$(device)))
-  $(foreach fs,$(TARGET_FILESYSTEMS) $(fs-subtypes-y),$(call BuildImage/mkfs,$(fs)))
 
-  install-images: kernel_prepare
+  install-images: kernel_prepare $(foreach fs,$(filter-out $(if $(UBIFS_OPTS),,ubifs),$(TARGET_FILESYSTEMS) $(fs-subtypes-y)),$(KDIR)/root.$(fs))
 	$(foreach fs,$(TARGET_FILESYSTEMS),
 		$(call Image/Build,$(fs))
 	)
-	$(call Image/mkfs/ubifs)
 
   legacy-images-make: install-images
+	$(call Image/mkfs/ubifs/legacy)
 	$(MAKE) legacy-images
 
   install: install-images
