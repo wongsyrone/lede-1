@@ -28,6 +28,12 @@ define Package/pdnsd
 	TITLE:=Proxy DNS Server
 endef
 
+define Package/pdnsd/config
+	config PACKAGE_pdnsd_miniconf
+		bool "Ship mini config file"
+		default n
+endef
+
 define Package/pdnsd/description
   pdnsd, is an IPv6 capable proxy DNS server with permanent caching (the cache
   contents are written to hard disk on exit) that is designed to cope with
@@ -62,7 +68,9 @@ define Package/pdnsd/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./files/pdnsd.config $(1)/etc/config/pdnsd
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/doc/pdnsd.conf $(1)/etc/
+	$(if $(CONFIG_PACKAGE_pdnsd_miniconf),\
+		$(INSTALL_CONF) ./files/pdnsd-mini.conf $(1)/etc/pdnsd.conf,\
+		$(INSTALL_CONF) $(PKG_BUILD_DIR)/doc/pdnsd.conf $(1)/etc/)
 endef
 
 $(eval $(call BuildPackage,pdnsd))
