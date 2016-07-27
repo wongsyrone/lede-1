@@ -79,8 +79,6 @@ fs-types-$(CONFIG_TARGET_ROOTFS_EXT4FS) += ext4
 fs-types-$(CONFIG_TARGET_ROOTFS_ISO) += iso
 fs-types-$(CONFIG_TARGET_ROOTFS_UBIFS) += ubifs
 fs-subtypes-$(CONFIG_TARGET_ROOTFS_JFFS2) += $(addsuffix -raw,$(addprefix jffs2-,$(JFFS2_BLOCKSIZE)))
-fs-subtypes-$(CONFIG_TARGET_ROOTFS_CPIOGZ) += cpiogz
-fs-subtypes-$(CONFIG_TARGET_ROOTFS_TARGZ) += targz
 
 TARGET_FILESYSTEMS := $(fs-types-y)
 
@@ -218,16 +216,6 @@ define Image/mkfs/ubifs
 		-o $@ -d $(TARGET_DIR)
 endef
 
-define Image/mkfs/cpiogz
-	( cd $(TARGET_DIR); find . | cpio -o -H newc | gzip -9n >$(BIN_DIR)/$(IMG_PREFIX)-rootfs.cpio.gz )
-endef
-
-define Image/mkfs/targz
-	$(TAR) -cp --numeric-owner --owner=0 --group=0 --sort=name \
-		$(if $(SOURCE_DATE_EPOCH),--mtime="@$(SOURCE_DATE_EPOCH)") \
-		-C $(TARGET_DIR)/ . | gzip -9n > $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))-rootfs.tar.gz
-endef
-
 E2SIZE=$(shell echo $$(($(CONFIG_TARGET_ROOTFS_PARTSIZE)*1024*1024)))
 
 define Image/mkfs/ext4
@@ -259,6 +247,20 @@ define Image/Checksum
 		$(FIND) -maxdepth 1 -type f \! -name 'md5sums'  -printf "%P\n" | sort | xargs $1 > $2 \
 	)
 endef
+
+ifdef CONFIG_TARGET_ROOTFS_TARGZ
+  define Image/Build/targz
+	$(TAR) -cp --numeric-owner --owner=0 --group=0 --sort=name \
+		$(if $(SOURCE_DATE_EPOCH),--mtime="@$(SOURCE_DATE_EPOCH)") \
+		-C $(TARGET_DIR)/ . | gzip -9n > $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))-rootfs.tar.gz
+  endef
+endif
+
+ifdef CONFIG_TARGET_ROOTFS_CPIOGZ
+  define Image/Build/cpiogz
+	( cd $(TARGET_DIR); find . | cpio -o -H newc | gzip -9n >$(BIN_DIR)/$(IMG_PREFIX)-rootfs.cpio.gz )
+  endef
+endif
 
 $(KDIR)/root.%: kernel_prepare
 	$(call Image/mkfs/$(word 1,$(subst +,$(space),$*)),$(subst +,$(space),$*))
@@ -334,6 +336,7 @@ else
 endif
 
 define Device/Check
+  KDIR_KERNEL_IMAGE := $(KDIR)/$(1)$$(KERNEL_SUFFIX)
   _PROFILE_SET = $$(strip $$(foreach profile,$$(PROFILES) DEVICE_$(1),$$(call DEVICE_CHECK_PROFILE,$$(profile))))
   _TARGET := $$(if $$(_PROFILE_SET),install-images,install-disabled)
   ifndef IB
@@ -372,17 +375,17 @@ define Device/Build/compile
 endef
 
 define Device/Build/kernel
-  _KERNEL_IMAGES += $(KDIR)/$$(KERNEL_NAME)
+  _KERNEL_IMAGES += $$(KDIR_KERNEL_NAME)
   $(KDIR)/$$(KERNEL_NAME):: image_prepare
   $$(_TARGET): $$(if $$(KERNEL_INSTALL),$(BIN_DIR)/$$(KERNEL_IMAGE))
-  $(call Device/Export,$(KDIR)/$$(KERNEL_IMAGE),$(1))
-  $(BIN_DIR)/$$(KERNEL_IMAGE): $(KDIR)/$$(KERNEL_IMAGE)
+  $(call Device/Export,$$(KDIR_KERNEL_IMAGE),$(1))
+  $(BIN_DIR)/$$(KERNEL_IMAGE): $$(KDIR_KERNEL_IMAGE)
 	cp $$^ $$@
   ifndef IB
     ifdef CONFIG_IB
-      install: $(KDIR)/$$(KERNEL_IMAGE)
+      install: $$(KDIR_KERNEL_IMAGE)
     endif
-    $(KDIR)/$$(KERNEL_IMAGE): $(KDIR)/$$(KERNEL_NAME) $(CURDIR)/Makefile $$(KERNEL_DEPENDS)
+    $$(KDIR_KERNEL_IMAGE): $(KDIR)/$$(KERNEL_NAME) $(CURDIR)/Makefile $$(KERNEL_DEPENDS)
 	@rm -f $$@
 	$$(call concat_cmd,$$(KERNEL))
 	$$(if $$(KERNEL_SIZE),$$(call Device/Build/check_size,$$(KERNEL_SIZE)))
@@ -392,7 +395,7 @@ endef
 define Device/Build/image
   $$(_TARGET): $(BIN_DIR)/$(call IMAGE_NAME,$(1),$(2))
   $(eval $(call Device/Export,$(KDIR)/tmp/$(call IMAGE_NAME,$(1),$(2)),$(1)))
-  $(KDIR)/tmp/$(call IMAGE_NAME,$(1),$(2)): $(KDIR)/$$(KERNEL_IMAGE) $(KDIR)/root.$(1)$$(if $$(FS_OPTIONS/$(1)),+fs=$$(call param_mangle,$$(FS_OPTIONS/$(1))))
+  $(KDIR)/tmp/$(call IMAGE_NAME,$(1),$(2)): $$(KDIR_KERNEL_IMAGE) $(KDIR)/root.$(1)$$(if $$(FS_OPTIONS/$(1)),+fs=$$(call param_mangle,$$(FS_OPTIONS/$(1))))
 	@rm -f $$@
 	[ -f $$(word 1,$$^) -a -f $$(word 2,$$^) ]
 	$$(call concat_cmd,$(if $(IMAGE/$(2)/$(1)),$(IMAGE/$(2)/$(1)),$(IMAGE/$(2))))
@@ -479,6 +482,8 @@ define BuildImage
 	$(call Image/mkfs/prepare)
 
   kernel_prepare: mkfs_prepare
+	$(call Image/Build/targz)
+	$(call Image/Build/cpiogz)
 	$(call Image/BuildKernel)
 	$(if $(CONFIG_TARGET_ROOTFS_INITRAMFS),$(if $(IB),,$(call Image/BuildKernel/Initramfs)))
 	$(call Image/InstallKernel)
