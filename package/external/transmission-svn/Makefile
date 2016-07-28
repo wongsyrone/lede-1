@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=transmission-svn
 PKG_VERSION:=2.92
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 # FIXME: update commit id and SVN revision
 PKG_REV:=14726
 
@@ -36,7 +36,7 @@ endef
 
 define Package/transmission-svn-daemon
   $(call Package/transmission-svn/template)
-  DEPENDS:=+libcurl +libopenssl +libpthread +libevent2 +librt
+  DEPENDS:=+libcurl +libopenssl +libpthread +libevent2 +librt +zlib
   MENU:=1
   USERID:=transmission=224:transmission=224
 endef
