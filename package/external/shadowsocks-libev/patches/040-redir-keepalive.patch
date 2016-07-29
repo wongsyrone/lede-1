@@ -17,7 +17,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  
  int getdestaddr(int fd, struct sockaddr_storage *destaddr)
  {
-@@ -630,6 +631,7 @@ static void accept_cb(EV_P_ ev_io *w, in
+@@ -632,6 +633,7 @@ static void accept_cb(EV_P_ ev_io *w, in
      setsockopt(remotefd, SOL_SOCKET, SO_NOSIGPIPE, &opt, sizeof(opt));
  #endif
  
@@ -25,7 +25,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
      // Enable TCP keepalive feature
      int keepAlive    = 1;
      int keepIdle     = 40;
-@@ -639,6 +641,7 @@ static void accept_cb(EV_P_ ev_io *w, in
+@@ -641,6 +643,7 @@ static void accept_cb(EV_P_ ev_io *w, in
      setsockopt(remotefd, SOL_TCP, TCP_KEEPIDLE, (void *)&keepIdle, sizeof(keepIdle));
      setsockopt(remotefd, SOL_TCP, TCP_KEEPINTVL, (void *)&keepInterval, sizeof(keepInterval));
      setsockopt(remotefd, SOL_TCP, TCP_KEEPCNT, (void *)&keepCount, sizeof(keepCount));
@@ -33,7 +33,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  
      // Setup
      setnonblocking(remotefd);
-@@ -702,7 +705,7 @@ int main(int argc, char **argv)
+@@ -704,7 +707,7 @@ int main(int argc, char **argv)
  
      opterr = 0;
  
@@ -42,7 +42,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
                              long_options, &option_index)) != -1) {
          switch (c) {
          case 0:
-@@ -769,6 +772,9 @@ int main(int argc, char **argv)
+@@ -771,6 +774,9 @@ int main(int argc, char **argv)
              // The option character is not recognized.
              opterr = 1;
              break;
@@ -52,7 +52,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
          }
      }
  
-@@ -811,6 +817,9 @@ int main(int argc, char **argv)
+@@ -813,6 +819,9 @@ int main(int argc, char **argv)
          if (auth == 0) {
              auth = conf->auth;
          }
@@ -62,7 +62,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  #ifdef HAVE_SETRLIMIT
          if (nofile == 0) {
              nofile = conf->nofile;
-@@ -851,6 +860,10 @@ int main(int argc, char **argv)
+@@ -853,6 +862,10 @@ int main(int argc, char **argv)
          LOGI("onetime authentication enabled");
      }
  
