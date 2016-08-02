@@ -76,7 +76,7 @@ define Device/mr24
   IMAGE_SIZE := 8191k
   KERNEL := kernel-bin | lzma | uImage lzma | MerakiAdd-dtb | MerakiNAND
   KERNEL_INITRAMFS := copy-file $(KDIR)/vmlinux | gzip | uImage gzip | MerakiAdd-dtb | pad-to 2047k | MerakiAdd-initramfs | MerakiNAND
-  IMAGE/sysupgrade.tar := sysupgrade-nand
+  IMAGE/sysupgrade.tar := sysupgrade-tar
 endef
 TARGET_DEVICES += mr24
 
@@ -85,7 +85,7 @@ define Build/create-uImage-dtb
 	-$(STAGING_DIR_HOST)/bin/mkimage -A $(LINUX_KARCH) \
 		-O linux -T kernel -C none \
 		-n '$(call toupper,$(LINUX_KARCH)) LEDE Linux-$(LINUX_VERSION)' \
-		-d $@.dtb $@.new
+		-d $(IMAGE_KERNEL).dtb $@.new
 	@mv $@.new $@
 endef
 
@@ -152,11 +152,11 @@ define Device/WNDR4700
   IMAGE_SIZE:=25559040
   IMAGES := factory.img sysupgrade.tar
   KERNEL_SIZE := 1920k
-  KERNEL := kernel-bin | lzma | uImage lzma | pad-offset $$(BLOCKSIZE) 64 | append-fakerootfs
+  KERNEL := dtb | kernel-bin | lzma | uImage lzma | pad-offset $$(BLOCKSIZE) 64 | append-fakerootfs
   KERNEL_INITRAMFS := kernel-bin | gzip | dtb | wndr4700-specialImage gzip
-  IMAGE/factory.img := dtb | create-uImage-dtb | append-kernel | pad-to 2M | append-ubi | \
+  IMAGE/factory.img := create-uImage-dtb | append-kernel | pad-to 2M | append-ubi | \
 		       netgear-dni | check-size $$$$(IMAGE_SIZE)
-  IMAGE/sysupgrade.tar := sysupgrade-nand
+  IMAGE/sysupgrade.tar := sysupgrade-tar
   NETGEAR_BOARD_ID := WNDR4700
   NETGEAR_HW_ID := 29763875+128+256
 endef
@@ -178,8 +178,8 @@ define Build/boot-img
 	mkdir -p $@.bootdir/boot
 
 	$(CP) $@.scr $@.bootdir/boot/boot.scr
-	$(CP) $@.dtb $@.bootdir/boot/$(DEVICE_DTB)
-	$(CP) $(word 1,$^) $@.bootdir/boot/uImage
+	$(CP) $(IMAGE_KERNEL).dtb $@.bootdir/boot/$(DEVICE_DTB)
+	$(CP) $(IMAGE_KERNEL) $@.bootdir/boot/uImage
 
 	genext2fs --block-size $(BLOCKSIZE) --size-in-blocks $$((1024 * $(BOOT_SIZE))) --root $@.bootdir $@.boot
 
@@ -189,7 +189,7 @@ define Build/boot-img
 endef
 
 define Build/hdd-img
-	./mbl_gen_hdd_img.sh $@ $@.boot $(word 2,$^)
+	./mbl_gen_hdd_img.sh $@ $@.boot $(IMAGE_ROOTFS)
 	$(if $(CONFIG_TARGET_IMAGES_GZIP),gzip -9n -c $@ > $(BIN_DIR)/$(notdir $@).gz)
 endef
 
@@ -204,11 +204,15 @@ endef
 define Build/recovery-tar
 	sh ./mbl_gen_recovery_tar.sh \
 		--profile $(DEVICE_PROFILE) \
-		--dtb $(word 1,$^).dtb \
+		--dtb $(IMAGE_KERNEL).dtb \
 		--dtbname $(DEVICE_DTB) \
-		--kernel $(word 1,$^) \
+		--kernel $(IMAGE_KERNEL) \
 		--rootfs $@ \
 		$@
+endef
+
+define Build/export-dtb
+	cp $(IMAGE_KERNEL).dtb $@
 endef
 
 define Device/MyBookLiveDefault
@@ -220,8 +224,8 @@ define Device/MyBookLiveDefault
   IMAGES := rootfs.img recovery.tar kernel.dtb
   DEVICE_DTB := apollo3g.dtb
   FILESYSTEMS := ext4
-  IMAGE/kernel.dtb := append-dtb
-  IMAGE/rootfs.img := boot-script | dtb | boot-img | hdd-img
+  IMAGE/kernel.dtb := export-dtb
+  IMAGE/rootfs.img := boot-script | boot-img | hdd-img
   IMAGE/recovery.tar := append-rootfs | gzip | uRamdisk | recovery-tar
 endef
 
