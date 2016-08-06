@@ -8,15 +8,19 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pdnsd
 PKG_VERSION:=1.2.9a
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/$(PKG_NAME)-$(PKG_VERSION)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/wongsyrone/pdnsd.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=a8e46ccba7b0fa2230d6c42ab6dcd92926f6c21d
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_VERSION:=ad22e203b810ae144aef734e335587d1c4b5f83d
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+
+PKG_FIXUP:=autoreconf
+PKG_USE_MIPS16:=0
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -52,8 +56,7 @@ CONFIGURE_ARGS += \
 	--with-cachedir=/var/pdnsd \
 	--with-query-method=tcpudp \
 	--enable-ipv6 \
-	--enable-tcp-subseq \
-	--with-par-queries=4
+	--with-tcp-max-query=3
 
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections
