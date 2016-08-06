@@ -295,7 +295,7 @@ target-dir-%: FORCE
 	$(CP) $(TARGET_DIR) $(mkfs_cur_target_dir)
 	mv $(mkfs_cur_target_dir)/etc/opkg $(mkfs_cur_target_dir).opkg
 	echo 'src default file://$(PACKAGE_DIR_ALL)' > $(mkfs_cur_target_dir).conf
-	$(if $(mkfs_packages_add), \
+	$(if $(call opkg_package_files,$(mkfs_packages_add)), \
 		$(opkg_target) update && \
 		$(opkg_target) install \
 			$(call opkg_package_files,$(mkfs_packages_add)))
@@ -356,6 +356,7 @@ define Device/Init
   DEVICE_DTS_DIR :=
 
   BOARD_NAME :=
+  UIMAGE_NAME :=
 
   FILESYSTEMS := $(TARGET_FILESYSTEMS)
 endef
@@ -365,7 +366,7 @@ DEFAULT_DEVICE_VARS := \
   DEVICE_DTS DEVICE_DTS_DIR BOARD_NAME CMDLINE \
   UBOOTENV_IN_UBI KERNEL_IN_UBI \
   BLOCKSIZE PAGESIZE SUBPAGESIZE VID_HDR_OFFSET \
-  UBINIZE_OPTS
+  UBINIZE_OPTS UIMAGE_NAME
 
 define Device/ExportVar
   $(1) : $(2):=$$($(2))
