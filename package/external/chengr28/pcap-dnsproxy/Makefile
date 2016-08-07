@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
 PKG_VERSION:=0.4.6.6
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
@@ -57,6 +57,11 @@ define Package/pcap-dnsproxy/config
 		  You can customize the listen port of Pcap_DNSProxy.
 		  Note that you should NOT set the value to 53, which
 		  conflicts with DNSMasq in OpenWrt.
+	config PACKAGE_pcap-dnsproxy_procdinit
+		bool "Ship with procd init script"
+		default n
+		help
+		  Use new procd init script.
 	config PACKAGE_pcap-dnsproxy_advancedoptions
 		bool "Compile with advanced options. (for expert only)"
 		default n
@@ -126,13 +131,23 @@ fi
 exit 0
 endef
 
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	$(if $(CONFIG_PACKAGE_pcap-dnsproxy_procdinit),\
+		( cp ./files/drop-clean-dns-cache-in-OP.patch $(PKG_BUILD_DIR)/;\
+			cd $(PKG_BUILD_DIR);\
+			patch -p1 < ./drop-clean-dns-cache-in-OP.patch;))
+endef
+
 define Package/pcap-dnsproxy/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/Pcap_DNSProxy $(1)/usr/sbin/Pcap_DNSProxy
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./files/pcap-dnsproxy.config $(1)/etc/config/pcap-dnsproxy
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/pcap-dnsproxy.init $(1)/etc/init.d/pcap-dnsproxy
+	$(if $(CONFIG_PACKAGE_pcap-dnsproxy_procdinit),\
+		$(INSTALL_BIN) ./files/pcap-dnsproxy.procd.init $(1)/etc/init.d/pcap-dnsproxy,\
+		$(INSTALL_BIN) ./files/pcap-dnsproxy.init $(1)/etc/init.d/pcap-dnsproxy)
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/pcap-dnsproxy.hotplug $(1)/etc/hotplug.d/iface/99-pcap-dnsproxy
 	$(INSTALL_DIR) $(1)/etc/pcap-dnsproxy

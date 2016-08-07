@@ -1,0 +1,10 @@
+--- a/Source/Pcap_DNSProxy/Service.cpp
++++ b/Source/Pcap_DNSProxy/Service.cpp
+@@ -444,7 +444,6 @@ void FlushDNSCache(
+ 	fwprintf_s(stderr, L"\n");
+ #elif defined(PLATFORM_LINUX)
+ 	#if defined(PLATFORM_OPENWRT)
+-		system("/etc/init.d/dnsmasq restart 2>/dev/null"); //Dnsmasq manage DNS cache on OpenWrt
+ 	#else
+ 		auto Result = system("service nscd restart 2>/dev/null"); //Name Service Cache Daemon service
+ 		Result = system("service dnsmasq restart 2>/dev/null"); //Dnsmasq service
