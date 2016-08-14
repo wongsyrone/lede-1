@@ -167,7 +167,6 @@ ifeq ($(DUMP),1)
     CPU_CFLAGS_mips32r2 = -mips32r2 -mtune=mips32r2
     CPU_CFLAGS_mips64 = -mips64 -mtune=mips64 -mabi=64
     CPU_CFLAGS_24kc = -mips32r2 -mtune=24kc
-    CPU_CFLAGS_24kec = -mips32r2 -mtune=24kec
     CPU_CFLAGS_34kc = -mips32r2 -mtune=34kc
     CPU_CFLAGS_74kc = -mips32r2 -mtune=74kc
     CPU_CFLAGS_1004kc = -mips32r2 -mtune=1004kc
@@ -257,6 +256,9 @@ ifeq ($(DUMP),1)
     endif
     ifneq ($(CONFIG_RTC_CLASS),)
       FEATURES += rtc
+    endif
+    ifneq ($(CONFIG_VIRTIO),)
+      FEATURES += virtio
     endif
     FEATURES += $(foreach v,6 7,$(if $(CONFIG_CPU_V$(v)),arm_v$(v)))
 
