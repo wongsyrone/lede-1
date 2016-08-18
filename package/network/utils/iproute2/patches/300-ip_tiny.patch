@@ -14,7 +14,7 @@
  ALLOBJ=$(IPOBJ) $(RTMONOBJ)
  SCRIPTS=ifcfg rtpr routel routef
  TARGETS=ip rtmon
-@@ -44,7 +51,7 @@ else
+@@ -46,7 +53,7 @@ else
  
  ip: static-syms.o
  static-syms.o: static-syms.h
@@ -25,7 +25,7 @@
  		sed -n '/'$$s'[^ ]* =/{s:.* \([^ ]*'$$s'[^ ]*\) .*:extern char \1[] __attribute__((weak)); if (!strcmp(sym, "\1")) return \1;:;p}' $$files ; \
 --- a/ip/ip.c
 +++ b/ip/ip.c
-@@ -73,30 +73,42 @@ static const struct cmd {
+@@ -73,31 +73,43 @@ static const struct cmd {
  	int (*func)(int argc, char **argv);
  } cmds[] = {
  	{ "address",	do_ipaddr },
@@ -46,6 +46,7 @@
  	{ "l2tp",	do_ipl2tp },
  	{ "fou",	do_ipfou },
 +#endif
+ 	{ "macsec",	do_ipmacsec },
  	{ "tunnel",	do_iptunnel },
  	{ "tunl",	do_iptunnel },
 +#ifndef IPROUTE2_TINY
@@ -70,7 +71,7 @@
  };
 --- a/lib/utils.c
 +++ b/lib/utils.c
-@@ -711,6 +711,7 @@ const char *rt_addr_n2a_r(int af, int le
+@@ -756,6 +756,7 @@ const char *rt_addr_n2a_r(int af, int le
  		return inet_ntop(af, addr, buf, buflen);
  	case AF_MPLS:
  		return mpls_ntop(af, addr, buf, buflen);
@@ -78,7 +79,7 @@
  	case AF_IPX:
  		return ipx_ntop(af, addr, buf, buflen);
  	case AF_DECnet:
-@@ -719,6 +720,7 @@ const char *rt_addr_n2a_r(int af, int le
+@@ -764,6 +765,7 @@ const char *rt_addr_n2a_r(int af, int le
  		memcpy(dna.a_addr, addr, 2);
  		return dnet_ntop(af, &dna, buf, buflen);
  	}

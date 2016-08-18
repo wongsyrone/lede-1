@@ -374,18 +374,9 @@
  		return 1;
 --- a/lib/ipx_pton.c
 +++ b/lib/ipx_pton.c
-@@ -6,7 +6,7 @@
+@@ -6,10 +6,10 @@
  
  #include "utils.h"
- 
--static u_int32_t hexget(char c)
-+static uint32_t hexget(char c)
- {
- 	if (c >= 'A' && c <= 'F')
- 		return c - 'A' + 10;
-@@ -18,10 +18,10 @@ static u_int32_t hexget(char c)
- 	return 0xf0;
- }
  
 -static int ipx_getnet(u_int32_t *net, const char *str)
 +static int ipx_getnet(uint32_t *net, const char *str)
@@ -396,7 +387,7 @@
  
  	for(i = 0; *str && (i < 8); i++) {
  
-@@ -43,19 +43,19 @@ static int ipx_getnet(u_int32_t *net, co
+@@ -31,19 +31,19 @@ static int ipx_getnet(u_int32_t *net, co
  	return -1;
  }
  
@@ -408,12 +399,12 @@
 +	uint32_t tmp;
  
  	for(i = 0; i < 6; i++) {
- 		if ((tmp = hexget(*str++)) & 0xf0)
+ 		if ((tmp = get_hex(*str++)) == -1)
  			return -1;
 -		node[i] = (u_int8_t)tmp;
 +		node[i] = (uint8_t)tmp;
  		node[i] <<= 4;
- 		if ((tmp = hexget(*str++)) & 0xf0)
+ 		if ((tmp = get_hex(*str++)) == -1)
  			return -1;
 -		node[i] |= (u_int8_t)tmp;
 +		node[i] |= (uint8_t)tmp;
@@ -422,8 +413,8 @@
  	}
 --- a/tc/m_ipt.c
 +++ b/tc/m_ipt.c
-@@ -349,7 +349,7 @@ struct in_addr *dotted_to_addr(const cha
- 	return &addr;
+@@ -241,7 +241,7 @@ get_target_name(const char *name)
+ 	return m;
  }
  
 -static void set_revision(char *name, u_int8_t revision)

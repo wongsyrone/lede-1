@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -42,7 +42,7 @@ WFLAGS += -Wmissing-declarations -Wold-s
+@@ -46,7 +46,7 @@ WFLAGS += -Wmissing-declarations -Wold-s
  CFLAGS := $(WFLAGS) $(CCOPTS) -I../include $(DEFINES) $(CFLAGS)
  YACCFLAGS = -d -t -v
  
