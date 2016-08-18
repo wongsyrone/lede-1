@@ -33,6 +33,10 @@ ifdef CONFIG_USE_SPARSE
   KERNEL_MAKEOPTS += C=1 CHECK=$(STAGING_DIR_HOST)/bin/sparse
 endif
 
+ifneq ($(strip $(CONFIG_KERNEL_GIT_CLONE_URI)),"")
+ KERNEL_MAKEOPTS += LOCALVERSION=
+endif
+
 export HOST_EXTRACFLAGS=-I$(STAGING_DIR_HOST)/include
 
 # defined in quilt.mk
@@ -107,6 +111,7 @@ define Kernel/SetNoInitramfs
 endef
 
 define Kernel/Configure/Default
+	rm -f $(LINUX_DIR)/localversion
 	$(LINUX_CONF_CMD) > $(LINUX_DIR)/.config.target
 # copy CONFIG_KERNEL_* settings over to .config.target
 	awk '/^(#[[:space:]]+)?CONFIG_KERNEL/{sub("CONFIG_KERNEL_","CONFIG_");print}' $(TOPDIR)/.config >> $(LINUX_DIR)/.config.target
