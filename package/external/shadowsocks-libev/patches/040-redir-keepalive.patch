@@ -33,7 +33,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  
      // Set non blocking
      setnonblocking(remotefd);
-@@ -716,7 +719,7 @@ int main(int argc, char **argv)
+@@ -718,7 +721,7 @@ int main(int argc, char **argv)
  
      opterr = 0;
  
@@ -42,8 +42,8 @@ Subject: [PATCH] Add keepalive feature for remote connections
                              long_options, &option_index)) != -1) {
          switch (c) {
          case 0:
-@@ -789,6 +792,9 @@ int main(int argc, char **argv)
-             // The option character is not recognized.
+@@ -792,6 +795,9 @@ int main(int argc, char **argv)
+             LOGE("Unrecognized option: %s", optarg);
              opterr = 1;
              break;
 +        case 'K':
@@ -52,7 +52,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
          }
      }
  
-@@ -837,6 +843,9 @@ int main(int argc, char **argv)
+@@ -840,6 +846,9 @@ int main(int argc, char **argv)
          if (mptcp == 0) {
              mptcp = conf->mptcp;
          }
@@ -62,7 +62,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  #ifdef HAVE_SETRLIMIT
          if (nofile == 0) {
              nofile = conf->nofile;
-@@ -877,6 +886,10 @@ int main(int argc, char **argv)
+@@ -883,6 +892,10 @@ int main(int argc, char **argv)
          LOGI("onetime authentication enabled");
      }
  
