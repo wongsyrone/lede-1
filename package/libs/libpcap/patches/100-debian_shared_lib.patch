@@ -28,7 +28,7 @@ build a shared library.
  
  INSTALL = @INSTALL@
  INSTALL_PROGRAM = @INSTALL_PROGRAM@
-@@ -82,7 +91,11 @@ YACC = @V_YACC@
+@@ -77,7 +86,11 @@ YACC = @YACC@
  # problem if you don't own the file but can write to the directory.
  .c.o:
  	@rm -f $@
@@ -40,8 +40,8 @@ build a shared library.
 +	$(CC) -fPIC $(FULL_CFLAGS) -c -o $@ $(srcdir)/$*.c
  
  PSRC =	pcap-@V_PCAP@.c @USB_SRC@ @BT_SRC@ @BT_MONITOR_SRC@ @CAN_SRC@ @NETFILTER_SRC@ @CANUSB_SRC@ @DBUS_SRC@
- FSRC =  fad-@V_FINDALLDEVS@.c
-@@ -98,6 +111,7 @@ SRC =	$(PSRC) $(FSRC) $(CSRC) $(SSRC) $(
+ FSRC =  @V_FINDALLDEVS@
+@@ -93,6 +106,7 @@ SRC =	$(PSRC) $(FSRC) $(CSRC) $(SSRC) $(
  # We would like to say "OBJ = $(SRC:.c=.o)" but Ultrix's make cannot
  # hack the extra indirection
  OBJ =	$(PSRC:.c=.o) $(FSRC:.c=.o) $(CSRC:.c=.o) $(SSRC:.c=.o) $(GENSRC:.c=.o) $(LIBOBJS)
@@ -49,7 +49,7 @@ build a shared library.
  PUBHDR = \
  	pcap.h \
  	pcap-bpf.h \
-@@ -153,7 +167,7 @@ TAGFILES = \
+@@ -154,7 +168,7 @@ TAGFILES = \
  
  CLEANFILES = $(OBJ) libpcap.* $(TESTS) \
  	$(PROG)-`cat $(srcdir)/VERSION`.tar.gz $(GENSRC) $(GENHDR) \
@@ -58,7 +58,7 @@ build a shared library.
  
  MAN1 = pcap-config.1
  
-@@ -365,7 +379,7 @@ libpcap.a: $(OBJ)
+@@ -351,7 +365,7 @@ libpcap.a: $(OBJ)
  	$(AR) rc $@ $(OBJ) $(ADDLARCHIVEOBJS)
  	$(RANLIB) $@
  
@@ -67,7 +67,7 @@ build a shared library.
  
  libpcap.so: $(OBJ)
  	@rm -f $@
-@@ -443,6 +457,13 @@ libpcap.shareda: $(OBJ)
+@@ -429,6 +443,13 @@ libpcap.shareda: $(OBJ)
  #
  libpcap.none:
  
@@ -79,21 +79,21 @@ build a shared library.
 +	ln -s $(SOLIBRARY).$(MAJ) $(SOLIBRARY)
 +
  scanner.c: $(srcdir)/scanner.l
- 	@rm -f $@ $@.bottom
- 	$(srcdir)/runlex.sh $(LEX) -o$@ $<
-@@ -453,6 +474,9 @@ scanner.c: $(srcdir)/scanner.l
- scanner.o: scanner.c tokdefs.h
+ 	$(LEX) -P pcap_ --header-file=scanner.h --nounput -o scanner.c $<
+ scanner.h: scanner.c
+@@ -441,6 +462,9 @@ scanner.h: scanner.c
+ scanner.o: scanner.c grammar.h
  	$(CC) $(FULL_CFLAGS) -c scanner.c
  
-+scanner_pic.o: scanner.c tokdefs.h
++scanner_pic.o: scanner.c grammar.h
 +	$(CC) -fPIC $(FULL_CFLAGS) -o $@ -c scanner.c
 +
  pcap.o: version.h
  
- tokdefs.h: grammar.c
-@@ -466,9 +490,16 @@ grammar.o: grammar.c
- 	@rm -f $@
- 	$(CC) $(FULL_CFLAGS) -Dyylval=pcap_lval -c grammar.c
+ grammar.c: $(srcdir)/grammar.y
+@@ -458,9 +482,16 @@ grammar.o: grammar.c
+ gencode.o: $(srcdir)/gencode.c grammar.h scanner.h
+ 	$(CC) $(FULL_CFLAGS) -c $(srcdir)/gencode.c
  
 +grammar_pic.o: grammar.c
 +	@rm -f $@
@@ -108,7 +108,7 @@ build a shared library.
  snprintf.o: $(srcdir)/missing/snprintf.c
  	$(CC) $(FULL_CFLAGS) -o $@ -c $(srcdir)/missing/snprintf.c
  
-@@ -506,6 +537,9 @@ bpf_filter.c: $(srcdir)/bpf/net/bpf_filt
+@@ -505,6 +536,9 @@ bpf_filter.c: $(srcdir)/bpf/net/bpf_filt
  bpf_filter.o: bpf_filter.c
  	$(CC) $(FULL_CFLAGS) -c bpf_filter.c
  
@@ -118,7 +118,7 @@ build a shared library.
  #
  # Generate the pcap-config script.
  #
-@@ -622,14 +656,12 @@ install: install-shared install-archive
+@@ -624,14 +658,12 @@ install: install-shared install-archive
  		    $(DESTDIR)$(mandir)/man@MAN_MISC_INFO@/`echo $$i | sed 's/.manmisc.in/.@MAN_MISC_INFO@/'`; done
  
  install-shared: install-shared-$(DYEXT)
@@ -139,7 +139,7 @@ build a shared library.
  	    (mkdir -p $(DESTDIR)$(libdir); chmod 755 $(DESTDIR)$(libdir))
 --- a/aclocal.m4
 +++ b/aclocal.m4
-@@ -438,7 +438,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
+@@ -470,7 +470,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
  			esac
  			;;
  		    esac
@@ -148,7 +148,7 @@ build a shared library.
  		    V_SONAME_OPT="-Wl,-soname,"
  		    V_RPATH_OPT="-Wl,-rpath,"
  		    ;;
-@@ -501,7 +501,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
+@@ -533,7 +533,7 @@ AC_DEFUN(AC_LBL_SHLIBS_INIT,
  		    #
  		    # "cc" is GCC.
  		    #
