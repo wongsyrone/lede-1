@@ -79,8 +79,6 @@ start_service() {
 		[ -f "$ERRLOG" ] \
 			&& echo "WARNING: ${ERRLOG##*/} exists, check its content and other config files in ${CONFDIR}" \
 			|| echo "Hooray! ${ERRLOG##*/} not found"
-		# clear DNS after 60s
-		clearDNS 60
 	} || {
 		echo "Pcap_DNSProxy is disabled, please check /etc/config/pcap-dnsproxy for more info"
 	}
@@ -101,17 +99,11 @@ reload_service() {
 	start
 }
 
-# workaround to reduce load when clearing DNS on OpenWrt/LEDE
-clearDNS() {
-	sleep $1 &&	/etc/init.d/dnsmasq restart &
-}
-
 flush() {
 	[ $(ps|grep ${PROG}|grep -v grep|wc -l) -ge 1 ] && {
 		local _PID=$(pidof ${PROG##*/})
 		$PROG --flush-dns
 		logger -p daemon.notice -t "Pcap_DNSProxy[$_PID]" "Flush message sent"
-		clearDNS 60
 	} || {
 		echo "Pcap_DNSProxy is not running, I can NOT flush DNS cache for you."
 		exit 1

@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
-PKG_VERSION:=0.4.7
+PKG_VERSION:=0.4.7.2
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=d6b66b49ae61f14a6bf6966d36ef08195032bbb2
+PKG_SOURCE_VERSION:=1909630c85f2a25a374d56c2baa3239155be9c52
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -59,7 +59,7 @@ define Package/pcap-dnsproxy/config
 		  conflicts with DNSMasq in OpenWrt.
 	config PACKAGE_pcap-dnsproxy_procdinit
 		bool "Ship with procd init script"
-		default n
+		default y
 		help
 		  Use new procd init script.
 	config PACKAGE_pcap-dnsproxy_advancedoptions
@@ -129,14 +129,6 @@ if [ -z "$${IPKG_INSTROOT}" ]; then
 	/etc/init.d/pcap-dnsproxy disable
 fi
 exit 0
-endef
-
-define Build/Prepare
-	$(call Build/Prepare/Default)
-	$(if $(CONFIG_PACKAGE_pcap-dnsproxy_procdinit),\
-		( cp ./files/drop-clean-dns-cache-in-OP.patch $(PKG_BUILD_DIR)/;\
-			cd $(PKG_BUILD_DIR);\
-			patch -p1 < ./drop-clean-dns-cache-in-OP.patch;))
 endef
 
 define Package/pcap-dnsproxy/install
