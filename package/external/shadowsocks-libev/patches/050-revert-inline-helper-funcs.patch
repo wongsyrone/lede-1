@@ -1,10 +1,11 @@
 --- a/src/utils.c
 +++ b/src/utils.c
-@@ -185,26 +185,6 @@ void FATAL(const char *msg)
+@@ -190,27 +190,6 @@ FATAL(const char *msg)
      exit(-1);
  }
  
--void *ss_malloc(size_t size)
+-void *
+-ss_malloc(size_t size)
 -{
 -    void *tmp = malloc(size);
 -    if (tmp == NULL)
@@ -12,7 +13,8 @@
 -    return tmp;
 -}
 -
--void *ss_realloc(void *ptr, size_t new_size)
+-void *
+-ss_realloc(void *ptr, size_t new_size)
 -{
 -    void *new = realloc(ptr, new_size);
 -    if (new == NULL) {
@@ -23,13 +25,12 @@
 -    return new;
 -}
 -
--
- void usage()
+ void
+ usage()
  {
-     printf("\n");
 --- a/src/utils.h
 +++ b/src/utils.h
-@@ -203,13 +203,29 @@ char *ss_strndup(const char *s, size_t n
+@@ -203,13 +203,31 @@ char *ss_strndup(const char *s, size_t n
  int set_nofile(int nofile);
  #endif
  
@@ -40,9 +41,10 @@
      do {                 \
          free(ptr);       \
          ptr = NULL;      \
-     } while(0)
+     } while (0)
  
-+inline void *ss_malloc(size_t size)
++inline void *
++ss_malloc(size_t size)
 +{
 +    void *tmp = malloc(size);
 +    if (tmp == NULL)
@@ -50,7 +52,8 @@
 +    return tmp;
 +}
 +
-+inline void *ss_realloc(void *ptr, size_t new_size)
++inline void *
++ss_realloc(void *ptr, size_t new_size)
 +{
 +    void *new = realloc(ptr, new_size);
 +    if (new == NULL) {

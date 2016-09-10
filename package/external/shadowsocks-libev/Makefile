@@ -8,9 +8,9 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=shadowsocks-libev
-PKG_VERSION:=2.4.8
-PKG_RELEASE:=5
-PKG_REV:=9a43cc6e6b61d16c157d53ab7f22a34ae61a9bc4
+PKG_VERSION:=2.5.0
+PKG_RELEASE:=1
+PKG_REV:=61cd731c4ee3c26533a96bf5a21631f31d747610
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_REV)
@@ -28,6 +28,9 @@ PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
 PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
+
+# get pcre for static linking
+PKG_BUILD_DEPENDS:=libpcre
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -57,12 +60,21 @@ Package/shadowsocks-libev-mbedtls/conffiles = $(Package/shadowsocks-libev/conffi
 
 # Use shared lib provided by OpenWrt, and use our SSP settings
 CONFIGURE_ARGS += --enable-system-shared-lib --disable-documentation --disable-ssp
+
 # Check whether compiler follows our inline suggestion
 TARGET_CFLAGS += -Wno-error=inline -Winline
 
 # Use Link time optimization
 TARGET_CFLAGS += -flto
 TARGET_LDFLAGS += -Wl,-flto
+
+# strip unused functions and data
+TARGET_CFLAGS += -ffunction-sections -fdata-sections
+TARGET_LDFLAGS += -Wl,--gc-sections
+
+# pass static archive
+CONFIGURE_VARS += LIBS="$(STAGING_DIR)/usr/lib/libpcre.a"
+#MAKE_VARS += LDLIBS="-Wl,-Bstatic -lpcre -Wl,-Bdynamic"
 
 ifeq ($(BUILD_VARIANT),mbedtls)
 	CONFIGURE_ARGS += --with-crypto-library=mbedtls

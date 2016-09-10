@@ -9,7 +9,7 @@
  endif
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
-@@ -3,21 +3,21 @@ VERSION_INFO = 1:0:0
+@@ -3,22 +3,22 @@ VERSION_INFO = 2:0:0
  AM_CFLAGS = -g -O2 -Wall -Werror -Wno-deprecated-declarations -fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE
  AM_CFLAGS += $(PTHREAD_CFLAGS)
  if !USE_SYSTEM_SHARED_LIB
@@ -21,11 +21,12 @@
 +AM_CFLAGS += -I$(top_srcdir)/libudns
 +AM_CFLAGS += -I$(top_srcdir)/libev
  AM_CFLAGS += -I$(top_srcdir)/libcork/include
+ AM_CFLAGS += $(LIBPCRE_CFLAGS)
  
  SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
                   $(top_builddir)/libcork/libcork.la \
 +                 $(top_builddir)/libev/libev.la \
-                  $(INET_NTOP_LIB)
+                  $(INET_NTOP_LIB) $(LIBPCRE_LIBS)
  if USE_SYSTEM_SHARED_LIB
 -SS_COMMON_LIBS += -lev -lsodium -lm
 +SS_COMMON_LIBS += -lsodium -lm
@@ -36,7 +37,7 @@
  endif
  
  bin_PROGRAMS = ss-local ss-tunnel
-@@ -64,15 +64,9 @@ ss_local_LDADD = $(SS_COMMON_LIBS)
+@@ -71,15 +71,9 @@ ss_local_LDADD = $(SS_COMMON_LIBS)
  ss_tunnel_LDADD = $(SS_COMMON_LIBS)
  ss_server_LDADD = $(SS_COMMON_LIBS)
  ss_manager_LDADD = $(SS_COMMON_LIBS)
@@ -52,8 +53,8 @@
  
  ss_local_CFLAGS = $(AM_CFLAGS) -DMODULE_LOCAL
  ss_tunnel_CFLAGS = $(AM_CFLAGS) -DMODULE_TUNNEL
-@@ -97,12 +91,8 @@ ss_redir_SOURCES = utils.c \
-                    redir.c
+@@ -105,12 +99,8 @@ ss_redir_SOURCES = utils.c \
+                    $(sni_src)
  ss_redir_CFLAGS = $(AM_CFLAGS) -DMODULE_REDIR
  ss_redir_LDADD = $(SS_COMMON_LIBS)
 -if USE_SYSTEM_SHARED_LIB
@@ -67,7 +68,7 @@
  libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)
 --- a/configure.ac
 +++ b/configure.ac
-@@ -305,11 +305,11 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
+@@ -311,11 +311,11 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
                   Makefile
                   libcork/Makefile
                   libipset/Makefile

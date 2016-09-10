@@ -9,7 +9,7 @@
  endif
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
-@@ -4,18 +4,17 @@ AM_CFLAGS = -g -O2 -Wall -Werror -Wno-de
+@@ -4,19 +4,18 @@ AM_CFLAGS = -g -O2 -Wall -Werror -Wno-de
  AM_CFLAGS += $(PTHREAD_CFLAGS)
  if !USE_SYSTEM_SHARED_LIB
  AM_CFLAGS += -I$(top_srcdir)/libsodium/src/libsodium/include
@@ -19,11 +19,12 @@
  AM_CFLAGS += -I$(top_srcdir)/libudns
 -AM_CFLAGS += -I$(top_srcdir)/libev
  AM_CFLAGS += -I$(top_srcdir)/libcork/include
+ AM_CFLAGS += $(LIBPCRE_CFLAGS)
  
  SS_COMMON_LIBS = $(top_builddir)/libipset/libipset.la \
                   $(top_builddir)/libcork/libcork.la \
 -                 $(top_builddir)/libev/libev.la \
-                  $(INET_NTOP_LIB)
+                  $(INET_NTOP_LIB) $(LIBPCRE_LIBS)
  if USE_SYSTEM_SHARED_LIB
 -SS_COMMON_LIBS += -lsodium -lm
 +SS_COMMON_LIBS += -lev -lsodium -lm
