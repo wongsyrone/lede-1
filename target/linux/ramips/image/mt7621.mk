@@ -57,7 +57,7 @@ TARGET_DEVICES += wsr-1166
 
 define Device/dir-860l-b1
   DTS := DIR-860L-B1
-  BLOCKSIZE := 4k
+  BLOCKSIZE := 64k
   IMAGES += factory.bin
   KERNEL := kernel-bin | patch-dtb | relocate-kernel | lzma | uImage lzma
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
@@ -146,6 +146,7 @@ define Device/wf-2881
   FILESYSTEMS := squashfs
   IMAGE_SIZE := 129280k
   KERNEL := $(KERNEL_DTB) | pad-offset $$(BLOCKSIZE) 64 | uImage lzma
+  UBINIZE_OPTS := -E 5
   IMAGE/sysupgrade.bin := append-kernel | append-ubi | check-size $$$$(IMAGE_SIZE)
   DEVICE_TITLE := NETIS WF-2881
   DEVICE_PACKAGES := kmod-usb3 kmod-ledtrig-usbdev
