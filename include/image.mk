@@ -294,13 +294,12 @@ mkfs_cur_target_dir = $(call mkfs_target_dir,pkg=$(target_params))
 
 opkg_target = \
 	$(call opkg,$(mkfs_cur_target_dir)) \
-		-f $(mkfs_cur_target_dir).conf \
-		-l $(mkfs_cur_target_dir).tmp
+		-f $(mkfs_cur_target_dir).conf
 
 target-dir-%: FORCE
 	rm -rf $(mkfs_cur_target_dir) $(mkfs_cur_target_dir).opkg
 	$(CP) $(TARGET_DIR) $(mkfs_cur_target_dir)
-	mv $(mkfs_cur_target_dir)/etc/opkg $(mkfs_cur_target_dir).opkg
+	-mv $(mkfs_cur_target_dir)/etc/opkg $(mkfs_cur_target_dir).opkg
 	echo 'src default file://$(PACKAGE_DIR_ALL)' > $(mkfs_cur_target_dir).conf
 	$(if $(call opkg_package_files,$(mkfs_packages_add)), \
 		$(opkg_target) update && \
@@ -311,10 +310,8 @@ target-dir-%: FORCE
 			$(mkfs_packages_remove))
 	$(call Image/mkfs/prepare,$(mkfs_cur_target_dir))
 	$(call prepare_rootfs,$(mkfs_cur_target_dir))
-	mv $(mkfs_cur_target_dir).opkg $(mkfs_cur_target_dir)/etc/opkg
-	rm -rf \
-		$(mkfs_cur_target_dir).conf \
-		$(mkfs_cur_target_dir).tmp
+	-mv $(mkfs_cur_target_dir).opkg $(mkfs_cur_target_dir)/etc/opkg
+	rm -f $(mkfs_cur_target_dir).conf
 
 $(KDIR)/root.%: kernel_prepare
 	$(call Image/mkfs/$(word 1,$(target_params)),$(target_params))
@@ -391,11 +388,21 @@ else
   DEVICE_CHECK_PROFILE = $(CONFIG_TARGET_$(if $(CONFIG_TARGET_MULTI_PROFILE),DEVICE_)$(call target_conf,$(BOARD)$(if $(SUBTARGET),_$(SUBTARGET)))_$(1))
 endif
 
+DEVICE_EXTRA_PACKAGES = $(call qstrip,$(CONFIG_TARGET_DEVICE_PACKAGES_$(call target_conf,$(BOARD)$(if $(SUBTARGET),_$(SUBTARGET)))_DEVICE_$(1)))
+
+define merge_packages
+  $(1) :=
+  $(foreach pkg,$(2),
+    $(1) := $$(strip $$(filter-out -$$(patsubst -%,%,$(pkg)) $$(patsubst -%,%,$(pkg)),$$($(1))) $(pkg))
+  )
+endef
+
 define Device/Check/Common
   _PROFILE_SET = $$(strip $$(foreach profile,$$(PROFILES) DEVICE_$(1),$$(call DEVICE_CHECK_PROFILE,$$(profile))))
   ifdef TARGET_PER_DEVICE_ROOTFS
-    ROOTFS_ID/$(1) := $$(if $$(_PROFILE_SET),$$(call mkfs_packages_id,$$(DEVICE_PACKAGES)))
-    PACKAGES_$$(ROOTFS_ID/$(1)) := $$(DEVICE_PACKAGES)
+    $$(eval $$(call merge_packages,_PACKAGES,$$(DEVICE_PACKAGES) $$(call DEVICE_EXTRA_PACKAGES,$(1))))
+    ROOTFS_ID/$(1) := $$(if $$(_PROFILE_SET),$$(call mkfs_packages_id,$$(_PACKAGES)))
+    PACKAGES_$$(ROOTFS_ID/$(1)) := $$(_PACKAGES)
   endif
 endef
 
