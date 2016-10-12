@@ -325,6 +325,12 @@ ramips_board_detect() {
 	*"NBG-419N")
 		name="nbg-419n"
 		;;
+	*"NBG-419N v2")
+		name="nbg-419n2"
+		;;
+	*"Newifi-D1")
+		name="newifi-d1"
+		;;
 	*"NCS601W")
 		name="ncs601w"
 		;;
@@ -337,11 +343,17 @@ ramips_board_detect() {
 	*"OY-0001")
 		name="oy-0001"
 		;;
+	*"PBR-D1")
+		name="pbr-d1"
+		;;
 	*"PBR-M1")
 		name="pbr-m1"
 		;;
 	*"PSG1208")
 		name="psg1208"
+		;;
+	*"PSG1218")
+		name="psg1218"
 		;;
 	*"PSR-680W"*)
 		name="psr-680w"
@@ -540,6 +552,9 @@ ramips_board_detect() {
 		;;
 	*"ZBT-APE522II")
 		name="zbt-ape522ii"
+		;;
+	*"ZBT-CPE102")
+		name="zbt-cpe102"
 		;;
 	*"ZBT-WA05")
 		name="zbt-wa05"

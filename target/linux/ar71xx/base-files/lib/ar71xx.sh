@@ -539,6 +539,9 @@ ar71xx_board_detect() {
 	*"DIR-835 rev. A1")
 		name="dir-835-a1"
 		;;
+	*"DIR-869 rev. A1")
+		name="dir-869-a1"
+		;;
 	*"dLAN Hotspot")
 		name="dlan-hotspot"
 		;;
@@ -1139,6 +1142,9 @@ ar71xx_board_detect() {
 		;;
 	*WHR-HP-G300N)
 		name="whr-hp-g300n"
+		;;
+	*Z1)
+		name="z1"
 		;;
 	*ZBT-WE1526)
 		name="zbt-we1526"

@@ -24,6 +24,10 @@ $(eval $(call TestHostCommand,case-sensitive-fs, \
 	rm -f $(TMP_DIR)/test.*; touch $(TMP_DIR)/test.fs; \
 		test ! -f $(TMP_DIR)/test.FS))
 
+$(eval $(call TestHostCommand,proper-umask, \
+	Please build with umask 022 - other values produce broken packages, \
+	umask | grep -xE 00[012][012]))
+
 $(eval $(call SetupHostCommand,gcc, \
 	Please install the GNU C Compiler (gcc), \
 	$(CC) --version | grep gcc, \
@@ -105,8 +109,8 @@ $(eval $(call SetupHostCommand,diff,Please install diffutils, \
 	diff --version 2>&1 | grep diff))
 
 $(eval $(call SetupHostCommand,cp,Please install GNU fileutils, \
-	gcp --help, \
-	cp --help))
+	gcp --help 2>&1 | grep 'Copy SOURCE', \
+	cp --help 2>&1 | grep 'Copy SOURCE'))
 
 $(eval $(call SetupHostCommand,seq,, \
 	gseq --version, \

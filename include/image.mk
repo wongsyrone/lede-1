@@ -252,19 +252,6 @@ define Image/mkfs/ext4
 		$@ $(call mkfs_target_dir,$(1))/
 endef
 
-define Image/mkfs/prepare/default
-	# Use symbolic permissions to avoid clobbering SUID/SGID/sticky bits
-	- $(FIND) $(1) -type f -not -perm /0100 -not -name 'ssh_host*' -not -name 'shadow' -print0 | $(XARGS) -0 chmod u+rw,g+r,o+r
-	- $(FIND) $(1) -type f -perm /0100 -print0 | $(XARGS) -0 chmod u+rwx,g+rx,o+rx
-	- $(FIND) $(1) -type d -print0 | $(XARGS) -0 chmod u+rwx,g+rx,o+rx
-	$(INSTALL_DIR) $(1)/tmp $(1)/overlay
-	chmod 1777 $(1)/tmp
-endef
-
-define Image/mkfs/prepare
-	$(call Image/mkfs/prepare/default,$(1))
-endef
-
 define Image/Manifest
 	$(STAGING_DIR_HOST)/bin/opkg \
 		--offline-root $(TARGET_DIR) \
@@ -298,17 +285,16 @@ opkg_target = \
 
 target-dir-%: FORCE
 	rm -rf $(mkfs_cur_target_dir) $(mkfs_cur_target_dir).opkg
-	$(CP) $(TARGET_DIR) $(mkfs_cur_target_dir)
+	$(CP) $(TARGET_DIR_ORIG) $(mkfs_cur_target_dir)
 	-mv $(mkfs_cur_target_dir)/etc/opkg $(mkfs_cur_target_dir).opkg
 	echo 'src default file://$(PACKAGE_DIR_ALL)' > $(mkfs_cur_target_dir).conf
+	$(if $(mkfs_packages_remove), \
+		-$(call opkg,$(mkfs_cur_target_dir)) remove \
+			$(mkfs_packages_remove))
 	$(if $(call opkg_package_files,$(mkfs_packages_add)), \
 		$(opkg_target) update && \
 		$(opkg_target) install \
 			$(call opkg_package_files,$(mkfs_packages_add)))
-	$(if $(mkfs_packages_remove), \
-		$(call opkg,$(mkfs_cur_target_dir)) remove \
-			$(mkfs_packages_remove))
-	$(call Image/mkfs/prepare,$(mkfs_cur_target_dir))
 	$(call prepare_rootfs,$(mkfs_cur_target_dir))
 	-mv $(mkfs_cur_target_dir).opkg $(mkfs_cur_target_dir)/etc/opkg
 	rm -f $(mkfs_cur_target_dir).conf
@@ -531,7 +517,7 @@ define BuildImage
   image_prepare:
 
   ifeq ($(IB),)
-    .PHONY: download prepare compile clean image_prepare mkfs_prepare kernel_prepare install install-images
+    .PHONY: download prepare compile clean image_prepare kernel_prepare install install-images
     compile:
 		$(call Build/Compile)
 
@@ -550,10 +536,7 @@ define BuildImage
 		mkdir -p $(BIN_DIR) $(KDIR)/tmp
   endif
 
-  mkfs_prepare: image_prepare
-	$(call Image/mkfs/prepare,$(TARGET_DIR))
-
-  kernel_prepare: mkfs_prepare
+  kernel_prepare: image_prepare
 	$(call Image/Build/targz)
 	$(call Image/Build/cpiogz)
 	$(call Image/BuildKernel)

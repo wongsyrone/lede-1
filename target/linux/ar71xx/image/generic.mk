@@ -472,53 +472,51 @@ endef
 TARGET_DEVICES += hiwifi-hc6361
 
 
-# The pre-filled 64 bytes consist of
-# - 28 bytes seama_header
-# - 36 bytes of META data (4-bytes aligned)
-define Build/seama-factory
-	( dd if=/dev/zero bs=64 count=1; cat $(IMAGE_KERNEL) ) >$@.loader.tmp
-	( dd if=$@.loader.tmp bs=64k conv=sync; dd if=$(IMAGE_ROOTFS) ) >$@.tmp.0
-	tail -c +65 $@.tmp.0 >$@.tmp.1
-	$(STAGING_DIR_HOST)/bin/seama \
-		-i $@.tmp.1 \
-		-m "dev=/dev/mtdblock/1" -m "type=firmware"
-	$(STAGING_DIR_HOST)/bin/seama \
-		-s $@ \
-		-m "signature=$(1)" \
-		-i $@.tmp.1.seama
-	rm -f $@.loader.tmp $@.tmp.*
-endef
-
-define Build/seama-sysupgrade
-	$(STAGING_DIR_HOST)/bin/seama \
-		-i $(IMAGE_KERNEL) \
-		-m "dev=/dev/mtdblock/1" -m "type=firmware"
-	( dd if=$(IMAGE_KERNEL).seama bs=64k conv=sync; dd if=$(IMAGE_ROOTFS) ) >$@
-	rm -f $(IMAGE_KERNEL).seama
-endef
-
-define Build/seama-initramfs
-	$(STAGING_DIR_HOST)/bin/seama \
-		-i $@ \
-		-m "dev=/dev/mtdblock/1" -m "type=firmware"
+define Build/seama
+	$(STAGING_DIR_HOST)/bin/seama -i $@ $(if $(1),$(1),-m "dev=/dev/mtdblock/1" -m "type=firmware")
 	mv $@.seama $@
 endef
 
-define Build/seama-pad-rootfs
-	$(STAGING_DIR_HOST)/bin/padjffs2 $(IMAGE_ROOTFS) -c 64 >>$@
+define Build/seama-seal
+	$(call Build/seama,-s $@.seama $(1))
 endef
 
 define Device/seama
   CONSOLE := ttyS0,115200
   LOADER_TYPE := bin
-  KERNEL := kernel-bin | lzma | loader-kernel-cmdline | lzma
-  KERNEL_INITRAMFS := kernel-bin | patch-cmdline | lzma | seama-initramfs
+  BLOCKSIZE := 64k
+  KERNEL := kernel-bin | patch-cmdline | relocate-kernel | lzma
+  KERNEL_INITRAMFS := kernel-bin | patch-cmdline | lzma | seama
   KERNEL_INITRAMFS_SUFFIX = $$(KERNEL_SUFFIX).seama
   IMAGES := sysupgrade.bin factory.bin
-  IMAGE/sysupgrade.bin := seama-sysupgrade $$$$(SEAMA_SIGNATURE) | seama-pad-rootfs | check-size $$$$(IMAGE_SIZE)
-  IMAGE/factory.bin := seama-factory $$$$(SEAMA_SIGNATURE) | seama-pad-rootfs | check-size $$$$(IMAGE_SIZE)
+
+  # 64 bytes offset:
+  # - 28 bytes seama_header
+  # - 36 bytes of META data (4-bytes aligned)
+  IMAGE/default := append-kernel | pad-offset $$$$(BLOCKSIZE) 64 | append-rootfs
+  IMAGE/sysupgrade.bin := \
+	$$(IMAGE/default) | seama | pad-rootfs | \
+	check-size $$$$(IMAGE_SIZE)
+  IMAGE/factory.bin := \
+	$$(IMAGE/default) | seama | pad-rootfs | \
+	seama-seal -m "signature=$$$$(SEAMA_SIGNATURE)" | \
+	check-size $$$$(IMAGE_SIZE)
   SEAMA_SIGNATURE :=
   DEVICE_VARS += SEAMA_SIGNATURE
+endef
+
+define Device/dir-869-a1
+$(Device/seama)
+  DEVICE_TITLE := D-Link DIR-869 rev. A1
+  DEVICE_PACKAGES := kmod-ath10k ath10k-firmware-qca988x
+  BOARDNAME = DIR-869-A1
+  IMAGE_SIZE = 15872k
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,64k(devdata)ro,64k(devconf)ro,15872k(firmware),64k(radiocfg)ro
+  SEAMA_SIGNATURE := wrgac54_dlink.2015_dir869
+  IMAGE/factory.bin := \
+	$$(IMAGE/default) | pad-rootfs -x 64 | \
+	seama | seama-seal -m "signature=$$$$(SEAMA_SIGNATURE)" | \
+	check-size $$$$(IMAGE_SIZE)
 endef
 
 define Device/mynet-n600
@@ -570,4 +568,4 @@ $(Device/seama)
   MTDPARTS = flash:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),32256k(firmware),64k(radiocfg)
   SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
 endef
-TARGET_DEVICES += mynet-n600 mynet-n750 qihoo-c301-flash1-16m qihoo-c301-flash2-16m qihoo-c301-dual-flash-32m
+TARGET_DEVICES += dir-869-a1 mynet-n600 mynet-n750 qihoo-c301-flash1-16m qihoo-c301-flash2-16m qihoo-c301-dual-flash-32m

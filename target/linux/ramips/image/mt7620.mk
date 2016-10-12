@@ -259,6 +259,13 @@ define Device/psg1208
 endef
 TARGET_DEVICES += psg1208
 
+define Device/psg1218
+  DTS := PSG1218
+  DEVICE_TITLE := Phicomm PSG1218
+  DEVICE_PACKAGES := kmod-mt76
+endef
+TARGET_DEVICES += psg1218
+
 define Device/y1
   DTS := Y1
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
@@ -357,6 +364,13 @@ define Device/zbt-ape522ii
   DEVICE_PACKAGES := kmod-mt76
 endef
 TARGET_DEVICES += zbt-ape522ii
+
+define Device/zbt-cpe102
+  DTS := ZBT-CPE102
+  DEVICE_TITLE := Zbtlink ZBT-CPE102
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
+endef
+TARGET_DEVICES += zbt-cpe102
 
 define Device/zbt-wa05
   DTS := ZBT-WA05
