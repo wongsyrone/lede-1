@@ -1,11 +1,11 @@
---- a/config.h
-+++ b/config.h
+--- a/src/config.h
++++ b/src/config.h
 @@ -24,7 +24,7 @@
   * Define your own version identifier here, e.g. '#define VERSION "my vlmcsd based on svn560"'
   */
  
 -#define VERSION "private build"
-+#define VERSION "vlmcsd for OpenWrt love from MDL forum"
++#define VERSION "vlmcsd for LEDE love from MDL forum"
  
  #endif // VERSION
  
@@ -18,3 +18,31 @@
  
  #endif // INI_FILE
  
+--- a/src/GNUmakefile
++++ b/src/GNUmakefile
+@@ -62,7 +62,7 @@ DNS_PARSER ?= OS
+ 
+ # You should supply your own version string here
+ 
+-VLMCSD_VERSION ?= $(shell test -d .svn && echo svn`svnversion`)
++VLMCSD_VERSION ?= LEDE_wongsyrone
+ 
+ FEATURES ?= full
+ VERBOSE ?= NO
+@@ -158,14 +158,14 @@ else
+   DLL_NAME ?= ../lib/libkms.so
+ endif
+ 
+-BASECFLAGS = -DVLMCSD_COMPILER=\"$(notdir $(CC))\" -DVLMCSD_PLATFORM=\"$(TARGETPLATFORM)\" -DCONFIG=\"$(CONFIG)\" -DBUILD_TIME=$(shell date '+%s') -g -Os -fno-strict-aliasing -fomit-frame-pointer -ffunction-sections -fdata-sections
++BASECFLAGS = -DVLMCSD_COMPILER=\"$(notdir $(CC))\" -DVLMCSD_PLATFORM=\"$(TARGETPLATFORM)\" -DCONFIG=\"$(CONFIG)\" -DBUILD_TIME=$(shell date '+%s') -Os -fno-strict-aliasing -fomit-frame-pointer -ffunction-sections -fdata-sections
+ BASELDFLAGS = 
+ STRIPFLAGS =
+ CLIENTLDFLAGS =
+ SERVERLDFLAGS =
+ 
+ ifndef SAFE_MODE
+-  BASECFLAGS += -fvisibility=hidden -pipe -fno-common -fno-exceptions -fno-stack-protector -fno-unwind-tables -fno-asynchronous-unwind-tables -fmerge-all-constants
++  BASECFLAGS += -fvisibility=hidden -pipe -fno-common -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables -fmerge-all-constants
+   
+   ifeq ($(ELF),1)
+     BASELDFLAGS += -Wl,-z,norelro
