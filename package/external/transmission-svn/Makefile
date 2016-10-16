@@ -9,13 +9,11 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=transmission-svn
 PKG_VERSION:=2.92
-PKG_RELEASE:=3
-# FIXME: update commit id and SVN revision
-PKG_REV:=14726
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=7cd2d10d005ebf8d41c6271db9c553a501c90896
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_REV)-$(PKG_SOURCE_VERSION).tar.bz2
+PKG_SOURCE_VERSION:=f9c0ce63b803601bf277d415a6794fb158e8efad
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/transmission/transmission.git
 
@@ -68,9 +66,9 @@ MAKE_FLAGS += \
 	CFLAGS="$(TARGET_CFLAGS) -D_GNU_SOURCE"
 
 # run autogen.sh by hand and use PKG_FIXUP to reconfigure
-# generate REVISION file by hand since we're not in a SVN source tree
+# generate REVISION file by hand
 define Build/Prepare
-	echo "$(PKG_REV)" > $(PKG_BUILD_DIR)/REVISION
+	echo "$(PKG_SOURCE_VERSION)" > $(PKG_BUILD_DIR)/REVISION
 	$(call Build/Prepare/Default)
 	(cd $(PKG_BUILD_DIR); \
 		./autogen.sh \
