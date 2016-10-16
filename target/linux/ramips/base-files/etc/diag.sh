@@ -29,12 +29,16 @@ get_status_led() {
 	nbg-419n|\
 	nbg-419n2|\
 	pwh2004|\
+	vr500|\
 	wnce2001|\
 	wndr3700v5|\
 	x5|\
 	x8|\
 	xdxrn502j)
 		status_led="$board:green:power"
+		;;
+	3g-6200nl)
+		status_led="$board:green:internet"
 		;;
 	a5-v11|\
 	cs-qr10|\
