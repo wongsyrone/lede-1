@@ -12,11 +12,6 @@ define Package/shellsync
   DEPENDS:=+libpthread
 endef
 
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
-	$(CP) ./src/* $(PKG_BUILD_DIR)/
-endef
-
 define Package/shellsync/description
 A tool to sync different shell scripts.Based on syncppp patch by morfast.
 endef

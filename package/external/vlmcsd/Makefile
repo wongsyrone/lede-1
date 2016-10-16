@@ -26,12 +26,6 @@ define Package/vlmcsd/description
 	KMS activation tool from MDL forum, which helps you testing MS products.
 endef
 
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
-	$(CP) ./src/* $(PKG_BUILD_DIR)/
-	$(call Build/Prepare/Default)
-endef
-
 # AUXV=1          Use /proc/self/auxv (**requires Linux with glibc >= 2.16 or musl**.)
 MAKE_FLAGS+= \
 	VERBOSE=3 \

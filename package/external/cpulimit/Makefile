@@ -19,12 +19,6 @@ define Package/cpulimit
 	URL:=https://github.com/opsengine/cpulimit.git
 endef
 
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
-	$(CP) ./src/* $(PKG_BUILD_DIR)/
-	$(call Build/Prepare/Default)
-endef
-
 define Package/cpulimit/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./files/cpulimit.config $(1)/etc/config/cpulimit
