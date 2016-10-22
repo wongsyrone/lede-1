@@ -1,6 +1,6 @@
 --- a/include/mbedtls/config.h
 +++ b/include/mbedtls/config.h
-@@ -341,7 +341,7 @@
+@@ -347,7 +347,7 @@
   *
   * Enable Cipher Feedback mode (CFB) for symmetric ciphers.
   */
@@ -9,7 +9,7 @@
  
  /**
   * \def MBEDTLS_CIPHER_MODE_CTR
-@@ -1293,7 +1293,7 @@
+@@ -1287,7 +1287,7 @@
   *
   * Uncomment this to enable pthread mutexes.
   */
@@ -18,7 +18,7 @@
  
  /**
   * \def MBEDTLS_VERSION_FEATURES
-@@ -1507,7 +1507,7 @@
+@@ -1501,7 +1501,7 @@
   *      MBEDTLS_TLS_RSA_PSK_WITH_RC4_128_SHA
   *      MBEDTLS_TLS_PSK_WITH_RC4_128_SHA
   */
@@ -27,7 +27,7 @@
  
  /**
   * \def MBEDTLS_ASN1_PARSE_C
-@@ -1572,7 +1572,7 @@
+@@ -1566,7 +1566,7 @@
   *
   * Module:  library/blowfish.c
   */
@@ -36,7 +36,7 @@
  
  /**
   * \def MBEDTLS_CAMELLIA_C
-@@ -1627,7 +1627,7 @@
+@@ -1621,7 +1621,7 @@
   *      MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256
   *      MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256
   */
@@ -45,7 +45,7 @@
  
  /**
   * \def MBEDTLS_CCM_C
-@@ -2317,7 +2317,7 @@
+@@ -2324,7 +2324,7 @@
   *
   * Enable this layer to allow use of mutexes within mbed TLS
   */
