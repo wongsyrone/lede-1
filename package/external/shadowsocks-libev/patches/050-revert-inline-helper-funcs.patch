@@ -30,7 +30,7 @@
  {
 --- a/src/utils.h
 +++ b/src/utils.h
-@@ -203,13 +203,31 @@ char *ss_strndup(const char *s, size_t n
+@@ -218,13 +218,31 @@ char *ss_strndup(const char *s, size_t n
  int set_nofile(int nofile);
  #endif
  

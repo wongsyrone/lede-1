@@ -8,8 +8,6 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
  src/uthash.h | 1678 ++++++++++++++++++++++++++++++----------------------------
  1 file changed, 869 insertions(+), 809 deletions(-)
 
-diff --git a/src/uthash.h b/src/uthash.h
-index d136b74..45d1f9f 100644
 --- a/src/uthash.h
 +++ b/src/uthash.h
 @@ -1,29 +1,31 @@
@@ -262,11 +260,8 @@ index d136b74..45d1f9f 100644
 -#define HASH_BLOOM_ADD(tbl, hashv)
 -#define HASH_BLOOM_TEST(tbl, hashv) (1)
 -#define HASH_BLOOM_BYTELEN 0
-+#define HASH_BLOOM_ADD(tbl,hashv)
-+#define HASH_BLOOM_TEST(tbl,hashv) (1)
-+#define HASH_BLOOM_BYTELEN 0U
- #endif
- 
+-#endif
+-
 -#define HASH_MAKE_TABLE(hh, head)                                         \
 -    do {                                                                  \
 -        (head)->hh.tbl = (UT_hash_table *)uthash_malloc(                  \
@@ -298,7 +293,11 @@ index d136b74..45d1f9f 100644
 -        };                                                             \
 -        HASH_ADD(hh, head, fieldname, keylen_in, add);                 \
 -    } while (0)
--
++#define HASH_BLOOM_ADD(tbl,hashv)
++#define HASH_BLOOM_TEST(tbl,hashv) (1)
++#define HASH_BLOOM_BYTELEN 0U
++#endif
+ 
 -#define HASH_ADD_KEYPTR(hh, head, keyptr, keylen_in, add)                        \
 +#define HASH_MAKE_TABLE(hh,head)                                                 \
 +do {                                                                             \
@@ -951,9 +950,7 @@ index d136b74..45d1f9f 100644
 -#define get16bits(d)                                \
 -    ((((uint32_t)(((const uint8_t *)(d))[1])) << 8) \
 -     + (uint32_t)(((const uint8_t *)(d))[0]) )
-+#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)             \
-+                       +(uint32_t)(((const uint8_t *)(d))[0]) )
- #endif
+-#endif
 -#define HASH_SFH(key, keylen, num_bkts, hashv, bkt)                       \
 -    do {                                                                  \
 -        unsigned char *_sfh_key = (unsigned char *)(key);                 \
@@ -997,6 +994,9 @@ index d136b74..45d1f9f 100644
 -        hashv += hashv >> 6;                                              \
 -        bkt = hashv & (num_bkts - 1);                                     \
 -    } while (0)
++#define get16bits(d) ((((uint32_t)(((const uint8_t *)(d))[1])) << 8)             \
++                       +(uint32_t)(((const uint8_t *)(d))[0]) )
++#endif
 +#define HASH_SFH(key,keylen,hashv)                                               \
 +do {                                                                             \
 +  unsigned const char *_sfh_key=(unsigned const char*)(key);                     \
@@ -1086,20 +1086,13 @@ index d136b74..45d1f9f 100644
 -#define MUR_ONE_THREE(p) \
 -    ((((*WP(p)) &        \
 -       0xff000000) >> 24) | (((*(WP(p) + 1)) & 0x00ffffff) << 8))
-+#define MUR_THREE_ONE(p) ((((*WP(p))&0xffffff00) >> 8) | (((*(WP(p)+1))&0x000000ff) << 24))
-+#define MUR_TWO_TWO(p)   ((((*WP(p))&0xffff0000) >>16) | (((*(WP(p)+1))&0x0000ffff) << 16))
-+#define MUR_ONE_THREE(p) ((((*WP(p))&0xff000000) >>24) | (((*(WP(p)+1))&0x00ffffff) <<  8))
- #endif
+-#endif
 -#define MUR_GETBLOCK(p, i)                      \
 -    (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) :          \
 -     (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) : \
 -      (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p) :  \
 -       MUR_ONE_THREE(p))))
-+#define MUR_GETBLOCK(p,i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) :           \
-+                            (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) : \
-+                             (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p) :  \
-+                                                      MUR_ONE_THREE(p))))
- #endif
+-#endif
 -#define MUR_ROTL32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
 -#define MUR_FMIX(_h)       \
 -    do {                   \
@@ -1148,6 +1141,15 @@ index d136b74..45d1f9f 100644
 -        hashv = _mur_h1;                                             \
 -        bkt = hashv & (num_bkts - 1);                                \
 -    } while (0)
++#define MUR_THREE_ONE(p) ((((*WP(p))&0xffffff00) >> 8) | (((*(WP(p)+1))&0x000000ff) << 24))
++#define MUR_TWO_TWO(p)   ((((*WP(p))&0xffff0000) >>16) | (((*(WP(p)+1))&0x0000ffff) << 16))
++#define MUR_ONE_THREE(p) ((((*WP(p))&0xff000000) >>24) | (((*(WP(p)+1))&0x00ffffff) <<  8))
++#endif
++#define MUR_GETBLOCK(p,i) (MUR_PLUS0_ALIGNED(p) ? ((p)[i]) :           \
++                            (MUR_PLUS1_ALIGNED(p) ? MUR_THREE_ONE(p) : \
++                             (MUR_PLUS2_ALIGNED(p) ? MUR_TWO_TWO(p) :  \
++                                                      MUR_ONE_THREE(p))))
++#endif
 +#define MUR_ROTL32(x,r) (((x) << (r)) | ((x) >> (32 - (r))))
 +#define MUR_FMIX(_h) \
 +do {                 \
@@ -1737,7 +1739,9 @@ index d136b74..45d1f9f 100644
  typedef struct UT_hash_bucket {
 -    struct UT_hash_handle *hh_head;
 -    unsigned count;
--
++   struct UT_hash_handle *hh_head;
++   unsigned count;
+ 
 -    /* expand_mult is normally set to 0. In this situation, the max chain length
 -     * threshold is enforced at its default value, HASH_BKT_CAPACITY_THRESH. (If
 -     * the bucket's chain exceeds this length, bucket expansion is triggered).
@@ -1751,9 +1755,6 @@ index d136b74..45d1f9f 100644
 -     * value, than to do an O(n) bucket expansion too often.
 -     */
 -    unsigned expand_mult;
-+   struct UT_hash_handle *hh_head;
-+   unsigned count;
-+
 +   /* expand_mult is normally set to 0. In this situation, the max chain length
 +    * threshold is enforced at its default value, HASH_BKT_CAPACITY_THRESH. (If
 +    * the bucket's chain exceeds this length, bucket expansion is triggered).
@@ -1799,8 +1800,6 @@ index d136b74..45d1f9f 100644
 -     * function isn't a good fit for the key domain. When expansion is inhibited
 -     * the hash will still work, albeit no longer in constant time. */
 -    unsigned ineff_expands, noexpand;
--
--    uint32_t signature; /* used only to find hash tables in external analysis */
 +   UT_hash_bucket *buckets;
 +   unsigned num_buckets, log2_num_buckets;
 +   unsigned num_items;
@@ -1823,7 +1822,8 @@ index d136b74..45d1f9f 100644
 +    * function isn't a good fit for the key domain. When expansion is inhibited
 +    * the hash will still work, albeit no longer in constant time. */
 +   unsigned ineff_expands, noexpand;
-+
+ 
+-    uint32_t signature; /* used only to find hash tables in external analysis */
 +   uint32_t signature; /* used only to find hash tables in external analysis */
  #ifdef HASH_BLOOM
 -    uint32_t bloom_sig; /* used only to test bloom exists in external analysis */
@@ -1856,6 +1856,3 @@ index d136b74..45d1f9f 100644
  } UT_hash_handle;
  
  #endif /* UTHASH_H */
--- 
-2.10.0
-

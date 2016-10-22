@@ -68,7 +68,7 @@
  libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)
 --- a/configure.ac
 +++ b/configure.ac
-@@ -311,11 +311,11 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
+@@ -313,11 +313,11 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
                   Makefile
                   libcork/Makefile
                   libipset/Makefile
