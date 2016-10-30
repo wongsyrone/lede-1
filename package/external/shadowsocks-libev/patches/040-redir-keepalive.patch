@@ -62,7 +62,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  #ifdef HAVE_SETRLIMIT
          if (nofile == 0) {
              nofile = conf->nofile;
-@@ -940,6 +949,10 @@ main(int argc, char **argv)
+@@ -944,6 +953,10 @@ main(int argc, char **argv)
          LOGI("onetime authentication enabled");
      }
  
