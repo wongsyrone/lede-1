@@ -23,7 +23,7 @@
   * back to another unresolved block (or nil).  At least one of the fields
 --- a/pcap.c
 +++ b/pcap.c
-@@ -1133,6 +1133,59 @@ static const u_char charmap[] = {
+@@ -1119,6 +1119,59 @@ static const u_char charmap[] = {
  	(u_char)'\374', (u_char)'\375', (u_char)'\376', (u_char)'\377',
  };
  
@@ -133,8 +133,8 @@
  dot_dump_node(struct icode *ic, struct block *block, struct bpf_program *prog,
 --- a/pcap-common.c
 +++ b/pcap-common.c
-@@ -1389,14 +1389,23 @@ swap_pseudo_headers(int linktype, struct
- 	switch (linktype) {
+@@ -1447,14 +1447,23 @@ swap_pseudo_headers(int linktype, struct
+ 		break;
  
  	case DLT_USB_LINUX:
 +#ifndef PCAP_SUPPORT_USB
