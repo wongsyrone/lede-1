@@ -74,6 +74,7 @@ static void vlogger(const char *message, va_list args)
 	// so formatting the output can be concurrent
 	int len = (int)strlen(mbstr);
 	//#	if !_MSC_VER
+
 	vlmcsd_vsnprintf(mbstr + len, sizeof(mbstr) - len, message, args);
 	//#	else
 	//	wvsprintf(mbstr + len, message, args);
@@ -154,12 +155,12 @@ int errorout(const char* fmt, ...)
 }
 
 
-#ifndef NO_VERBOSE_LOG
+#if !defined(NO_VERBOSE_LOG) && !defined(NO_LOG)
 static const char *LicenseStatusText[] =
 {
 	"Unlicensed", "Licensed", "OOB grace", "OOT grace", "Non-Genuine", "Notification", "Extended grace"
 };
-#endif // NO_VERBOSE_LOG
+#endif // !defined(NO_VERBOSE_LOG) && !defined(NO_LOG)
 
 
 void uuid2StringLE(const GUID *const guid, char *const string)
@@ -192,13 +193,13 @@ void logRequestVerbose(const REQUEST *const Request, const PRINTFUNC p)
 	p("Remaining time (0 = forever)    : %i minutes\n", (uint32_t)LE32(Request->BindingExpiration));
 
 	uuid2StringLE(&Request->AppID, guidBuffer);
-	productName = getProductNameLE(&Request->AppID, AppList, &index);
+	productName = getProductNameLE(&Request->AppID, AppList, getAppListSize(), &index);
 	p("Application ID                  : %s (%s)\n", guidBuffer, productName);
 
 	uuid2StringLE(&Request->ActID, guidBuffer);
 
 #	ifndef NO_EXTENDED_PRODUCT_LIST
-	productName = getProductNameLE(&Request->ActID, ExtendedProductList, &index);
+	productName = getProductNameLE(&Request->ActID, ExtendedProductList, getExtendedProductListSize(), &index);
 #	else
 	productName = "Unknown";
 #	endif
@@ -206,7 +207,7 @@ void logRequestVerbose(const REQUEST *const Request, const PRINTFUNC p)
 	p("SKU ID (aka Activation ID)      : %s (%s)\n", guidBuffer, productName);
 
 	uuid2StringLE(&Request->KMSID, guidBuffer);
-	productName = getProductNameLE(&Request->KMSID, ProductList, &index);
+	productName = getProductNameLE(&Request->KMSID, ProductList, getProductListSize(), &index);
 	p("KMS ID (aka KMS counted ID)     : %s (%s)\n", guidBuffer, productName);
 
 	uuid2StringLE(&Request->CMID, guidBuffer);
@@ -578,6 +579,10 @@ void printServerFlags()
 		" NO_HELP"
 #		endif // NO_HELP
 
+#		ifdef NO_STRICT_MODES
+		" NO_STRICT_MODES"
+#		endif // NO_STRICT_MODES
+
 #		ifdef NO_CUSTOM_INTERVALS
 		" NO_CUSTOM_INTERVALS"
 #		endif // NO_CUSTOM_INTERVALS
@@ -617,6 +622,18 @@ void printServerFlags()
 #		if !defined(NO_SOCKETS) && defined(SIMPLE_SOCKETS)
 		" SIMPLE_SOCKETS"
 #		endif // !defined(NO_SOCKETS) && defined(SIMPLE_SOCKETS)
+
+#		ifdef SIMPLE_RPC
+		" SIMPLE_RPC"
+#		endif // SIMPLE_RPC
+
+#		ifdef NO_STRICT_MODES
+		" NO_STRICT_MODES"
+#		endif // NO_STRICT_MODES
+
+#		ifdef NO_CLIENT_LIST
+		" NO_CLIENT_LIST"
+#		endif // NO_CLIENT_LIST
 
 #		if (_WIN32 || __CYGWIN__) && (!defined(USE_MSRPC) || defined(SUPPORT_WINE))
 		" SUPPORT_WINE"

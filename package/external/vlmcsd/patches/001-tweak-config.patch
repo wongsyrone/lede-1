@@ -1,8 +1,8 @@
 --- a/src/config.h
 +++ b/src/config.h
 @@ -24,7 +24,7 @@
-  * Define your own version identifier here, e.g. '#define VERSION "my vlmcsd based on svn560"'
-  */
+    * Define your own version identifier here, e.g. '#define VERSION "my vlmcsd based on svn560"'
+    */
  
 -#define VERSION "private build"
 +#define VERSION "vlmcsd for LEDE love from MDL forum"
@@ -10,11 +10,11 @@
  #endif // VERSION
  
 @@ -80,7 +80,7 @@
-  * at a default location
-  */
+ 	   * at a default location
+ 	   */
  
--//#define INI_FILE "/etc/vlmcsd.ini"
-+#define INI_FILE "/etc/vlmcsd.ini"
+-	   //#define INI_FILE "/etc/vlmcsd.ini"
++	   #define INI_FILE "/etc/vlmcsd.ini"
  
  #endif // INI_FILE
  
@@ -24,7 +24,7 @@
  
  # You should supply your own version string here
  
--VLMCSD_VERSION ?= $(shell test -d .svn && echo svn`svnversion`)
+-VLMCSD_VERSION ?= $(shell test -d ../.svn && echo svn`svnversion`)
 +VLMCSD_VERSION ?= LEDE_wongsyrone
  
  FEATURES ?= full

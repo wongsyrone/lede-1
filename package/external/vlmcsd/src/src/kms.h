@@ -54,6 +54,15 @@
 #define ActivationInterval VLActivationInterval
 #define RenewalInterval VLRenewalInterval
 
+#define MAX_CLIENTS 671
+
+typedef struct
+{
+	GUID Guid[MAX_CLIENTS];
+	int_fast16_t CurrentCount;
+	int_fast16_t MaxCount;
+	int_fast16_t CurrentPosition;
+} ClientList_t, *PClientList_t;
 
 typedef struct {
 	VERSION_INFO;
@@ -270,7 +279,7 @@ typedef struct
 #define POFFICE2010GUID &AppList[APP_ID_OFFICE2010].guid
 #define POFFICE2013GUID &AppList[APP_ID_OFFICE2013].guid
 
-typedef BOOL(__stdcall *RequestCallback_t)(const REQUEST *const baseRequest, RESPONSE *const baseResponse, BYTE *const hwId, const char* const ipstr);
+typedef HRESULT(__stdcall *RequestCallback_t)(const REQUEST *const baseRequest, RESPONSE *const baseResponse, BYTE *const hwId, const char* const ipstr);
 
 size_t CreateResponseV4(REQUEST_V4 *const Request, BYTE *const response_data, const char* const ipstr);
 size_t CreateResponseV6(REQUEST_V6 *restrict Request, BYTE *const response_data, const char* const ipstr);
@@ -282,14 +291,20 @@ RESPONSE_RESULT DecryptResponseV6(RESPONSE_V6* Response_v6, int responseSize, BY
 RESPONSE_RESULT DecryptResponseV4(RESPONSE_V4* Response_v4, const int responseSize, BYTE* const response, const BYTE* const request);
 void getUnixTimeAsFileTime(FILETIME *const ts);
 __pure int64_t fileTimeToUnixTime(const FILETIME *const ts);
-const char* getProductNameHE(const GUID *const guid, const KmsIdList *const List, ProdListIndex_t *const i);
-const char* getProductNameLE(const GUID *const guid, const KmsIdList *const List, ProdListIndex_t *const i);
+const char* getProductNameHE(const GUID *const guid, const KmsIdList *const List, ProdListIndex_t maxList, ProdListIndex_t *const i);
+const char* getProductNameLE(const GUID *const guid, const KmsIdList *const List, ProdListIndex_t maxList, ProdListIndex_t *const i);
 __pure ProdListIndex_t getExtendedProductListSize();
 __pure ProdListIndex_t getAppListSize(void);
+__pure ProdListIndex_t getProductListSize(void);
 
 extern const KmsIdList ProductList[];
 extern const KmsIdList AppList[];
 extern const KmsIdList ExtendedProductList[];
+
+#ifndef NO_STRICT_MODES
+void InitializeClientLists();
+void CleanUpClientLists();
+#endif // !NO_STRICT_MODES
 
 extern RequestCallback_t CreateResponseBase;
 
