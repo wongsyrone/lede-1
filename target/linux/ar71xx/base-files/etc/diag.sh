@@ -130,6 +130,9 @@ get_status_led() {
 	oolite)
 		status_led="$board:red:system"
 		;;
+	dw33d)
+		status_led="$board:blue:status"
+		;;
 	eap120)
 		status_led="$(ar71xx_board_name):green:system"
 		;;
@@ -349,6 +352,7 @@ get_status_led() {
 	tl-wr703n|\
 	tl-wr710n|\
 	tl-wr720n-v3|\
+	tl-wr802n-v1|\
 	tl-wr810n|\
 	tl-wr941nd-v6)
 		status_led="tp-link:blue:system"

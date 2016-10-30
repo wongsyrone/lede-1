@@ -56,6 +56,7 @@ enum ath79_mach_type {
 	ATH79_MACH_CPE510,			/* TP-LINK CPE510 */
 	ATH79_MACH_CR3000,			/* PowerCloud CR3000 */
 	ATH79_MACH_CR5000,			/* PowerCloud CR5000 */
+	ATH79_MACH_DAP_2695_A1,			/* D-Link DAP-2695 rev. A1 */
 	ATH79_MACH_DB120,			/* Atheros DB120 reference board */
 	ATH79_MACH_DGL_5500_A1,			/* D-link DGL-5500 rev. A1 */
 	ATH79_MACH_DHP_1565_A1,			/* D-Link DHP-1565 rev. A1 */
@@ -72,6 +73,7 @@ enum ath79_mach_type {
 	ATH79_MACH_DLAN_HOTSPOT,		/* devolo dLAN Hotspot */
 	ATH79_MACH_DLAN_PRO_1200_AC,		/* devolo dLAN pro 1200+ WiFi ac*/
 	ATH79_MACH_DLAN_PRO_500_WP,		/* devolo dLAN pro 500 Wireless+ */
+	ATH79_MACH_DOMYWIFI_DW33D,		/* DomyWifi DW33D */
 	ATH79_MACH_DR344,			/* Wallys DR344 */
 	ATH79_MACH_DR531,			/* Wallys DR531 */
 	ATH79_MACH_DRAGINO2,			/* Dragino Version 2 */
@@ -206,6 +208,7 @@ enum ath79_mach_type {
 	ATH79_MACH_TL_WR720N_V3,		/* TP-LINK TL-WR720N v3/v4 */
 	ATH79_MACH_TL_WR741ND,			/* TP-LINK TL-WR741ND */
 	ATH79_MACH_TL_WR741ND_V4,		/* TP-LINK TL-WR741ND v4 */
+	ATH79_MACH_TL_WR802N_V1,		/* TP-LINK TL-WR802N v1 */
 	ATH79_MACH_TL_WR810N,			/* TP-LINK TL-WR810N */
 	ATH79_MACH_TL_WR841N_V1,		/* TP-LINK TL-WR841N v1 */
 	ATH79_MACH_TL_WR841N_V11,		/* TP-LINK TL-WR841N/ND v11 */

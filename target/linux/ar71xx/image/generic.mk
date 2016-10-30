@@ -27,6 +27,17 @@ define Device/cf-e316n-v2
 endef
 TARGET_DEVICES += cf-e316n-v2
 
+define Device/domywifi-dw33d
+  DEVICE_TITLE := DomyWifi DW33D
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-storage kmod-ledtrig-usbdev kmod-ath10k
+  BOARDNAME = DW33D
+  IMAGE_SIZE = 16000k
+  CONSOLE = ttyS0,115200
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,14528k(rootfs),1472k(kernel),64k(art)ro,16000k@0x50000(firmware);ar934x-nfc:96m(rootfs_data),32m(backup)ro
+  IMAGE/sysupgrade.bin = append-rootfs | pad-rootfs | pad-to 14528k | append-kernel | check-size $$$$(IMAGE_SIZE)
+endef
+TARGET_DEVICES += domywifi-dw33d
+
 define Device/dragino2
   BOARDNAME := DRAGINO2
   CONSOLE := ttyATH0,115200
@@ -96,6 +107,32 @@ define Device/gl-mifi
   MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,16000k(firmware),64k(art)ro
 endef
 TARGET_DEVICES += gl-mifi
+
+define Device/mr12
+  DEVICE_TITLE := Meraki MR12
+  DEVICE_PACKAGES := kmod-spi-gpio
+  BOARDNAME = MR12
+  IMAGE_SIZE = 15680k
+  MTDPARTS = spi0.0:256k(u-boot)ro,256k(u-boot-env)ro,13440k(rootfs),2240k(kernel),64k(mac),128k(art)ro,15680k@0x80000(firmware)
+  IMAGE/kernel.bin = append-kernel
+  IMAGE/rootfs.bin = append-rootfs | pad-rootfs
+  IMAGE/sysupgrade.bin = append-rootfs | pad-rootfs | pad-to 13440k | append-kernel | check-size $$$$(IMAGE_SIZE)
+  IMAGES := kernel.bin rootfs.bin sysupgrade.bin
+endef
+TARGET_DEVICES += mr12
+
+define Device/mr16
+  DEVICE_TITLE := Meraki MR16
+  DEVICE_PACKAGES := kmod-spi-gpio
+  BOARDNAME = MR16
+  IMAGE_SIZE = 15680k
+  MTDPARTS = spi0.0:256k(u-boot)ro,256k(u-boot-env)ro,13440k(rootfs),2240k(kernel),64k(mac),128k(art)ro,15680k@0x80000(firmware)
+  IMAGE/kernel.bin = append-kernel
+  IMAGE/rootfs.bin = append-rootfs | pad-rootfs
+  IMAGE/sysupgrade.bin = append-rootfs | pad-rootfs | pad-to 13440k | append-kernel | check-size $$$$(IMAGE_SIZE)
+  IMAGES := kernel.bin rootfs.bin sysupgrade.bin
+endef
+TARGET_DEVICES += mr16
 
 define Device/dr531
   DEVICE_TITLE := Wallys DR531
@@ -549,6 +586,37 @@ $(Device/seama)
   SEAMA_SIGNATURE := wrgnd13_wd_av
 endef
 
+TARGET_DEVICES += dir-869-a1 mynet-n600 mynet-n750
+
+define Build/mkwrggimg
+	$(STAGING_DIR_HOST)/bin/mkwrggimg -b \
+		-i $@ -o $@.imghdr -d /dev/mtdblock/1 \
+		-m $(BOARDNAME) -s $(DAP_SIGNATURE) \
+		-v LEDE -B $(REVISION)
+	mv $@.imghdr $@
+endef
+
+define Build/wrgg-pad-rootfs
+	$(STAGING_DIR_HOST)/bin/padjffs2 $(IMAGE_ROOTFS) -c 64 >>$@
+endef
+
+define Device/dap-2695-a1
+  DEVICE_TITLE := D-Link DAP-2695 rev. A1
+  DEVICE_PACKAGES := ath10k-firmware-qca988x kmod-ath10k uboot-envtools
+  BOARDNAME = DAP-2695-A1
+  IMAGES := factory.img sysupgrade.bin
+  IMAGE_SIZE = 15360k
+  IMAGE/factory.img = append-kernel | pad-offset 65536 160 | append-rootfs | wrgg-pad-rootfs | mkwrggimg | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin = append-kernel | pad-offset 65536 160 | mkwrggimg | append-rootfs | wrgg-pad-rootfs | check-size $$$$(IMAGE_SIZE)
+  KERNEL := kernel-bin | patch-cmdline | relocate-kernel | lzma
+  KERNEL_INITRAMFS := $$(KERNEL) | mkwrggimg
+  MTDPARTS = spi0.0:256k(bootloader)ro,64k(bdcfg)ro,64k(rgdb)ro,64k(langpack)ro,15360k(firmware),448k(captival)ro,64k(certificate)ro,64k(radiocfg)ro
+  DAP_SIGNATURE := wapac02_dkbs_dap2695
+  DEVICE_VARS += DAP_SIGNATURE
+endef
+
+TARGET_DEVICES += dap-2695-a1
+
 define Device/qihoo-c301-flash1-16m
 $(Device/seama)
   DEVICE_TITLE := Qihoo C301 (Use 1st flash)
@@ -578,4 +646,5 @@ $(Device/seama)
   MTDPARTS = flash:256k(u-boot),64k(u-boot-env),64k(devdata),64k(devconf),32256k(firmware),64k(radiocfg)
   SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
 endef
-TARGET_DEVICES += dir-869-a1 mynet-n600 mynet-n750 qihoo-c301-flash1-16m qihoo-c301-flash2-16m qihoo-c301-dual-flash-32m
+
+TARGET_DEVICES += qihoo-c301-flash1-16m qihoo-c301-flash2-16m qihoo-c301-dual-flash-32m
