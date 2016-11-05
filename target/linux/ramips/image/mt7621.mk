@@ -72,6 +72,7 @@ define Device/dir-860l-b1
 	seama-seal -m "signature=wrgac13_dlink.2013gui_dir860lb" | \
 	check-size $$$$(IMAGE_SIZE)
   DEVICE_TITLE := D-Link DIR-860L B1
+  DEVICE_PACKAGES := kmod-usb3 kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += dir-860l-b1
 
@@ -96,7 +97,7 @@ define Device/pbr-m1
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
   DEVICE_TITLE := PBR-M1
   DEVICE_PACKAGES := kmod-usb3 kmod-usb-ledtrig-usbport kmod-ata-core kmod-ata-ahci \
-	kmod-rtc-pcf8563 kmod-i2c-mt7621
+	kmod-i2c-mt7621
 endef
 TARGET_DEVICES += pbr-m1
 
@@ -119,7 +120,7 @@ define Device/witi
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
   DEVICE_TITLE := MQmaker WiTi
   DEVICE_PACKAGES := kmod-usb3 kmod-usb-ledtrig-usbport kmod-ata-core kmod-ata-ahci \
-	kmod-rtc-pcf8563 kmod-i2c-mt7621
+	kmod-i2c-mt7621
 endef
 TARGET_DEVICES += witi
 
@@ -189,6 +190,14 @@ define Device/vr500
   DEVICE_PACKAGES := kmod-usb3
 endef
 TARGET_DEVICES += vr500
+
+define Device/rb750gr3
+  DTS := RB750Gr3
+  IMAGE_SIZE := $(ralink_default_fw_size_16M)
+  DEVICE_TITLE := MikroTik RB750Gr3
+  DEVICE_PACKAGES := kmod-usb3 kmod-ledtrig-usbdev uboot-envtools -kmod-mt76 -kmod-rt2x00-lib -kmod-mac80211 -kmod-cfg80211 -wpad-mini -iwinfo
+endef
+TARGET_DEVICES += rb750gr3
 
 # FIXME: is this still needed?
 define Image/Prepare
