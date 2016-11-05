@@ -29,7 +29,7 @@ Subject: [PATCH] rand
      ss_addr_t remote_addr[MAX_REMOTE_NUM];
 --- a/src/redir.c
 +++ b/src/redir.c
-@@ -748,6 +748,7 @@ int
+@@ -754,6 +754,7 @@ int
  main(int argc, char **argv)
  {
      srand(time(NULL));
