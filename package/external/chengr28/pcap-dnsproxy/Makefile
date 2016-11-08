@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
-PKG_VERSION:=0.4.7.7
+PKG_VERSION:=0.4.7.8
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=47fc64a0a6041a5415089acc235da96cdb568fc1
+PKG_SOURCE_VERSION:=f02eca2407a82bec0904df3594c14dfe54aa55df
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -29,8 +29,9 @@ TARGET_CFLAGS += $(FPIC)
 
 CMAKE_OPTIONS += \
 	-DPLATFORM_OPENWRT=ON \
-	$(if $(CONFIG_PACKAGE_pcap-dnsproxy_libsodium),-DENABLE_LIBSODIUM=ON,-DENABLE_LIBSODIUM=OFF) \
-	$(if $(CONFIG_PACKAGE_pcap-dnsproxy_libpcap),-DENABLE_PCAP=ON,-DENABLE_PCAP=OFF)
+	-DENABLE_LIBSODIUM=$(if $(CONFIG_PACKAGE_pcap-dnsproxy_libsodium),ON,OFF) \
+	-DENABLE_PCAP=$(if $(CONFIG_PACKAGE_pcap-dnsproxy_libpcap),ON,OFF) \
+	-DENABLE_TLS=$(if $(CONFIG_PACKAGE_pcap-dnsproxy_tls),ON,OFF)
 
 # Port 53 leads to dnsmasq startup failure.
 define Package/pcap-dnsproxy/config
@@ -50,6 +51,11 @@ define Package/pcap-dnsproxy/config
 
 		  We recommend to keep it as-is unless you do NOT
 		  need this protocol anymore.
+	config PACKAGE_pcap-dnsproxy_tls
+		bool "Build with TLS support.(Recommended)"
+		default y
+		help
+		  We recommend to keep it as-is.
 	config PCAP_DNSPROXY_LISTENPORT
 		int "Listen Port, should NOT be 53"
 		default 1053
@@ -88,6 +94,7 @@ define Package/pcap-dnsproxy
 	DEPENDS:=+libpthread +libstdcpp \
 		+PACKAGE_pcap-dnsproxy_libpcap:libpcap \
 		+PACKAGE_pcap-dnsproxy_libsodium:libsodium \
+		+PACKAGE_pcap-dnsproxy_tls:libopenssl \
 		@GCC_VERSION_4_6:BROKEN
 endef
 
