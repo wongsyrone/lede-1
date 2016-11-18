@@ -21,7 +21,7 @@ alfa-nx)
 	;;
 all0258n|\
 all0315n)
-	ucidef_set_rssimon "wlan0" "40000" "1"
+	ucidef_set_rssimon "wlan0" "200000" "1"
 	ucidef_set_led_rssi "rssilow" "RSSILOW" "$board:red:rssilow" "wlan0" "1" "40" "0" "6"
 	ucidef_set_led_rssi "rssimedium" "RSSIMEDIUM" "$board:yellow:rssimedium" "wlan0" "30" "80" "-29" "5"
 	ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "$board:green:rssihigh" "wlan0" "70" "100" "-69" "8"
@@ -56,6 +56,10 @@ ap147-010)
 	ucidef_set_led_switch "lan3" "LAN3" "ap147:green:lan3" "switch0" "0x04"
 	ucidef_set_led_switch "lan4" "LAN4" "ap147:green:lan4" "switch0" "0x02"
 	ucidef_set_led_wlan "wlan2g" "WLAN 2.4 GHz" "ap147:green:wlan-2g" "phy0tpt"
+	;;
+bhr-4grv2)
+	ucidef_set_led_default "power" "POWER" "buffalo:green:power" "1"
+	ucidef_set_led_default "diag" "DIAG" "buffalo:red:diag" "0"
 	;;
 bsb)
 	ucidef_set_led_default "sys" "SYS" "$board:red:sys" "1"
@@ -115,7 +119,7 @@ cpe210|\
 cpe510)
 	ucidef_set_led_switch "lan0" "LAN0" "tp-link:green:lan0" "switch0" "0x20"
 	ucidef_set_led_switch "lan1" "LAN1" "tp-link:green:lan1" "switch0" "0x10"
-	ucidef_set_rssimon "wlan0" "40000" "1"
+	ucidef_set_rssimon "wlan0" "200000" "1"
 	ucidef_set_led_rssi "rssilow" "RSSILOW" "tp-link:green:link1" "wlan0" "1" "100" "0" "13"
 	ucidef_set_led_rssi "rssimediumlow" "RSSIMEDIUMLOW" "tp-link:green:link2" "wlan0" "26" "100" "-25" "13"
 	ucidef_set_led_rssi "rssimediumhigh" "RSSIMEDIUMHIGH" "tp-link:green:link3" "wlan0" "51" "100" "-50" "13"
@@ -285,18 +289,31 @@ mr18)
 	;;
 mr600)
 	ucidef_set_led_wlan "wlan58" "WLAN58" "$board:green:wlan58" "phy0tpt"
+	ucidef_set_led_default "wps" "WPS" "mr600:blue:wps" "0"
+	;;
+mr600v2)
+	ucidef_set_led_default "wlan24-red" "WLAN 2.4GHz (red)" "mr600:red:wlan24" "0"
+	ucidef_set_led_default "wlan24-yellow" "WLAN 2.4GHz (yellow)" "mr600:yellow:wlan24" "0"
+	ucidef_set_led_wlan "wlan24-green" "WLAN 4GHz (green)" "mr600:green:wlan24" "phy1tpt"
+	ucidef_set_led_default "wlan5-red" "WLAN 5GHz (red)" "mr600:red:wlan58" "0"
+	ucidef_set_led_default "wlan5-yellow" "WLAN 5GHz (yellow)" "mr600:yellow:wlan58" "0"
+	ucidef_set_led_wlan "wlan5-green" "WLAN 5GHz (green)" "mr600:green:wlan58" "phy0tpt"
 	;;
 mr1750|\
 mr1750v2)
 	ucidef_set_led_netdev "lan" "LAN" "mr1750:blue:wan" "eth0"
 	ucidef_set_led_wlan "wlan58" "WLAN58" "mr1750:blue:wlan58" "phy0tpt"
 	ucidef_set_led_wlan "wlan24" "WLAN24" "mr1750:blue:wlan24" "phy1tpt"
+	ucidef_set_led_default "status-red" "Status (red)" "mr1750:red:wifi" "0"
+	ucidef_set_led_default "status-green" "Status (green)" "mr1750:green:wifi" "0"
 	;;
 mr900|\
 mr900v2)
 	ucidef_set_led_netdev "lan" "LAN" "mr900:blue:wan" "eth0"
 	ucidef_set_led_wlan "wlan24" "WLAN24" "mr900:blue:wlan24" "phy0tpt"
 	ucidef_set_led_wlan "wlan58" "WLAN58" "mr900:blue:wlan58" "phy1tpt"
+	ucidef_set_led_default "status-red" "Status (red)" "mr900:red:wifi" "0"
+	ucidef_set_led_default "status-green" "Status (green)" "mr900:green:wifi" "0"
 	;;
 mynet-n600)
 	ucidef_set_led_netdev "wan" "WAN" "wd:blue:internet" "eth1"
@@ -307,7 +324,7 @@ mynet-n600)
 	;;
 mynet-rext)
 	ucidef_set_led_netdev "lan" "LAN" "wd:blue:ethernet" "eth0"
-	ucidef_set_rssimon "wlan0" "40000" "1"
+	ucidef_set_rssimon "wlan0" "200000" "1"
 	ucidef_set_led_rssi "rssilow" "RSSILOW" "wd:blue:quality1" "wlan0" "1" "40" "0" "6"
 	ucidef_set_led_rssi "rssimedium" "RSSIMEDIUM" "wd:blue:quality2" "wlan0" "30" "80" "-29" "5"
 	ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "wd:blue:quality3" "wlan0" "70" "100" "-69" "8"
@@ -343,15 +360,29 @@ om2p-hsv3|\
 om2p-lc)
 	ucidef_set_led_netdev "port1" "port1" "om2p:blue:wan" "eth0"
 	ucidef_set_led_netdev "port2" "port2" "om2p:blue:lan" "eth1"
+	ucidef_set_led_default "wlan-red" "WLAN (red)" "om2p:red:wifi" "0"
+	ucidef_set_led_default "wlan-yellow" "WLAN (yellow)" "om2p:yellow:wifi" "0"
+	ucidef_set_led_default "wlan-green" "WLAN (green)" "om2p:green:wifi" "0"
 	;;
 om5p|\
 om5p-an)
 	ucidef_set_led_netdev "port1" "port1" "om5p:blue:wan" "eth0"
 	ucidef_set_led_netdev "port2" "port2" "om5p:blue:lan" "eth1"
+	ucidef_set_led_default "wlan-red" "WLAN (red)" "om5p:red:wifi" "0"
+	ucidef_set_led_default "wlan-yellow" "WLAN (yellow)" "om5p:yellow:wifi" "0"
+	ucidef_set_led_default "wlan-green" "WLAN (green)" "om5p:green:wifi" "0"
 	;;
 om5p-ac)
 	ucidef_set_led_netdev "port1" "port1" "om5pac:blue:lan" "eth0"
 	ucidef_set_led_netdev "port2" "port2" "om5pac:blue:wan" "eth1"
+	ucidef_set_led_default "wlan-red" "WLAN (red)" "om5pac:red:wifi" "0"
+	ucidef_set_led_default "wlan-yellow" "WLAN (yellow)" "om5pac:yellow:wifi" "0"
+	ucidef_set_led_default "wlan-green" "WLAN (green)" "om5pac:green:wifi" "0"
+	;;
+om5p-acv2)
+	ucidef_set_led_default "wlan-red" "WLAN (red)" "om5pac:red:wifi" "0"
+	ucidef_set_led_default "wlan-yellow" "WLAN (yellow)" "om5pac:yellow:wifi" "0"
+	ucidef_set_led_default "wlan-green" "WLAN (green)" "om5pac:green:wifi" "0"
 	;;
 omy-g1)
 	ucidef_set_led_wlan "wlan" "WLAN" "omy:green:wlan" "phy0tpt"
@@ -445,7 +476,7 @@ tl-wr941nd-v5)
 	;;
 tl-wa7210n-v2)
 	ucidef_set_led_netdev "lan" "LAN" "tp-link:green:lan" "eth0"
-	ucidef_set_rssimon "wlan0" "40000" "1"
+	ucidef_set_rssimon "wlan0" "200000" "1"
 	ucidef_set_led_rssi "rssilow" "RSSILOW" "tp-link:green:signal1" "wlan0" "1" "100" "0" "13"
 	ucidef_set_led_rssi "rssimediumlow" "RSSIMEDIUMLOW" "tp-link:green:signal2" "wlan0" "26" "100" "-25" "13"
 	ucidef_set_led_rssi "rssimediumhigh" "RSSIMEDIUMHIGH" "tp-link:green:signal3" "wlan0" "51" "100" "-50" "13"
@@ -454,7 +485,7 @@ tl-wa7210n-v2)
 tl-wa750re)
 	ucidef_set_led_netdev "lan" "LAN" "tp-link:orange:lan" "eth0"
 	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:orange:wlan" "phy0tpt"
-	ucidef_set_rssimon "wlan0" "40000" "1"
+	ucidef_set_rssimon "wlan0" "200000" "1"
 	ucidef_set_led_rssi "rssilow" "RSSILOW" "tp-link:orange:signal1" "wlan0" "1" "100" "0" "13"
 	ucidef_set_led_rssi "rssimediumlow" "RSSIMEDIUMLOW" "tp-link:orange:signal2" "wlan0" "20" "100" "-19" "13"
 	ucidef_set_led_rssi "rssimedium" "RSSIMEDIUM" "tp-link:orange:signal3" "wlan0" "40" "100" "-39" "13"
@@ -464,7 +495,7 @@ tl-wa750re)
 tl-wa850re)
 	ucidef_set_led_netdev "lan" "LAN" "tp-link:blue:lan" "eth0"
 	ucidef_set_led_wlan "wlan" "WLAN" "tp-link:blue:wlan" "phy0tpt"
-	ucidef_set_rssimon "wlan0" "40000" "1"
+	ucidef_set_rssimon "wlan0" "200000" "1"
 	ucidef_set_led_rssi "rssilow" "RSSILOW" "tp-link:blue:signal1" "wlan0" "1" "100" "0" "13"
 	ucidef_set_led_rssi "rssimediumlow" "RSSIMEDIUMLOW" "tp-link:blue:signal2" "wlan0" "20" "100" "-19" "13"
 	ucidef_set_led_rssi "rssimedium" "RSSIMEDIUM" "tp-link:blue:signal3" "wlan0" "40" "100" "-39" "13"
@@ -567,7 +598,7 @@ tl-wr2543n)
 	;;
 tube2h)
 	ucidef_set_led_netdev "lan" "LAN" "alfa:blue:lan" "eth0"
-	ucidef_set_rssimon "wlan0" "40000" "1"
+	ucidef_set_rssimon "wlan0" "200000" "1"
 	ucidef_set_led_rssi "signal1" "SIGNAL1" "alfa:red:signal1" "wlan0" "1" "100" "0" "13"
 	ucidef_set_led_rssi "signal2" "SIGNAL2" "alfa:orange:signal2" "wlan0" "26" "100" "-25" "13"
 	ucidef_set_led_rssi "signal3" "SIGNAL3" "alfa:green:signal3" "wlan0" "51" "100" "-50" "13"

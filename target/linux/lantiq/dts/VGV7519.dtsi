@@ -1,11 +1,13 @@
 #include "vr9.dtsi"
 
+#include <dt-bindings/input/input.h>
+
 / {
 
 	model = "VGV7519 - KPN Experiabox V8";
 
 	chosen {
-		bootargs = "console=ttyLTQ0,115200 init=/etc/preinit";
+		bootargs = "console=ttyLTQ0,115200 init=/etc/preinit mem=62M vpe1_load_addr=0x83e00000 vpe1_mem=2M maxvpes=1 maxtcs=1";
 	};
 
 	aliases {
@@ -16,6 +18,15 @@
 		led-dsl = &broadband_green;
 		led-internet = &internet_green;
 		led-wifi = &wireless_green;
+	};
+
+	sram@1F000000 {
+	        vmmc@107000 {
+	                status = "okay";
+	                gpios = <&gpio 30 GPIO_ACTIVE_HIGH  //fxs relay
+	                         &gpio 31 GPIO_ACTIVE_HIGH  //still unknown
+	                         &gpio 3  GPIO_ACTIVE_HIGH>; //reset_slic?
+	        };
 	};
 
 	memory@0 {
@@ -102,11 +113,6 @@
 			gpios = <&gpio 32 GPIO_ACTIVE_HIGH>;
 		};
 
-		pci@E105400 {
-			status = "okay";
-			gpio-reset = <&gpio 21 GPIO_ACTIVE_HIGH>;
-		};
-
 		pcie@d900000 {
 			status = "disabled";
 		};
@@ -117,11 +123,6 @@
 		firmware1 = "lantiq/vr9_phy11g_a1x.bin";	/*VR9 1.1*/
 		firmware2 = "lantiq/vr9_phy11g_a2x.bin";	/*VR9 1.2*/
 		phys = [ 00 01 ];
-	};
-
-	ralink_eep {
-		compatible = "ralink,eeprom";
-		ralink,eeprom = "RT2860.eeprom";
 	};
 
 	gpio-keys-polled {
@@ -214,6 +215,20 @@
 	};
 };
 
+&pci0 {
+	status = "okay";
+	gpio-reset = <&gpio 21 GPIO_ACTIVE_HIGH>;
+
+	wifi@1814,3091 {
+		compatible = "pci1814,3091";
+		reg = <0x7000 0 0 0 0>;
+		ralink,mtd-eeprom = <&boardconfig 0x410>;
+		ralink,mtd-eeprom-swap;
+		mtd-mac-address = <&boardconfig 0x16>;
+		mtd-mac-address-increment = <1>;
+	};
+};
+
 &eth0 {
 	lan: interface@0 {
 		compatible = "lantiq,xrx200-pdi";
@@ -221,6 +236,7 @@
 		#size-cells = <0>;
 		reg = <0>;
 		mtd-mac-address = <&boardconfig 0x16>;
+		mtd-mac-address-increment = <1>;
 		lantiq,switch;
 
 		ethernet@0 {
@@ -255,7 +271,6 @@
 		#size-cells = <0>;
 		reg = <1>;
 		mtd-mac-address = <&boardconfig 0x16>;
-		mtd-mac-address-increment = <2>;
 		lantiq,wan;
 
 		ethernet@5 {

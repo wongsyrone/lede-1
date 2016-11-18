@@ -547,7 +547,7 @@ TARGET_DEVICES += WBMR300
 define Device/VGV7510KW22NOR
   IMAGE_SIZE := 15232k
   DEVICE_TITLE := o2 Box 6431 / Arcadyan VGV7510KW22 (NOR)
-  DEVICE_PACKAGES := kmod-rt2800-pci wpad-mini kmod-usb-dwc2
+  DEVICE_PACKAGES := kmod-rt2800-pci wpad-mini kmod-usb-dwc2 kmod-ltq-tapi kmod-ltq-vmmc
 endef
 TARGET_DEVICES += VGV7510KW22NOR
 
@@ -558,14 +558,14 @@ define Device/VGV7510KW22BRN
   MAGIC := 0x12345678
   CRC32_POLY := 0x2083b8ed
   DEVICE_TITLE := o2 Box 6431 / Arcadyan VGV7510KW22 (BRN)
-  DEVICE_PACKAGES := kmod-rt2800-pci wpad-mini kmod-usb-dwc2
+  DEVICE_PACKAGES := kmod-rt2800-pci wpad-mini kmod-usb-dwc2 kmod-ltq-tapi kmod-ltq-vmmc
 endef
 TARGET_DEVICES += VGV7510KW22BRN
 
 define Device/VGV7519NOR
   IMAGE_SIZE := 15360k
   DEVICE_TITLE := Experiabox 8 VGV7519
-  DEVICE_PACKAGES := kmod-rt2800-pci wpad-mini kmod-usb-dwc2
+  DEVICE_PACKAGES := kmod-rt2800-pci wpad-mini kmod-usb-dwc2 kmod-ltq-tapi kmod-ltq-vmmc
 endef
 TARGET_DEVICES += VGV7519NOR
 
@@ -576,7 +576,7 @@ define Device/VGV7519BRN
   MAGIC := 0x12345678
   CRC32_POLY := 0x2083b8ed
   DEVICE_TITLE := Experiabox 8 VGV7519 (BRN)
-  DEVICE_PACKAGES := kmod-rt2800-pci wpad-mini kmod-usb-dwc2
+  DEVICE_PACKAGES := kmod-rt2800-pci wpad-mini kmod-usb-dwc2 kmod-ltq-tapi kmod-ltq-vmmc
 endef
 TARGET_DEVICES += VGV7519BRN
 

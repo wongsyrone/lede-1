@@ -115,6 +115,9 @@ ramips_board_detect() {
 	*"DCS-930L B1")
 		name="dcs-930l-b1"
 		;;
+	*"Digineo AC1200 Pro")
+		name="ac1200pro"
+		;;
 	*"DIR-300 B1")
 		name="dir-300-b1"
 		;;
@@ -505,6 +508,9 @@ ramips_board_detect() {
 	*"WLI-TX4-AG300N")
 		name="wli-tx4-ag300n"
 		;;
+	*"WLR-6000")
+		name="wlr-6000"
+		;;
 	*"WMR-300")
 		name="wmr-300"
 		;;
@@ -579,6 +585,9 @@ ramips_board_detect() {
 		;;
 	*"ZBT-WR8305RT")
 		name="zbt-wr8305rt"
+		;;
+	*"ZyXEL Keenetic Viva")
+		name="kng_rc"
 		;;
 	*"YK1")
 		name="youku-yk1"
