@@ -8,12 +8,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
 PKG_VERSION:=0.4.7.8
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=f02eca2407a82bec0904df3594c14dfe54aa55df
+PKG_SOURCE_VERSION:=45b4c7b893c44864d52303bfd3c183da60ce7e66
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -138,6 +138,13 @@ fi
 exit 0
 endef
 
+# cmake dependency scanner workaround
+# just remove bloating headers
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	rm -rf $(PKG_BUILD_DIR)/Source/Dependency
+endef
+
 define Package/pcap-dnsproxy/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/Pcap_DNSProxy $(1)/usr/sbin/Pcap_DNSProxy
@@ -150,15 +157,15 @@ define Package/pcap-dnsproxy/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/pcap-dnsproxy.hotplug $(1)/etc/hotplug.d/iface/99-pcap-dnsproxy
 	$(INSTALL_DIR) $(1)/etc/pcap-dnsproxy
-	$(SED) 's,^\xEF\xBB\xBF,,g'                                                       $(PKG_BUILD_DIR)/Source/ExampleConfig/*
-	$(SED) 's,\x0D,,g'                                                                $(PKG_BUILD_DIR)/Source/ExampleConfig/*
-	$(SED) 's,Listen Port = 53,Listen Port = $(CONFIG_PCAP_DNSPROXY_LISTENPORT),g'    $(PKG_BUILD_DIR)/Source/ExampleConfig/Config.ini
-	$(SED) 's,Log Maximum Size = 8MB,Log Maximum Size = 50KB,g'                       $(PKG_BUILD_DIR)/Source/ExampleConfig/Config.ini
-	$(SED) 's,Operation Mode = Private,Operation Mode = Server,g'                     $(PKG_BUILD_DIR)/Source/ExampleConfig/Config.ini
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/ExampleConfig/Config.ini $(1)/etc/pcap-dnsproxy/Config.conf
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/ExampleConfig/Hosts.ini $(1)/etc/pcap-dnsproxy/Hosts.conf
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/ExampleConfig/IPFilter.ini $(1)/etc/pcap-dnsproxy/IPFilter.conf
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/ExampleConfig/Routing.txt $(1)/etc/pcap-dnsproxy/Routing.txt
+	$(SED) 's,^\xEF\xBB\xBF,,g'                                                       $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/*
+	$(SED) 's,\x0D,,g'                                                                $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/*
+	$(SED) 's,Listen Port = 53,Listen Port = $(CONFIG_PCAP_DNSPROXY_LISTENPORT),g'    $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/Config.ini
+	$(SED) 's,Log Maximum Size = 8MB,Log Maximum Size = 50KB,g'                       $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/Config.ini
+	$(SED) 's,Operation Mode = Private,Operation Mode = Server,g'                     $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/Config.ini
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/Config.ini $(1)/etc/pcap-dnsproxy/Config.conf
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/Hosts.ini $(1)/etc/pcap-dnsproxy/Hosts.conf
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/IPFilter.ini $(1)/etc/pcap-dnsproxy/IPFilter.conf
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/Source/Auxiliary/ExampleConfig/Routing.txt $(1)/etc/pcap-dnsproxy/Routing.txt
 	$(INSTALL_CONF) ./files/configs/WhiteList.txt $(1)/etc/pcap-dnsproxy/WhiteList.txt
 endef
 
