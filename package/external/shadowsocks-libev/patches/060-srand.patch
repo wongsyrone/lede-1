@@ -19,7 +19,7 @@ Subject: [PATCH] rand
  #include <unistd.h>
  #include <getopt.h>
  
-@@ -1135,6 +1136,7 @@ main(int argc, char **argv)
+@@ -1136,6 +1137,7 @@ main(int argc, char **argv)
      char *iface      = NULL;
  
      srand(time(NULL));
@@ -29,7 +29,7 @@ Subject: [PATCH] rand
      ss_addr_t remote_addr[MAX_REMOTE_NUM];
 --- a/src/redir.c
 +++ b/src/redir.c
-@@ -754,6 +754,7 @@ int
+@@ -755,6 +755,7 @@ int
  main(int argc, char **argv)
  {
      srand(time(NULL));
@@ -47,7 +47,7 @@ Subject: [PATCH] rand
  #include <unistd.h>
  #include <getopt.h>
  
-@@ -715,6 +716,7 @@ int
+@@ -716,6 +717,7 @@ int
  main(int argc, char **argv)
  {
      srand(time(NULL));

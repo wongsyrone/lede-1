@@ -1,0 +1,71 @@
+--- a/src/local.c
++++ b/src/local.c
+@@ -1446,12 +1446,6 @@ main(int argc, char **argv)
+         FATAL("failed to switch user");
+     }
+ 
+-#ifndef __MINGW32__
+-    if (geteuid() == 0){
+-        LOGI("running from root user");
+-    }
+-#endif
+-
+     // Init connections
+     cork_dllist_init(&connections);
+ 
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -849,12 +849,6 @@ main(int argc, char **argv)
+         FATAL("failed to switch user");
+     }
+ 
+-#ifndef __MINGW32__
+-    if (geteuid() == 0){
+-        LOGI("running from root user");
+-    }
+-#endif
+-
+     struct passwd *pw   = getpwuid(getuid());
+     const char *homedir = pw->pw_dir;
+     working_dir_size = strlen(homedir) + 15;
+--- a/src/redir.c
++++ b/src/redir.c
+@@ -1039,10 +1039,6 @@ main(int argc, char **argv)
+         FATAL("failed to switch user");
+     }
+ 
+-    if (geteuid() == 0){
+-        LOGI("running from root user");
+-    }
+-
+     ev_run(loop, 0);
+ 
+     return 0;
+--- a/src/server.c
++++ b/src/server.c
+@@ -1882,9 +1882,7 @@ main(int argc, char **argv)
+     }
+ 
+ #ifndef __MINGW32__
+-    if (geteuid() == 0){
+-        LOGI("running from root user");
+-    } else if (firewall) {
++    if (geteuid() != 0 && firewall) {
+         LOGE("firewall setup requires running from root user");
+         exit(-1);
+     }
+--- a/src/tunnel.c
++++ b/src/tunnel.c
+@@ -1034,12 +1034,6 @@ main(int argc, char **argv)
+         FATAL("failed to switch user");
+     }
+ 
+-#ifndef __MINGW32__
+-    if (geteuid() == 0){
+-        LOGI("running from root user");
+-    }
+-#endif
+-
+     ev_run(loop, 0);
+ 
+ #ifdef __MINGW32__
