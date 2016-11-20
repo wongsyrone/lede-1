@@ -1,0 +1,203 @@
+--- a/src/netutils.c
++++ b/src/netutils.c
+@@ -84,7 +84,7 @@ int
+ setinterface(int socket_fd, const char *interface_name)
+ {
+     struct ifreq interface;
+-    memset(&interface, 0, sizeof(interface));
++    memset(&interface, 0, sizeof(struct ifreq));
+     strncpy(interface.ifr_name, interface_name, IFNAMSIZ);
+     int res = setsockopt(socket_fd, SOL_SOCKET, SO_BINDTODEVICE, &interface,
+                          sizeof(struct ifreq));
+@@ -99,7 +99,7 @@ bind_to_address(int socket_fd, const cha
+     if (host != NULL) {
+         struct cork_ip ip;
+         struct sockaddr_storage storage;
+-        memset(&storage, 0, sizeof(storage));
++        memset(&storage, 0, sizeof(struct sockaddr_storage));
+         if (cork_ip_init(&ip, host) != -1) {
+             if (ip.version == 4) {
+                 struct sockaddr_in *addr = (struct sockaddr_in *)&storage;
+--- a/src/redir.c
++++ b/src/redir.c
+@@ -413,6 +413,7 @@ remote_send_cb(EV_P_ ev_io *w, int reven
+ 
+     if (!remote_send_ctx->connected) {
+         struct sockaddr_storage addr;
++        memset(&addr, 0, sizeof(struct sockaddr_storage));
+         socklen_t len = sizeof addr;
+         int r         = getpeername(remote->fd, (struct sockaddr *)&addr, &len);
+         if (r == 0) {
+@@ -664,6 +665,8 @@ accept_cb(EV_P_ ev_io *w, int revents)
+ {
+     listen_ctx_t *listener = (listen_ctx_t *)w;
+     struct sockaddr_storage destaddr;
++    memset(&destaddr, 0, sizeof(struct sockaddr_storage));
++
+     int err;
+ 
+     int serverfd = accept(listener->fd, NULL, NULL);
+--- a/src/resolv.c
++++ b/src/resolv.c
+@@ -169,6 +169,8 @@ resolv_query(const char *hostname, void
+         LOGE("Failed to allocate memory for DNS query callback data.");
+         return NULL;
+     }
++    memset(cb_data, 0, sizeof(struct ResolvQuery));
++
+     cb_data->client_cb      = client_cb;
+     cb_data->client_free_cb = client_free_cb;
+     cb_data->client_cb_data = client_cb_data;
+@@ -265,7 +267,7 @@ dns_query_v4_cb(struct dns_ctx *ctx, str
+ 
+             for (int i = 0; i < result->dnsa4_nrr; i++) {
+                 struct sockaddr_in *sa =
+-                    (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
++                    (struct sockaddr_in *)ss_malloc(sizeof(struct sockaddr_in));
+                 sa->sin_family = AF_INET;
+                 sa->sin_port   = cb_data->port;
+                 sa->sin_addr   = result->dnsa4_addr[i];
+@@ -312,7 +314,7 @@ dns_query_v6_cb(struct dns_ctx *ctx, str
+ 
+             for (int i = 0; i < result->dnsa6_nrr; i++) {
+                 struct sockaddr_in6 *sa =
+-                    (struct sockaddr_in6 *)malloc(sizeof(struct sockaddr_in6));
++                    (struct sockaddr_in6 *)ss_malloc(sizeof(struct sockaddr_in6));
+                 sa->sin6_family = AF_INET6;
+                 sa->sin6_port   = cb_data->port;
+                 sa->sin6_addr   = result->dnsa6_addr[i];
+--- a/src/server.c
++++ b/src/server.c
+@@ -284,7 +284,7 @@ get_peer_name(int fd)
+ {
+     static char peer_name[INET6_ADDRSTRLEN] = { 0 };
+     struct sockaddr_storage addr;
+-    socklen_t len = sizeof addr;
++    socklen_t len = sizeof(struct sockaddr_storage);
+     memset(&addr, 0, len);
+     memset(peer_name, 0, INET6_ADDRSTRLEN);
+     int err = getpeername(fd, (struct sockaddr *)&addr, &len);
+@@ -307,6 +307,7 @@ static void
+ set_linger(int fd)
+ {
+     struct linger so_linger;
++    memset(&so_linger, 0, sizeof(struct linger));
+     so_linger.l_onoff  = 1;
+     so_linger.l_linger = 0;
+     setsockopt(fd, SOL_SOCKET, SO_LINGER, &so_linger, sizeof so_linger);
+@@ -1225,7 +1226,7 @@ remote_send_cb(EV_P_ ev_io *w, int reven
+ 
+     if (!remote_send_ctx->connected) {
+         struct sockaddr_storage addr;
+-        socklen_t len = sizeof addr;
++        socklen_t len = sizeof(struct sockaddr_storage);
+         memset(&addr, 0, len);
+         int r = getpeername(remote->fd, (struct sockaddr *)&addr, &len);
+         if (r == 0) {
+--- a/src/tunnel.c
++++ b/src/tunnel.c
+@@ -373,7 +373,7 @@ remote_send_cb(EV_P_ ev_io *w, int reven
+ 
+     if (!remote_send_ctx->connected) {
+         struct sockaddr_storage addr;
+-        socklen_t len = sizeof addr;
++        socklen_t len = sizeof(struct sockaddr_storage);
+ 
+         int r = getpeername(remote->fd, (struct sockaddr *)&addr, &len);
+         if (r == 0) {
+@@ -391,6 +391,7 @@ remote_send_cb(EV_P_ ev_io *w, int reven
+                 if (ip.version == 4) {
+                     // send as IPv4
+                     struct in_addr host;
++                    memset(&host, 0, sizeof(struct in_addr));
+                     int host_len = sizeof(struct in_addr);
+ 
+                     if (dns_pton(AF_INET, sa->host, &host) == -1) {
+@@ -402,6 +403,7 @@ remote_send_cb(EV_P_ ev_io *w, int reven
+                 } else if (ip.version == 6) {
+                     // send as IPv6
+                     struct in6_addr host;
++                    memset(&host, 0, sizeof(struct in6_addr));
+                     int host_len = sizeof(struct in6_addr);
+ 
+                     if (dns_pton(AF_INET6, sa->host, &host) == -1) {
+@@ -976,6 +978,7 @@ main(int argc, char **argv)
+ 
+     // Setup proxy context
+     struct listen_ctx listen_ctx;
++    memset(&listen_ctx, 0, sizeof(struct listen_ctx));
+     listen_ctx.tunnel_addr = tunnel_addr;
+     listen_ctx.remote_num  = remote_num;
+     listen_ctx.remote_addr = ss_malloc(sizeof(struct sockaddr *) * remote_num);
+--- a/src/udprelay.c
++++ b/src/udprelay.c
+@@ -344,7 +344,7 @@ create_remote_socket(int ipv6)
+     if (ipv6) {
+         // Try to bind IPv6 first
+         struct sockaddr_in6 addr;
+-        memset(&addr, 0, sizeof(addr));
++        memset(&addr, 0, sizeof(struct sockaddr_in6));
+         addr.sin6_family = AF_INET6;
+         addr.sin6_addr   = in6addr_any;
+         addr.sin6_port   = 0;
+@@ -360,7 +360,7 @@ create_remote_socket(int ipv6)
+     } else {
+         // Or else bind to IPv4
+         struct sockaddr_in addr;
+-        memset(&addr, 0, sizeof(addr));
++        memset(&addr, 0, sizeof(struct sockaddr_in));
+         addr.sin_family      = AF_INET;
+         addr.sin_addr.s_addr = INADDR_ANY;
+         addr.sin_port        = 0;
+@@ -668,7 +668,7 @@ remote_recv_cb(EV_P_ ev_io *w, int reven
+     }
+ 
+     struct sockaddr_storage src_addr;
+-    socklen_t src_addr_len = sizeof(src_addr);
++    socklen_t src_addr_len = sizeof(struct sockaddr_storage);
+     memset(&src_addr, 0, src_addr_len);
+ 
+     buffer_t *buf = ss_malloc(sizeof(buffer_t));
+@@ -845,6 +845,7 @@ server_recv_cb(EV_P_ ev_io *w, int reven
+ #ifdef MODULE_REDIR
+     char control_buffer[64] = { 0 };
+     struct msghdr msg;
++    memset(&msg, 0, sizeof(struct msghdr));
+     struct iovec iov[1];
+     struct sockaddr_storage dst_addr;
+     memset(&dst_addr, 0, sizeof(struct sockaddr_storage));
+@@ -989,6 +990,7 @@ server_recv_cb(EV_P_ ev_io *w, int reven
+         if (ip.version == 4) {
+             // send as IPv4
+             struct in_addr host_addr;
++            memset(&host_addr, 0, sizeof(struct in_addr));
+             int host_len = sizeof(struct in_addr);
+ 
+             if (dns_pton(AF_INET, host, &host_addr) == -1) {
+@@ -1000,6 +1002,7 @@ server_recv_cb(EV_P_ ev_io *w, int reven
+         } else if (ip.version == 6) {
+             // send as IPv6
+             struct in6_addr host_addr;
++            memset(&host_addr, 0, sizeof(struct in6_addr));
+             int host_len = sizeof(struct in6_addr);
+ 
+             if (dns_pton(AF_INET6, host, &host_addr) == -1) {
+@@ -1264,7 +1267,7 @@ server_recv_cb(EV_P_ ev_io *w, int reven
+         }
+     } else {
+         struct addrinfo hints;
+-        memset(&hints, 0, sizeof(hints));
++        memset(&hints, 0, sizeof(struct addrinfo));
+         hints.ai_family   = AF_UNSPEC;
+         hints.ai_socktype = SOCK_DGRAM;
+         hints.ai_protocol = IPPROTO_UDP;
+--- a/src/utils.c
++++ b/src/utils.c
+@@ -117,6 +117,7 @@ run_as(const char *user)
+ 
+ #ifdef HAVE_GETPWNAM_R
+         struct passwd pwdbuf, *pwd;
++        memset(&pwdbuf, 0, sizeof(struct passwd));
+         size_t buflen;
+         int err;
+ 
