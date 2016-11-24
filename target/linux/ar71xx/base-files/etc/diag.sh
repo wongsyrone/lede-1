@@ -47,6 +47,12 @@ get_status_led() {
 	tl-wpa8630)
 		status_led="$board:green:power"
 		;;
+	ap90q|\
+	cpe830|\
+	cpe870|\
+	gl-inet)
+		status_led="$board:green:lan"
+		;;
 	ap96)
 		status_led="$board:green:led2"
 		;;
@@ -86,8 +92,17 @@ get_status_led() {
 	cap4200ag)
 		status_led="senao:green:pwr"
 		;;
-	cf-e316n-v2)
+	cf-e316n-v2|\
+	cf-e520n|\
+	cf-e530n)
 		status_led="$board:blue:wan"
+		;;
+	cf-e320n-v2)
+		status_led="$board:blue:wlan"
+		;;
+	cf-e380ac-v1|\
+	cf-e380ac-v2)
+		status_led="$board:blue:wlan2g"
 		;;
 	cpe510)
 		status_led="tp-link:green:link4"
@@ -158,9 +173,6 @@ get_status_led() {
 		;;
 	f9k1115v2)
 		status_led="belkin:blue:status"
-		;;
-	gl-inet)
-		status_led="$board:green:lan"
 		;;
 	epg5000|\
 	esr1750)

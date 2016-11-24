@@ -50,6 +50,7 @@ platform_check_image() {
 	dir-620-d1|\
 	dir-810l|\
 	duzun-dm06|\
+	dwr-512-b|\
 	e1700|\
 	esr-9753|\
 	ex2700|\
@@ -133,6 +134,7 @@ platform_check_image() {
 	vocore|\
 	vr500|\
 	w150m|\
+	w2914nsv2|\
 	w306r-v20|\
 	w502u|\
 	wf-2881|\

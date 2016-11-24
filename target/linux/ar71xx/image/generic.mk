@@ -1,3 +1,12 @@
+define Device/ap90q
+  DEVICE_TITLE := YunCore AP90Q
+  BOARDNAME = AP90Q
+  IMAGE_SIZE = 16000k
+  CONSOLE = ttyS0,115200
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env),16000k(firmware),64k(art)ro
+endef
+TARGET_DEVICES += ap90q
+
 define Device/bsb
   DEVICE_TITLE := Smart Electronics Black Swift board
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2
@@ -23,9 +32,71 @@ define Device/cf-e316n-v2
   BOARDNAME = CF-E316N-V2
   IMAGE_SIZE = 16192k
   CONSOLE = ttyS0,115200
-  MTDPARTS = spi0.0:64k(u-boot)ro,64k(art)ro,16192k(firmware),64k(nvram)ro
+  MTDPARTS = spi0.0:64k(u-boot)ro,64k(art)ro,16192k(firmware),64k(art-backup)ro
 endef
 TARGET_DEVICES += cf-e316n-v2
+
+define Device/cf-e320n-v2
+  $(Device/cf-e316n-v2)
+  DEVICE_TITLE := COMFAST CF-E320N v2
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME = CF-E320N-V2
+endef
+TARGET_DEVICES += cf-e320n-v2
+
+define Device/cf-e380ac-v1
+  DEVICE_TITLE := COMFAST CF-E380AC v1
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-ath10k ath10k-firmware-qca988x
+  BOARDNAME = CF-E380AC-V1
+  IMAGE_SIZE = 16128k
+  CONSOLE = ttyS0,115200
+  MTDPARTS = spi0.0:128k(u-boot)ro,64k(art)ro,16128k(firmware),64k(art-backup)ro
+endef
+TARGET_DEVICES += cf-e380ac-v1
+
+define Device/cf-e380ac-v2
+  $(Device/cf-e380ac-v1)
+  DEVICE_TITLE := COMFAST CF-E380AC v2
+  BOARDNAME = CF-E380AC-V2
+  IMAGE_SIZE = 16000k
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(art)ro,16000k(firmware),64k(art-backup)ro
+endef
+TARGET_DEVICES += cf-e380ac-v2
+
+define Device/cf-e520n
+  DEVICE_TITLE := COMFAST CF-E520N
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME = CF-E520N
+  IMAGE_SIZE = 8000k
+  CONSOLE = ttyS0,115200
+  MTDPARTS = spi0.0:64k(u-boot)ro,64k(art)ro,8000k(firmware),64k(art-backup)ro
+endef
+TARGET_DEVICES += cf-e520n
+
+define Device/cf-e530n
+  $(Device/cf-e520n)
+  DEVICE_TITLE := COMFAST CF-E530N
+  BOARDNAME = CF-E530N
+endef
+TARGET_DEVICES += cf-e530n
+
+define Device/cpe830
+  $(Device/ap90q)
+  DEVICE_TITLE := YunCore CPE830
+  DEVICE_PACKAGES := rssileds
+  BOARDNAME = CPE830
+endef
+TARGET_DEVICES += cpe830
+
+define Device/cpe870
+  DEVICE_TITLE := YunCore CPE870
+  DEVICE_PACKAGES := rssileds
+  BOARDNAME = CPE870
+  IMAGE_SIZE = 7936k
+  CONSOLE = ttyS0,115200
+  MTDPARTS = spi0.0:64k(u-boot)ro,64k(u-boot-env),7936k(firmware),64k(config)ro,64k(art)ro
+endef
+TARGET_DEVICES += cpe870
 
 define Device/domywifi-dw33d
   DEVICE_TITLE := DomyWifi DW33D
