@@ -1,6 +1,6 @@
 --- a/src/local.c
 +++ b/src/local.c
-@@ -1446,12 +1446,6 @@ main(int argc, char **argv)
+@@ -1450,12 +1450,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
@@ -15,7 +15,7 @@
  
 --- a/src/manager.c
 +++ b/src/manager.c
-@@ -849,12 +849,6 @@ main(int argc, char **argv)
+@@ -852,12 +852,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
@@ -30,7 +30,7 @@
      working_dir_size = strlen(homedir) + 15;
 --- a/src/redir.c
 +++ b/src/redir.c
-@@ -1039,10 +1039,6 @@ main(int argc, char **argv)
+@@ -1042,10 +1042,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
@@ -43,7 +43,7 @@
      return 0;
 --- a/src/server.c
 +++ b/src/server.c
-@@ -1882,9 +1882,7 @@ main(int argc, char **argv)
+@@ -1889,9 +1889,7 @@ main(int argc, char **argv)
      }
  
  #ifndef __MINGW32__
@@ -56,7 +56,7 @@
      }
 --- a/src/tunnel.c
 +++ b/src/tunnel.c
-@@ -1034,12 +1034,6 @@ main(int argc, char **argv)
+@@ -1037,12 +1037,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  

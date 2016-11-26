@@ -52,7 +52,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
          }
      }
  
-@@ -907,6 +913,9 @@ main(int argc, char **argv)
+@@ -910,6 +916,9 @@ main(int argc, char **argv)
          if (mptcp == 0) {
              mptcp = conf->mptcp;
          }
@@ -62,7 +62,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  #ifdef HAVE_SETRLIMIT
          if (nofile == 0) {
              nofile = conf->nofile;
-@@ -958,6 +967,10 @@ main(int argc, char **argv)
+@@ -961,6 +970,10 @@ main(int argc, char **argv)
          LOGI("onetime authentication enabled");
      }
  
@@ -75,9 +75,9 @@ Subject: [PATCH] Add keepalive feature for remote connections
      signal(SIGABRT, SIG_IGN);
 --- a/src/jconf.h
 +++ b/src/jconf.h
-@@ -56,6 +56,7 @@ typedef struct {
-     char *method;
+@@ -57,6 +57,7 @@ typedef struct {
      char *timeout;
+     char *user;
      int auth;
 +    int keepalive;
      int fast_open;
@@ -85,7 +85,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
      char *nameserver;
 --- a/src/jconf.c
 +++ b/src/jconf.c
-@@ -205,6 +205,10 @@ read_jconf(const char *file)
+@@ -207,6 +207,10 @@ read_jconf(const char *file)
                  check_json_value_type(value, json_boolean,
                          "invalid config file: option 'auth' must be a boolean");
                  conf.auth = value->u.boolean;

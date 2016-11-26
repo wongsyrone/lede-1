@@ -85,7 +85,7 @@
      so_linger.l_onoff  = 1;
      so_linger.l_linger = 0;
      setsockopt(fd, SOL_SOCKET, SO_LINGER, &so_linger, sizeof so_linger);
-@@ -1225,7 +1226,7 @@ remote_send_cb(EV_P_ ev_io *w, int reven
+@@ -1229,7 +1230,7 @@ remote_send_cb(EV_P_ ev_io *w, int reven
  
      if (!remote_send_ctx->connected) {
          struct sockaddr_storage addr;
@@ -121,7 +121,7 @@
                      int host_len = sizeof(struct in6_addr);
  
                      if (dns_pton(AF_INET6, sa->host, &host) == -1) {
-@@ -976,6 +978,7 @@ main(int argc, char **argv)
+@@ -979,6 +981,7 @@ main(int argc, char **argv)
  
      // Setup proxy context
      struct listen_ctx listen_ctx;

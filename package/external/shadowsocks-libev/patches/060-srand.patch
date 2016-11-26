@@ -19,7 +19,7 @@ Subject: [PATCH] rand
  #include <unistd.h>
  #include <getopt.h>
  
-@@ -1136,6 +1137,7 @@ main(int argc, char **argv)
+@@ -1137,6 +1138,7 @@ main(int argc, char **argv)
      char *iface      = NULL;
  
      srand(time(NULL));
