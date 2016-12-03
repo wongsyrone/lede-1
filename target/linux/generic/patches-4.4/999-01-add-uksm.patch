@@ -81,14 +81,14 @@
 - * formats. 
 + * formats.
   */
-
+ 
  #include <linux/slab.h>
 @@ -56,6 +56,7 @@
  #include <linux/pipe_fs_i.h>
  #include <linux/oom.h>
  #include <linux/compat.h>
 +#include <linux/ksm.h>
-
+ 
  #include <asm/uaccess.h>
  #include <asm/mmu_context.h>
 @@ -1162,6 +1163,7 @@ void setup_new_exec(struct linux_binprm
@@ -126,7 +126,7 @@
 @@ -588,12 +588,25 @@ extern void untrack_pfn(struct vm_area_s
  			unsigned long size);
  #endif
-
+ 
 +#ifdef CONFIG_UKSM
 +static inline int is_uksm_zero_pfn(unsigned long pfn)
 +{
@@ -148,7 +148,7 @@
 -	return offset_from_zero_pfn <= (zero_page_mask >> PAGE_SHIFT);
 +	return offset_from_zero_pfn <= (zero_page_mask >> PAGE_SHIFT) || is_uksm_zero_pfn(pfn);
  }
-
+ 
  #define my_zero_pfn(addr)	page_to_pfn(ZERO_PAGE(addr))
 @@ -602,7 +615,7 @@ static inline int is_zero_pfn(unsigned l
  static inline int is_zero_pfn(unsigned long pfn)
@@ -157,7 +157,7 @@
 -	return pfn == zero_pfn;
 +	return (pfn == zero_pfn) || (is_uksm_zero_pfn(pfn));
  }
-
+ 
  static inline unsigned long my_zero_pfn(unsigned long addr)
 --- a/include/linux/ksm.h
 +++ b/include/linux/ksm.h
@@ -180,13 +180,13 @@
 -	if (test_bit(MMF_VM_MERGEABLE, &mm->flags))
 -		__ksm_exit(mm);
 -}
-
+ 
  static inline struct stable_node *page_stable_node(struct page *page)
  {
 @@ -64,6 +49,33 @@ struct page *ksm_might_need_to_copy(stru
  int rmap_walk_ksm(struct page *page, struct rmap_walk_control *rwc);
  void ksm_migrate_page(struct page *newpage, struct page *oldpage);
-
+ 
 +#ifdef CONFIG_KSM_LEGACY
 +int __ksm_enter(struct mm_struct *mm);
 +void __ksm_exit(struct mm_struct *mm);
@@ -215,12 +215,12 @@
 +#endif /* !CONFIG_UKSM */
 +
  #else  /* !CONFIG_KSM */
-
+ 
  static inline int ksm_fork(struct mm_struct *mm, struct mm_struct *oldmm)
 @@ -106,4 +118,6 @@ static inline void ksm_migrate_page(stru
  #endif /* CONFIG_MMU */
  #endif /* !CONFIG_KSM */
-
+ 
 +#include <linux/uksm.h>
 +
  #endif /* __LINUX_KSM_H */
@@ -234,7 +234,7 @@
 +	struct vma_slot *uksm_vma_slot;
 +#endif
  };
-
+ 
  struct core_thread {
 --- a/include/linux/mmzone.h
 +++ b/include/linux/mmzone.h
@@ -246,11 +246,11 @@
 +	NR_UKSM_ZERO_PAGES,
 +#endif
  	NR_VM_ZONE_STAT_ITEMS };
-
+ 
  /*
 @@ -809,7 +812,7 @@ static inline int is_highmem_idx(enum zo
  }
-
+ 
  /**
 - * is_highmem - helper function to quickly check if a struct zone is a 
 + * is_highmem - helper function to quickly check if a struct zone is a
@@ -506,12 +506,12 @@
 +		uksm_vma_add_new(tmp);
  		mm->map_count++;
  		retval = copy_page_range(mm, oldmm, mpnt);
-
+ 
 --- a/lib/Makefile
 +++ b/lib/Makefile
 @@ -18,7 +18,7 @@ KBUILD_CFLAGS = $(subst $(CC_FLAGS_FTRAC
  endif
-
+ 
  lib-y := ctype.o string.o vsprintf.o cmdline.o \
 -	 rbtree.o radix-tree.o dump_stack.o timerqueue.o\
 +	 rbtree.o radix-tree.o sradix-tree.o dump_stack.o timerqueue.o\
@@ -1029,7 +1029,7 @@
 +	help
 +	The legacy KSM implementation from Redhat.
 +endchoice
-
+ 
  config DEFAULT_MMAP_MIN_ADDR
          int "Low address space to protect from user allocation"
 --- a/mm/Makefile
@@ -1047,9 +1047,9 @@
 --- a/mm/memory.c
 +++ b/mm/memory.c
 @@ -121,6 +121,28 @@ unsigned long highest_memmap_pfn __read_
-
+ 
  EXPORT_SYMBOL(zero_pfn);
-
+ 
 +#ifdef CONFIG_UKSM
 +unsigned long uksm_zero_pfn __read_mostly;
 +EXPORT_SYMBOL_GPL(uksm_zero_pfn);
@@ -1077,11 +1077,11 @@
   */
 @@ -132,6 +154,7 @@ static int __init init_zero_pfn(void)
  core_initcall(init_zero_pfn);
-
-
+ 
+ 
 +
  #if defined(SPLIT_RSS_COUNTING)
-
+ 
  void sync_mm_rss(struct mm_struct *mm)
 @@ -918,6 +941,11 @@ copy_one_pte(struct mm_struct *dst_mm, s
  			rss[MM_ANONPAGES]++;
@@ -1093,7 +1093,7 @@
 +	} else {
 +		uksm_map_zero_page(pte);
  	}
-
+ 
  out_set_pte:
 @@ -1151,8 +1179,10 @@ again:
  			ptent = ptep_get_and_clear_full(mm, addr, pte,
@@ -1117,7 +1117,7 @@
 +		uksm_cow_page(vma, src);
 +	}
  }
-
+ 
  /*
 @@ -2116,6 +2148,7 @@ static int wp_page_copy(struct mm_struct
  		new_page = alloc_zeroed_user_highpage_movable(vma, address);
@@ -1144,7 +1144,7 @@
  #include <linux/printk.h>
  #include <linux/userfaultfd_k.h>
 +#include <linux/ksm.h>
-
+ 
  #include <asm/uaccess.h>
  #include <asm/cacheflush.h>
 @@ -277,6 +278,7 @@ static struct vm_area_struct *remove_vma
@@ -1158,7 +1158,7 @@
 @@ -738,9 +740,16 @@ int vma_adjust(struct vm_area_struct *vm
  	long adjust_next = 0;
  	int remove_next = 0;
-
+ 
 +/*
 + * to avoid deadlock, ksm_remove_vma must be done before any spin_lock is
 + * acquired
@@ -1167,7 +1167,7 @@
 +
  	if (next && !insert) {
  		struct vm_area_struct *exporter = NULL;
-
+ 
 +		uksm_remove_vma(next);
  		if (end >= next->vm_end) {
  			/*
@@ -1201,15 +1201,15 @@
  	}
  	if (insert && file)
  		uprobe_mmap(insert);
-
+ 
 +	uksm_vma_add_new(vma);
  	validate_mm(mm);
-
+ 
  	return 0;
 @@ -1316,6 +1332,9 @@ unsigned long do_mmap(struct file *file,
  	vm_flags |= calc_vm_prot_bits(prot) | calc_vm_flag_bits(flags) |
  			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
-
+ 
 +	/* If uksm is enabled, we add VM_MERGABLE to new VMAs. */
 +	uksm_vm_flags_mod(&vm_flags);
 +
@@ -1223,7 +1223,7 @@
 +	uksm_vma_add_new(vma);
  out:
  	perf_event_mmap(vma);
-
+ 
 @@ -1697,6 +1717,7 @@ allow_write_and_free_vma:
  	if (vm_flags & VM_DENYWRITE)
  		allow_write_access(file);
@@ -1235,7 +1235,7 @@
 @@ -2494,6 +2515,8 @@ static int __split_vma(struct mm_struct
  	else
  		err = vma_adjust(vma, vma->vm_start, addr, vma->vm_pgoff, new);
-
+ 
 +	uksm_vma_add_new(new);
 +
  	/* Success. */
@@ -1243,10 +1243,10 @@
  		return 0;
 @@ -2754,6 +2777,7 @@ static unsigned long do_brk(unsigned lon
  		return addr;
-
+ 
  	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
 +	uksm_vm_flags_mod(&flags);
-
+ 
  	error = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
  	if (offset_in_page(error))
 @@ -2811,6 +2835,7 @@ static unsigned long do_brk(unsigned lon
@@ -1260,7 +1260,7 @@
 @@ -2846,6 +2871,12 @@ void exit_mmap(struct mm_struct *mm)
  	/* mm's last user has gone, and its about to be pulled down */
  	mmu_notifier_release(mm);
-
+ 
 +	/*
 +	 * Taking write lock on mmap_sem does not harm others,
 +	 * but it's crucial for uksm to avoid races.
@@ -1280,7 +1280,7 @@
 +	vmacache_invalidate(mm);
 +	up_write(&mm->mmap_sem);
  }
-
+ 
  /* Insert vm structure into process list sorted by address
 @@ -2990,6 +3026,7 @@ struct vm_area_struct *copy_vma(struct v
  			new_vma->vm_ops->open(new_vma);
@@ -1289,23 +1289,23 @@
 +		uksm_vma_add_new(new_vma);
  	}
  	return new_vma;
-
+ 
 @@ -3095,10 +3132,10 @@ static struct vm_area_struct *__install_
  	ret = insert_vm_struct(mm, vma);
  	if (ret)
  		goto out;
 -
  	mm->total_vm += len >> PAGE_SHIFT;
-
+ 
  	perf_event_mmap(vma);
 +	uksm_vma_add_new(vma);
-
+ 
  	return vma;
-
+ 
 --- a/mm/rmap.c
 +++ b/mm/rmap.c
 @@ -1071,9 +1071,9 @@ void page_move_anon_rmap(struct page *pa
-
+ 
  /**
   * __page_set_anon_rmap - set up new anonymous rmap
 - * @page:	Page to add to rmap	
@@ -6862,7 +6862,7 @@
 @@ -762,6 +762,9 @@ const char * const vmstat_text[] = {
  	"nr_anon_transparent_hugepages",
  	"nr_free_cma",
-
+ 
 +#ifdef CONFIG_UKSM
 +	"nr_uksm_zero_pages",
 +#endif
