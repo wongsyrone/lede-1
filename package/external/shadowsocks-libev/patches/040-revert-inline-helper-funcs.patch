@@ -1,6 +1,6 @@
 --- a/src/utils.c
 +++ b/src/utils.c
-@@ -212,27 +212,6 @@ FATAL(const char *msg)
+@@ -223,27 +223,6 @@ FATAL(const char *msg)
      exit(-1);
  }
  
@@ -30,7 +30,7 @@
  {
 --- a/src/utils.h
 +++ b/src/utils.h
-@@ -219,13 +219,31 @@ char *ss_strndup(const char *s, size_t n
+@@ -220,13 +220,31 @@ char *ss_strndup(const char *s, size_t n
  int set_nofile(int nofile);
  #endif
  
