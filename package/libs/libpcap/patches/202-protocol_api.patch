@@ -1,3 +1,5 @@
+This API extension is used by ead (Emergency Access Daemon)
+
 --- a/pcap-linux.c
 +++ b/pcap-linux.c
 @@ -425,7 +425,7 @@ static int	iface_get_id(int fd, const ch
@@ -134,7 +136,7 @@
  	char	*device;
  	int	timeout;	/* timeout for buffering */
  	u_int	buffer_size;
-+	int	proto;      /* protocol for packet socket (linux) */
++	int	proto;		/* protocol for packet socket (linux) */
  	int	promisc;
  	int	rfmon;		/* monitor mode */
  	int	immediate;	/* immediate mode - deliver packets as soon as they arrive */

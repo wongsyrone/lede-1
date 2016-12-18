@@ -120,7 +120,6 @@ ar71xx_setup_interfaces()
 		;;
 	alfa-ap96|\
 	alfa-nx|\
-	ap83|\
 	gl-ar150|\
 	gl-ar300m|\
 	gl-domino|\
@@ -148,8 +147,6 @@ ar71xx_setup_interfaces()
 	ubnt-unifi-outdoor)
 		ucidef_set_interface_lan "eth0 eth1"
 		;;
-	ap113|\
-	pb92|\
 	wzr-hp-g300nh2)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan:1" "3:lan:2" "4:lan:3" "5:lan:4" "2:wan"
@@ -231,6 +228,7 @@ ar71xx_setup_interfaces()
 	dir-835-a1|\
 	esr900|\
 	mynet-n750|\
+	sr3200|\
 	wndr3700v4|\
 	wndr4300)
 		ucidef_add_switch "switch0" \
@@ -268,7 +266,7 @@ ar71xx_setup_interfaces()
 	tl-mr3420-v2|\
 	tl-wdr6500-v2|\
 	tl-wr841n-v8|\
-	tl-wr842n-v2|\
+	tl-wr940n-v4|\
 	tl-wr941nd-v5|\
 	tl-wr941nd-v6|\
 	wnr1000-v2|\
@@ -391,12 +389,18 @@ ar71xx_setup_interfaces()
 		ucidef_set_interface_raw "eth" "eth0"
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
 		;;
+	tl-wr842n-v2)
+		ucidef_set_interfaces_lan_wan "eth1" "eth0"
+		ucidef_add_switch "switch0" \
+			"0@eth1" "1:lan:4" "2:lan:1" "3:lan:2" "4:lan:3"
+		;;
 	uap-pro|\
 	wpj342)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan" "2:wan"
 		;;
-	unifiac-pro)
+	unifiac-pro|\
+	xd3200)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "2:lan" "3:wan"
 		;;
