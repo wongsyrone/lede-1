@@ -27,15 +27,6 @@
  
  /**
   * \def MBEDTLS_ASN1_PARSE_C
-@@ -1566,7 +1566,7 @@
-  *
-  * Module:  library/blowfish.c
-  */
--//#define MBEDTLS_BLOWFISH_C
-+#define MBEDTLS_BLOWFISH_C
- 
- /**
-  * \def MBEDTLS_CAMELLIA_C
 @@ -1621,7 +1621,7 @@
   *      MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_GCM_SHA256
   *      MBEDTLS_TLS_PSK_WITH_CAMELLIA_128_CBC_SHA256
