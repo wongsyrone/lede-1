@@ -5,7 +5,6 @@
 CONFIG_MODULES=y
 CONFIG_HAVE_DOT_CONFIG=y
 # CONFIG_TARGET_ppc44x is not set
-# CONFIG_TARGET_realview is not set
 # CONFIG_TARGET_arm64 is not set
 # CONFIG_TARGET_sunxi is not set
 # CONFIG_TARGET_apm821xx is not set
@@ -36,6 +35,7 @@ CONFIG_TARGET_mvebu=y
 # CONFIG_TARGET_mcs814x is not set
 # CONFIG_TARGET_layerscape is not set
 # CONFIG_TARGET_oxnas is not set
+# CONFIG_TARGET_armvirt is not set
 # CONFIG_TARGET_ipq806x is not set
 # CONFIG_TARGET_au1000 is not set
 # CONFIG_TARGET_arc770 is not set
@@ -52,7 +52,7 @@ CONFIG_TARGET_mvebu=y
 # CONFIG_TARGET_mvebu_DEVICE_linksys-wrt3200acm is not set
 # CONFIG_TARGET_mvebu_DEVICE_linksys-wrt1900acs is not set
 CONFIG_TARGET_mvebu_DEVICE_linksys-wrt1900ac=y
-# CONFIG_TARGET_mvebu_DEVICE_openblocks-ax3 is not set
+# CONFIG_TARGET_mvebu_DEVICE_openblocks-ax3-4 is not set
 # CONFIG_TARGET_mvebu_DEVICE_armada-385-db-ap is not set
 # CONFIG_TARGET_mvebu_DEVICE_armada-370-db is not set
 # CONFIG_TARGET_mvebu_DEVICE_armada-370-rd is not set
@@ -177,6 +177,8 @@ CONFIG_KERNEL_AIO=y
 # CONFIG_KERNEL_FANOTIFY is not set
 # CONFIG_KERNEL_BLK_DEV_BSG is not set
 CONFIG_KERNEL_MAGIC_SYSRQ=y
+# CONFIG_KERNEL_DEBUG_PINCTRL is not set
+# CONFIG_KERNEL_DEBUG_GPIO is not set
 CONFIG_KERNEL_COREDUMP=y
 CONFIG_KERNEL_ELF_CORE=y
 # CONFIG_KERNEL_PROVE_LOCKING is not set
@@ -1599,6 +1601,8 @@ CONFIG_PACKAGE_kmod-hwmon-core=y
 CONFIG_PACKAGE_kmod-hwmon-pwmfan=y
 # CONFIG_PACKAGE_kmod-hwmon-sch5627 is not set
 # CONFIG_PACKAGE_kmod-hwmon-sht21 is not set
+# CONFIG_PACKAGE_kmod-hwmon-tmp102 is not set
+# CONFIG_PACKAGE_kmod-hwmon-tmp103 is not set
 CONFIG_PACKAGE_kmod-hwmon-tmp421=y
 # CONFIG_PACKAGE_kmod-hwmon-vid is not set
 # CONFIG_PACKAGE_kmod-hwmon-w83793 is not set
@@ -1727,6 +1731,8 @@ CONFIG_PACKAGE_kmod-ipt-nat-extra=y
 # CONFIG_PACKAGE_kmod-ipt-nfqueue is not set
 # CONFIG_PACKAGE_kmod-ipt-psd is not set
 # CONFIG_PACKAGE_kmod-ipt-quota2 is not set
+# CONFIG_PACKAGE_kmod-ipt-raw is not set
+# CONFIG_PACKAGE_kmod-ipt-raw6 is not set
 # CONFIG_PACKAGE_kmod-ipt-sysrq is not set
 # CONFIG_PACKAGE_kmod-ipt-tarpit is not set
 CONFIG_PACKAGE_kmod-ipt-tproxy=y
@@ -1821,6 +1827,7 @@ CONFIG_PACKAGE_kmod-bridge=y
 # CONFIG_PACKAGE_kmod-ipsec is not set
 # CONFIG_PACKAGE_kmod-iptunnel6 is not set
 # CONFIG_PACKAGE_kmod-isdn4linux is not set
+# CONFIG_PACKAGE_kmod-jool is not set
 # CONFIG_PACKAGE_kmod-l2tp is not set
 # CONFIG_PACKAGE_kmod-l2tp-eth is not set
 # CONFIG_PACKAGE_kmod-l2tp-ip is not set
@@ -1898,6 +1905,7 @@ CONFIG_PACKAGE_kmod-regmap=y
 # CONFIG_PACKAGE_kmod-rtc-pcf2123 is not set
 # CONFIG_PACKAGE_kmod-rtc-pcf8563 is not set
 # CONFIG_PACKAGE_kmod-rtc-pt7c4338 is not set
+# CONFIG_PACKAGE_kmod-rtc-rs5c372a is not set
 # CONFIG_PACKAGE_kmod-sdhci is not set
 # CONFIG_PACKAGE_kmod-serial-8250 is not set
 # CONFIG_PACKAGE_kmod-softdog is not set
@@ -2603,7 +2611,9 @@ CONFIG_LIBCURL_PROXY=y
 # CONFIG_PACKAGE_libdaemon is not set
 # CONFIG_PACKAGE_libdaq is not set
 # CONFIG_PACKAGE_libdb47 is not set
+# CONFIG_PACKAGE_libdb47xx is not set
 # CONFIG_PACKAGE_libdbi is not set
+# CONFIG_PACKAGE_libdbus is not set
 # CONFIG_PACKAGE_libdevmapper is not set
 # CONFIG_PACKAGE_libdmapsharing is not set
 # CONFIG_PACKAGE_libdnet is not set
@@ -2612,8 +2622,7 @@ CONFIG_LIBCURL_PROXY=y
 # CONFIG_PACKAGE_libdrpc is not set
 # CONFIG_PACKAGE_libedit is not set
 # CONFIG_PACKAGE_libelf1 is not set
-# CONFIG_PACKAGE_libdb47xx is not set
-# CONFIG_PACKAGE_libdbus is not set
+# CONFIG_PACKAGE_libecdsautil is not set
 # CONFIG_PACKAGE_libesmtp is not set
 # CONFIG_PACKAGE_libestr is not set
 CONFIG_PACKAGE_libev=y
@@ -2641,6 +2650,7 @@ CONFIG_PACKAGE_libfdisk=y
 # CONFIG_PACKAGE_libglpk is not set
 # CONFIG_PACKAGE_libf2fs is not set
 # CONFIG_PACKAGE_libfaad2 is not set
+# CONFIG_PACKAGE_libfdt is not set
 # CONFIG_PACKAGE_libffmpeg-audio-dec is not set
 # CONFIG_PACKAGE_libffmpeg-custom is not set
 CONFIG_PACKAGE_libffmpeg-full=y
@@ -2974,6 +2984,7 @@ CONFIG_PACKAGE_luci-app-transmission=y
 # CONFIG_PACKAGE_luci-app-travelmate is not set
 # CONFIG_PACKAGE_luci-app-udpxy is not set
 # CONFIG_PACKAGE_luci-app-uhttpd is not set
+# CONFIG_PACKAGE_luci-app-unbound is not set
 CONFIG_PACKAGE_luci-app-upnp=y
 # CONFIG_PACKAGE_luci-app-vnstat is not set
 CONFIG_PACKAGE_luci-app-vsftpd=y
@@ -3395,6 +3406,8 @@ CONFIG_PACKAGE_bind-dig=y
 # CONFIG_PACKAGE_bind-tools is not set
 CONFIG_PACKAGE_ddns-scripts=y
 # CONFIG_PACKAGE_ddns-scripts_cloudflare is not set
+# CONFIG_PACKAGE_ddns-scripts_cloudflare.com-v4 is not set
+# CONFIG_PACKAGE_ddns-scripts_godaddy.com-v1 is not set
 CONFIG_PACKAGE_ddns-scripts_no-ip_com=y
 # CONFIG_PACKAGE_ddns-scripts_nsupdate is not set
 # CONFIG_PACKAGE_dhcp-forwarder is not set
@@ -3680,6 +3693,7 @@ CONFIG_PACKAGE_tc=y
 # CONFIG_PACKAGE_openvpn-openssl is not set
 # CONFIG_PACKAGE_openvpn-polarssl is not set
 # CONFIG_PACKAGE_pptpd is not set
+# CONFIG_PACKAGE_softethervpn is not set
 # CONFIG_PACKAGE_strongswan is not set
 # CONFIG_PACKAGE_strongswan-charon is not set
 # CONFIG_PACKAGE_strongswan-default is not set
@@ -3925,6 +3939,8 @@ CONFIG_PACKAGE_ipset=y
 # CONFIG_PACKAGE_iputils-tracepath6 is not set
 # CONFIG_PACKAGE_iputils-traceroute6 is not set
 CONFIG_PACKAGE_iw=y
+# CONFIG_PACKAGE_jool is not set
+# CONFIG_PACKAGE_jool-tools is not set
 # CONFIG_PACKAGE_keepalived is not set
 # CONFIG_PACKAGE_knxd is not set
 # CONFIG_PACKAGE_knxd-tools is not set
@@ -4259,6 +4275,10 @@ CONFIG_PACKAGE_ntfs-3g=y
 # CONFIG_PACKAGE_wall is not set
 
 #
+# Virtualization
+#
+
+#
 # Zoneinfo
 #
 # CONFIG_PACKAGE_zoneinfo-africa is not set
@@ -4312,7 +4332,9 @@ CONFIG_PACKAGE_ntfs-3g=y
 # CONFIG_PACKAGE_dbus is not set
 # CONFIG_PACKAGE_dmesg is not set
 # CONFIG_PACKAGE_dropbearconvert is not set
+# CONFIG_PACKAGE_dtc is not set
 # CONFIG_PACKAGE_dump1090 is not set
+# CONFIG_PACKAGE_ecdsautils is not set
 # CONFIG_PACKAGE_elektra-kdb is not set
 # CONFIG_PACKAGE_evtest is not set
 # CONFIG_PACKAGE_extract is not set
@@ -4344,6 +4366,7 @@ CONFIG_PACKAGE_ntfs-3g=y
 # CONFIG_PACKAGE_hwclock is not set
 # CONFIG_PACKAGE_i2c-tools is not set
 # CONFIG_PACKAGE_iconv is not set
+# CONFIG_PACKAGE_io is not set
 # CONFIG_PACKAGE_iwcap is not set
 CONFIG_PACKAGE_iwinfo=y
 CONFIG_PACKAGE_jshn=y
@@ -4399,7 +4422,6 @@ CONFIG_PACKAGE_procd-nand=y
 # CONFIG_PACKAGE_procd-nand-firstboot is not set
 # CONFIG_PACKAGE_procps-ng is not set
 # CONFIG_PACKAGE_pv is not set
-# CONFIG_PACKAGE_qemu-ga is not set
 # CONFIG_PACKAGE_qrencode is not set
 # CONFIG_PACKAGE_relayctl is not set
 # CONFIG_PACKAGE_rename is not set
