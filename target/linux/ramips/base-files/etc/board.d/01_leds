@@ -207,6 +207,8 @@ ht-tm02)
 	ucidef_set_led_netdev "eth" "Ethernet" "$board:green:lan" "eth0"
 	set_wifi_led "$board:blue:wlan"
 	;;
+kn_rc|\
+kn_rf|\
 kng_rc)
 	set_usb_led "$board:green:usb"
 	set_wifi_led "$board:green:wifi"
@@ -239,6 +241,12 @@ mpr-a2)
 mr-102n)
 	set_wifi_led "$board:green:wlan"
 	set_usb_led "$board:green:usb"
+	;;
+mr200)
+	ucidef_set_led_default "power" "power" "$board:white:power" "1"
+	ucidef_set_led_netdev "lan" "lan" "$board:white:lan" "eth0.1"
+	ucidef_set_led_netdev "wan" "wan" "$board:white:wan" "usb0"
+	set_wifi_led "$board:white:wlan"
 	;;
 mzk-ex750np)
 	ucidef_set_led_default "power" "power" "$board:red:power" "1"

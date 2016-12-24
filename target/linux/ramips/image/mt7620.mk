@@ -59,6 +59,16 @@ define Device/ArcherC50
 endef
 TARGET_DEVICES += ArcherC50
 
+define Device/ArcherMR200
+  DTS := ArcherMR200
+  KERNEL := $(KERNEL_DTB)
+  KERNEL_INITRAMFS := $(KERNEL_DTB) | tplink-header ArcherMR200 -c
+  IMAGE/sysupgrade.bin := append-kernel | tplink-header ArcherMR200 -j -r $(KDIR)/root.squashfs
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-net kmod-usb-net-rndis kmod-usb-serial kmod-usb-serial-option adb
+  DEVICE_TITLE := TP-Link ArcherMR200
+endef
+TARGET_DEVICES += ArcherMR200
+
 define Device/ex2700
   DTS := EX2700
   BLOCKSIZE := 4k
@@ -429,6 +439,26 @@ define Device/dch-m225
   DEVICE_PACKAGES := kmod-mt76
 endef
 TARGET_DEVICES += dch-m225
+
+define Device/kn_rc
+  DTS := kn_rc
+  DEVICE_TITLE := ZyXEL Keenetic Omni
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-ledtrig-usbport
+  IMAGES += factory.bin
+  IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | check-size $$$$(IMAGE_SIZE) | \
+	zyimage -d 4882 -v "ZyXEL Keenetic Omni"
+endef
+TARGET_DEVICES += kn_rc
+
+define Device/kn_rf
+  DTS := kn_rf
+  DEVICE_TITLE := ZyXEL Keenetic Omni II
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-ledtrig-usbport
+  IMAGES += factory.bin
+  IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | check-size $$$$(IMAGE_SIZE) | \
+	zyimage -d 2102034 -v "ZyXEL Keenetic Omni II"
+endef
+TARGET_DEVICES += kn_rf
 
 define Device/kng_rc
   DTS := kng_rc

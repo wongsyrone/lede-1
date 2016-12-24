@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wolfssl
 PKG_VERSION:=3.9.10
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).zip
 PKG_SOURCE_URL:=https://www.wolfssl.com/
@@ -42,8 +42,8 @@ endef
 
 TARGET_CFLAGS += $(FPIC)
 
+# --enable-stunnel needed for OpenSSL API compatibility bits
 CONFIGURE_ARGS += \
-	--enable-singlethreaded \
 	--enable-opensslextra \
 	--enable-sni \
 	--enable-stunnel \

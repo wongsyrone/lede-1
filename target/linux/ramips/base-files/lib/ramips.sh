@@ -295,6 +295,9 @@ ramips_board_detect() {
 	*"MR-102N")
 		name="mr-102n"
 		;;
+	*"MR200")
+		name="mr200"
+		;;
 	*"MT7620a + MT7530 evaluation"*)
 		name="mt7620a_mt7530"
 		;;
@@ -594,6 +597,12 @@ ramips_board_detect() {
 		;;
 	*"ZBT-WR8305RT")
 		name="zbt-wr8305rt"
+		;;
+	*"ZyXEL Keenetic Omni")
+		name="kn_rc"
+		;;
+	*"ZyXEL Keenetic Omni II")
+		name="kn_rf"
 		;;
 	*"ZyXEL Keenetic Viva")
 		name="kng_rc"
