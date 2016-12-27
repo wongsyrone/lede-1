@@ -17,7 +17,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  
  int
  getdestaddr(int fd, struct sockaddr_storage *destaddr)
-@@ -705,6 +706,7 @@ accept_cb(EV_P_ ev_io *w, int revents)
+@@ -709,6 +710,7 @@ accept_cb(EV_P_ ev_io *w, int revents)
      setsockopt(remotefd, SOL_SOCKET, SO_NOSIGPIPE, &opt, sizeof(opt));
  #endif
  
@@ -25,7 +25,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
      // Enable TCP keepalive feature
      int keepAlive    = 1;
      int keepIdle     = 40;
-@@ -714,6 +716,7 @@ accept_cb(EV_P_ ev_io *w, int revents)
+@@ -718,6 +720,7 @@ accept_cb(EV_P_ ev_io *w, int revents)
      setsockopt(remotefd, SOL_TCP, TCP_KEEPIDLE, (void *)&keepIdle, sizeof(keepIdle));
      setsockopt(remotefd, SOL_TCP, TCP_KEEPINTVL, (void *)&keepInterval, sizeof(keepInterval));
      setsockopt(remotefd, SOL_TCP, TCP_KEEPCNT, (void *)&keepCount, sizeof(keepCount));
@@ -33,7 +33,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  
      // Set non blocking
      setnonblocking(remotefd);
-@@ -788,7 +791,7 @@ main(int argc, char **argv)
+@@ -792,7 +795,7 @@ main(int argc, char **argv)
  
      USE_TTY();
  
@@ -42,7 +42,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
                              long_options, &option_index)) != -1) {
          switch (c) {
          case 0:
-@@ -865,6 +868,9 @@ main(int argc, char **argv)
+@@ -869,6 +872,9 @@ main(int argc, char **argv)
              LOGE("Unrecognized option: %s", optarg);
              opterr = 1;
              break;
@@ -52,7 +52,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
          }
      }
  
-@@ -916,6 +922,9 @@ main(int argc, char **argv)
+@@ -920,6 +926,9 @@ main(int argc, char **argv)
          if (mptcp == 0) {
              mptcp = conf->mptcp;
          }
@@ -62,7 +62,7 @@ Subject: [PATCH] Add keepalive feature for remote connections
  #ifdef HAVE_SETRLIMIT
          if (nofile == 0) {
              nofile = conf->nofile;
-@@ -967,6 +976,10 @@ main(int argc, char **argv)
+@@ -971,6 +980,10 @@ main(int argc, char **argv)
          LOGI("onetime authentication enabled");
      }
  

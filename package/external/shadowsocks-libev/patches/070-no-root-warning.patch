@@ -1,6 +1,6 @@
 --- a/src/local.c
 +++ b/src/local.c
-@@ -1451,12 +1451,6 @@ main(int argc, char **argv)
+@@ -1508,12 +1508,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
@@ -10,8 +10,8 @@
 -    }
 -#endif
 -
-     // Disable retry
-     keep_resolving = 0;
+     // Init connections
+     cork_dllist_init(&connections);
  
 --- a/src/manager.c
 +++ b/src/manager.c
@@ -30,7 +30,7 @@
      working_dir_size = strlen(homedir) + 15;
 --- a/src/redir.c
 +++ b/src/redir.c
-@@ -1048,10 +1048,6 @@ main(int argc, char **argv)
+@@ -1053,10 +1053,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
@@ -43,7 +43,7 @@
      return 0;
 --- a/src/server.c
 +++ b/src/server.c
-@@ -1890,9 +1890,7 @@ main(int argc, char **argv)
+@@ -1895,9 +1895,7 @@ main(int argc, char **argv)
      }
  
  #ifndef __MINGW32__
@@ -56,7 +56,7 @@
      }
 --- a/src/tunnel.c
 +++ b/src/tunnel.c
-@@ -1041,12 +1041,6 @@ main(int argc, char **argv)
+@@ -1047,12 +1047,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
