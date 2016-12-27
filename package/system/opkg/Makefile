@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/version.mk
 include $(INCLUDE_DIR)/feeds.mk
 
 PKG_NAME:=opkg
-PKG_RELEASE:=15
+PKG_RELEASE:=16
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=http://git.yoctoproject.org/git/opkg
@@ -41,7 +41,7 @@ define Package/opkg/Default
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=opkg package manager
-  DEPENDS:=+uclient-fetch
+  DEPENDS:=+uclient-fetch +libpthread
   URL:=http://wiki.openmoko.org/wiki/Opkg
   MENU:=1
 endef
