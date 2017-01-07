@@ -1,6 +1,6 @@
 --- a/src/utils.c
 +++ b/src/utils.c
-@@ -223,27 +223,6 @@ FATAL(const char *msg)
+@@ -225,27 +225,6 @@ FATAL(const char *msg)
      exit(-1);
  }
  

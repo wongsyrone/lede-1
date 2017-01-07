@@ -1,6 +1,6 @@
 --- a/src/Makefile.am
 +++ b/src/Makefile.am
-@@ -100,10 +100,3 @@ ss_redir_CFLAGS = $(AM_CFLAGS) -DMODULE_
+@@ -111,10 +111,3 @@ ss_redir_CFLAGS = $(AM_CFLAGS) -DMODULE_
  ss_redir_LDADD = $(SS_COMMON_LIBS)
  ss_redir_LDADD += $(top_builddir)/libudns/libudns.la
  endif

@@ -37,7 +37,7 @@
  endif
  
  bin_PROGRAMS = ss-local ss-tunnel
-@@ -71,15 +71,9 @@ ss_local_LDADD = $(SS_COMMON_LIBS)
+@@ -79,17 +79,10 @@ ss_local_LDADD = $(SS_COMMON_LIBS)
  ss_tunnel_LDADD = $(SS_COMMON_LIBS)
  ss_server_LDADD = $(SS_COMMON_LIBS)
  ss_manager_LDADD = $(SS_COMMON_LIBS)
@@ -45,16 +45,18 @@
 -ss_local_LDADD += -ludns
 -ss_tunnel_LDADD += -ludns
 -ss_server_LDADD += -ludns
+-ss_manager_LDADD += -ludns
 -else
  ss_local_LDADD += $(top_builddir)/libudns/libudns.la
  ss_tunnel_LDADD += $(top_builddir)/libudns/libudns.la
  ss_server_LDADD += $(top_builddir)/libudns/libudns.la
+ ss_manager_LDADD += $(top_builddir)/libudns/libudns.la
 -endif
  
  ss_local_CFLAGS = $(AM_CFLAGS) -DMODULE_LOCAL
  ss_tunnel_CFLAGS = $(AM_CFLAGS) -DMODULE_TUNNEL
-@@ -105,12 +99,8 @@ ss_redir_SOURCES = utils.c \
-                    $(sni_src)
+@@ -117,12 +110,8 @@ ss_redir_SOURCES = utils.c \
+ 
  ss_redir_CFLAGS = $(AM_CFLAGS) -DMODULE_REDIR
  ss_redir_LDADD = $(SS_COMMON_LIBS)
 -if USE_SYSTEM_SHARED_LIB
@@ -68,7 +70,7 @@
  libshadowsocks_libev_la_SOURCES = $(ss_local_SOURCES)
 --- a/configure.ac
 +++ b/configure.ac
-@@ -315,13 +315,12 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
+@@ -319,13 +319,12 @@ AC_CONFIG_FILES([ shadowsocks-libev.pc
                   Makefile
                   libcork/Makefile
                   libipset/Makefile

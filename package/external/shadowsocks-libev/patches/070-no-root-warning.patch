@@ -1,11 +1,11 @@
 --- a/src/local.c
 +++ b/src/local.c
-@@ -1508,12 +1508,6 @@ main(int argc, char **argv)
+@@ -1563,12 +1563,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
 -#ifndef __MINGW32__
--    if (geteuid() == 0){
+-    if (geteuid() == 0) {
 -        LOGI("running from root user");
 -    }
 -#endif
@@ -15,12 +15,12 @@
  
 --- a/src/manager.c
 +++ b/src/manager.c
-@@ -852,12 +852,6 @@ main(int argc, char **argv)
+@@ -1137,12 +1137,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
 -#ifndef __MINGW32__
--    if (geteuid() == 0){
+-    if (geteuid() == 0) {
 -        LOGI("running from root user");
 -    }
 -#endif
@@ -30,11 +30,11 @@
      working_dir_size = strlen(homedir) + 15;
 --- a/src/redir.c
 +++ b/src/redir.c
-@@ -1053,10 +1053,6 @@ main(int argc, char **argv)
+@@ -1110,10 +1110,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
--    if (geteuid() == 0){
+-    if (geteuid() == 0) {
 -        LOGI("running from root user");
 -    }
 -
@@ -43,11 +43,11 @@
      return 0;
 --- a/src/server.c
 +++ b/src/server.c
-@@ -1895,9 +1895,7 @@ main(int argc, char **argv)
+@@ -1953,9 +1953,7 @@ main(int argc, char **argv)
      }
  
  #ifndef __MINGW32__
--    if (geteuid() == 0){
+-    if (geteuid() == 0) {
 -        LOGI("running from root user");
 -    } else if (firewall) {
 +    if (geteuid() != 0 && firewall) {
@@ -56,12 +56,12 @@
      }
 --- a/src/tunnel.c
 +++ b/src/tunnel.c
-@@ -1047,12 +1047,6 @@ main(int argc, char **argv)
+@@ -1106,12 +1106,6 @@ main(int argc, char **argv)
          FATAL("failed to switch user");
      }
  
 -#ifndef __MINGW32__
--    if (geteuid() == 0){
+-    if (geteuid() == 0) {
 -        LOGI("running from root user");
 -    }
 -#endif
