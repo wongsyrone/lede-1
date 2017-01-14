@@ -21,12 +21,17 @@ include $(INCLUDE_DIR)/host-build.mk
 
 HOST_CONFIGURE_CMD := \
 	MAKEFLAGS="$(HOST_JOBS)" \
-	LDFLAGS="$$$$(pkg-config --static --libs libcrypto)" \
-		$(BASH) ./configure
+	$(BASH) ./configure \
+		$(if $(MAKE_JOBSERVER),--parallel="$(MAKE_JOBSERVER)")
 
-HOST_CONFIGURE_VARS :=
+HOST_CONFIGURE_VARS += \
+	CXXFLAGS="$(HOST_CFLAGS)"
 
 HOST_CONFIGURE_ARGS := \
 	--prefix=$(STAGING_DIR_HOST)
+
+ifneq ($(findstring c,$(OPENWRT_VERBOSE)),)
+  HOST_MAKE_FLAGS += VERBOSE=1
+endif
 
 $(eval $(call HostBuild))

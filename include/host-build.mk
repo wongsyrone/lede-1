@@ -11,17 +11,12 @@ HOST_BUILD_DIR ?= $(BUILD_DIR_HOST)/$(PKG_NAME)$(if $(PKG_VERSION),-$(PKG_VERSIO
 HOST_INSTALL_DIR ?= $(HOST_BUILD_DIR)/host-install
 HOST_BUILD_PARALLEL ?=
 
-ifneq ($(CONFIG_PKG_BUILD_USE_JOBSERVER),)
-  HOST_MAKE_J:=$(if $(MAKE_JOBSERVER),$(MAKE_JOBSERVER) $(if $(filter 3.% 4.0 4.1,$(MAKE_VERSION)),-j))
-else
-  HOST_MAKE_J:=-j$(CONFIG_PKG_BUILD_JOBS)
-endif
+HOST_MAKE_J:=$(if $(MAKE_JOBSERVER),$(MAKE_JOBSERVER) $(if $(filter 3.% 4.0 4.1,$(MAKE_VERSION)),-j))
 
 ifeq ($(strip $(HOST_BUILD_PARALLEL)),0)
 HOST_JOBS?=-j1
 else
-HOST_JOBS?=$(if $(HOST_BUILD_PARALLEL)$(CONFIG_PKG_DEFAULT_PARALLEL),\
-	$(if $(CONFIG_PKG_BUILD_PARALLEL),$(HOST_MAKE_J),-j1),-j1)
+HOST_JOBS?=$(if $(HOST_BUILD_PARALLEL),$(HOST_MAKE_J),-j1)
 endif
 
 include $(INCLUDE_DIR)/host.mk
@@ -58,7 +53,7 @@ HOST_CONFIGURE_VARS = \
 	CFLAGS="$(HOST_CFLAGS)" \
 	CPPFLAGS="$(HOST_CPPFLAGS)" \
 	LDFLAGS="$(HOST_LDFLAGS)" \
-	SHELL="$(SHELL)"
+	CONFIG_SHELL="$(SHELL)"
 
 HOST_CONFIGURE_ARGS = \
 	--target=$(GNU_HOST_NAME) \
@@ -80,9 +75,9 @@ define Host/Configure/Default
 	$(if $(HOST_CONFIGURE_PARALLEL),+)(cd $(HOST_BUILD_DIR)/$(3); \
 		if [ -x configure ]; then \
 			$(CP) $(SCRIPT_DIR)/config.{guess,sub} $(HOST_BUILD_DIR)/$(3)/ && \
+			$(HOST_CONFIGURE_VARS) \
 			$(2) \
 			$(HOST_CONFIGURE_CMD) \
-			$(HOST_CONFIGURE_VARS) \
 			$(HOST_CONFIGURE_ARGS) \
 			$(1); \
 		fi \

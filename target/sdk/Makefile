@@ -29,7 +29,8 @@ EXCLUDE_DIRS:=*/ccache/* \
 	*.install.clean \
 	*.install.flags \
 	*.install \
-	*/doc
+	*/doc \
+	*/share/locale
 
 SDK_DIRS = \
 		$(STAGING_SUBDIR_HOST) \
@@ -75,6 +76,10 @@ $(BIN_DIR)/$(SDK_NAME).tar.xz: clean
 		$(foreach exclude,$(EXCLUDE_DIRS),--exclude="$(exclude)") \
 		$(SDK_DIRS) $(KERNEL_FILES) | \
 		$(TAR) -xf - -C $(SDK_BUILD_DIR)
+
+	(cd $(SDK_BUILD_DIR); find $(STAGING_SUBDIR_HOST)/bin $(STAGING_SUBDIR_HOST)/usr/bin \
+		$(STAGING_SUBDIR_TOOLCHAIN)/bin $(STAGING_SUBDIR_TOOLCHAIN)/*/bin $(STAGING_SUBDIR_TOOLCHAIN)/libexec \
+		-type f | $(XARGS) $(SCRIPT_DIR)/bundle-libraries.sh $(SDK_BUILD_DIR)/$(STAGING_SUBDIR_HOST))
 
 	@-( \
 		find \

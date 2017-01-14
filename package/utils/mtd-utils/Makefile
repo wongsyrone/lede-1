@@ -19,6 +19,9 @@ PKG_SOURCE_VERSION:=1bfee8660131fca7a18f68e9548a18ca6b3378a0
 
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
+
+PKG_FLAGS:=nonshared
+
 PKG_BUILD_DEPENDS:=util-linux liblzo zlib
 
 PKG_LICENSE:=GPLv2
