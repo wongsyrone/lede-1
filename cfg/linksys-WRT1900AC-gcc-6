@@ -4,7 +4,6 @@
 #
 CONFIG_MODULES=y
 CONFIG_HAVE_DOT_CONFIG=y
-# CONFIG_TARGET_ppc44x is not set
 # CONFIG_TARGET_arm64 is not set
 # CONFIG_TARGET_sunxi is not set
 # CONFIG_TARGET_apm821xx is not set
@@ -231,8 +230,6 @@ CONFIG_KERNEL_IPV6_MROUTE=y
 #
 # CONFIG_DEBUG is not set
 CONFIG_IPV6=y
-CONFIG_PKG_BUILD_PARALLEL=y
-CONFIG_PKG_BUILD_USE_JOBSERVER=y
 
 #
 # Stripping options
@@ -347,8 +344,6 @@ CONFIG_FEED_routing=y
 CONFIG_FEED_telephony=y
 CONFIG_FEED_management=y
 CONFIG_FEED_targets=y
-# CONFIG_SMIMEOPT is not set
-CONFIG_OPKGSMIME_PASSPHRASE=y
 
 #
 # Base system
@@ -1332,7 +1327,6 @@ CONFIG_PACKAGE_netifd=y
 # CONFIG_PACKAGE_om-watchdog is not set
 CONFIG_PACKAGE_opkg=y
 # CONFIG_OPKG_SUPPORT_MD5 is not set
-# CONFIG_PACKAGE_opkg-smime is not set
 CONFIG_PACKAGE_procd=y
 
 #
@@ -1591,7 +1585,6 @@ CONFIG_PACKAGE_kmod-hwmon-core=y
 # CONFIG_PACKAGE_kmod-hwmon-adt7410 is not set
 # CONFIG_PACKAGE_kmod-hwmon-adt7475 is not set
 # CONFIG_PACKAGE_kmod-hwmon-gpiofan is not set
-# CONFIG_PACKAGE_kmod-hwmon-gsc is not set
 # CONFIG_PACKAGE_kmod-hwmon-ina209 is not set
 # CONFIG_PACKAGE_kmod-hwmon-ina2xx is not set
 # CONFIG_PACKAGE_kmod-hwmon-it87 is not set
@@ -2138,6 +2131,7 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_luaexpat is not set
 # CONFIG_PACKAGE_luafilesystem is not set
 # CONFIG_PACKAGE_luai2c is not set
+# CONFIG_PACKAGE_luajit is not set
 # CONFIG_PACKAGE_lualanes is not set
 # CONFIG_PACKAGE_luaposix is not set
 # CONFIG_PACKAGE_luarocks is not set
@@ -2213,7 +2207,6 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python-email is not set
 # CONFIG_PACKAGE_python-enum34 is not set
 # CONFIG_PACKAGE_python-gdbm is not set
-# CONFIG_PACKAGE_python-gmpy is not set
 # CONFIG_PACKAGE_python-gmpy2 is not set
 # CONFIG_PACKAGE_python-idna is not set
 # CONFIG_PACKAGE_python-ipaddress is not set
@@ -2288,7 +2281,6 @@ CONFIG_PACKAGE_lua=y
 #
 # Tcl
 #
-# CONFIG_PACKAGE_luajit is not set
 # CONFIG_PACKAGE_vala is not set
 
 #
@@ -2469,7 +2461,6 @@ CONFIG_OPENSSL_WITH_PSK=y
 CONFIG_OPENSSL_WITH_SRP=y
 # CONFIG_OPENSSL_HARDWARE_SUPPORT is not set
 # CONFIG_OPENSSL_ENGINE_CRYPTO is not set
-CONFIG_PACKAGE_libpolarssl=y
 
 #
 # Sound
@@ -2646,26 +2637,26 @@ CONFIG_PACKAGE_libexif=y
 # CONFIG_PACKAGE_libexpat is not set
 # CONFIG_PACKAGE_libexslt is not set
 # CONFIG_PACKAGE_libextractor is not set
-# CONFIG_PACKAGE_libf2fs is not set
-# CONFIG_PACKAGE_libfaad2 is not set
 # CONFIG_PACKAGE_libfastjson is not set
 CONFIG_PACKAGE_libfdisk=y
-# CONFIG_PACKAGE_libfdt is not set
 # CONFIG_PACKAGE_libffi is not set
+# CONFIG_PACKAGE_libfreecwmp is not set
+# CONFIG_PACKAGE_libftdi is not set
+# CONFIG_PACKAGE_libftdi1 is not set
+# CONFIG_PACKAGE_libgcrypt is not set
+# CONFIG_PACKAGE_libgd is not set
+# CONFIG_PACKAGE_libgee is not set
+# CONFIG_PACKAGE_libglpk is not set
+# CONFIG_PACKAGE_libf2fs is not set
+# CONFIG_PACKAGE_libfaad2 is not set
+# CONFIG_PACKAGE_libfdt is not set
 # CONFIG_PACKAGE_libffmpeg-audio-dec is not set
 # CONFIG_PACKAGE_libffmpeg-custom is not set
 CONFIG_PACKAGE_libffmpeg-full=y
 # CONFIG_PACKAGE_libffmpeg-mini is not set
 CONFIG_PACKAGE_libflac=y
-# CONFIG_PACKAGE_libfreecwmp is not set
 # CONFIG_PACKAGE_libfreetype is not set
-# CONFIG_PACKAGE_libftdi is not set
-# CONFIG_PACKAGE_libftdi1 is not set
-# CONFIG_PACKAGE_libgcrypt is not set
-# CONFIG_PACKAGE_libgd is not set
 # CONFIG_PACKAGE_libgdbm is not set
-# CONFIG_PACKAGE_libgee is not set
-# CONFIG_PACKAGE_libglpk is not set
 CONFIG_PACKAGE_libgmp=y
 # CONFIG_PACKAGE_libgnurl is not set
 # CONFIG_PACKAGE_libgpg-error is not set
@@ -2786,6 +2777,7 @@ CONFIG_PACKAGE_libpcap=y
 # CONFIG_PACKAGE_libsensors is not set
 # CONFIG_PACKAGE_libshout is not set
 # CONFIG_PACKAGE_libshout-full is not set
+# CONFIG_PACKAGE_libshout-nossl is not set
 # CONFIG_PACKAGE_libsigcxx is not set
 CONFIG_PACKAGE_libsmartcols=y
 # CONFIG_PACKAGE_libsndfile is not set
@@ -2832,7 +2824,6 @@ CONFIG_PACKAGE_libuclient=y
 # CONFIG_PACKAGE_libustream-cyassl is not set
 # CONFIG_PACKAGE_libustream-mbedtls is not set
 # CONFIG_PACKAGE_libustream-openssl is not set
-# CONFIG_PACKAGE_libustream-polarssl is not set
 CONFIG_PACKAGE_libuuid=y
 # CONFIG_PACKAGE_libuv is not set
 # CONFIG_PACKAGE_libuvc is not set
@@ -2962,6 +2953,7 @@ CONFIG_PACKAGE_luci-app-firewall=y
 # CONFIG_PACKAGE_luci-app-meshwizard is not set
 CONFIG_PACKAGE_luci-app-minidlna=y
 # CONFIG_PACKAGE_luci-app-mjpg-streamer is not set
+# CONFIG_PACKAGE_luci-app-mmc-over-gpio is not set
 # CONFIG_PACKAGE_luci-app-mwan3 is not set
 # CONFIG_PACKAGE_luci-app-n2n_v2 is not set
 # CONFIG_PACKAGE_luci-app-ntpc is not set
@@ -3270,12 +3262,12 @@ CONFIG_PACKAGE_minidlna=y
 # CONFIG_PACKAGE_opentracker6 is not set
 # CONFIG_PACKAGE_rtorrent is not set
 # CONFIG_PACKAGE_rtorrent-rpc is not set
+# CONFIG_PACKAGE_transmission-cli-mbedtls is not set
 # CONFIG_PACKAGE_transmission-cli-openssl is not set
-# CONFIG_PACKAGE_transmission-cli-polarssl is not set
+# CONFIG_PACKAGE_transmission-daemon-mbedtls is not set
 # CONFIG_PACKAGE_transmission-daemon-openssl is not set
-# CONFIG_PACKAGE_transmission-daemon-polarssl is not set
+# CONFIG_PACKAGE_transmission-remote-mbedtls is not set
 # CONFIG_PACKAGE_transmission-remote-openssl is not set
-# CONFIG_PACKAGE_transmission-remote-polarssl is not set
 CONFIG_PACKAGE_transmission-svn-daemon=y
 
 #
@@ -3468,8 +3460,8 @@ CONFIG_PACKAGE_ddns-scripts_no-ip_com=y
 # CONFIG_PACKAGE_ngircd-nossl is not set
 # CONFIG_PACKAGE_prosody is not set
 # CONFIG_PACKAGE_quassel-irssi is not set
+# CONFIG_PACKAGE_umurmur-mbedtls is not set
 # CONFIG_PACKAGE_umurmur-openssl is not set
-# CONFIG_PACKAGE_umurmur-polarssl is not set
 # CONFIG_PACKAGE_znc is not set
 
 #
@@ -3706,6 +3698,7 @@ CONFIG_PACKAGE_tc=y
 # CONFIG_PACKAGE_openvpn-openssl is not set
 # CONFIG_PACKAGE_pptpd is not set
 # CONFIG_PACKAGE_softethervpn is not set
+# CONFIG_PACKAGE_sstp-client is not set
 # CONFIG_PACKAGE_strongswan is not set
 # CONFIG_PACKAGE_strongswan-charon is not set
 # CONFIG_PACKAGE_strongswan-default is not set
@@ -3931,12 +3924,12 @@ CONFIG_PACKAGE_hostapd-common=y
 # CONFIG_PACKAGE_iotivity is not set
 # CONFIG_PACKAGE_iotivity-cpp is not set
 # CONFIG_PACKAGE_iotivity-example-garage is not set
+# CONFIG_PACKAGE_iotivity-example-simple is not set
 # CONFIG_PACKAGE_iotivity-oic-middle is not set
 # CONFIG_PACKAGE_iotivity-resource-container-hue is not set
 # CONFIG_PACKAGE_iotivity-resource-container-lib is not set
 # CONFIG_PACKAGE_iotivity-resource-container-sample is not set
-# CONFIG_PACKAGE_iotivity-things-manager is not set
-# CONFIG_PACKAGE_iotivity-things-manager-lib is not set
+# CONFIG_PACKAGE_iotivity-resource-directory-lib is not set
 # CONFIG_PACKAGE_iperf is not set
 # CONFIG_PACKAGE_iperf3 is not set
 # CONFIG_PACKAGE_ipip is not set
@@ -4052,7 +4045,6 @@ CONFIG_PACKAGE_shadowsocks-libev-mbedtls=y
 # CONFIG_PACKAGE_socat is not set
 # CONFIG_PACKAGE_softflowd is not set
 # CONFIG_PACKAGE_soloscli is not set
-# CONFIG_PACKAGE_sstp-client is not set
 # CONFIG_PACKAGE_stunnel is not set
 # CONFIG_PACKAGE_tayga is not set
 CONFIG_PACKAGE_tcpdump=y
@@ -4121,9 +4113,9 @@ CONFIG_PACKAGE_lame-lib=y
 # CONFIG_PACKAGE_pulseaudio-tools is not set
 # CONFIG_PACKAGE_shairplay is not set
 # CONFIG_PACKAGE_shairport is not set
+# CONFIG_PACKAGE_shairport-sync-mbedtls is not set
 # CONFIG_PACKAGE_shairport-sync-mini is not set
 # CONFIG_PACKAGE_shairport-sync-openssl is not set
-# CONFIG_PACKAGE_shairport-sync-polarssl is not set
 # CONFIG_PACKAGE_shine is not set
 # CONFIG_PACKAGE_sox is not set
 # CONFIG_PACKAGE_squeezelite-full is not set
@@ -4193,8 +4185,8 @@ CONFIG_PACKAGE_fdisk=y
 # CONFIG_PACKAGE_cryptsetup-openssl is not set
 # CONFIG_PACKAGE_gnupg is not set
 # CONFIG_PACKAGE_gnutls-utils is not set
+# CONFIG_PACKAGE_gpgv is not set
 # CONFIG_PACKAGE_px5g-mbedtls is not set
-# CONFIG_PACKAGE_px5g-polarssl is not set
 # CONFIG_PACKAGE_px5g-standalone is not set
 # CONFIG_PACKAGE_stoken is not set
 
