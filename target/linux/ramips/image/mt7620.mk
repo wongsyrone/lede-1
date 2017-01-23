@@ -75,6 +75,17 @@ define Device/ex2700
 endef
 TARGET_DEVICES += ex2700
 
+define Device/wn3000rpv3
+  DTS := WN3000RPV3
+  BLOCKSIZE := 4k
+  IMAGES += factory.bin
+  KERNEL := $(KERNEL_DTB) | uImage lzma | pad-kernel-ex2700
+  IMAGE/factory.bin := $$(sysupgrade_bin) | check-size $$$$(IMAGE_SIZE) | \
+	netgear-header -B WN3000RPv3 -H 29764836+8+0+32+2x2+0
+  DEVICE_TITLE := Netgear WN3000RPv3
+endef
+TARGET_DEVICES += wn3000rpv3
+
 define Device/wt3020-4M
   DTS := WT3020-4M
   BLOCKSIZE := 4k
@@ -437,7 +448,7 @@ define Device/kn_rc
   DEVICE_TITLE := ZyXEL Keenetic Omni
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-ledtrig-usbport
   IMAGES += factory.bin
-  IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | check-size $$$$(IMAGE_SIZE) | \
+  IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | pad-to 64k | check-size $$$$(IMAGE_SIZE) | \
 	zyimage -d 4882 -v "ZyXEL Keenetic Omni"
 endef
 TARGET_DEVICES += kn_rc
@@ -447,7 +458,7 @@ define Device/kn_rf
   DEVICE_TITLE := ZyXEL Keenetic Omni II
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-usb-ledtrig-usbport
   IMAGES += factory.bin
-  IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | check-size $$$$(IMAGE_SIZE) | \
+  IMAGE/factory.bin := $$(IMAGE/sysupgrade.bin) | pad-to 64k | check-size $$$$(IMAGE_SIZE) | \
 	zyimage -d 2102034 -v "ZyXEL Keenetic Omni II"
 endef
 TARGET_DEVICES += kn_rf
