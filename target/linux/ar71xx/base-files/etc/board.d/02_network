@@ -117,6 +117,7 @@ ar71xx_setup_interfaces()
 	tl-wa901nd-v4|\
 	tl-wr703n|\
 	tl-wr802n-v1|\
+	tl-wr802n-v2|\
 	tube2h|\
 	unifiac-lite|\
 	wndap360|\
@@ -305,7 +306,7 @@ ar71xx_setup_interfaces()
 	wpn824n)
 		ucidef_set_interfaces_lan_wan "eth1.1" "eth0"
 		ucidef_add_switch "switch0" \
-			"0:lan:4" "1:lan:3" "2:lan:2" "3:lan:1" "4@eth1"
+			"0@eth1" "1:lan:1" "2:lan:2" "3:lan:3" "4:lan:4"
 		;;
 	dir-825-b1|\
 	nbg460n_550n_550nh|\
