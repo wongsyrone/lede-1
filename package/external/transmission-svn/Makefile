@@ -51,7 +51,7 @@ define Package/transmission-svn-daemon/conffiles
 /etc/config/transmission
 endef
 
-CONFIGURE_VARS += \
+#CONFIGURE_VARS += \
 	LIBEVENT_LIBS="$(STAGING_DIR)/usr/lib/libevent-2.0.so.5"
 
 CONFIGURE_ARGS += \
