@@ -21,7 +21,7 @@
  AM_CFLAGS += -I$(top_srcdir)/libcork/include
  AM_CFLAGS += $(LIBPCRE_CFLAGS)
  
-@@ -76,17 +76,10 @@ fs_local_LDADD = $(FS_COMMON_LIBS)
+@@ -81,17 +81,10 @@ fs_local_LDADD = $(FS_COMMON_LIBS)
  fs_tunnel_LDADD = $(FS_COMMON_LIBS)
  fs_server_LDADD = $(FS_COMMON_LIBS)
  fs_manager_LDADD = $(FS_COMMON_LIBS)
@@ -39,7 +39,7 @@
  
  fs_local_CFLAGS = $(AM_CFLAGS) -DMODULE_LOCAL
  fs_tunnel_CFLAGS = $(AM_CFLAGS) -DMODULE_TUNNEL
-@@ -112,9 +105,5 @@ fs_redir_SOURCES = utils.c \
+@@ -117,9 +110,5 @@ fs_redir_SOURCES = utils.c \
  
  fs_redir_CFLAGS = $(AM_CFLAGS) -DMODULE_REDIR
  fs_redir_LDADD = $(FS_COMMON_LIBS)
