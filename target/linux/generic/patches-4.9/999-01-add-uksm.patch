@@ -11,7 +11,7 @@
  numa_memory_policy.txt
 --- /dev/null
 +++ b/Documentation/vm/uksm.txt
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,61 @@
 +The Ultra Kernel Samepage Merging feature
 +----------------------------------------------
 +/*
@@ -72,6 +72,7 @@
 +2014-07-02 UKSM 0.1.2.3 Fix a " __this_cpu_read() in preemptible bug".
 +2015-04-22 UKSM 0.1.2.4 Fix a race condition that can sometimes trigger anonying warnings.
 +2016-09-10 UKSM 0.1.2.5 Fix a bug in dedup ratio calculation.
++2017-02-26 UKSM 0.1.2.6 Fix a bug in hugetlbpage handling and a race bug with page migration.
 --- a/fs/exec.c
 +++ b/fs/exec.c
 @@ -57,6 +57,7 @@
@@ -82,6 +83,14 @@
  
  #include <asm/uaccess.h>
  #include <asm/mmu_context.h>
+@@ -1334,6 +1335,7 @@ void setup_new_exec(struct linux_binprm
+ 	/* An exec changes our domain. We are no longer part of the thread
+ 	   group */
+ 	current->self_exec_id++;
++
+ 	flush_signal_handlers(current, 0);
+ }
+ EXPORT_SYMBOL(setup_new_exec);
 --- a/fs/proc/meminfo.c
 +++ b/fs/proc/meminfo.c
 @@ -117,6 +117,10 @@ static int meminfo_proc_show(struct seq_
@@ -1284,7 +1293,7 @@
  static void __page_set_anon_rmap(struct page *page,
 --- /dev/null
 +++ b/mm/uksm.c
-@@ -0,0 +1,5548 @@
+@@ -0,0 +1,5580 @@
 +/*
 + * Ultra KSM. Copyright (C) 2011-2012 Nai Xia
 + *
@@ -2149,7 +2158,8 @@
 + * but this is different - made simpler by uksm_thread_mutex being held, but
 + * interesting for assuming that no other use of the struct page could ever
 + * put our expected_mapping into page->mapping (or a field of the union which
-+ * coincides with page->mapping).
++ * coincides with page->mapping).  The RCU calls are not for KSM at all, but
++ * to keep the page_count protocol described with page_cache_get_speculative.
 + *
 + * Note: it is possible that get_uksm_page() will return NULL one moment,
 + * then page the next, if the page is in between page_freeze_refs() and
@@ -2171,23 +2181,52 @@
 +	void *expected_mapping;
 +	unsigned long kpfn;
 +
-+again:
-+	kpfn = stable_node->kpfn;
-+	page = pfn_to_page(kpfn);
 +	expected_mapping = (void *)((unsigned long)stable_node |
 +				    PAGE_MAPPING_KSM);
++again:
++	kpfn = READ_ONCE(stable_node->kpfn);
++	page = pfn_to_page(kpfn);
 +
-+	if (page->mapping != expected_mapping)
++	/*
++	 * page is computed from kpfn, so on most architectures reading
++	 * page->mapping is naturally ordered after reading node->kpfn,
++	 * but on Alpha we need to be more careful.
++	 */
++	smp_read_barrier_depends();
++
++	if (READ_ONCE(page->mapping) != expected_mapping)
 +		goto stale;
-+	if (!get_page_unless_zero(page))
-+		goto stale;
-+	if (page->mapping != expected_mapping) {
++
++	/*
++	 * We cannot do anything with the page while its refcount is 0.
++	 * Usually 0 means free, or tail of a higher-order page: in which
++	 * case this node is no longer referenced, and should be freed;
++	 * however, it might mean that the page is under page_freeze_refs().
++	 * The __remove_mapping() case is easy, again the node is now stale;
++	 * but if page is swapcache in migrate_page_move_mapping(), it might
++	 * still be our page, in which case it's essential to keep the node.
++	 */
++	while (!get_page_unless_zero(page)) {
++		/*
++		 * Another check for page->mapping != expected_mapping would
++		 * work here too.  We have chosen the !PageSwapCache test to
++		 * optimize the common case, when the page is or is about to
++		 * be freed: PageSwapCache is cleared (under spin_lock_irq)
++		 * in the freeze_refs section of __remove_mapping(); but Anon
++		 * page->mapping reset to NULL later, in free_pages_prepare().
++		 */
++		if (!PageSwapCache(page))
++			goto stale;
++		cpu_relax();
++	}
++
++	if (READ_ONCE(page->mapping) != expected_mapping) {
 +		put_page(page);
 +		goto stale;
 +	}
 +
 +	lock_page(page);
-+	if (page->mapping != expected_mapping) {
++	if (READ_ONCE(page->mapping) != expected_mapping) {
 +		unlock_page(page);
 +		put_page(page);
 +		goto stale;
@@ -2204,7 +2243,9 @@
 +	smp_rmb();
 +	if (stable_node->kpfn != kpfn)
 +		goto again;
++
 +	remove_node_from_stable_tree(stable_node, unlink_rb, remove_tree_node);
++
 +	return NULL;
 +}
 +
