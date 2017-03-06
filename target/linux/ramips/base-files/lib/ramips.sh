@@ -184,6 +184,9 @@ ramips_board_detect() {
 	*"ESR-9753")
 		name="esr-9753"
 		;;
+	*"EW1200")
+		name="ew1200"
+		;;
 	*"EX2700")
 		name="ex2700";
 		;;
@@ -225,6 +228,9 @@ ramips_board_detect() {
 		;;
 	*"HC5861")
 		name="hc5861"
+		;;
+	*"HC5962")
+		name="hc5962"
 		;;
 	*"HG255D")
 		name="hg255d"

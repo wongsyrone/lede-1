@@ -63,6 +63,14 @@ define Device/dir-860l-b1
 endef
 TARGET_DEVICES += dir-860l-b1
 
+define Device/ew1200
+  DTS := EW1200
+  IMAGE_SIZE := $(ralink_default_fw_size_16M)
+  DEVICE_TITLE := AFOUNDRY EW1200
+  DEVICE_PACKAGES := kmod-usb3 kmod-usb-ledtrig-usbport kmod-ata-core kmod-ata-ahci
+endef
+TARGET_DEVICES += ew1200
+
 define Device/firewrt
   DTS := FIREWRT
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
@@ -70,6 +78,21 @@ define Device/firewrt
   DEVICE_PACKAGES := kmod-usb3 kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += firewrt
+
+define Device/hc5962
+  DTS := HC5962
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_SIZE := 2097152
+  UBINIZE_OPTS := -E 5
+  IMAGE_SIZE := $(ralink_default_fw_size_32M)
+  IMAGES += factory.bin
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | check-size $$$$(IMAGE_SIZE)
+  DEVICE_TITLE := HiWiFi HC5962
+  DEVICE_PACKAGES := kmod-usb3 kmod-mt76
+endef
+TARGET_DEVICES += hc5962
 
 define Device/mt7621
   DTS := MT7621
