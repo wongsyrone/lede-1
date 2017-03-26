@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fuckshadows-libev
 PKG_VERSION:=0.2
-PKG_RELEASE:=3
+PKG_RELEASE:=6
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=af9021d7f3bc9d190b4add656fd6abcecba37536
+PKG_SOURCE_VERSION:=69e64ad9343bdacdd2a0f613aa55bf7cdad2d762
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/fuckshadows/fuckshadows-libev.git
