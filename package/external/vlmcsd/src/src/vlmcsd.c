@@ -80,7 +80,11 @@
 #include "ntservice.h"
 #include "helpers.h"
 
-static const char* const optstring = "N:B:m:t:w:0:3:6:H:A:R:u:g:L:p:i:P:l:r:U:W:C:c:F:o:T:K:E:M:SseDdVvqkZ";
+#ifndef NO_TAP
+#include "wintap.h"
+#endif
+
+static const char* const optstring = "N:B:m:t:w:0:3:6:H:A:R:u:g:L:p:i:P:l:r:U:W:C:c:F:O:o:x:T:K:E:M:j:SseDdVvqkZ";
 
 #if !defined(NO_SOCKETS) && !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
 static uint_fast8_t maxsockets = 0;
@@ -105,6 +109,10 @@ static const char *fn_ini = INI_FILE;
 static const char *fn_ini = NULL;
 #endif // !INI_FILE
 
+#ifndef NO_TAP
+char* tapArgument = NULL;
+#endif // NO_TAP
+
 static const char* IniFileErrorMessage = "";
 char* IniFileErrorBuffer = NULL;
 #define INIFILE_ERROR_BUFFERSIZE 256
@@ -115,6 +123,15 @@ static IniFileParameter_t IniFileParameterList[] =
 		{ "Office2010", INI_PARAM_OFFICE2010 },
 		{ "Office2013", INI_PARAM_OFFICE2013 },
 		{ "Office2016", INI_PARAM_OFFICE2016 },
+#	ifndef NO_SOCKETS
+		{ "ExitLevel", INI_PARAM_EXIT_LEVEL },
+#	endif // NO_SOCKETS
+#	ifndef NO_TAP
+		{ "VPN", INI_PARAM_VPN },
+#   endif // NO_TAP
+#	ifndef NO_EXTERNAL_DATA
+		{ "KmsData", INI_PARAM_DATA_FILE },
+#	endif // NO_EXTERNAL_DATA
 #	ifndef NO_STRICT_MODES
 		{ "WhiteListingLevel", INI_PARAM_WHITELISTING_LEVEL },
 		{ "CheckClientTime", INI_PARAM_CHECK_CLIENT_TIME },
@@ -253,15 +270,15 @@ static __noreturn void usage()
 		"   %s [ options ]\n\n"
 		"Where:\n"
 #		ifndef NO_CL_PIDS
-		"  -w <ePID>		always use <ePID> for Windows\n"
-		"  -0 <ePID>		always use <ePID> for Office2010\n"
-		"  -3 <ePID>		always use <ePID> for Office2013\n"
-		"  -6 <ePID>		always use <ePID> for Office2016\n"
-		"  -H <HwId>		always use hardware Id <HwId>\n"
+		"  -w <ePID>\t\talways use <ePID> for Windows\n"
+		"  -0 <ePID>\t\talways use <ePID> for Office2010\n"
+		"  -3 <ePID>\t\talways use <ePID> for Office2013\n"
+		"  -6 <ePID>\t\talways use <ePID> for Office2016\n"
+		"  -H <HwId>\t\talways use hardware Id <HwId>\n"
 #		endif // NO_CL_PIDS
 #		if !defined(_WIN32) && !defined(NO_USER_SWITCH)
-		"  -u <user>		set uid to <user>\n"
-		"  -g <group>		set gid to <group>\n"
+		"  -u <user>\t\tset uid to <user>\n"
+		"  -g <group>\t\tset gid to <group>\n"
 #		endif // !defined(_WIN32) && !defined(NO_USER_SWITCH)
 #		ifndef NO_RANDOM_EPID
 		"  -r 0|1|2\t\tset ePID randomization level (default 1)\n"
@@ -278,7 +295,11 @@ static __noreturn void usage()
 #		endif // USE_MSRPC
 #		endif // !HAVE_GETIFADDR
 #		endif // !defined(NO_PRIVATE_IP_DETECT)
+#		ifndef NO_TAP
+		"  -O <v>[=<a>][/<c>]\tuse VPN adapter <v> with IPv4 address <a> and CIDR <c>\n"
+#		endif
 #		ifndef NO_SOCKETS
+		"  -x <level>\t\texit if warning <level> reached (default 0)\n"
 #		if !defined(USE_MSRPC) && !defined(SIMPLE_SOCKETS)
 		"  -L <address>[:<port>]\tlisten on IP address <address> with optional <port>\n"
 		"  -P <port>\t\tset TCP port <port> for subsequent -L statements (default 1688)\n"
@@ -292,22 +313,22 @@ static __noreturn void usage()
 		"  -m <clients>\t\tHandle max. <clients> simultaneously (default no limit)\n"
 #		endif // !defined(NO_LIMIT) && !__minix__
 #		ifdef _NTSERVICE
-		"  -s			install vlmcsd as an NT service. Ignores -e"
+		"  -s\t\t\tinstall vlmcsd as an NT service. Ignores -e"
 #		ifndef _WIN32
 		", -f and -D"
 #		endif // _WIN32
 		"\n"
-		"  -S			remove vlmcsd service. Ignores all other options\n"
-		"  -U <username>		run NT service as <username>. Must be used with -s\n"
-		"  -W <password>		optional <password> for -U. Must be used with -s\n"
+		"  -S\t\t\tremove vlmcsd service. Ignores all other options\n"
+		"  -U <username>\t\trun NT service as <username>. Must be used with -s\n"
+		"  -W <password>\t\toptional <password> for -U. Must be used with -s\n"
 #		endif // _NTSERVICE
 #		ifndef NO_LOG
-		"  -e			log to stdout\n"
+		"  -e\t\t\tlog to stdout\n"
 #		endif // NO_LOG
 #		ifndef _WIN32 //
-		"  -D			run in foreground\n"
+		"  -D\t\t\trun in foreground\n"
 #		else // _WIN32
-		"  -D			does nothing. Provided for compatibility with POSIX versions only\n"
+		"  -D\t\t\tdoes nothing. Provided for compatibility with POSIX versions only\n"
 #		endif // _WIN32
 #		endif // NO_SOCKETS
 #		ifndef NO_STRICT_MODES
@@ -330,20 +351,23 @@ static __noreturn void usage()
 #		endif // !SIMPLE_RPC
 #		endif // USE_MSRPC
 #		ifndef NO_PID_FILE
-		"  -p <file>		write pid to <file>\n"
+		"  -p <file>\t\twrite pid to <file>\n"
 #		endif // NO_PID_FILE
 #		ifndef NO_INI_FILE
 		"  -i <file>\t\tuse config file <file>\n"
 #		endif // NO_INI_FILE
+#		ifndef NO_EXTERNAL_DATA
+		"  -j <file>\t\tuse KMS data file <file>\n"
+#		endif // !NO_EXTERNAL_DATA
 #		ifndef NO_CUSTOM_INTERVALS
-		"  -R <interval>		renew activation every <interval> (default 1w)\n"
-		"  -A <interval>		retry activation every <interval> (default 2h)\n"
+		"  -R <interval>\t\trenew activation every <interval> (default 1w)\n"
+		"  -A <interval>\t\tretry activation every <interval> (default 2h)\n"
 #		endif // NO_CUSTOM_INTERVALS
 #		ifndef NO_LOG
 #		ifndef _WIN32
 		"  -l syslog		log to syslog\n"
 #		endif // _WIN32
-		"  -l <file>		log to <file>\n"
+		"  -l <file>\t\tlog to <file>\n"
 		"  -T0, -T1\t\tdisable/enable logging with time and date (default -T1)\n"
 #		ifndef NO_VERBOSE_LOG
 		"  -v\t\t\tlog verbose\n"
@@ -351,7 +375,7 @@ static __noreturn void usage()
 #		endif // NO_VERBOSE_LOG
 #		endif // NO_LOG
 #		ifndef NO_VERSION_INFORMATION
-		"  -V			display version information and exit\n"
+		"  -V\t\t\tdisplay version information and exit\n"
 #		endif // NO_VERSION_INFORMATION
 		,
 		Version, global_argv[0]);
@@ -362,43 +386,8 @@ static __noreturn void usage()
 
 
 #ifndef NO_CUSTOM_INTERVALS
-
-// Convert time span strings (e.g. "2h", "5w") to minutes
-__pure static DWORD timeSpanString2Minutes(const char *const restrict argument)
-{
-	char *unitId;
-
-	long long val = vlmcsd_strtoll(argument, &unitId, 10);
-
-	switch (toupper((int)*unitId))
-	{
-	case 0:
-	case 'M':
-		break;
-	case 'H':
-		val *= 60;
-		break;
-	case 'D':
-		val *= 60 * 24;
-		break;
-	case 'W':
-		val *= 60 * 24 * 7;
-		break;
-	case 'S':
-		val /= 60;
-		break;
-	default:
-		return 0;
-	}
-
-	if (val < 1) val = 1;
-	if (val > UINT_MAX) val = UINT_MAX;
-
-	return (DWORD)val;
-}
-
-
 #ifndef NO_INI_FILE
+
 __pure static BOOL getTimeSpanFromIniFile(DWORD* result, const char *const restrict argument)
 {
 	DWORD val = timeSpanString2Minutes(argument);
@@ -411,12 +400,13 @@ __pure static BOOL getTimeSpanFromIniFile(DWORD* result, const char *const restr
 	*result = val;
 	return TRUE;
 }
+
 #endif // NO_INI_FILE
 
 
 __pure static DWORD getTimeSpanFromCommandLine(const char *const restrict optarg, const char optchar)
 {
-	long long val = timeSpanString2Minutes(optarg);
+	DWORD val = timeSpanString2Minutes(optarg);
 
 	if (!val)
 	{
@@ -424,7 +414,7 @@ __pure static DWORD getTimeSpanFromCommandLine(const char *const restrict optarg
 		exit(VLMCSD_EINVAL);
 	}
 
-	return (DWORD)val;
+	return val;
 }
 
 #endif // NO_CUSTOM_INTERVALS
@@ -435,7 +425,7 @@ static void ignoreIniFileParameter(uint_fast8_t iniFileParameterId)
 {
 	uint_fast8_t i;
 
-	for (i = 0; i < _countof(IniFileParameterList); i++)
+	for (i = 0; i < vlmcsd_countof(IniFileParameterList); i++)
 	{
 		if (IniFileParameterList[i].Id != iniFileParameterId) continue;
 		IniFileParameterList[i].Id = 0;
@@ -471,14 +461,6 @@ static BOOL getIniFileArgumentInt(unsigned int *result, const char *const argume
 }
 
 
-static char* allocateStringArgument(const char *const argument)
-{
-	char* result = (char*)vlmcsd_malloc(strlen(argument) + 1);
-	strcpy(result, argument);
-	return result;
-}
-
-
 static __pure int isControlCharOrSlash(const char c)
 {
 	if ((unsigned char)c < '!') return TRUE;
@@ -493,7 +475,7 @@ static void iniFileLineNextWord(const char **s)
 }
 
 
-static BOOL setHwIdFromIniFileLine(const char **s, const ProdListIndex_t index)
+static BOOL setHwIdFromIniFileLine(const char **s, const uint32_t index)
 {
 	iniFileLineNextWord(s);
 
@@ -510,7 +492,7 @@ static BOOL setHwIdFromIniFileLine(const char **s, const ProdListIndex_t index)
 }
 
 
-static BOOL setEpidFromIniFileLine(const char **s, const ProdListIndex_t index)
+static BOOL setEpidFromIniFileLine(const char **s, const uint32_t index)
 {
 	iniFileLineNextWord(s);
 	const char *savedPosition = *s;
@@ -571,13 +553,21 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 		setHwIdFromIniFileLine(&s, EPID_INDEX_OFFICE2016);
 		break;
 
-#	if !defined(NO_USER_SWITCH) && !defined(_WIN32)
+#	ifndef NO_TAP
+
+	case INI_PARAM_VPN:
+		tapArgument = (char*)vlmcsd_strdup(iniarg);
+		break;
+
+#	endif // NO_TAP
+
+#	if !defined(NO_USER_SWITCH) && !_WIN32
 
 	case INI_PARAM_GID:
 	{
 		struct group *g;
 		IniFileErrorMessage = "Invalid group id or name";
-		if (!(gname = allocateStringArgument(iniarg))) return FALSE;
+		if (!(gname = vlmcsd_strdup(iniarg))) return FALSE;
 
 		if ((g = getgrnam(iniarg)))
 			gid = g->gr_gid;
@@ -590,7 +580,7 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 	{
 		struct passwd *p;
 		IniFileErrorMessage = "Invalid user id or name";
-		if (!(uname = allocateStringArgument(iniarg))) return FALSE;
+		if (!(uname = vlmcsd_strdup(iniarg))) return FALSE;
 
 		if ((p = getpwnam(iniarg)))
 			uid = p->pw_uid;
@@ -618,7 +608,7 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 #	if (defined(USE_MSRPC) || defined(SIMPLE_SOCKETS) || defined(HAVE_GETIFADDR)) && !defined(NO_SOCKETS)
 
 	case INI_PARAM_PORT:
-		defaultport = allocateStringArgument(iniarg);
+		defaultport = vlmcsd_strdup(iniarg);
 		break;
 
 #	endif // (defined(USE_MSRPC) || defined(SIMPLE_SOCKETS) || defined(HAVE_GETIFADDR)) && !defined(NO_SOCKETS)
@@ -645,10 +635,21 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 #	ifndef NO_PID_FILE
 
 	case INI_PARAM_PID_FILE:
-		fn_pid = allocateStringArgument(iniarg);
+		fn_pid = vlmcsd_strdup(iniarg);
 		break;
 
 #	endif // NO_PID_FILE
+
+#	ifndef NO_EXTERNAL_DATA
+
+	case INI_PARAM_DATA_FILE:
+		fn_data = vlmcsd_strdup(iniarg);
+#		ifndef NO_INTERNAL_DATA
+		ExplicitDataLoad = TRUE;
+#		endif // NO_INTERNAL_DATA
+		break;
+
+#	endif // NO_EXTERNAL_DATA
 
 #	ifndef NO_STRICT_MODES
 
@@ -676,7 +677,7 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 #	ifndef  NO_LOG
 
 	case INI_PARAM_LOG_FILE:
-		fn_log = allocateStringArgument(iniarg);
+		fn_log = vlmcsd_strdup(iniarg);
 		break;
 
 	case INI_PARAM_LOG_DATE_AND_TIME:
@@ -728,6 +729,15 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 
 #	endif // USE_MSRPC
 
+#	ifndef NO_SOCKETS
+
+	case INI_PARAM_EXIT_LEVEL:
+		success = getIniFileArgumentInt(&result, iniarg, 0, 1);
+		if (success) ExitLevel = (int_fast8_t)result;
+		break;
+
+#	endif // NO_SOCKETS
+
 #	if HAVE_FREEBIND
 
 	case INI_PARAM_FREEBIND:
@@ -741,13 +751,13 @@ static BOOL setIniFileParameter(uint_fast8_t id, const char *const iniarg)
 	case INI_PARAM_PUBLIC_IP_PROTECTION_LEVEL:
 		success = getIniFileArgumentInt(&PublicIPProtectionLevel, iniarg, 0, 3);
 
-#			if !HAVE_GETIFADDR
+#		if !HAVE_GETIFADDR
 		if (PublicIPProtectionLevel & 1)
 		{
 			IniFileErrorMessage = "Must be 0 or 2";
 			success = FALSE;
 		}
-#			endif // !HAVE_GETIFADDR
+#		endif // !HAVE_GETIFADDR
 
 		break;
 
@@ -788,7 +798,7 @@ static BOOL handleIniFileParameter(const char *s)
 {
 	uint_fast8_t i;
 
-	for (i = 0; i < _countof(IniFileParameterList); i++)
+	for (i = 0; i < vlmcsd_countof(IniFileParameterList); i++)
 	{
 		if (strncasecmp(IniFileParameterList[i].Name, s, strlen(IniFileParameterList[i].Name))) continue;
 		if (!IniFileParameterList[i].Id) return TRUE;
@@ -893,54 +903,20 @@ static BOOL readIniFile(const uint_fast8_t pass)
 #if !defined(NO_SIGHUP)
 static void exec_self(char** argv)
 {
-#	if __linux__ && defined(USE_AUXV)
+	getExeName();
 
-	char *execname_ptr = (char*)getauxval(AT_EXECFN);
-	if (execname_ptr) execv(execname_ptr, argv);
-
-#	elif (__linux__ || __CYGWIN__) && !defined(NO_PROCFS)
-
-	execv(realpath("/proc/self/exe", NULL), argv);
-
-#	elif (__FreeBSD__) && !defined(NO_PROCFS)
-
-	int mib[4];
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_PROC;
-	mib[2] = KERN_PROC_PATHNAME;
-	mib[3] = -1;
-	char path[PATH_MAX + 1];
-	size_t cb = sizeof(path);
-	if (!sysctl(mib, 4, path, &cb, NULL, 0)) execv(path, argv);
-
-#	elif (__DragonFly__) && !defined(NO_PROCFS)
-
-	execv(realpath("/proc/curproc/file", NULL), argv);
-
-#	elif __NetBSD__ && !defined(NO_PROCFS)
-
-	execv(realpath("/proc/curproc/exe", NULL), argv);
-
-#	elif __sun__
-
-	const char* exename = getexecname();
-	if (exename) execv(exename, argv);
-
-#	elif __APPLE__
-
-	char path[PATH_MAX + 1];
-	uint32_t size = sizeof(path);
-	if (_NSGetExecutablePath(path, &size) == 0) execv(path, argv);
-
-#	else
-
-	execvp(argv[0], argv);
-
-#	endif
+	if (fn_exe != NULL)
+	{
+		execv(fn_exe, argv);
+	}
+	else
+	{
+		execvp(argv[0], argv);
+	}
 }
 
 
-static void HangupHandler(const int signal_unused)
+__noreturn static void HangupHandler(const int signal_unused)
 {
 	int i;
 	int_fast8_t daemonize_protection = TRUE;
@@ -958,20 +934,21 @@ static void HangupHandler(const int signal_unused)
 	if (daemonize_protection) argv_out[argc_in] = (char*) "-Z";
 
 	exec_self((char**)argv_out);
+	int error = errno;
 
 #	ifndef NO_LOG
-	logger("Fatal: Unable to restart on SIGHUP: %s\n", strerror(errno));
+	logger("Fatal: Unable to restart on SIGHUP: %s\n", strerror(error));
 #	endif
 
 #	ifndef NO_PID_FILE
 	if (fn_pid) unlink(fn_pid);
 #	endif // NO_PID_FILE
-	exit(errno);
+	exit(error);
 }
 #endif // NO_SIGHUP
 
 
-static void terminationHandler(const int signal_unused)
+__noreturn static void terminationHandler(const int signal_unused)
 {
 	cleanup();
 	exit(0);
@@ -1070,20 +1047,20 @@ static DWORD daemonizeAndSetSignalAction()
 #endif // !defined(NO_SOCKETS)
 
 
-// Workaround for Cygwin fork bug (only affects cygwin processes that are Windows services)
+// Workaround for Cygwin fork problem (only affects cygwin processes that are Windows services)
 // Best is to compile for Cygwin with threads. fork() is slow and unreliable on Cygwin
-#if !defined(NO_INI_FILE) || !defined(NO_LOG) || !defined(NO_CL_PIDS)
+#if !defined(NO_INI_FILE) || !defined(NO_LOG) || !defined(NO_CL_PIDS) || !defined(NO_EXTERNAL_DATA)
 __pure static char* getCommandLineArg(char *const restrict optarg)
 {
-#	if !defined (__CYGWIN__) || defined(USE_THREADS) || defined(NO_SOCKETS)
+#	if !__CYGWIN__ || defined(USE_THREADS) || defined(NO_SOCKETS)
 	return optarg;
 #	else
 	if (!IsNTService) return optarg;
 
-	return allocateStringArgument(optarg);
+	return vlmcsd_strdup(optarg);
 #	endif
 }
-#endif // !defined(NO_INI_FILE) || !defined(NO_LOG) || !defined(NO_CL_PIDS)
+#endif // !defined(NO_INI_FILE) || !defined(NO_LOG) || !defined(NO_CL_PIDS) || !defined(NO_EXTERNAL_DATA)
 
 
 static void parseGeneralArguments() {
@@ -1101,6 +1078,15 @@ static void parseGeneralArguments() {
 		nodaemon = TRUE;
 		break;
 #	endif // !defined(NO_SOCKETS) && !defined(NO_SIGHUP) && !defined(_WIN32)
+
+#	ifndef NO_TAP
+
+	case 'O':
+		ignoreIniFileParameter(INI_PARAM_VPN);
+		tapArgument = getCommandLineArg(optarg);
+		break;
+
+#	endif // NO_TAP
 
 #	ifndef NO_CL_PIDS
 
@@ -1134,7 +1120,6 @@ static void parseGeneralArguments() {
 
 	case 'H':
 		HwId = (BYTE*)vlmcsd_malloc(sizeof(((RESPONSE_V6 *)0)->HwId));
-
 		hex2bin(HwId, optarg, sizeof(((RESPONSE_V6 *)0)->HwId));
 
 		KmsResponseParameters[EPID_INDEX_WINDOWS].HwId =
@@ -1145,7 +1130,24 @@ static void parseGeneralArguments() {
 
 #	endif // NO_CL_PIDS
 
+#	ifndef NO_EXTERNAL_DATA
+
+	case 'j':
+		ignoreIniFileParameter(INI_PARAM_DATA_FILE);
+		fn_data = getCommandLineArg(optarg);
+#		ifndef NO_INTERNAL_DATA
+		ExplicitDataLoad = TRUE;
+#		endif // NO_INTERNAL_DATA
+		break;
+
+#	endif // NO_EXTERNAL_DATA
+
 #	ifndef NO_SOCKETS
+
+	case 'x':
+		ignoreIniFileParameter(INI_PARAM_EXIT_LEVEL);
+		ExitLevel = getOptionArgumentInt((char)o, 0, 1);
+		break;
 
 	case 'P':
 		ignoreIniFileParameter(INI_PARAM_PORT);
@@ -1426,16 +1428,16 @@ static void writePidFile()
 
 	if (fn_pid && !InetdMode)
 	{
-		FILE *_f = fopen(fn_pid, "w");
+		FILE *file = fopen(fn_pid, "w");
 
-		if (_f)
+		if (file)
 		{
 #			if _MSC_VER
-			fprintf(_f, "%u", (unsigned int)GetCurrentProcessId());
+			fprintf(file, "%u", (unsigned int)GetCurrentProcessId());
 #			else
-			fprintf(_f, "%u", (unsigned int)getpid());
+			fprintf(file, "%u", (unsigned int)getpid());
 #			endif
-			fclose(_f);
+			fclose(file);
 		}
 
 #		ifndef NO_LOG
@@ -1660,9 +1662,6 @@ int setupListeningSockets()
 
 int server_main(int argc, CARGV argv)
 {
-	// Initialize ePID / HwId parameters
-	memset(KmsResponseParameters, 0, sizeof(KmsResponseParameters));
-
 	global_argc = argc;
 	global_argv = argv;
 
@@ -1684,6 +1683,11 @@ int server_main(int argc, CARGV argv)
 
 int newmain()
 {
+#	if !defined(NO_RANDOM_EPID) || !defined(NO_CL_PIDS) || !defined(NO_INI_FILE)
+	KmsResponseParameters = (KmsResponseParam_t*)vlmcsd_malloc(sizeof(KmsResponseParam_t) * MIN_CSVLK);
+	memset(KmsResponseParameters, 0, sizeof(KmsResponseParam_t) * MIN_CSVLK);
+#	endif // !defined(NO_RANDOM_EPID) || !defined(NO_CL_PIDS) || !defined(NO_INI_FILE)
+
 	// Initialize thread synchronization objects for Windows and Cygwin
 #	ifdef USE_THREADS
 
@@ -1726,8 +1730,10 @@ int newmain()
 	parseGeneralArguments(); // Does not return if an error occurs
 
 #	if !defined(_WIN32) && !defined(NO_SOCKETS) && !defined(USE_MSRPC)
+
 	struct stat statbuf;
 	fstat(STDIN_FILENO, &statbuf);
+
 	if (S_ISSOCK(statbuf.st_mode))
 	{
 		InetdMode = 1;
@@ -1742,6 +1748,7 @@ int newmain()
 		logstdout = 0;
 #		endif // !NO_LOG
 	}
+
 #	endif // !defined(_WIN32) && !defined(NO_SOCKETS) && !defined(USE_MSRPC)
 
 #	ifndef NO_INI_FILE
@@ -1755,6 +1762,8 @@ int newmain()
 	}
 
 #	endif // NO_INI_FILE
+
+	loadKmsData();
 
 #	ifndef NO_CLIENT_LIST
 	if (MaintainClients) InitializeClientLists();
@@ -1775,6 +1784,10 @@ int newmain()
 	if (installService)
 		return NtServiceInstallation(installService, ServiceUser, ServicePassword);
 #	endif // _NTSERVICE
+
+#	ifndef NO_TAP
+	if (tapArgument && !InetdMode) startTap(tapArgument);
+#	endif // NO_TAP
 
 #	if !defined(NO_SOCKETS) && !defined(USE_MSRPC)
 	if (!InetdMode)
@@ -1867,3 +1880,25 @@ int newmain()
 
 	return rc;
 }
+
+
+#if _MSC_VER && !defined(_DEBUG)&& !MULTI_CALL_BINARY
+int __stdcall WinStartUp(void)
+{
+	WCHAR **szArgList;
+	int argc;
+	szArgList = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+	int i;
+	char **argv = (char**)vlmcsd_malloc(sizeof(char*)*argc);
+
+	for (i = 0; i < argc; i++)
+	{
+		int size = WideCharToMultiByte(CP_UTF8, 0, szArgList[i], -1, argv[i], 0, NULL, NULL);
+		argv[i] = (char*)vlmcsd_malloc(size);
+		WideCharToMultiByte(CP_UTF8, 0, szArgList[i], -1, argv[i], size, NULL, NULL);
+	}
+
+	exit(server_main(argc, argv));
+}
+#endif // _MSC_VER && !defined(_DEBUG)&& !MULTI_CALL_BINARY

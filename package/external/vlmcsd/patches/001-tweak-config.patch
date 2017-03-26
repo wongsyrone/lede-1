@@ -1,7 +1,7 @@
 --- a/src/config.h
 +++ b/src/config.h
 @@ -24,7 +24,7 @@
-    * Define your own version identifier here, e.g. '#define VERSION "my vlmcsd based on svn560"'
+    * Define your own version identifier here, e.g. '#define VERSION "my vlmcsd based on 1103"'
     */
  
 -#define VERSION "private build"
@@ -9,14 +9,23 @@
  
  #endif // VERSION
  
-@@ -80,7 +80,7 @@
- 	   * at a default location
- 	   */
+@@ -61,7 +61,7 @@
+    * at a default location.
+    */
  
--	   //#define INI_FILE "/etc/vlmcsd.ini"
-+	   #define INI_FILE "/etc/vlmcsd.ini"
+-   //#define INI_FILE "/etc/vlmcsd.ini"
++   #define INI_FILE "/etc/vlmcsd.ini"
  
  #endif // INI_FILE
+ 
+@@ -75,7 +75,7 @@
+  * at a custom default location.
+  */
+ 
+- //#define DATA_FILE "/etc/vlmcsd.kmd"
++ #define DATA_FILE "/etc/vlmcsd.kmd"
+ 
+ #endif // DATA_FILE
  
 --- a/src/GNUmakefile
 +++ b/src/GNUmakefile
@@ -24,7 +33,7 @@
  
  # You should supply your own version string here
  
--VLMCSD_VERSION ?= $(shell test -d ../.svn && echo svn`svnversion`)
+-VLMCSD_VERSION ?= $(shell test -d ../.git && git describe)
 +VLMCSD_VERSION ?= LEDE_wongsyrone
  
  FEATURES ?= full

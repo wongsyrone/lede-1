@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vlmcsd
-PKG_VERSION:=svn1099
+PKG_VERSION:=svn1108
 PKG_RELEASE:=1
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)/$(PKG_NAME)-$(PKG_VERSION)
@@ -46,6 +46,8 @@ define Package/vlmcsd/install
 	$(INSTALL_BIN) ./files/vlmcsd.init $(1)/etc/init.d/vlmcsd
 	$(INSTALL_DIR) $(1)/etc
 	$(INSTALL_DATA) ./files/vlmcsd.ini $(1)/etc/vlmcsd.ini
+	$(INSTALL_DIR) $(1)/etc
+	$(INSTALL_DATA) ./files/vlmcsd.kmd $(1)/etc/vlmcsd.kmd
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./files/vlmcsd.config $(1)/etc/config/vlmcsd
 	$(INSTALL_DIR) $(1)/usr/sbin
