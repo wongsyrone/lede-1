@@ -31,6 +31,8 @@ get_status_led() {
 		status_led="$board:green:system"
 		;;
 	ap132|\
+	ap531b0|\
+	cpe505n|\
 	db120|\
 	dr344|\
 	tew-632brp|\
@@ -279,6 +281,9 @@ get_status_led() {
 	pb44)
 		status_led="$board:amber:jump1"
 		;;
+	r602n)
+		status_led="$board:green:wan"
+		;;
 	rb-2011l|\
 	rb-2011uas|\
 	rb-2011uas-2hnd)
@@ -305,6 +310,9 @@ get_status_led() {
 	rb-912uag-5hpnd|\
 	rb-941-2nd|\
 	rb-951ui-2nd|\
+	rb-952ui-5ac2nd|\
+	rb-962uigs-5hact2hnt|\
+	rb-lhg-5nd|\
 	rb-mapl-2nd)
 		status_led="rb:green:user"
 		;;
@@ -376,6 +384,8 @@ get_status_led() {
 	tl-wr741nd|\
 	tl-wr741nd-v4|\
 	tl-wa801nd-v3|\
+	tl-wr840n-v2|\
+	tl-wr840n-v3|\
 	tl-wr841n-v1|\
 	tl-wr841n-v7|\
 	tl-wr841n-v8|\

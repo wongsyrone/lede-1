@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=util-linux
-PKG_VERSION:=2.29
+PKG_VERSION:=2.29.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/utils/$(PKG_NAME)/v2.29
-PKG_HASH:=2c59ea67cc7b564104f60532f6e0a95fe17a91acb870ba8fd7e986f273abf9e7
+PKG_HASH:=accea4d678209f97f634f40a93b7e9fcad5915d1f4749f6c47bee6bf110fe8e3
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=	COPYING					\
@@ -25,12 +25,7 @@ PKG_LICENSE_FILES:=	COPYING					\
 			libuuid/COPYING				\
 			Documentation/licenses/COPYING.BSD-3
 
-PKG_BUILD_PARALLEL:=0
-
-PKG_CONFIG_DEPENDS:= \
-	CONFIG_PACKAGE_cal \
-	CONFIG_PACKAGE_cfdisk \
-	CONFIG_PACKAGE_setterm
+PKG_BUILD_PARALLEL:=1
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -440,11 +435,8 @@ CONFIGURE_ARGS += \
 	--without-python	\
 	--without-udev		\
 	--without-readline	\
-	$(if $(CONFIG_PACKAGE_cal)$(CONFIG_PACKAGE_cfdisk)$(CONFIG_PACKAGE_setterm),--with-ncurses,--without-ncurses) \
-	--without-systemd	\
-	--without-selinux	\
-	--without-audit	\
-	--without-ncursesw
+	--disable-more		\
+	--with-ncursesw
 
 TARGET_CFLAGS += $(FPIC) -std=gnu99
 

@@ -1,3 +1,12 @@
+define Device/ap531b0
+  DEVICE_TITLE := Rockeetech AP531B0
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME = AP531B0
+  IMAGE_SIZE := 16000k
+  MTDPARTS := spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,16000k(firmware),64k(art)ro
+endef
+TARGET_DEVICES += ap531b0
+
 define Device/ap90q
   DEVICE_TITLE := YunCore AP90Q
   BOARDNAME = AP90Q
@@ -75,6 +84,14 @@ define Device/cf-e530n
   BOARDNAME = CF-E530N
 endef
 TARGET_DEVICES += cf-e530n
+
+define Device/cpe505n
+  DEVICE_TITLE := P&W CPE505N
+  BOARDNAME = CPE505N
+  IMAGE_SIZE = 16000k
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,16000k(firmware),64k(art)ro
+endef
+TARGET_DEVICES += cpe505n
 
 define Device/cpe830
   $(Device/ap90q)
@@ -222,7 +239,7 @@ define Device/wndr3700
 endef
 
 define Device/wndr3700v2
-$(Device/wndr3700)
+  $(Device/wndr3700)
   DEVICE_TITLE := NETGEAR WNDR3700 v2
   NETGEAR_BOARD_ID = WNDR3700v2
   NETGEAR_KERNEL_MAGIC = 0x33373031
@@ -233,26 +250,26 @@ $(Device/wndr3700)
 endef
 
 define Device/wndr3800
-$(Device/wndr3700v2)
+  $(Device/wndr3700v2)
   DEVICE_TITLE := NETGEAR WNDR3800
   NETGEAR_BOARD_ID = WNDR3800
   NETGEAR_HW_ID = 29763654+16+128
 endef
 
 define Device/wndr3800ch
-$(Device/wndr3800)
+  $(Device/wndr3800)
   DEVICE_TITLE := NETGEAR WNDR3800 (Ch)
   NETGEAR_BOARD_ID = WNDR3800CH
 endef
 
 define Device/wndrmac
-$(Device/wndr3700v2)
+  $(Device/wndr3700v2)
   DEVICE_TITLE := NETGEAR WNDRMAC
   NETGEAR_BOARD_ID = WNDRMAC
 endef
 
 define Device/wndrmacv2
-$(Device/wndr3800)
+  $(Device/wndr3800)
   DEVICE_TITLE := NETGEAR WNDRMAC v2
   NETGEAR_BOARD_ID = WNDRMACv2
 endef
@@ -416,6 +433,15 @@ define Device/jwap230
   MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env),16000k(firmware),64k(art)ro
 endef
 TARGET_DEVICES += jwap230
+
+define Device/r602n
+  DEVICE_TITLE := P&W R602N
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+  BOARDNAME = R602N
+  IMAGE_SIZE = 16000k
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env)ro,16000k(firmware),64k(art)ro
+endef
+TARGET_DEVICES += r602n
 
 define Device/rnx-n360rt
   $(Device/tplink-4m)
@@ -669,7 +695,7 @@ define Device/seama
 endef
 
 define Device/dir-869-a1
-$(Device/seama)
+  $(Device/seama)
   DEVICE_TITLE := D-Link DIR-869 rev. A1
   DEVICE_PACKAGES := kmod-ath10k ath10k-firmware-qca988x
   BOARDNAME = DIR-869-A1
@@ -683,7 +709,7 @@ $(Device/seama)
 endef
 
 define Device/mynet-n600
-$(Device/seama)
+  $(Device/seama)
   DEVICE_TITLE := Western Digital My Net N600
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2
   BOARDNAME = MYNET-N600
@@ -693,7 +719,7 @@ $(Device/seama)
 endef
 
 define Device/mynet-n750
-$(Device/seama)
+  $(Device/seama)
   DEVICE_TITLE := Western Digital My Net N750
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2
   BOARDNAME = MYNET-N750
@@ -703,6 +729,18 @@ $(Device/seama)
 endef
 
 TARGET_DEVICES += dir-869-a1 mynet-n600 mynet-n750
+
+define Device/qihoo-c301
+  $(Device/seama)
+  DEVICE_TITLE := Qihoo C301
+  DEVICE_PACKAGES :=  kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport kmod-ath10k ath10k-firmware-qca988x
+  BOARDNAME = QIHOO-C301
+  IMAGE_SIZE = 15744k
+  MTDPARTS = spi0.0:256k(u-boot)ro,64k(u-boot-env),64k(devdata),64k(devconf),15744k(firmware),64k(warm_start),64k(action_image_config),64k(radiocfg)ro;spi0.1:15360k(upgrade2),1024k(privatedata)
+  SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
+endef
+
+TARGET_DEVICES += qihoo-c301
 
 define Build/mkwrggimg
 	$(STAGING_DIR_HOST)/bin/mkwrggimg -b \

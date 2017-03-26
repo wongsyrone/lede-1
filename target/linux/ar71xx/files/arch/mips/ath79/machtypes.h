@@ -37,6 +37,7 @@ enum ath79_mach_type {
 	ATH79_MACH_AP143,			/* Atheros AP143 reference board */
 	ATH79_MACH_AP147_010,			/* Atheros AP147-010 reference board */
 	ATH79_MACH_AP152,			/* Atheros AP152 reference board */
+	ATH79_MACH_AP531B0,			/* Rockeetech AP531B0 */
 	ATH79_MACH_AP90Q,			/* YunCore AP90Q */
 	ATH79_MACH_AP96,			/* Atheros AP96 */
 	ATH79_MACH_ARCHER_C5,			/* TP-LINK Archer C5 board */
@@ -61,6 +62,7 @@ enum ath79_mach_type {
 	ATH79_MACH_CF_E520N,			/* COMFAST CF-E520N */
 	ATH79_MACH_CF_E530N,			/* COMFAST CF-E530N */
 	ATH79_MACH_CPE210,			/* TP-LINK CPE210 */
+	ATH79_MACH_CPE505N,			/* P&W CPE505N */
 	ATH79_MACH_CPE510,			/* TP-LINK CPE510 */
 	ATH79_MACH_CPE830,			/* YunCore CPE830 */
 	ATH79_MACH_CPE870,			/* YunCore CPE870 */
@@ -151,6 +153,7 @@ enum ath79_mach_type {
 	ATH79_MACH_PB44,			/* Atheros PB44 reference board */
 	ATH79_MACH_PQI_AIR_PEN,			/* PQI Air Pen */
 	ATH79_MACH_QIHOO_C301,			/* Qihoo 360 C301 */
+	ATH79_MACH_R602N,			/* P&W R602N */
 	ATH79_MACH_R6100,			/* NETGEAR R6100 */
 	ATH79_MACH_RB_2011G,			/* Mikrotik RouterBOARD 2011UAS-2HnD */
 	ATH79_MACH_RB_2011L,			/* Mikrotik RouterBOARD 2011L */
@@ -175,8 +178,10 @@ enum ath79_mach_type {
 	ATH79_MACH_RB_941,			/* MikroTik RouterBOARD 941-2nD */
 	ATH79_MACH_RB_951G,			/* Mikrotik RouterBOARD 951G */
 	ATH79_MACH_RB_951U,			/* Mikrotik RouterBOARD 951Ui-2HnD */
-	ATH79_MACH_RB_952,			/* MikroTik RouterBOARD 951Ui-2nD */
+	ATH79_MACH_RB_952,			/* MikroTik RouterBOARD 951Ui-2nD / 952Ui-5ac2nD */
+	ATH79_MACH_RB_962,			/* MikroTik RouterBOARD 962UiGS-5HacT2HnT */
 	ATH79_MACH_RB_CAP,			/* Mikrotik RouterBOARD cAP2nD */
+	ATH79_MACH_RB_LHG5,			/* Mikrotik RouterBOARD LHG5 */
 	ATH79_MACH_RB_MAP,			/* Mikrotik RouterBOARD mAP2nD */
 	ATH79_MACH_RB_MAPL,			/* Mikrotik RouterBOARD mAP L-2nD */
 	ATH79_MACH_RB_WAP,			/* Mikrotik RouterBOARD wAP2nD */
@@ -240,6 +245,8 @@ enum ath79_mach_type {
 	ATH79_MACH_TL_WR802N_V1,		/* TP-LINK TL-WR802N v1 */
 	ATH79_MACH_TL_WR802N_V2,		/* TP-LINK TL-WR802N v2 */
 	ATH79_MACH_TL_WR810N,			/* TP-LINK TL-WR810N */
+	ATH79_MACH_TL_WR840N_V2,		/* TP-LINK TL-WR840N v2 */
+	ATH79_MACH_TL_WR840N_V3,		/* TP-LINK TL-WR840N v3 */
 	ATH79_MACH_TL_WR841N_V1,		/* TP-LINK TL-WR841N v1 */
 	ATH79_MACH_TL_WR841N_V11,		/* TP-LINK TL-WR841N/ND v11 */
 	ATH79_MACH_TL_WR841N_V7,		/* TP-LINK TL-WR841N/ND v7 */
