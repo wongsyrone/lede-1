@@ -283,6 +283,7 @@ platform_check_image() {
 	wpj342|\
 	wpj344|\
 	wpj531|\
+	wpj563|\
 	wrt400n|\
 	wrtnode2q|\
 	wzr-450hp2|\
@@ -508,6 +509,7 @@ platform_check_image() {
 	rb-951g-2hnd|\
 	rb-951ui-2hnd|\
 	rb-2011l|\
+	rb-2011il|\
 	rb-2011uas|\
 	rb-2011uias|\
 	rb-2011uas-2hnd|\
@@ -682,6 +684,7 @@ platform_pre_upgrade() {
 	rb-912uag-5hpnd|\
 	rb-951g-2hnd|\
 	rb-951ui-2hnd|\
+	rb-2011il|\
 	rb-2011l|\
 	rb-2011uas|\
 	rb-2011uias|\

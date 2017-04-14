@@ -284,6 +284,7 @@ get_status_led() {
 	r602n)
 		status_led="$board:green:wan"
 		;;
+	rb-2011il|\
 	rb-2011l|\
 	rb-2011uas|\
 	rb-2011uas-2hnd)
@@ -469,6 +470,9 @@ get_status_led() {
 	wpj531|\
 	wpj558)
 		status_led="$board:green:sig3"
+		;;
+	wpj563)
+		status_led="$board:green:sig1"
 		;;
 	wrt400n|\
 	wrt160nl)

@@ -273,6 +273,7 @@ ar71xx_setup_interfaces()
 			"0@eth0" "1:lan:4" "2:lan:3" "3:lan:2" "4:wan:1"
 	;;
 	db120|\
+	rb-2011il|\
 	rb-2011l|\
 	rb-2011uas|\
 	rb-2011uas-2hnd|\
@@ -466,6 +467,10 @@ ar71xx_setup_interfaces()
 	wpj558)
 		ucidef_add_switch "switch0" \
 			"5:lan" "1:wan" "6@eth0"
+		;;
+	wpj563)
+		ucidef_add_switch "switch0" \
+			"0@eth0" "2:lan" "3:wan"
 		;;
 	wrt160nl)
 		ucidef_set_interfaces_lan_wan "eth0.1" "eth1"

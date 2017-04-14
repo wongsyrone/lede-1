@@ -85,6 +85,12 @@ ifdef CONFIG_BUSYBOX_CONFIG_PAM
   LDLIBS += pam pam_misc pthread
 endif
 
+ifdef CONFIG_BUSYBOX_DEFAULT_NSLOOKUP_LEDE
+  ifeq ($(CONFIG_USE_GLIBC),y)
+	LDLIBS += resolv
+  endif
+endif
+
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
@@ -112,9 +118,13 @@ endef
 define Package/busybox/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(CP) $(PKG_INSTALL_DIR)/* $(1)/
+ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_CROND),)
 	$(INSTALL_BIN) ./files/cron $(1)/etc/init.d/cron
+endif
+ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_NTPD),)
 	$(INSTALL_BIN) ./files/sysntpd $(1)/etc/init.d/sysntpd
 	$(INSTALL_BIN) ./files/ntpd-hotplug $(1)/usr/sbin/ntpd-hotplug
+endif
 	-rm -rf $(1)/lib64
 endef
 

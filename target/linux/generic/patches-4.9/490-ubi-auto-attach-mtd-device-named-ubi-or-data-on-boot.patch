@@ -47,7 +47,7 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
 +		    mtd->type == MTD_DATAFLASH ||
 +		    mtd->type == MTD_MLCNANDFLASH) {
 +			mutex_lock(&ubi_devices_mutex);
-+			pr_notice("UBI: auto-attach mtd%d", mtd->index);
++			pr_notice("UBI: auto-attach mtd%d\n", mtd->index);
 +			err = ubi_attach_mtd_dev(mtd, UBI_DEV_NUM_AUTO, 0, 0);
 +			mutex_unlock(&ubi_devices_mutex);
 +			if (err < 0) {

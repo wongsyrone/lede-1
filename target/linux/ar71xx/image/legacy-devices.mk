@@ -167,30 +167,10 @@ define LegacyDevice/WLR8100
 endef
 LEGACY_DEVICES += WLR8100
 
-define LegacyDevice/WPJ342_16M
-  DEVICE_TITLE := Compex WPJ342 (16MB flash)
-endef
-LEGACY_DEVICES += WPJ342_16M
-
-define LegacyDevice/WPJ344_16M
-  DEVICE_TITLE := Compex WPJ344 (16MB flash)
-endef
-LEGACY_DEVICES += WPJ344_16M
-
 define LegacyDevice/DR344
   DEVICE_TITLE := Wallys DR344
 endef
 LEGACY_DEVICES += DR344
-
-define LegacyDevice/WPJ531_16M
-  DEVICE_TITLE := Compex WPJ531 (16MB flash)
-endef
-LEGACY_DEVICES += WPJ531_16M
-
-define LegacyDevice/WPJ558_16M
-  DEVICE_TITLE := Compex WPJ558 (16MB flash)
-endef
-LEGACY_DEVICES += WPJ558_16M
 
 define LegacyDevice/WRTNODE2Q
   DEVICE_TITLE := WRTnode2Q board

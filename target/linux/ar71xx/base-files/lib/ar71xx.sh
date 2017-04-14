@@ -827,6 +827,9 @@ ar71xx_board_detect() {
 	*"Rocket M XW")
 		name="rocket-m-xw"
 		;;
+	*"RouterBOARD 2011iL")
+		name="rb-2011il"
+		;;
 	*"RouterBOARD 2011L")
 		name="rb-2011l"
 		;;
@@ -1245,6 +1248,9 @@ ar71xx_board_detect() {
 		;;
 	*"WPJ558")
 		name="wpj558"
+		;;
+	*"WPJ563")
+		name="wpj563"
 		;;
 	*"WPN824N")
 		name="wpn824n"

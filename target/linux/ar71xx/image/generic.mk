@@ -792,6 +792,51 @@ define Device/bhr-4grv2
 endef
 TARGET_DEVICES += bhr-4grv2
 
+define Device/wpj342
+  DEVICE_TITLE := Compex WPJ342 (16MB flash)
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport
+  BOARDNAME := WPJ342
+  MTDPARTS := spi0.0:192k(u-boot)ro,16128k(firmware),64k(art)ro
+  IMAGE_SIZE := 16128k
+endef
+TARGET_DEVICES += wpj342
+
+define Device/wpj344
+  DEVICE_TITLE := Compex WPJ344 (16MB flash)
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport
+  BOARDNAME := WPJ344
+  MTDPARTS := spi0.0:192k(u-boot)ro,16128k(firmware),64k(art)ro
+  IMAGE_SIZE := 16128k
+endef
+TARGET_DEVICES += wpj344
+
+define Device/wpj531
+  DEVICE_TITLE := Compex WPJ531 (16MB flash)
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport
+  BOARDNAME := WPJ531
+  MTDPARTS := spi0.0:192k(u-boot)ro,16128k(firmware),64k(art)ro
+  IMAGE_SIZE := 16128k
+endef
+TARGET_DEVICES += wpj531
+
+define Device/wpj558
+  DEVICE_TITLE := Compex WPJ558 (16MB flash)
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport
+  BOARDNAME := WPJ558
+  MTDPARTS := spi0.0:192k(u-boot)ro,16128k(firmware),64k(art)ro
+  IMAGE_SIZE := 16128k
+endef
+TARGET_DEVICES += wpj558
+
+define Device/wpj563
+  DEVICE_TITLE := Compex WPJ563 (16MB flash)
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport
+  BOARDNAME := WPJ563
+  MTDPARTS := spi0.0:192k(u-boot)ro,16128k(firmware),64k(art)ro
+  IMAGE_SIZE := 16128k
+endef
+TARGET_DEVICES += wpj563
+
 define Device/qihoo-c301-flash1-16m
 $(Device/seama)
   DEVICE_TITLE := Qihoo C301 (Use 1st flash)

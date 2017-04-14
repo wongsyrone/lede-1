@@ -1,6 +1,6 @@
 --- a/extensions/GNUmakefile.in
 +++ b/extensions/GNUmakefile.in
-@@ -49,11 +49,31 @@ pfb_build_mod := $(filter-out @blacklist
+@@ -50,11 +50,31 @@ pfb_build_mod := $(filter-out @blacklist
  pfa_build_mod := $(filter-out @blacklist_modules@ @blacklist_a_modules@,${pfa_build_mod})
  pf4_build_mod := $(filter-out @blacklist_modules@ @blacklist_4_modules@,${pf4_build_mod})
  pf6_build_mod := $(filter-out @blacklist_modules@ @blacklist_6_modules@,${pf6_build_mod})
@@ -37,7 +37,7 @@
  pfx_solibs    := $(patsubst %,libxt_%.so,${pfx_build_mod} ${pfx_symlinks})
  pfb_solibs    := $(patsubst %,libebt_%.so,${pfb_build_mod})
  pfa_solibs    := $(patsubst %,libarpt_%.so,${pfa_build_mod})
-@@ -66,13 +86,13 @@ pf6_solibs    := $(patsubst %,libip6t_%.
+@@ -67,13 +87,13 @@ pf6_solibs    := $(patsubst %,libip6t_%.
  #
  targets := libext.a libext4.a libext6.a libext_ebt.a libext_arpt.a matches.man targets.man
  targets_install :=
@@ -58,7 +58,7 @@
  
  .SECONDARY:
  
-@@ -140,11 +160,11 @@ libext4.a: initext4.o ${libext4_objs}
+@@ -141,11 +161,11 @@ libext4.a: initext4.o ${libext4_objs}
  libext6.a: initext6.o ${libext6_objs}
  	${AM_VERBOSE_AR} ${AR} crs $@ $^;
  
