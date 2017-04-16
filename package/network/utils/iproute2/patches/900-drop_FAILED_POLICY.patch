@@ -11,7 +11,7 @@ Subject: [PATCH] add support for dropping with FAILED_POLICY
 
 --- a/include/linux/fib_rules.h
 +++ b/include/linux/fib_rules.h
-@@ -65,6 +65,10 @@ enum {
+@@ -72,6 +72,10 @@ enum {
  	FR_ACT_BLACKHOLE,	/* Drop without notification */
  	FR_ACT_UNREACHABLE,	/* Drop with ENETUNREACH */
  	FR_ACT_PROHIBIT,	/* Drop with EACCES */

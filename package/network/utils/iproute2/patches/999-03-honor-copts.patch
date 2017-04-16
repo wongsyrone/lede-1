@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -43,7 +43,7 @@ CCOPTS = -O2 $(EXTRA_CCOPTS)
+@@ -49,7 +49,7 @@ CCOPTS = -O2 $(EXTRA_CCOPTS)
  WFLAGS := -Wall -Wstrict-prototypes  -Wmissing-prototypes
  WFLAGS += -Wmissing-declarations -Wold-style-definition -Wformat=2
  

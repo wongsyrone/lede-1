@@ -19,7 +19,7 @@ Signed-off-by: Shane Wang <shane.wang@intel.com>
  
  # Make a temp directory in build tree.
  TMPDIR=$(mktemp -d config.XXXXXX)
-@@ -184,7 +185,7 @@ check_ipt_lib_dir()
+@@ -192,7 +193,7 @@ check_ipt_lib_dir()
  		return
  	fi
  
