@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=iptables
 PKG_VERSION:=1.6.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://git.netfilter.org/iptables
@@ -435,29 +435,21 @@ define Package/libxtables
 	+IPTABLES_NFTABLES:libnfnetlink
 endef
 
-TARGET_CPPFLAGS := \
-	-I$(PKG_BUILD_DIR)/include \
-	-I$(LINUX_DIR)/user_headers/include \
-	$(TARGET_CPPFLAGS)
-
-TARGET_CFLAGS += \
-	-I$(PKG_BUILD_DIR)/include \
-	-I$(LINUX_DIR)/user_headers/include \
-	-ffunction-sections -fdata-sections \
+TARGET_CFLAGS += -ffunction-sections -fdata-sections \
 	-DNO_LEGACY
 
-TARGET_LDFLAGS += \
-	-Wl,--gc-sections
+TARGET_LDFLAGS += -Wl,--gc-sections
 
 CONFIGURE_ARGS += \
 	--enable-shared \
 	--enable-static \
 	--enable-devel \
 	--with-kernel="$(LINUX_DIR)/user_headers" \
-	--with-xtlibdir=/usr/lib/iptables \
+	--with-xtlibdir="/usr/lib/iptables" \
 	$(if $(CONFIG_IPTABLES_CONNLABEL),,--disable-connlabel) \
 	$(if $(CONFIG_IPTABLES_NFTABLES),,--disable-nftables) \
-	$(if $(CONFIG_IPV6),,--disable-ipv6)
+	$(if $(CONFIG_IPV6),,--disable-ipv6) \
+	--disable-libnfnetlink
 
 MAKE_FLAGS := \
 	$(TARGET_CONFIGURE_OPTS) \
