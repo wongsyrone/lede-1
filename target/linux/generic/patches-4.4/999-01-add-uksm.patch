@@ -480,7 +480,7 @@
 +#endif /* __LINUX_UKSM_H */
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -445,7 +445,7 @@ static int dup_mmap(struct mm_struct *mm
+@@ -446,7 +446,7 @@ static int dup_mmap(struct mm_struct *mm
  				goto fail_nomem;
  			charge = len;
  		}
@@ -489,7 +489,7 @@
  		if (!tmp)
  			goto fail_nomem;
  		*tmp = *mpnt;
-@@ -498,7 +498,7 @@ static int dup_mmap(struct mm_struct *mm
+@@ -499,7 +499,7 @@ static int dup_mmap(struct mm_struct *mm
  		__vma_link_rb(mm, tmp, rb_link, rb_parent);
  		rb_link = &tmp->vm_rb.rb_right;
  		rb_parent = &tmp->vm_rb;
