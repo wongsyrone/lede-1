@@ -48,7 +48,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
      }
 --- a/pppd/main.c
 +++ b/pppd/main.c
-@@ -316,6 +316,9 @@ main(argc, argv)
+@@ -308,6 +308,9 @@ main(argc, argv)
      struct protent *protp;
      char numbuf[16];
  
@@ -66,12 +66,21 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  int	req_unit = -1;		/* requested interface unit */
 +char	path_ipup[MAXPATHLEN];	/* pathname of ip-up script */
 +char	path_ipdown[MAXPATHLEN];/* pathname of ip-down script */
+ char	req_ifname[MAXIFNAMELEN];	/* requested interface name */
  bool	multilink = 0;		/* Enable multilink operation */
  char	*bundle_name = NULL;	/* bundle name for multilink */
- bool	dump_options;		/* print out option values */
-@@ -299,6 +301,13 @@ option_t general_options[] = {
-       "Unset user environment variable",
-       OPT_A2PRINTER | OPT_NOPRINT, (void *)user_unsetprint },
+@@ -127,7 +129,7 @@ int	dfl_route_metric = -1;	/* metric of
+ #ifdef MAXOCTETS
+ unsigned int  maxoctets = 0;    /* default - no limit */
+ int maxoctets_dir = 0;       /* default - sum of traffic */
+-int maxoctets_timeout = 1;   /* default 1 second */ 
++int maxoctets_timeout = 1;   /* default 1 second */
+ #endif
+ 
+ 
+@@ -309,6 +311,13 @@ option_t general_options[] = {
+       "Metric to use for the default route (Linux only; -1 for default behavior)",
+       OPT_PRIV|OPT_LLIMIT|OPT_INITONLY, NULL, 0, -1 },
  
 +    { "ip-up-script", o_string, path_ipup,
 +      "Set pathname of ip-up script",
@@ -83,14 +92,23 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  #ifdef HAVE_MULTILINK
      { "multilink", o_bool, &multilink,
        "Enable multilink operation", OPT_PRIO | 1 },
+@@ -1530,7 +1539,7 @@ setactivefilter(argv)
+ #endif
+ 
+ /*
+- * setdomain - Set domain name to append to hostname 
++ * setdomain - Set domain name to append to hostname
+  */
+ static int
+ setdomain(argv)
 --- a/pppd/pppd.h
 +++ b/pppd/pppd.h
-@@ -318,6 +318,8 @@ extern bool	tune_kernel;	/* May alter ke
+@@ -328,6 +328,8 @@ extern bool	tune_kernel;	/* May alter ke
  extern int	connect_delay;	/* Time to delay after connect script */
  extern int	max_data_rate;	/* max bytes/sec through charshunt */
  extern int	req_unit;	/* interface unit number to use */
 +extern char	path_ipup[MAXPATHLEN]; /* pathname of ip-up script */
 +extern char	path_ipdown[MAXPATHLEN]; /* pathname of ip-down script */
+ extern char	req_ifname[MAXIFNAMELEN]; /* interface name to use */
  extern bool	multilink;	/* enable multilink operation */
  extern bool	noendpoint;	/* don't send or accept endpt. discrim. */
- extern char	*bundle_name;	/* bundle name for multilink */

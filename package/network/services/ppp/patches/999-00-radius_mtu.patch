@@ -18,7 +18,7 @@ set MTU on interface.
 
 --- a/pppd/plugins/radius/radius.c
 +++ b/pppd/plugins/radius/radius.c
-@@ -657,6 +657,9 @@ radius_setparams(VALUE_PAIR *vp, char *m
+@@ -651,6 +651,9 @@ radius_setparams(VALUE_PAIR *vp, char *m
  		    memcpy(rstate.class, vp->strvalue, rstate.class_len);
  		} /* else too big for our buffer - ignore it */
  		break;

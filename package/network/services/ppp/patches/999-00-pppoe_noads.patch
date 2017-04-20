@@ -1,8 +1,8 @@
 --- a/pppd/plugins/rp-pppoe/plugin.c
 +++ b/pppd/plugins/rp-pppoe/plugin.c
-@@ -345,9 +345,6 @@ plugin_init(void)
-     }
- 
+@@ -375,9 +375,6 @@ void
+ plugin_init(void)
+ {
      add_options(Options);
 -
 -    info("RP-PPPoE plugin version %s compiled against pppd %s",

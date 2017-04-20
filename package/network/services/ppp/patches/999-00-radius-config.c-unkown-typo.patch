@@ -2,8 +2,8 @@ Description: Correct unkown => unknown typo
 Author: Chris Boot <bootc@debian.org>
 Last-Update: 2013-09-09
 
---- ppp-2.4.5+git20130610.orig/pppd/plugins/radius/config.c
-+++ ppp-2.4.5+git20130610/pppd/plugins/radius/config.c
+--- a/pppd/plugins/radius/config.c
++++ b/pppd/plugins/radius/config.c
 @@ -271,7 +271,7 @@ char *rc_conf_str(char *optname)
  	option = find_option(optname, OT_STR);
  
