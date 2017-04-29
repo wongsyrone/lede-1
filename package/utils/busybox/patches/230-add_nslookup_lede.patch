@@ -1,4 +1,4 @@
-From 8c1440a0934dd8b3ad6aae48d6653b5ba6fce8a1 Mon Sep 17 00:00:00 2001
+From ab0f8bb80527928f513297ab93e3ec8c8b48dd50 Mon Sep 17 00:00:00 2001
 From: Jo-Philipp Wich <jo@mein.io>
 Date: Tue, 14 Mar 2017 22:21:34 +0100
 Subject: [PATCH] networking: add LEDE nslookup applet
@@ -12,16 +12,34 @@ and the libresolv primitives to parse received DNS responses.
 
 Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 ---
- networking/nslookup_lede.c | 869 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 875 insertions(+)
+ Makefile.flags             |   6 +
+ networking/nslookup_lede.c | 915 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 921 insertions(+)
  create mode 100644 networking/nslookup_lede.c
 
+diff --git a/Makefile.flags b/Makefile.flags
+index 65021de25..096ab7756 100644
+--- a/Makefile.flags
++++ b/Makefile.flags
+@@ -134,6 +134,12 @@ else
+ LDLIBS += m
+ endif
+ 
++# nslookup_lede might need the resolv library
++RESOLV_AVAILABLE := $(shell echo 'int main(void){res_init();return 0;}' >resolvtest.c; $(CC) $(CFLAGS) -include resolv.h -lresolv -o /dev/null resolvtest.c >/dev/null 2>&1 && echo "y"; rm resolvtest.c)
++ifeq ($(RESOLV_AVAILABLE),y)
++LDLIBS += resolv
++endif
++
+ # libpam may use libpthread, libdl and/or libaudit.
+ # On some platforms that requires an explicit -lpthread, -ldl, -laudit.
+ # However, on *other platforms* it fails when some of those flags
 diff --git a/networking/nslookup_lede.c b/networking/nslookup_lede.c
 new file mode 100644
-index 0000000..fe927ad
+index 000000000..c6c90ddf3
 --- /dev/null
 +++ b/networking/nslookup_lede.c
-@@ -0,0 +1,869 @@
+@@ -0,0 +1,915 @@
 +/*
 + * nslookup_lede - musl compatible replacement for busybox nslookup
 + *
@@ -109,7 +127,9 @@ index 0000000..fe927ad
 +	{ ns_t_soa,   "SOA"   },
 +	{ ns_t_ns,    "NS"    },
 +	{ ns_t_a,     "A"     },
++#if ENABLE_FEATURE_IPV6
 +	{ ns_t_aaaa,  "AAAA"  },
++#endif
 +	{ ns_t_cname, "CNAME" },
 +	{ ns_t_mx,    "MX"    },
 +	{ ns_t_txt,   "TXT"   },
@@ -143,7 +163,7 @@ index 0000000..fe927ad
 +static unsigned int default_timeout = 5;
 +
 +
-+static int parse_reply(const unsigned char *msg, size_t len)
++static int parse_reply(const unsigned char *msg, size_t len, int *bb_style_counter)
 +{
 +	ns_msg handle;
 +	ns_rr rr;
@@ -163,6 +183,9 @@ index 0000000..fe927ad
 +			return -1;
 +		}
 +
++		if (bb_style_counter && *bb_style_counter == 1)
++			printf("Name:      %s\n", ns_rr_name(rr));
++
 +		rdlen = ns_rr_rdlen(rr);
 +
 +		switch (ns_rr_type(rr))
@@ -173,17 +196,25 @@ index 0000000..fe927ad
 +				return -1;
 +			}
 +			inet_ntop(AF_INET, ns_rr_rdata(rr), astr, sizeof(astr));
-+			printf("Name:\t%s\nAddress: %s\n", ns_rr_name(rr), astr);
++			if (bb_style_counter)
++				printf("Address %d: %s\n", (*bb_style_counter)++, astr);
++			else
++				printf("Name:\t%s\nAddress: %s\n", ns_rr_name(rr), astr);
 +			break;
 +
++#if ENABLE_FEATURE_IPV6
 +		case ns_t_aaaa:
 +			if (rdlen != 16) {
 +				//fprintf(stderr, "Unexpected AAAA record length\n");
 +				return -1;
 +			}
 +			inet_ntop(AF_INET6, ns_rr_rdata(rr), astr, sizeof(astr));
-+			printf("%s\thas AAAA address %s\n", ns_rr_name(rr), astr);
++			if (bb_style_counter)
++				printf("Address %d: %s\n", (*bb_style_counter)++, astr);
++			else
++				printf("%s\thas AAAA address %s\n", ns_rr_name(rr), astr);
 +			break;
++#endif
 +
 +		case ns_t_ns:
 +			if (!format)
@@ -326,6 +357,7 @@ index 0000000..fe927ad
 +		}
 +	}
 +
++#if ENABLE_FEATURE_IPV6
 +	if (inet_pton(AF_INET6, addrstr, &lsa->u.sin6.sin6_addr)) {
 +		lsa->u.sin6.sin6_family = AF_INET6;
 +		lsa->u.sin6.sin6_port = htons(port);
@@ -333,6 +365,7 @@ index 0000000..fe927ad
 +		lsa->len = sizeof(lsa->u.sin6);
 +		return 0;
 +	}
++#endif
 +
 +	if (!scope && inet_pton(AF_INET, addrstr, &lsa->u.sin.sin_addr)) {
 +		lsa->u.sin.sin_family = AF_INET;
@@ -387,6 +420,7 @@ index 0000000..fe927ad
 +	return (unsigned long)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 +}
 +
++#if ENABLE_FEATURE_IPV6
 +static void to_v4_mapped(len_and_sockaddr *a)
 +{
 +	if (a->u.sa.sa_family != AF_INET)
@@ -403,6 +437,7 @@ index 0000000..fe927ad
 +	a->u.sin6.sin6_scope_id = 0;
 +	a->len = sizeof(a->u.sin6);
 +}
++#endif
 +
 +
 +/*
@@ -414,7 +449,9 @@ index 0000000..fe927ad
 +	int fd;
 +	int timeout = default_timeout * 1000, retry_interval, servfail_retry = 0;
 +	len_and_sockaddr from = { };
++#if ENABLE_FEATURE_IPV6
 +	int one = 1;
++#endif
 +	int recvlen = 0;
 +	int n_replies = 0;
 +	struct pollfd pfd;
@@ -424,6 +461,7 @@ index 0000000..fe927ad
 +	from.u.sa.sa_family = AF_INET;
 +	from.len = sizeof(from.u.sin);
 +
++#if ENABLE_FEATURE_IPV6
 +	for (nn = 0; nn < n_ns; nn++) {
 +		if (ns[nn].addr.u.sa.sa_family == AF_INET6) {
 +			from.u.sa.sa_family = AF_INET6;
@@ -431,15 +469,18 @@ index 0000000..fe927ad
 +			break;
 +		}
 +	}
++#endif
 +
 +	/* Get local address and open/bind a socket */
 +	fd = socket(from.u.sa.sa_family, SOCK_DGRAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0);
 +
++#if ENABLE_FEATURE_IPV6
 +	/* Handle case where system lacks IPv6 support */
 +	if (fd < 0 && from.u.sa.sa_family == AF_INET6 && errno == EAFNOSUPPORT) {
 +		fd = socket(AF_INET, SOCK_DGRAM|SOCK_CLOEXEC|SOCK_NONBLOCK, 0);
 +		from.u.sa.sa_family = AF_INET;
 +	}
++#endif
 +
 +	if (fd < 0)
 +		return -1;
@@ -449,6 +490,7 @@ index 0000000..fe927ad
 +		return -1;
 +	}
 +
++#if ENABLE_FEATURE_IPV6
 +	/* Convert any IPv4 addresses in a mixed environment to v4-mapped */
 +	if (from.u.sa.sa_family == AF_INET6) {
 +		setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &one, sizeof(one));
@@ -456,6 +498,7 @@ index 0000000..fe927ad
 +		for (nn = 0; nn < n_ns; nn++)
 +			to_v4_mapped(&ns[nn].addr);
 +	}
++#endif
 +
 +	pfd.fd = fd;
 +	pfd.events = POLLIN;
@@ -585,7 +628,12 @@ index 0000000..fe927ad
 +			for (aip = ai; aip; aip = aip->ai_next) {
 +				if (aip->ai_addr->sa_family != AF_INET &&
 +				    aip->ai_addr->sa_family != AF_INET6)
-+				    continue;
++					continue;
++
++#if ! ENABLE_FEATURE_IPV6
++				if (aip->ai_addr->sa_family != AF_INET)
++					continue;
++#endif
 +
 +				tmp = realloc(*ns, sizeof(**ns) * (*n_ns + 1));
 +
@@ -685,6 +733,7 @@ index 0000000..fe927ad
 +	static char buf[INET6_ADDRSTRLEN + 1 + IFNAMSIZ + 1 + 5 + 1];
 +	char *p = buf;
 +
++#if ENABLE_FEATURE_IPV6
 +	if (a->u.sa.sa_family == AF_INET6) {
 +		inet_ntop(AF_INET6, &a->u.sin6.sin6_addr, buf, sizeof(buf));
 +		p += strlen(p);
@@ -696,12 +745,14 @@ index 0000000..fe927ad
 +			}
 +		}
 +	}
-+	else {
++	else
++#endif
++	{
 +		inet_ntop(AF_INET, &a->u.sin.sin_addr, buf, sizeof(buf));
 +		p += strlen(p);
 +	}
 +
-+	sprintf(p, "#%hu", ntohs(a->u.sin6.sin6_port));
++	sprintf(p, "#%hu", ntohs(a->u.sin.sin_port));
 +
 +	return buf;
 +}
@@ -728,7 +779,7 @@ index 0000000..fe927ad
 +	llist_t *type_strings = NULL;
 +	int n_ns = 0, n_queries = 0;
 +	int c, opts, option_index = 0;
-+	int stats = 0;
++	int stats = 0, bb_style_counter = 0;
 +	unsigned int types = 0;
 +	HEADER *header;
 +
@@ -736,6 +787,7 @@ index 0000000..fe927ad
 +	applet_long_options = nslookup_longopts;
 +#endif
 +
++	opt_complementary = "q::";
 +	opts = getopt32(argv, "+q:*p:+r:+t:+s",
 +	                &type_strings, &default_port,
 +	                &default_retry, &default_timeout);
@@ -744,10 +796,8 @@ index 0000000..fe927ad
 +		ptr = llist_pop(&type_strings);
 +
 +		/* skip leading text, e.g. when invoked with -querytype=AAAA */
-+		if ((chr = strchr(ptr, '=')) != NULL) {
-+			ptr = chr;
-+			*ptr++ = 0;
-+		}
++		if ((chr = strchr(ptr, '=')) != NULL)
++			ptr = chr + 1;
 +
 +		for (c = 0; qtypes[c].name; c++)
 +			if (!strcmp(qtypes[c].name, ptr))
@@ -788,14 +838,21 @@ index 0000000..fe927ad
 +		/* No explicit type given, guess query type.
 +		 * If we can convert the domain argument into a ptr (means that
 +		 * inet_pton() could read it) we assume a PTR request, else
-+		 * we issue A queries. */
++		 * we issue A+AAAA queries and switch to an output format
++		 * mimicking the one of the traditional nslookup applet. */
 +		if (types == 0) {
 +			ptr = make_ptr(argv[option_index]);
 +
-+			if (ptr)
++			if (ptr) {
 +				add_query(&queries, &n_queries, T_PTR, ptr);
-+			else
++			}
++			else {
++				bb_style_counter = 1;
 +				add_query(&queries, &n_queries, T_A, argv[option_index]);
++#if ENABLE_FEATURE_IPV6
++				add_query(&queries, &n_queries, T_AAAA, argv[option_index]);
++#endif
++			}
 +		}
 +		else {
 +			for (c = 0; qtypes[c].name; c++)
@@ -864,12 +921,18 @@ index 0000000..fe927ad
 +		c = 0;
 +
 +		if (queries[rc].rlen) {
-+			header = (HEADER *)queries[rc].reply;
++			if (!bb_style_counter) {
++				header = (HEADER *)queries[rc].reply;
 +
-+			if (!header->aa)
-+				printf("Non-authoritative answer:\n");
++				if (!header->aa)
++					printf("Non-authoritative answer:\n");
 +
-+			c = parse_reply(queries[rc].reply, queries[rc].rlen);
++				c = parse_reply(queries[rc].reply, queries[rc].rlen, NULL);
++			}
++			else {
++				c = parse_reply(queries[rc].reply, queries[rc].rlen,
++				                &bb_style_counter);
++			}
 +		}
 +
 +		if (c == 0)
@@ -877,7 +940,8 @@ index 0000000..fe927ad
 +		else if (c < 0)
 +			printf("*** Can't find %s: Parse error\n", queries[rc].name);
 +
-+		printf("\n");
++		if (!bb_style_counter)
++			printf("\n");
 +	}
 +
 +	rc = 0;
@@ -892,5 +956,5 @@ index 0000000..fe927ad
 +	return rc;
 +}
 -- 
-2.1.4
+2.11.0
 

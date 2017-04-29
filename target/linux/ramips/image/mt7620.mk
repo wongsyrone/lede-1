@@ -322,12 +322,21 @@ define Device/psg1208
 endef
 TARGET_DEVICES += psg1208
 
-define Device/psg1218
-  DTS := PSG1218
-  DEVICE_TITLE := Phicomm PSG1218
-  DEVICE_PACKAGES := kmod-mt76
+define Device/psg1218a
+  DTS := PSG1218A
+  DEVICE_TITLE := Phicomm PSG1218 rev.Ax
+  DEVICE_PACKAGES := kmod-mt76x2
+  SUPPORTED_DEVICES += psg1218
 endef
-TARGET_DEVICES += psg1218
+TARGET_DEVICES += psg1218a
+
+define Device/psg1218b
+  DTS := PSG1218B
+  DEVICE_TITLE := Phicomm PSG1218 rev.Bx
+  DEVICE_PACKAGES := kmod-mt76x2
+  SUPPORTED_DEVICES += psg1218
+endef
+TARGET_DEVICES += psg1218b
 
 define Device/rp-n53
   DTS := RP-N53
@@ -411,6 +420,7 @@ define Device/wt3020-4M
   BLOCKSIZE := 4k
   IMAGE_SIZE := $(ralink_default_fw_size_4M)
   IMAGES += factory.bin
+  SUPPORTED_DEVICES += wt3020
   IMAGE/factory.bin := $$(sysupgrade_bin) | check-size $$$$(IMAGE_SIZE) | \
 	poray-header -B WT3020 -F 4M
   DEVICE_TITLE := Nexx WT3020 (4MB)
@@ -420,6 +430,7 @@ TARGET_DEVICES += wt3020-4M
 define Device/wt3020-8M
   DTS := WT3020-8M
   IMAGES += factory.bin
+  SUPPORTED_DEVICES += wt3020
   IMAGE/factory.bin := $$(sysupgrade_bin) | check-size $$$$(IMAGE_SIZE) | \
 	poray-header -B WT3020 -F 8M
   DEVICE_TITLE := Nexx WT3020 (8MB)
@@ -473,13 +484,22 @@ define Device/zbt-we2026
 endef
 TARGET_DEVICES += zbt-we2026
 
-define Device/zbt-we826
-  DTS := ZBT-WE826
+define Device/zbt-we826-16M
+  DTS := ZBT-WE826-16M
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
-  DEVICE_TITLE := Zbtlink ZBT-WE826
+  SUPPORTED_DEVICES += zbt-we826
+  DEVICE_TITLE := Zbtlink ZBT-WE826 (16M)
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-mt76 kmod-sdhci-mt7620 
 endef
-TARGET_DEVICES += zbt-we826
+TARGET_DEVICES += zbt-we826-16M
+
+define Device/zbt-we826-32M
+  DTS := ZBT-WE826-32M
+  IMAGE_SIZE := $(ralink_default_fw_size_32M)
+  DEVICE_TITLE := Zbtlink ZBT-WE826 (32M)
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-mt76 kmod-sdhci-mt7620
+endef
+TARGET_DEVICES += zbt-we826-32M
 
 define Device/zbt-wr8305rt
   DTS := ZBT-WR8305RT
