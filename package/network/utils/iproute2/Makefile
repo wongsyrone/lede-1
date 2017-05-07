@@ -24,23 +24,29 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 define Package/iproute2/Default
-  TITLE:=Routing control utility ($(2))
   SECTION:=net
   CATEGORY:=Network
   URL:=http://www.linuxfoundation.org/collaborate/workgroups/networking/iproute2
   SUBMENU:=Routing and Redirection
   MAINTAINER:=Russell Senior <russell@personaltelco.net>
   DEPENDS:= +libnl-tiny
-  VARIANT:=$(1)
-  PROVIDES:=$(3)
 endef
 
 define Package/ip-tiny
-$(call Package/iproute2/Default,tiny,Minimal,ip)
-  CONFLICTS:=ip-full
+$(call Package/iproute2/Default)
+ TITLE:=Routing control utility (Minimal)
+ VARIANT:=tiny
+ PROVIDES:=ip
+ ALTERNATIVES:=200:/sbin/ip:/sbin/ip-tiny
 endef
 
-Package/ip-full:=$(call Package/iproute2/Default,full,Full,ip)
+define Package/ip-full
+$(call Package/iproute2/Default)
+ TITLE:=Routing control utility (Full)
+ VARIANT:=full
+ PROVIDES:=ip
+ ALTERNATIVES:=300:/sbin/ip:/sbin/ip-full
+endef
 
 define Package/tc
 $(call Package/iproute2/Default)
@@ -106,13 +112,13 @@ define Build/InstallDev
 endef
 
 define Package/ip-tiny/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ip/ip $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ip/ip $(1)/sbin/ip-tiny
 endef
 
 define Package/ip-full/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ip/ip $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ip/ip $(1)/sbin/ip-full
 endef
 
 define Package/tc/install

@@ -560,8 +560,9 @@ dhcp_option_add() {
 	if [ -n "$list_len" ]; then
 		config_list_foreach "$cfg" dhcp_option dhcp_option_append "$networkid" "$force"
 	else
-		echo "Warning: the 'option dhcp_option' syntax is deprecated, use 'list dhcp_option'" >&2
 		config_get dhcp_option "$cfg" dhcp_option
+
+		[ -n "$dhcp_option" ] && echo "Warning: the 'option dhcp_option' syntax is deprecated, use 'list dhcp_option'" >&2
 
 		local option
 		for option in $dhcp_option; do
@@ -761,7 +762,7 @@ dnsmasq_start()
 	append_bool "$cfg" dbus "--enable-dbus"
 	append_bool "$cfg" expandhosts "--expand-hosts"
 	config_get tftp_root "$cfg" "tftp_root"
-	[ -d "$tftp_root" ] && append_bool "$cfg" enable_tftp "--enable-tftp"
+	[ -n "$tftp_root" ] && mkdir -p "$tftp_root" && append_bool "$cfg" enable_tftp "--enable-tftp"
 	append_bool "$cfg" tftp_no_fail "--tftp-no-fail"
 	append_bool "$cfg" nonwildcard "--bind-dynamic"
 	append_bool "$cfg" fqdn "--dhcp-fqdn"
