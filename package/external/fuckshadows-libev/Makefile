@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fuckshadows-libev
 PKG_VERSION:=0.2
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=2bf5b6084fa2dc3583b5611798fc1f62ecd706c3
+PKG_SOURCE_VERSION:=2c1c1061a2784e1b8618d5cda3c75ca38c59c34e
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/fuckshadows/fuckshadows-libev.git
@@ -71,6 +71,8 @@ define Package/fuckshadows-libev/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_CONF) ./files/shadowsocks.conf $(1)/etc/fuckshadows.json
 	$(INSTALL_BIN) ./files/shadowsocks.init $(1)/etc/init.d/fuckshadows
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DATA) ./files/shadowsocks.config $(1)/etc/config/fuckshadows
 endef
 
 $(eval $(call BuildPackage,fuckshadows-libev))
