@@ -27,7 +27,7 @@ CMAKE_OPTIONS += -DUBUS=1
 ifneq ($(CONFIG_PACKAGE_odhcpd_ext_cer_id),0)
   CMAKE_OPTIONS += -DEXT_CER_ID=$(CONFIG_PACKAGE_odhcpd_ext_cer_id)
 endif
-
+TARGET_CFLAGS += -Wimplicit-fallthrough=0
 
 define Package/odhcpd
   SECTION:=net

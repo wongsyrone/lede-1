@@ -27,7 +27,8 @@ endef
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include/libnl-tiny \
-	-I$(STAGING_DIR)/usr/include
+	-I$(STAGING_DIR)/usr/include \
+	-Wformat-truncation=0
 
 CMAKE_OPTIONS += \
 	-DLIBNL_LIBS=-lnl-tiny \
