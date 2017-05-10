@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=Toolkit
-PKG_VERSION:=0.3
+PKG_VERSION:=0.3.7.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Toolkit.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=f517152144a9df75044ffc408bc31856fbbe73a7
+PKG_SOURCE_VERSION:=f998b9a008a40fd7c15ed0f19c13dac067d31db6
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -45,9 +45,12 @@ define Package/Toolkit
 endef
 
 define Package/Toolkit/config
+if PACKAGE_Toolkit
+
 	config PACKAGE_Toolkit_advancedoptions
 		bool "Use advanced compile options, see Makefile for details."
 		default n
+endif
 endef
 
 define Package/Toolkit/description
