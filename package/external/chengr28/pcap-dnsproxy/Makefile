@@ -35,6 +35,8 @@ CMAKE_OPTIONS += \
 
 # Port 53 leads to dnsmasq startup failure.
 define Package/pcap-dnsproxy/config
+if PACKAGE_pcap-dnsproxy
+
 	config PACKAGE_pcap-dnsproxy_libpcap
 		bool "Build with libpcap support.(Strongly recommended)"
 		default y
@@ -79,6 +81,7 @@ define Package/pcap-dnsproxy/config
 
 		  Unless you know what you are doing, you
 		  should probably say N here.
+endif
 endef
 
 # Note: GCC 4.6 and 4.8 dont have complete C++11 support
