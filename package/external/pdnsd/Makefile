@@ -33,9 +33,12 @@ define Package/pdnsd
 endef
 
 define Package/pdnsd/config
+if PACKAGE_pdnsd
+
 	config PACKAGE_pdnsd_miniconf
 		bool "Ship mini config file"
 		default n
+endif
 endef
 
 define Package/pdnsd/conffiles
