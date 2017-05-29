@@ -73,8 +73,6 @@ define Package/blockd
   DEPENDS:=+block-mount +fstools +libubus +kmod-fs-autofs4
 endef
 
-TARGET_CFLAGS += -Wformat-truncation=0
-
 define Package/fstools/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/lib
 
