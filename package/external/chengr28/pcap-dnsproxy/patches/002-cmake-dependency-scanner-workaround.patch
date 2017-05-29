@@ -1,6 +1,6 @@
 --- a/Source/Pcap_DNSProxy/Platform.h
 +++ b/Source/Pcap_DNSProxy/Platform.h
-@@ -372,7 +372,7 @@
+@@ -373,7 +373,7 @@
  	#define SODIUM_STATIC
  #endif
  #if defined(ENABLE_LIBSODIUM)
@@ -9,7 +9,7 @@
  #endif
  
  //WinPcap header, always enabled(Windows)
-@@ -386,7 +386,7 @@
+@@ -387,7 +387,7 @@
  	#define HAVE_REMOTE                //WinPcap preprocessor definitions
  #endif
  #if defined(ENABLE_PCAP)
@@ -18,7 +18,7 @@
  #endif
  
  //Windows API headers
-@@ -436,19 +436,19 @@
+@@ -437,19 +437,19 @@
  #endif
  #if defined(PLATFORM_WIN64)
  #if defined(ENABLE_LIBSODIUM)
@@ -44,7 +44,7 @@
  #endif
  #endif
  
-@@ -531,8 +531,8 @@
+@@ -527,8 +527,8 @@
  #ifndef SODIUM_STATIC
  	#define SODIUM_STATIC
  #endif
@@ -55,7 +55,7 @@
  #else
  #if defined(ENABLE_LIBSODIUM)
  #ifndef SODIUM_STATIC
-@@ -557,13 +557,13 @@
+@@ -553,13 +553,13 @@
  #ifndef ENABLE_TLS
  	#define ENABLE_TLS
  #endif
