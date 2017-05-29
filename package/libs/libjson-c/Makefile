@@ -40,8 +40,6 @@ define Package/libjson-c/description
  This package contains a library for javascript object notation backends.
 endef
 
-TARGET_CFLAGS += -Wimplicit-fallthrough=0
-
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/json-c $(1)/usr/include/
