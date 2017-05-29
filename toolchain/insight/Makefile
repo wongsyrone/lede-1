@@ -14,7 +14,10 @@ PKG_HASH:=51216df73adc4f68c67b60356270d5073f0ff094c1b477ecd96560f49707ea2a
 PKG_SOURCE_URL:=ftp://sourceware.org/pub/insight/releases
 PKG_CAT:=bzcat
 
-include $(INCLUDE_DIR)/toolchain-build.mk
+STAGING_DIR_HOST:=$(TOOLCHAIN_DIR)
+BUILD_DIR_HOST:=$(BUILD_DIR_TOOLCHAIN)
+
+include $(INCLUDE_DIR)/host-build.mk
 
 define Host/Configure
 	(cd $(HOST_BUILD_DIR); \
