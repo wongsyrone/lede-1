@@ -194,7 +194,7 @@ nand_upgrade_prepare_ubi() {
 
 nand_do_upgrade_success() {
 	local conf_tar="/tmp/sysupgrade.tgz"
-	
+
 	sync
 	[ -f "$conf_tar" ] && nand_restore_config "$conf_tar"
 	echo "sysupgrade successful"
@@ -231,7 +231,7 @@ nand_upgrade_ubifs() {
 	local rootfs_length=`(cat $1 | wc -c) 2> /dev/null`
 
 	nand_upgrade_prepare_ubi "$rootfs_length" "ubifs" "0" "0"
-	
+
 	local ubidev="$( nand_find_ubi "$CI_UBIPART" )"
 	local root_ubivol="$(nand_find_volume $ubidev rootfs)"
 	ubiupdatevol /dev/$root_ubivol -s $rootfs_length $1
@@ -283,7 +283,16 @@ nand_upgrade_tar() {
 }
 
 # Recognize type of passed file and start the upgrade process
-nand_do_upgrade_stage2() {
+nand_do_upgrade() {
+	if [ -n "$IS_PRE_UPGRADE" ]; then
+		# Previously, nand_do_upgrade was called from the platform_pre_upgrade
+		# hook; this piece of code handles scripts that haven't been
+		# updated. All scripts should gradually move to call nand_do_upgrade
+		# from platform_do_upgrade instead.
+		export do_upgrade=nand_do_upgrade
+		return
+	fi
+
 	local file_type=$(identify $1)
 
 	if type 'platform_nand_pre_upgrade' >/dev/null 2>/dev/null; then
@@ -297,45 +306,6 @@ nand_do_upgrade_stage2() {
 		"ubifs")	nand_upgrade_ubifs $1;;
 		*)		nand_upgrade_tar $1;;
 	esac
-}
-
-nand_upgrade_stage2() {
-	[ $1 = "nand" ] && {
-		[ -f "$2" ] && {
-			touch /tmp/sysupgrade
-
-			killall -9 telnetd
-			killall -9 dropbear
-			killall -9 ash
-
-			kill_remaining TERM
-			sleep 3
-			kill_remaining KILL
-
-			sleep 1
-
-			if [ -n "$(rootfs_type)" ]; then
-				v "Switching to ramdisk..."
-				run_ramfs ". /lib/functions.sh; include /lib/upgrade; nand_do_upgrade_stage2 $2"
-			else
-				nand_do_upgrade_stage2 $2
-			fi
-			return 0
-		}
-		echo "Nand upgrade failed"
-		exit 1
-	}
-}
-
-nand_upgrade_stage1() {
-	[ -f /tmp/sysupgrade-nand-path ] && {
-		path="$(cat /tmp/sysupgrade-nand-path)"
-		[ "$SAVE_CONFIG" != 1 -a -f "$CONF_TAR" ] &&
-			rm $CONF_TAR
-
-		ubus call system nandupgrade "{\"path\": \"$path\" }"
-		exit 0
-	}
 }
 
 # Check if passed file is a valid one for NAND sysupgrade. Currently it accepts
@@ -363,13 +333,4 @@ nand_do_platform_check() {
 	}
 
 	return 0
-}
-
-# Start NAND upgrade process
-#
-# $(1): file to be used for upgrade
-nand_do_upgrade() {
-	echo -n $1 > /tmp/sysupgrade-nand-path
-	cp /sbin/upgraded /tmp/
-	nand_upgrade_stage1
 }
