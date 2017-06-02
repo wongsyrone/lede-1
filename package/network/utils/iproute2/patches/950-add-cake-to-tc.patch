@@ -63,7 +63,7 @@
  #endif
 --- a/tc/Makefile
 +++ b/tc/Makefile
-@@ -65,6 +65,7 @@ TCMODULES += q_codel.o
+@@ -67,6 +67,7 @@ TCMODULES += q_codel.o
  TCMODULES += q_fq_codel.o
  TCMODULES += q_fq.o
  TCMODULES += q_pie.o

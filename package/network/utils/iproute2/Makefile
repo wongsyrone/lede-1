@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iproute2
-PKG_VERSION:=4.10.0
+PKG_VERSION:=4.11.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/utils/net/iproute2
-PKG_HASH:=22b1e1c1fc704ad35837e5a66103739727b8b48ac90b48c13f79b7367ff0a9a8
+PKG_HASH:=72671028bda696d0cb8f48ec8e702581c3a501caeed33eec3a81d7041cbc8026
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_DEPENDS:=iptables
 PKG_LICENSE:=GPL-2.0
@@ -74,6 +74,12 @@ $(call Package/iproute2/Default)
   TITLE:=Network statistics utility
 endef
 
+define Package/devlink
+$(call Package/iproute2/Default)
+  TITLE:=Network devlink utility
+  DEPENDS:=+libmnl
+endef
+
 ifeq ($(BUILD_VARIANT),tiny)
   IP_CONFIG_TINY:=y
 endif
@@ -89,7 +95,6 @@ define Build/Configure
 		> $(PKG_BUILD_DIR)/include/SNAPSHOT.h
 endef
 
-TARGET_CFLAGS += -DHAVE_SETNS
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
 
 MAKE_FLAGS += \
@@ -98,6 +103,7 @@ MAKE_FLAGS += \
 	SHARED_LIBS="" \
 	LDFLAGS="$(TARGET_LDFLAGS) -Wl,--gc-sections" \
 	IP_CONFIG_TINY=$(IP_CONFIG_TINY) \
+	IPT_LIB_DIR=/usr/lib/iptables \
 	FPIC="$(FPIC)"
 
 define Build/Compile
@@ -148,6 +154,11 @@ define Package/nstat/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/misc/nstat $(1)/usr/sbin/
 endef
 
+define Package/devlink/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/devlink/devlink $(1)/usr/sbin/
+endef
+
 $(eval $(call BuildPackage,ip-tiny))
 $(eval $(call BuildPackage,ip-full))
 $(eval $(call BuildPackage,tc))
@@ -155,3 +166,4 @@ $(eval $(call BuildPackage,genl))
 $(eval $(call BuildPackage,ip-bridge))
 $(eval $(call BuildPackage,ss))
 $(eval $(call BuildPackage,nstat))
+$(eval $(call BuildPackage,devlink))

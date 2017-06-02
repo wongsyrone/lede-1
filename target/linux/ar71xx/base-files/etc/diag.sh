@@ -175,6 +175,9 @@ get_status_led() {
 	eap300v2)
 		status_led="engenius:blue:power"
 		;;
+	ens202ext)
+		status_led="engenius:amber:power"
+		;;
 	eap7660d)
 		status_led="$board:green:ds4"
 		;;
@@ -386,6 +389,7 @@ get_status_led() {
 	tl-wr1043nd|\
 	tl-wr1043nd-v2|\
 	tl-wr1043nd-v4|\
+	tl-wr740n-v6|\
 	tl-wr741nd|\
 	tl-wr741nd-v4|\
 	tl-wa801nd-v3|\

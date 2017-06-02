@@ -44,6 +44,7 @@ ar71xx_setup_interfaces()
 	tl-mr3420|\
 	tl-wdr3320-v2|\
 	tl-wdr3500|\
+	tl-wr740n-v6|\
 	tl-wr741nd|\
 	tl-wr741nd-v4|\
 	tl-wr840n-v2|\
@@ -133,6 +134,7 @@ ar71xx_setup_interfaces()
 	a60|\
 	alfa-ap96|\
 	alfa-nx|\
+	dr344|\
 	gl-ar150|\
 	gl-ar300m|\
 	gl-domino|\
@@ -160,7 +162,6 @@ ar71xx_setup_interfaces()
 	all0315n|\
 	dlan-hotspot|\
 	dlan-pro-500-wp|\
-	dr344|\
 	ja76pf2|\
 	rocket-m-ti|\
 	ubnt-unifi-outdoor)

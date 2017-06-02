@@ -628,6 +628,9 @@ ar71xx_board_detect() {
 	*"EmbWir-Dorin-Router")
 		name="ew-dorin-router"
 		;;
+	*"ENS202EXT")
+		name="ens202ext"
+		;;
 	*"EPG5000")
 		name="epg5000"
 		;;
@@ -1111,6 +1114,9 @@ ar71xx_board_detect() {
 		;;
 	*"TL-WR720N"*)
 		name="tl-wr720n-v3"
+		;;
+	*"TL-WR740N/ND v6")
+		name="tl-wr740n-v6"
 		;;
 	*"TL-WR741ND")
 		name="tl-wr741nd"
