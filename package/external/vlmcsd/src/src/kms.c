@@ -91,13 +91,13 @@ static const uint16_t LcidList[] = {
 
 
 #ifdef _PEDANTIC
-uint16_t IsValidLcid(const uint16_t Lcid)
+uint16_t IsValidLcid(const uint16_t lcid)
 {
 	uint16_t i;
 
 	for (i = 0; i < vlmcsd_countof(LcidList); i++)
 	{
-		if (Lcid == LcidList[i]) return Lcid;
+		if (lcid == LcidList[i]) return lcid;
 	}
 
 	return 0;
@@ -516,7 +516,7 @@ long long int llabs(long long int j);
  * Creates the unencrypted base response
  */
 #ifndef IS_LIBRARY
-static HRESULT __stdcall CreateResponseBaseCallback(const REQUEST *const baseRequest, RESPONSE *const baseResponse, BYTE *const hwId, const char* const ipstr)
+static HRESULT __stdcall CreateResponseBaseCallback(const REQUEST *const baseRequest, RESPONSE *const baseResponse, BYTE *const hwId, const char* const ipstr_unused)
 {
 	const char* EpidSource;
 #ifndef NO_LOG
@@ -782,7 +782,7 @@ size_t CreateResponseV6(REQUEST_V6 *restrict request_v6, BYTE *const responseBuf
 
 #ifdef _DEBUG
 	// ReSharper disable once CppEntityNeverUsed
-	RESPONSE_V6_DEBUG* xxx = (RESPONSE_V6_DEBUG*)responseBuffer;
+	RESPONSE_V6_DEBUG* xxx_unused = (RESPONSE_V6_DEBUG*)responseBuffer;
 #endif
 
 	static const BYTE DefaultHwid[8] = { HWID };
@@ -955,7 +955,7 @@ RESPONSE_RESULT DecryptResponseV4(RESPONSE_V4* response_v4, const int responseSi
 }
 
 
-static RESPONSE_RESULT VerifyResponseV6(RESPONSE_RESULT result, const AesCtx* Ctx, RESPONSE_V6* response_v6, REQUEST_V6* request_v6, BYTE* const rawResponse)
+static RESPONSE_RESULT VerifyResponseV6(RESPONSE_RESULT result, RESPONSE_V6* response_v6, REQUEST_V6* request_v6, BYTE* const rawResponse)
 {
 	// Check IVs
 	result.IVsOK = !memcmp // In V6 the XoredIV is actually the request IV
@@ -1029,7 +1029,7 @@ static RESPONSE_RESULT VerifyResponseV5(RESPONSE_RESULT result, REQUEST_V5* requ
 RESPONSE_RESULT DecryptResponseV6(RESPONSE_V6* response_v6, int responseSize, BYTE* const response, const BYTE* const rawRequest, BYTE* hwid)
 {
 	RESPONSE_RESULT result;
-	result.mask = ~0; // Set all bits in the results mask to 1. Assume success first.
+	result.mask = (DWORD)~0; // Set all bits in the results mask to 1. Assume success first.
 	result.effectiveResponseSize = responseSize;
 
 	int copySize1 =
@@ -1126,7 +1126,7 @@ RESPONSE_RESULT DecryptResponseV6(RESPONSE_V6* response_v6, int responseSize, BY
 		memcpy(hwid, response_v6->HwId, sizeof(response_v6->HwId));
 
 		// Verify the V6 specific part of the response
-		result = VerifyResponseV6(result, &Ctx, response_v6, request_v6, response);
+		result = VerifyResponseV6(result, response_v6, request_v6, response);
 	}
 	else // V5
 	{
