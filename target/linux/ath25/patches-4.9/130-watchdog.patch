@@ -212,9 +212,9 @@
 +MODULE_ALIAS("platform:" DRIVER_NAME);
 --- a/drivers/watchdog/Kconfig
 +++ b/drivers/watchdog/Kconfig
-@@ -1345,6 +1345,13 @@ config RALINK_WDT
- 	help
- 	  Hardware driver for the Ralink SoC Watchdog Timer.
+@@ -1554,6 +1554,13 @@ config PIC32_DMT
+ 	  To compile this driver as a loadable module, choose M here.
+ 	  The module will be called pic32-dmt.
  
 +config AR2315_WDT
 +	tristate "Atheros AR2315+ WiSoCs Watchdog Timer"
@@ -228,7 +228,7 @@
  # POWERPC Architecture
 --- a/drivers/watchdog/Makefile
 +++ b/drivers/watchdog/Makefile
-@@ -143,6 +143,7 @@ obj-$(CONFIG_WDT_MTX1) += mtx-1_wdt.o
+@@ -159,6 +159,7 @@ obj-$(CONFIG_WDT_MTX1) += mtx-1_wdt.o
  obj-$(CONFIG_PNX833X_WDT) += pnx833x_wdt.o
  obj-$(CONFIG_SIBYTE_WDOG) += sb_wdog.o
  obj-$(CONFIG_AR7_WDT) += ar7_wdt.o

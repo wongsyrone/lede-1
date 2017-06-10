@@ -10,7 +10,7 @@
      unsigned char name[16];      // Null terminated name
      uint32_t	  flash_base;    // Address within FLASH of image
 @@ -60,6 +62,7 @@ static int parse_redboot_partitions(stru
- 				    struct mtd_partition **pparts,
+ 				    const struct mtd_partition **pparts,
  				    struct mtd_part_parser_data *data)
  {
 +	unsigned long max_offset = 0;

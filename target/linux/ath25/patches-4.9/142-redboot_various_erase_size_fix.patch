@@ -21,7 +21,7 @@
 +}
 +
  static int parse_redboot_partitions(struct mtd_info *master,
- 				    struct mtd_partition **pparts,
+ 				    const struct mtd_partition **pparts,
  				    struct mtd_part_parser_data *data)
 @@ -74,6 +90,7 @@ static int parse_redboot_partitions(stru
  	int namelen = 0;

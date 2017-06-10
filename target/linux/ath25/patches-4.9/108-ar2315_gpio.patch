@@ -75,9 +75,9 @@
  	 * workaround. Attempt to jump to the mips reset location -
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
-@@ -142,6 +142,13 @@ config GPIO_BRCMSTB
- 	help
- 	  Say yes here to enable GPIO support for Broadcom STB (BCM7XXX) SoCs.
+@@ -105,6 +105,13 @@ config GPIO_AMDPT
+ 	  driver for GPIO functionality on Promontory IOHub
+ 	  Require ACPI ASL code to enumerate as a platform device.
  
 +config GPIO_AR2315
 +	bool "AR2315 SoC GPIO support"
@@ -91,14 +91,14 @@
  	default y if SOC_AR5312
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
-@@ -21,6 +21,7 @@ obj-$(CONFIG_GPIO_ADP5588)	+= gpio-adp55
+@@ -26,6 +26,7 @@ obj-$(CONFIG_GPIO_ADP5588)	+= gpio-adp55
  obj-$(CONFIG_GPIO_ALTERA)  	+= gpio-altera.o
  obj-$(CONFIG_GPIO_AMD8111)	+= gpio-amd8111.o
  obj-$(CONFIG_GPIO_AMDPT)	+= gpio-amdpt.o
 +obj-$(CONFIG_GPIO_AR2315)	+= gpio-ar2315.o
  obj-$(CONFIG_GPIO_AR5312)	+= gpio-ar5312.o
  obj-$(CONFIG_GPIO_ARIZONA)	+= gpio-arizona.o
- obj-$(CONFIG_ATH79)		+= gpio-ath79.o
+ obj-$(CONFIG_GPIO_ATH79)	+= gpio-ath79.o
 --- /dev/null
 +++ b/drivers/gpio/gpio-ar2315.c
 @@ -0,0 +1,233 @@
@@ -310,7 +310,7 @@
 +	if (IS_ERR(ar2315_mem))
 +		return PTR_ERR(ar2315_mem);
 +
-+	ar2315_gpio_chip.dev = dev;
++	ar2315_gpio_chip.parent = dev;
 +	ret = gpiochip_add(&ar2315_gpio_chip);
 +	if (ret) {
 +		dev_err(dev, "failed to add gpiochip\n");

@@ -52,9 +52,9 @@
  		if (!ath25_board.radio)
 --- a/drivers/gpio/Kconfig
 +++ b/drivers/gpio/Kconfig
-@@ -142,6 +142,13 @@ config GPIO_BRCMSTB
- 	help
- 	  Say yes here to enable GPIO support for Broadcom STB (BCM7XXX) SoCs.
+@@ -105,6 +105,13 @@ config GPIO_AMDPT
+ 	  driver for GPIO functionality on Promontory IOHub
+ 	  Require ACPI ASL code to enumerate as a platform device.
  
 +config GPIO_AR5312
 +	bool "AR5312 SoC GPIO support"
@@ -63,19 +63,19 @@
 +	help
 +	  Say yes here to enable GPIO support for Atheros AR5312/AR2312+ SoCs.
 +
- config GPIO_CLPS711X
- 	tristate "CLPS711X GPIO support"
- 	depends on ARCH_CLPS711X || COMPILE_TEST
+ config GPIO_ASPEED
+ 	tristate "Aspeed GPIO support"
+ 	depends on (ARCH_ASPEED || COMPILE_TEST) && OF_GPIO
 --- a/drivers/gpio/Makefile
 +++ b/drivers/gpio/Makefile
-@@ -21,6 +21,7 @@ obj-$(CONFIG_GPIO_ADP5588)	+= gpio-adp55
+@@ -26,6 +26,7 @@ obj-$(CONFIG_GPIO_ADP5588)	+= gpio-adp55
  obj-$(CONFIG_GPIO_ALTERA)  	+= gpio-altera.o
  obj-$(CONFIG_GPIO_AMD8111)	+= gpio-amd8111.o
  obj-$(CONFIG_GPIO_AMDPT)	+= gpio-amdpt.o
 +obj-$(CONFIG_GPIO_AR5312)	+= gpio-ar5312.o
  obj-$(CONFIG_GPIO_ARIZONA)	+= gpio-arizona.o
- obj-$(CONFIG_ATH79)		+= gpio-ath79.o
- obj-$(CONFIG_GPIO_BCM_KONA)	+= gpio-bcm-kona.o
+ obj-$(CONFIG_GPIO_ATH79)	+= gpio-ath79.o
+ obj-$(CONFIG_GPIO_ASPEED)	+= gpio-aspeed.o
 --- /dev/null
 +++ b/drivers/gpio/gpio-ar5312.c
 @@ -0,0 +1,121 @@
@@ -177,7 +177,7 @@
 +	if (IS_ERR(ar5312_mem))
 +		return PTR_ERR(ar5312_mem);
 +
-+	ar5312_gpio_chip.dev = dev;
++	ar5312_gpio_chip.parent = dev;
 +	ret = gpiochip_add(&ar5312_gpio_chip);
 +	if (ret) {
 +		dev_err(dev, "failed to add gpiochip\n");
@@ -202,11 +202,11 @@
 +subsys_initcall(ar5312_gpio_init);
 --- a/arch/mips/Kconfig
 +++ b/arch/mips/Kconfig
-@@ -118,6 +118,7 @@ config ATH25
- 	select SYS_SUPPORTS_BIG_ENDIAN
- 	select SYS_SUPPORTS_32BIT_KERNEL
- 	select SYS_HAS_EARLY_PRINTK
-+	select ARCH_REQUIRE_GPIOLIB
- 	help
- 	  Support for Atheros AR231x and Atheros AR531x based boards
- 
+@@ -167,6 +167,7 @@ config ATH25
+ 	select CEVT_R4K
+ 	select CSRC_R4K
+ 	select DMA_NONCOHERENT
++	select GPIOLIB
+ 	select IRQ_MIPS_CPU
+ 	select IRQ_DOMAIN
+ 	select SYS_HAS_CPU_MIPS32_R1

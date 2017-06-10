@@ -2,7 +2,7 @@
 +++ b/drivers/mtd/devices/Kconfig
 @@ -120,6 +120,10 @@ config MTD_BCM47XXSFLASH
  	  registered by bcma as platform devices. This enables driver for
- 	  serial flash memories (only read-only mode is implemented).
+ 	  serial flash memories.
  
 +config MTD_AR2315
 +	tristate "Atheros AR2315+ SPI Flash support"
