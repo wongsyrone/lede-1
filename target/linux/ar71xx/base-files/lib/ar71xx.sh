@@ -443,6 +443,9 @@ ar71xx_board_detect() {
 	*"AP90Q")
 		name="ap90q"
 		;;
+	*"Archer C25 v1")
+		name="archer-c25-v1"
+		;;
 	*"Archer C5")
 		name="archer-c5"
 		;;
@@ -1171,6 +1174,9 @@ ar71xx_board_detect() {
 		;;
 	*"TL-WR941ND")
 		name="tl-wr941nd"
+		;;
+	*"TL-WR942N v1")
+		name="tl-wr942n-v1"
 		;;
 	*"Tube2H")
 		name="tube2h"
