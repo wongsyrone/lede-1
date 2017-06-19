@@ -1,0 +1,28 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+# get config entity via UCI
+enabled=$(uci -q get fuckshadows.@fuckshadows[0].enabled)
+[ "1" = "$enabled" -o "on" = "$enabled" -o "true" = "$enabled" ] || exit 0
+
+# We only handle 'ifup' and 'ifdown' events
+[ "$ACTION" = ifup -o "$ACTION" = ifdown ] || exit 1
+# Exit if we don't have logger, this should not happen
+[ -x /usr/bin/logger ] || exit 2
+
+case "$ACTION" in
+	ifup)
+		logger -p daemon.info -t "fuckshadows" \
+				"Restart request sent due to '$ACTION' of '$INTERFACE'"
+		/etc/init.d/fuckshadows restart
+	;;
+	ifdown)
+		# Shutdown
+		logger -p daemon.info -t "fuckshadows" \
+				"Shutdown request sent due to '$ACTION' of '$INTERFACE'"
+		/etc/init.d/fuckshadows stop
+	;;
+esac
+
+exit 0

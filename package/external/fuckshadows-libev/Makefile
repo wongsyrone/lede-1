@@ -73,6 +73,8 @@ define Package/fuckshadows-libev/install
 	$(INSTALL_BIN) ./files/shadowsocks.init $(1)/etc/init.d/fuckshadows
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./files/shadowsocks.config $(1)/etc/config/fuckshadows
+	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) ./files/shadowsocks.hotplug $(1)/etc/hotplug.d/iface/96-fuckshadows
 endef
 
 $(eval $(call BuildPackage,fuckshadows-libev))
