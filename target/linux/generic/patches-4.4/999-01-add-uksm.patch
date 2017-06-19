@@ -239,7 +239,7 @@
  	NR_VM_ZONE_STAT_ITEMS };
  
  /*
-@@ -809,7 +812,7 @@ static inline int is_highmem_idx(enum zo
+@@ -810,7 +813,7 @@ static inline int is_highmem_idx(enum zo
  }
  
  /**

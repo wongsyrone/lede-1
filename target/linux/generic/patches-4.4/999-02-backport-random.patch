@@ -774,53 +774,7 @@
  /********************************************************************
   *
   * Sysctl interface
-@@ -1798,13 +2050,15 @@ int random_int_secret_init(void)
- 	return 0;
- }
- 
-+static DEFINE_PER_CPU(__u32 [MD5_DIGEST_WORDS], get_random_int_hash)
-+		__aligned(sizeof(unsigned long));
-+
- /*
-  * Get a random word for internal kernel use only. Similar to urandom but
-  * with the goal of minimal entropy pool depletion. As a result, the random
-  * value is not cryptographically secure but for several uses the cost of
-  * depleting entropy is too high
-  */
--static DEFINE_PER_CPU(__u32 [MD5_DIGEST_WORDS], get_random_int_hash);
- unsigned int get_random_int(void)
- {
- 	__u32 *hash;
-@@ -1825,6 +2079,28 @@ unsigned int get_random_int(void)
- EXPORT_SYMBOL(get_random_int);
- 
- /*
-+ * Same as get_random_int(), but returns unsigned long.
-+ */
-+unsigned long get_random_long(void)
-+{
-+	__u32 *hash;
-+	unsigned long ret;
-+
-+	if (arch_get_random_long(&ret))
-+		return ret;
-+
-+	hash = get_cpu_var(get_random_int_hash);
-+
-+	hash[0] += current->pid + jiffies + random_get_entropy();
-+	md5_transform(hash, random_int_secret);
-+	ret = *(unsigned long *)hash;
-+	put_cpu_var(get_random_int_hash);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(get_random_long);
-+
-+/*
-  * randomize_range() returns a start address such that
-  *
-  *    [...... <range> .....]
-@@ -1852,18 +2128,17 @@ void add_hwgenerator_randomness(const ch
+@@ -1876,18 +2128,17 @@ void add_hwgenerator_randomness(const ch
  {
  	struct entropy_store *poolp = &input_pool;
  
@@ -932,14 +886,6 @@
  extern int random_int_secret_init(void);
  
  #ifndef MODULE
-@@ -34,6 +33,7 @@ extern const struct file_operations rand
- #endif
- 
- unsigned int get_random_int(void);
-+unsigned long get_random_long(void);
- unsigned long randomize_range(unsigned long start, unsigned long end, unsigned long len);
- 
- u32 prandom_u32(void);
 --- a/include/linux/uuid.h
 +++ b/include/linux/uuid.h
 @@ -33,6 +33,8 @@ static inline int uuid_be_cmp(const uuid
