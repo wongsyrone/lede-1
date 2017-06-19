@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2016 wongsyrone
+# Copyright (C) 2015-2017 wongsyrone
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
-PKG_VERSION:=0.4.8.8
+PKG_VERSION:=0.4.9.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=5db159d4f02c7130309a98e68474e2895ab67c5c
+PKG_SOURCE_VERSION:=ec7c8891d935390e17ec3340362173dfe3711d5e
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
