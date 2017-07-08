@@ -83,7 +83,7 @@
  
  #include <asm/uaccess.h>
  #include <asm/mmu_context.h>
-@@ -1334,6 +1335,7 @@ void setup_new_exec(struct linux_binprm
+@@ -1354,6 +1355,7 @@ void setup_new_exec(struct linux_binprm
  	/* An exec changes our domain. We are no longer part of the thread
  	   group */
  	current->self_exec_id++;
@@ -1137,7 +1137,7 @@
  	kmem_cache_free(vm_area_cachep, vma);
  	return next;
  }
-@@ -675,9 +677,16 @@ int __vma_adjust(struct vm_area_struct *
+@@ -689,9 +691,16 @@ int __vma_adjust(struct vm_area_struct *
  	long adjust_next = 0;
  	int remove_next = 0;
  
@@ -1154,7 +1154,7 @@
  		if (end >= next->vm_end) {
  			/*
  			 * vma expands, overlapping all the next, and
-@@ -810,6 +819,7 @@ again:
+@@ -824,6 +833,7 @@ again:
  		end_changed = true;
  	}
  	vma->vm_pgoff = pgoff;
@@ -1162,7 +1162,7 @@
  	if (adjust_next) {
  		next->vm_start += adjust_next << PAGE_SHIFT;
  		next->vm_pgoff += adjust_next;
-@@ -915,6 +925,7 @@ again:
+@@ -929,6 +939,7 @@ again:
  		if (remove_next == 2) {
  			remove_next = 1;
  			end = next->vm_end;
@@ -1170,9 +1170,9 @@
  			goto again;
  		}
  		else if (next)
-@@ -941,10 +952,14 @@ again:
+@@ -955,10 +966,14 @@ again:
  			 */
- 			VM_WARN_ON(mm->highest_vm_end != end);
+ 			VM_WARN_ON(mm->highest_vm_end != vm_end_gap(vma));
  		}
 +	} else {
 +		if (next && !insert)
@@ -1185,7 +1185,7 @@
  	validate_mm(mm);
  
  	return 0;
-@@ -1360,6 +1375,9 @@ unsigned long do_mmap(struct file *file,
+@@ -1374,6 +1389,9 @@ unsigned long do_mmap(struct file *file,
  	vm_flags |= calc_vm_prot_bits(prot, pkey) | calc_vm_flag_bits(flags) |
  			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
  
@@ -1195,7 +1195,7 @@
  	if (flags & MAP_LOCKED)
  		if (!can_do_mlock())
  			return -EPERM;
-@@ -1698,6 +1716,7 @@ unsigned long mmap_region(struct file *f
+@@ -1712,6 +1730,7 @@ unsigned long mmap_region(struct file *f
  			allow_write_access(file);
  	}
  	file = vma->vm_file;
@@ -1203,7 +1203,7 @@
  out:
  	perf_event_mmap(vma);
  
-@@ -1739,6 +1758,7 @@ allow_write_and_free_vma:
+@@ -1753,6 +1772,7 @@ allow_write_and_free_vma:
  	if (vm_flags & VM_DENYWRITE)
  		allow_write_access(file);
  free_vma:
@@ -1211,7 +1211,7 @@
  	kmem_cache_free(vm_area_cachep, vma);
  unacct_error:
  	if (charged)
-@@ -2544,6 +2564,8 @@ static int __split_vma(struct mm_struct
+@@ -2578,6 +2598,8 @@ static int __split_vma(struct mm_struct
  	else
  		err = vma_adjust(vma, vma->vm_start, addr, vma->vm_pgoff, new);
  
@@ -1220,7 +1220,7 @@
  	/* Success. */
  	if (!err)
  		return 0;
-@@ -2822,6 +2844,7 @@ static int do_brk(unsigned long addr, un
+@@ -2856,6 +2878,7 @@ static int do_brk(unsigned long addr, un
  		return 0;
  
  	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
@@ -1228,7 +1228,7 @@
  
  	error = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
  	if (offset_in_page(error))
-@@ -2879,6 +2902,7 @@ static int do_brk(unsigned long addr, un
+@@ -2913,6 +2936,7 @@ static int do_brk(unsigned long addr, un
  	vma->vm_flags = flags;
  	vma->vm_page_prot = vm_get_page_prot(flags);
  	vma_link(mm, vma, prev, rb_link, rb_parent);
@@ -1236,7 +1236,7 @@
  out:
  	perf_event_mmap(vma);
  	mm->total_vm += len >> PAGE_SHIFT;
-@@ -2917,6 +2941,12 @@ void exit_mmap(struct mm_struct *mm)
+@@ -2951,6 +2975,12 @@ void exit_mmap(struct mm_struct *mm)
  	/* mm's last user has gone, and its about to be pulled down */
  	mmu_notifier_release(mm);
  
@@ -1249,7 +1249,7 @@
  	if (mm->locked_vm) {
  		vma = mm->mmap;
  		while (vma) {
-@@ -2952,6 +2982,11 @@ void exit_mmap(struct mm_struct *mm)
+@@ -2986,6 +3016,11 @@ void exit_mmap(struct mm_struct *mm)
  		vma = remove_vma(vma);
  	}
  	vm_unacct_memory(nr_accounted);
@@ -1261,7 +1261,7 @@
  }
  
  /* Insert vm structure into process list sorted by address
-@@ -3061,6 +3096,7 @@ struct vm_area_struct *copy_vma(struct v
+@@ -3095,6 +3130,7 @@ struct vm_area_struct *copy_vma(struct v
  			new_vma->vm_ops->open(new_vma);
  		vma_link(mm, new_vma, prev, rb_link, rb_parent);
  		*need_rmap_locks = false;
@@ -1269,7 +1269,7 @@
  	}
  	return new_vma;
  
-@@ -3208,6 +3244,7 @@ static struct vm_area_struct *__install_
+@@ -3242,6 +3278,7 @@ static struct vm_area_struct *__install_
  	vm_stat_account(mm, vma->vm_flags, len >> PAGE_SHIFT);
  
  	perf_event_mmap(vma);

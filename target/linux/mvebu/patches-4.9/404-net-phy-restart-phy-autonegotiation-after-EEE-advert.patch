@@ -12,30 +12,19 @@ Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 
 --- a/drivers/net/phy/phy.c
 +++ b/drivers/net/phy/phy.c
-@@ -1343,16 +1343,33 @@ EXPORT_SYMBOL(phy_ethtool_get_eee);
+@@ -1343,6 +1343,7 @@ EXPORT_SYMBOL(phy_ethtool_get_eee);
   */
  int phy_ethtool_set_eee(struct phy_device *phydev, struct ethtool_eee *data)
  {
--	int cap, adv;
-+	int cap, old_adv, adv, ret;
++	int ret;
+ 	int val = ethtool_adv_to_mmd_eee_adv_t(data->advertised);
  
- 	/* Get Supported EEE */
- 	cap = phy_read_mmd(phydev, MDIO_MMD_PCS, MDIO_PCS_EEE_ABLE);
- 	if (cap < 0)
- 		return cap;
+ 	/* Mask prohibited EEE modes */
+@@ -1350,6 +1351,15 @@ int phy_ethtool_set_eee(struct phy_devic
  
-+	old_adv = phy_read_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV);
-+	if (old_adv < 0)
-+		return old_adv;
-+
- 	adv = ethtool_adv_to_mmd_eee_adv_t(data->advertised) & cap;
+ 	phy_write_mmd_indirect(phydev, MDIO_AN_EEE_ADV, MDIO_MMD_AN, val);
  
--	return phy_write_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV, adv);
-+	if (old_adv != adv) {
-+		ret = phy_write_mmd(phydev, MDIO_MMD_AN, MDIO_AN_EEE_ADV, adv);
-+		if (ret < 0)
-+			return ret;
-+
++	if (phydev->eee_broken_modes) {
 +		/* Restart autonegotiation so the new modes get sent to the
 +		 * link partner.
 +		 */
@@ -44,7 +33,6 @@ Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 +			return ret;
 +	}
 +
-+	return 0;
+ 	return 0;
  }
  EXPORT_SYMBOL(phy_ethtool_set_eee);
- 
