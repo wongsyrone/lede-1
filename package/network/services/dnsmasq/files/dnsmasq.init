@@ -125,6 +125,10 @@ append_server() {
 	xappend "--server=$1"
 }
 
+append_rev_server() {
+        xappend "--rev-server=$1"
+}
+
 append_address() {
 	xappend "--address=$1"
 }
@@ -440,6 +444,7 @@ dhcp_add() {
 	local cfg="$1"
 	local dhcp6range="::"
 	local nettag
+	local tags
 
 	config_get net "$cfg" interface
 	[ -n "$net" ] || return 0
@@ -491,6 +496,12 @@ dhcp_add() {
 	dhcp_this_host_add "$net" "$ifname" "$ADD_LOCAL_FQDN"
 
 	start="$( dhcp_calc "$start" )"
+
+	add_tag() {
+		tags="${tags}tag:$1,"
+	}
+	config_list_foreach "$cfg" tag add_tag
+
 	nettag="${networkid:+set:${networkid},}"
 
 	if [ "$limit" -gt 0 ] ; then
@@ -508,7 +519,7 @@ dhcp_add() {
 
 
 	if [ "$dhcpv4" != "disabled" ] ; then
-		xappend "--dhcp-range=$nettag$START,$END,$NETMASK,$leasetime${options:+ $options}"
+		xappend "--dhcp-range=$tags$nettag$START,$END,$NETMASK,$leasetime${options:+ $options}"
 	fi
 
 
@@ -816,6 +827,7 @@ dnsmasq_start()
 	append_parm "$cfg" "domain" "--domain"
 	append_parm "$cfg" "local" "--server"
 	config_list_foreach "$cfg" "server" append_server
+	config_list_foreach "$cfg" "rev_server" append_rev_server
 	config_list_foreach "$cfg" "address" append_address
 	config_list_foreach "$cfg" "ipset" append_ipset
 	config_list_foreach "$cfg" "interface" append_interface

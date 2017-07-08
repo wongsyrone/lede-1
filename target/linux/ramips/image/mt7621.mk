@@ -60,7 +60,7 @@ define Device/ew1200
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
   DEVICE_TITLE := AFOUNDRY EW1200
   DEVICE_PACKAGES := \
-	kmod-ata-core kmod-ata-ahci kmod-mt76x2 kmod-usb3 \
+	kmod-ata-core kmod-ata-ahci kmod-mt76x2 kmod-mt7603 kmod-usb3 \
 	kmod-usb-ledtrig-usbport wpad-mini
 endef
 TARGET_DEVICES += ew1200
@@ -185,15 +185,10 @@ endef
 TARGET_DEVICES += ubnt-erx
 
 define Device/ubnt-erx-sfp
+  $(Device/ubnt-erx)
   DTS := UBNT-ERX-SFP
-  FILESYSTEMS := squashfs
-  KERNEL_SIZE := 3145728
-  KERNEL := $(KERNEL_DTB) | uImage lzma
-  IMAGES := sysupgrade.tar
-  KERNEL_INITRAMFS := $$(KERNEL) | ubnt-erx-factory-image $(KDIR)/tmp/$$(KERNEL_INITRAMFS_PREFIX)-factory.tar
-  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
   DEVICE_TITLE := Ubiquiti EdgeRouter X-SFP
-  DEVICE_PACKAGES := -kmod-mt76 -kmod-rt2x00-lib -kmod-mac80211 -kmod-cfg80211 -wpad-mini -iwinfo kmod-i2c-algo-pca kmod-gpio-pca953x kmod-i2c-gpio-custom
+  DEVICE_PACKAGES += kmod-i2c-algo-pca kmod-gpio-pca953x kmod-i2c-gpio-custom
 endef
 TARGET_DEVICES += ubnt-erx-sfp
 
