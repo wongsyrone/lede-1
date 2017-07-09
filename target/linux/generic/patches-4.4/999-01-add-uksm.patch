@@ -82,7 +82,7 @@
  #include <linux/user_namespace.h>
  
  #include <asm/uaccess.h>
-@@ -1183,6 +1184,7 @@ void setup_new_exec(struct linux_binprm
+@@ -1203,6 +1204,7 @@ void setup_new_exec(struct linux_binprm
  	/* An exec changes our domain. We are no longer part of the thread
  	   group */
  	current->self_exec_id++;
@@ -1146,7 +1146,7 @@
  	kmem_cache_free(vm_area_cachep, vma);
  	return next;
  }
-@@ -738,9 +740,16 @@ int vma_adjust(struct vm_area_struct *vm
+@@ -752,9 +754,16 @@ int vma_adjust(struct vm_area_struct *vm
  	long adjust_next = 0;
  	int remove_next = 0;
  
@@ -1163,7 +1163,7 @@
  		if (end >= next->vm_end) {
  			/*
  			 * vma expands, overlapping all the next, and
-@@ -834,6 +843,7 @@ again:			remove_next = 1 + (end > next->
+@@ -848,6 +857,7 @@ again:			remove_next = 1 + (end > next->
  		end_changed = true;
  	}
  	vma->vm_pgoff = pgoff;
@@ -1171,7 +1171,7 @@
  	if (adjust_next) {
  		next->vm_start += adjust_next << PAGE_SHIFT;
  		next->vm_pgoff += adjust_next;
-@@ -904,16 +914,22 @@ again:			remove_next = 1 + (end > next->
+@@ -918,16 +928,21 @@ again:			remove_next = 1 + (end > next->
  		 * up the code too much to do both in one go.
  		 */
  		next = vma->vm_next;
@@ -1180,12 +1180,10 @@
 +			uksm_remove_vma(next);
  			goto again;
 -		else if (next)
-+		} else if (next) {
++		} else if (next)
  			vma_gap_update(next);
--		else
-+		} else {
- 			mm->highest_vm_end = end;
-+		}
+ 		else
+ 			VM_WARN_ON(mm->highest_vm_end != vm_end_gap(vma));
 +	} else {
 +		if (next && !insert)
 +			uksm_vma_add_new(next);
@@ -1197,7 +1195,7 @@
  	validate_mm(mm);
  
  	return 0;
-@@ -1316,6 +1332,9 @@ unsigned long do_mmap(struct file *file,
+@@ -1330,6 +1345,9 @@ unsigned long do_mmap(struct file *file,
  	vm_flags |= calc_vm_prot_bits(prot) | calc_vm_flag_bits(flags) |
  			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
  
@@ -1207,7 +1205,7 @@
  	if (flags & MAP_LOCKED)
  		if (!can_do_mlock())
  			return -EPERM;
-@@ -1656,6 +1675,7 @@ unsigned long mmap_region(struct file *f
+@@ -1670,6 +1688,7 @@ unsigned long mmap_region(struct file *f
  			allow_write_access(file);
  	}
  	file = vma->vm_file;
@@ -1215,7 +1213,7 @@
  out:
  	perf_event_mmap(vma);
  
-@@ -1697,6 +1717,7 @@ allow_write_and_free_vma:
+@@ -1711,6 +1730,7 @@ allow_write_and_free_vma:
  	if (vm_flags & VM_DENYWRITE)
  		allow_write_access(file);
  free_vma:
@@ -1223,7 +1221,7 @@
  	kmem_cache_free(vm_area_cachep, vma);
  unacct_error:
  	if (charged)
-@@ -2494,6 +2515,8 @@ static int __split_vma(struct mm_struct
+@@ -2528,6 +2548,8 @@ static int __split_vma(struct mm_struct
  	else
  		err = vma_adjust(vma, vma->vm_start, addr, vma->vm_pgoff, new);
  
@@ -1232,7 +1230,7 @@
  	/* Success. */
  	if (!err)
  		return 0;
-@@ -2754,6 +2777,7 @@ static unsigned long do_brk(unsigned lon
+@@ -2788,6 +2810,7 @@ static unsigned long do_brk(unsigned lon
  		return addr;
  
  	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
@@ -1240,7 +1238,7 @@
  
  	error = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
  	if (offset_in_page(error))
-@@ -2811,6 +2835,7 @@ static unsigned long do_brk(unsigned lon
+@@ -2845,6 +2868,7 @@ static unsigned long do_brk(unsigned lon
  	vma->vm_flags = flags;
  	vma->vm_page_prot = vm_get_page_prot(flags);
  	vma_link(mm, vma, prev, rb_link, rb_parent);
@@ -1248,7 +1246,7 @@
  out:
  	perf_event_mmap(vma);
  	mm->total_vm += len >> PAGE_SHIFT;
-@@ -2846,6 +2871,12 @@ void exit_mmap(struct mm_struct *mm)
+@@ -2880,6 +2904,12 @@ void exit_mmap(struct mm_struct *mm)
  	/* mm's last user has gone, and its about to be pulled down */
  	mmu_notifier_release(mm);
  
@@ -1261,7 +1259,7 @@
  	if (mm->locked_vm) {
  		vma = mm->mmap;
  		while (vma) {
-@@ -2881,6 +2912,11 @@ void exit_mmap(struct mm_struct *mm)
+@@ -2915,6 +2945,11 @@ void exit_mmap(struct mm_struct *mm)
  		vma = remove_vma(vma);
  	}
  	vm_unacct_memory(nr_accounted);
@@ -1273,7 +1271,7 @@
  }
  
  /* Insert vm structure into process list sorted by address
-@@ -2990,6 +3026,7 @@ struct vm_area_struct *copy_vma(struct v
+@@ -3024,6 +3059,7 @@ struct vm_area_struct *copy_vma(struct v
  			new_vma->vm_ops->open(new_vma);
  		vma_link(mm, new_vma, prev, rb_link, rb_parent);
  		*need_rmap_locks = false;
@@ -1281,7 +1279,7 @@
  	}
  	return new_vma;
  
-@@ -3095,10 +3132,10 @@ static struct vm_area_struct *__install_
+@@ -3129,10 +3165,10 @@ static struct vm_area_struct *__install_
  	ret = insert_vm_struct(mm, vma);
  	if (ret)
  		goto out;
