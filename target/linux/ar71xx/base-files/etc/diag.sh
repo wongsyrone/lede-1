@@ -1,11 +1,11 @@
 #!/bin/sh
 # Copyright (C) 2009-2013 OpenWrt.org
 
+. /lib/functions.sh
 . /lib/functions/leds.sh
-. /lib/ar71xx.sh
 
 get_status_led() {
-	local board=$(ar71xx_board_name)
+	local board=$(board_name)
 
 	case $board in
 	a40)
@@ -175,7 +175,7 @@ get_status_led() {
 		status_led="$board:blue:status"
 		;;
 	eap120)
-		status_led="$(ar71xx_board_name):green:system"
+		status_led="$board:green:system"
 		;;
 	eap300v2)
 		status_led="engenius:blue:power"
@@ -316,8 +316,6 @@ get_status_led() {
 	rb-911g-2hpnd|\
 	rb-911g-5hpacd|\
 	rb-911g-5hpnd|\
-	rb-912uag-2hpnd|\
-	rb-912uag-5hpnd|\
 	rb-941-2nd|\
 	rb-951ui-2nd|\
 	rb-952ui-5ac2nd|\
@@ -329,6 +327,8 @@ get_status_led() {
 	rb-951ui-2hnd)
 		status_led="rb:green:act"
 		;;
+	rb-912uag-2hpnd|\
+	rb-912uag-5hpnd|\
 	rb-sxt2n|\
 	rb-sxt5n)
 		status_led="rb:green:power"
@@ -517,7 +517,7 @@ set_state() {
 		;;
 	done)
 		status_led_on
-		case $(ar71xx_board_name) in
+		case $(board_name) in
 		gl-ar300m)
 			fw_printenv lc >/dev/null 2>&1 && fw_setenv "bootcount" 0
 			;;

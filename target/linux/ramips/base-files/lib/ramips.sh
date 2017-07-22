@@ -262,6 +262,9 @@ ramips_board_detect() {
 	*"JHR-N926R")
 		name="jhr-n926r"
 		;;
+	*"K2P")
+		name="k2p"
+		;;
 	*"M3")
 		name="m3"
 		;;
@@ -715,13 +718,4 @@ ramips_board_detect() {
 
 	echo "$RAMIPS_BOARD_NAME" > /tmp/sysinfo/board_name
 	echo "$RAMIPS_MODEL" > /tmp/sysinfo/model
-}
-
-ramips_board_name() {
-	local name
-
-	[ -f /tmp/sysinfo/board_name ] && name=$(cat /tmp/sysinfo/board_name)
-	[ -z "$name" ] && name="unknown"
-
-	echo "${name}"
 }
