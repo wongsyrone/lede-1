@@ -89,7 +89,7 @@
  	bitfield_free(bf);
 --- a/wpa_supplicant/rrm.c
 +++ b/wpa_supplicant/rrm.c
-@@ -996,7 +996,7 @@ static int wpas_rm_handle_beacon_req_sub
+@@ -1001,7 +1001,7 @@ static int wpas_rm_handle_beacon_req_sub
  		}
  
  		for (i = 0; i < slen; i++)

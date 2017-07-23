@@ -36,7 +36,7 @@
  LIBS += $(DRV_AP_LIBS)
  
  ifdef CONFIG_L2_PACKET
-@@ -1200,6 +1206,12 @@ install: $(addprefix $(DESTDIR)$(BINDIR)
+@@ -1204,6 +1210,12 @@ install: $(addprefix $(DESTDIR)$(BINDIR)
  
  BCHECK=../src/drivers/build.hostapd
  
@@ -49,7 +49,7 @@
  hostapd: $(BCHECK) $(OBJS)
  	$(Q)$(CC) $(LDFLAGS) -o hostapd $(OBJS) $(LIBS)
  	@$(E) "  LD " $@
-@@ -1244,6 +1256,12 @@ ifeq ($(CONFIG_TLS), linux)
+@@ -1248,6 +1260,12 @@ ifeq ($(CONFIG_TLS), linux)
  HOBJS += ../src/crypto/crypto_linux.o
  endif
  
@@ -105,7 +105,7 @@
  OBJS += ../src/ap/hostapd.o
  OBJS += ../src/ap/wpa_auth_glue.o
  OBJS += ../src/ap/utils.o
-@@ -951,6 +960,12 @@ endif
+@@ -952,6 +961,12 @@ endif
  ifdef CONFIG_HS20
  OBJS += ../src/ap/hs20.o
  endif
@@ -118,7 +118,7 @@
  endif
  
  ifdef CONFIG_MBO
-@@ -959,7 +974,9 @@ CFLAGS += -DCONFIG_MBO
+@@ -960,7 +975,9 @@ CFLAGS += -DCONFIG_MBO
  endif
  
  ifdef NEED_RSN_AUTHENTICATOR
@@ -128,7 +128,7 @@
  NEED_AES_WRAP=y
  OBJS += ../src/ap/wpa_auth.o
  OBJS += ../src/ap/wpa_auth_ie.o
-@@ -1830,6 +1847,12 @@ wpa_priv: $(BCHECK) $(OBJS_priv)
+@@ -1835,6 +1852,12 @@ wpa_priv: $(BCHECK) $(OBJS_priv)
  
  $(OBJS_c) $(OBJS_t) $(OBJS_t2) $(OBJS) $(BCHECK) $(EXTRA_progs): .config
  
@@ -141,7 +141,7 @@
  wpa_supplicant: $(BCHECK) $(OBJS) $(EXTRA_progs)
  	$(Q)$(LDO) $(LDFLAGS) -o wpa_supplicant $(OBJS) $(LIBS) $(EXTRALIBS)
  	@$(E) "  LD " $@
-@@ -1932,6 +1955,12 @@ endif
+@@ -1937,6 +1960,12 @@ endif
  		-e 's|\@DBUS_INTERFACE\@|$(DBUS_INTERFACE)|g' $< >$@
  	@$(E) "  sed" $<
  
@@ -231,7 +231,7 @@
  	os_memset(&global, 0, sizeof(global));
 --- a/wpa_supplicant/events.c
 +++ b/wpa_supplicant/events.c
-@@ -3708,8 +3708,8 @@ static void wpa_supplicant_event_assoc_a
+@@ -3709,8 +3709,8 @@ static void wpa_supplicant_event_assoc_a
  }
  
  
@@ -242,7 +242,7 @@
  {
  	struct wpa_supplicant *wpa_s = ctx;
  	int resched;
-@@ -4465,7 +4465,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -4466,7 +4466,7 @@ void wpa_supplicant_event(void *ctx, enu
  }
  
  

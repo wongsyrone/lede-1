@@ -30,7 +30,7 @@
  			reply_len = -1;
 --- a/wpa_supplicant/Makefile
 +++ b/wpa_supplicant/Makefile
-@@ -925,6 +925,9 @@ ifdef CONFIG_FILS
+@@ -926,6 +926,9 @@ ifdef CONFIG_FILS
  OBJS += ../src/ap/fils_hlp.o
  endif
  ifdef CONFIG_CTRL_IFACE

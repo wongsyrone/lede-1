@@ -12,7 +12,7 @@
  	 * bridge_ifname - Optional bridge interface name
  	 *
  	 * If the driver interface (ifname) is included in a Linux bridge
-@@ -509,6 +514,8 @@ struct wpa_supplicant {
+@@ -512,6 +517,8 @@ struct wpa_supplicant {
  #endif /* CONFIG_CTRL_IFACE_BINDER */
  	char bridge_ifname[16];
  
