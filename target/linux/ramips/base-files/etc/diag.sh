@@ -77,6 +77,7 @@ get_status_led() {
 	dir-620-a1|\
 	dir-620-d1|\
 	dwr-512-b|\
+	gb-pc1|\
 	hpm|\
 	hw550-3g|\
 	mac1200rv2|\
@@ -119,6 +120,7 @@ get_status_led() {
 	dap-1350|\
 	na930|\
 	pbr-m1|\
+	re350-v1|\
 	rt-ac51u|\
 	rt-n13u|\
 	rt-n14u|\
