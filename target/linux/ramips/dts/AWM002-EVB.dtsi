@@ -1,33 +1,25 @@
-/dts-v1/;
-
-#include "AWM002-8M.dtsi"
+#include "rt5350.dtsi"
 
 #include <dt-bindings/input/input.h>
 
 / {
-	compatible = "AWM003", "ralink,rt5350-soc";
-	model = "AsiaRF AWM003 EVB";
-
-	memory@0 {
-		device_type = "memory";
-		reg = <0x0 0x4000000>;
-	};
+	compatible = "asiarf,awm002-evb", "ralink,rt5350-soc";
 
 	gpio-leds {
 		compatible = "gpio-leds";
 
 		tx {
-			label = "awm003-evb:green:tx";
+			label = "awm002-evb:green:tx";
 			gpios = <&gpio0 15 1>;
 		};
 
 		rx {
-			label = "awm003-evb:green:rx";
+			label = "awm002-evb:green:rx";
 			gpios = <&gpio0 16 1>;
 		};
 
 		wps {
-			label = "awm003-evb:green:wps";
+			label = "awm002-evb:green:wps";
 			gpios = <&gpio0 21 1>;
 		};
 	};
@@ -52,14 +44,31 @@
 	};
 };
 
-&m25p80 {
-	compatible = "jedec,spi-nor";
-};
-
 &ethernet {
 	mtd-mac-address = <&factory 0x28>;
 };
 
 &wmac {
 	ralink,mtd-eeprom = <&factory 0>;
+};
+
+&pinctrl {
+	state_default: pinctrl0 {
+		gpio {
+			ralink,group = "i2c", "jtag";
+			ralink,function = "gpio";
+		};
+	};
+};
+
+&esw {
+	mediatek,portmap = <0x3f>;
+};
+
+&ehci {
+	status = "okay";
+};
+
+&ohci {
+	status = "okay";
 };
