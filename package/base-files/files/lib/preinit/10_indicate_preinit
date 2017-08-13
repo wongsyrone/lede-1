@@ -99,6 +99,8 @@ preinit_config_board() {
 }
 
 preinit_ip() {
+	[ "$pi_preinit_no_failsafe" = "y" ] && return
+
 	# if the preinit interface isn't specified and ifname is set in
 	# preinit.arch use that interface
 	if [ -z "$pi_ifname" ]; then
@@ -110,6 +112,8 @@ preinit_ip() {
 	elif [ -d "/etc/board.d/" ]; then
 		preinit_config_board
 	fi
+
+	preinit_net_echo "Doing Lede Preinit\n"
 }
 
 preinit_ip_deconfig() {
@@ -143,13 +147,7 @@ preinit_net_echo() {
 	}
 }
 
-preinit_echo() {
-	preinit_net_echo $1
-	echo $1
-}
-
 pi_indicate_preinit() {
-	preinit_net_echo "Doing Lede Preinit\n"
 	set_state preinit
 }
 
