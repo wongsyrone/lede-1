@@ -319,7 +319,12 @@ dhcp_host_add() {
 	fi
 
 	if [ -n "$hostid" ]; then
-			hex_to_hostid hostid "$hostid"
+		hex_to_hostid hostid "$hostid"
+	fi
+
+	tags=""
+	if [ -n "$tag" ]; then
+		for t in $tag; do append tags "$t" ",set:"; done
 	fi
 
 	config_get_bool broadcast "$cfg" broadcast 0
@@ -327,7 +332,7 @@ dhcp_host_add() {
 
 	[ "$broadcast" = "0" ] && broadcast= || broadcast=",set:needs-broadcast"
 
-	hosttag="${networkid:+,set:${networkid}}${tag:+,set:${tag}}$broadcast"
+	hosttag="${networkid:+,set:${networkid}}${tags:+,set:${tags}}$broadcast"
 	nametime="${name:+,$name}${leasetime:+,$leasetime}"
 
 	if [ $DNSMASQ_DHCP_VER -eq 6 ]; then
@@ -378,8 +383,8 @@ dhcp_this_host_add() {
 				for lanaddr6 in $lanaddrs6 ; do
 					case "$lanaddr6" in
 					"${ulaprefix%%:/*}"*)
-							dhcp_domain_add "" "$routername" "$lanaddr6"
-							;;
+						dhcp_domain_add "" "$routername" "$lanaddr6"
+						;;
 					esac
 				done
 			fi
