@@ -30,7 +30,7 @@
  	int interface_added; /* virtual interface added for this BSS */
  	unsigned int started:1;
  	unsigned int disabled:1;
-@@ -371,6 +373,8 @@ struct hostapd_iface {
+@@ -370,6 +372,8 @@ struct hostapd_iface {
  	struct hostapd_config *conf;
  	char phy[16]; /* Name of the PHY (radio) */
  
@@ -156,7 +156,7 @@
  	/*
  	 * sta->capability is used in check_assoc_ies() for RRM enabled
  	 * capability element.
-@@ -2688,6 +2714,7 @@ static void handle_disassoc(struct hosta
+@@ -3248,6 +3274,7 @@ static void handle_disassoc(struct hosta
  	wpa_printf(MSG_DEBUG, "disassocation: STA=" MACSTR " reason_code=%d",
  		   MAC2STR(mgmt->sa),
  		   le_to_host16(mgmt->u.disassoc.reason_code));
@@ -164,7 +164,7 @@
  
  	sta = ap_get_sta(hapd, mgmt->sa);
  	if (sta == NULL) {
-@@ -2742,6 +2769,8 @@ static void handle_deauth(struct hostapd
+@@ -3313,6 +3340,8 @@ static void handle_deauth(struct hostapd
  		" reason_code=%d",
  		MAC2STR(mgmt->sa), le_to_host16(mgmt->u.deauth.reason_code));
  
@@ -173,7 +173,7 @@
  	sta = ap_get_sta(hapd, mgmt->sa);
  	if (sta == NULL) {
  		wpa_msg(hapd->msg_ctx, MSG_DEBUG, "Station " MACSTR " trying "
-@@ -3025,7 +3054,7 @@ int ieee802_11_mgmt(struct hostapd_data
+@@ -3627,7 +3656,7 @@ int ieee802_11_mgmt(struct hostapd_data
  
  
  	if (stype == WLAN_FC_STYPE_PROBE_REQ) {
@@ -182,7 +182,7 @@
  		return 1;
  	}
  
-@@ -3043,17 +3072,17 @@ int ieee802_11_mgmt(struct hostapd_data
+@@ -3647,17 +3676,17 @@ int ieee802_11_mgmt(struct hostapd_data
  	switch (stype) {
  	case WLAN_FC_STYPE_AUTH:
  		wpa_printf(MSG_DEBUG, "mgmt::auth");
@@ -282,7 +282,7 @@
  		wpabuf_free(sta->p2p_ie);
 --- a/src/ap/sta_info.c
 +++ b/src/ap/sta_info.c
-@@ -386,6 +386,7 @@ void ap_handle_timer(void *eloop_ctx, vo
+@@ -404,6 +404,7 @@ void ap_handle_timer(void *eloop_ctx, vo
  			       HOSTAPD_LEVEL_INFO, "deauthenticated due to "
  			       "local deauth request");
  		ap_free_sta(hapd, sta);
@@ -290,7 +290,7 @@
  		return;
  	}
  
-@@ -533,6 +534,7 @@ skip_poll:
+@@ -551,6 +552,7 @@ skip_poll:
  			hapd, sta,
  			WLAN_REASON_PREV_AUTH_NOT_VALID);
  		ap_free_sta(hapd, sta);
@@ -300,7 +300,7 @@
  }
 --- a/src/ap/wpa_auth_glue.c
 +++ b/src/ap/wpa_auth_glue.c
-@@ -159,6 +159,7 @@ static void hostapd_wpa_auth_psk_failure
+@@ -173,6 +173,7 @@ static void hostapd_wpa_auth_psk_failure
  	struct hostapd_data *hapd = ctx;
  	wpa_msg(hapd->msg_ctx, MSG_INFO, AP_STA_POSSIBLE_PSK_MISMATCH MACSTR,
  		MAC2STR(addr));
