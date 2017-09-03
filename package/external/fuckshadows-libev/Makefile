@@ -36,9 +36,9 @@ define Package/fuckshadows-libev
 	CATEGORY:=Network
 	TITLE:=Lightweight Secured Socks5 Proxy
 	URL:=https://github.com
-	DEPENDS:=+libmbedtls +libsodium +libev
+	DEPENDS:=+libmbedtls +libsodium +libev +ipset +ip +iptables-mod-tproxy
 endef
-#+ipset +ip +iptables-mod-tproxy
+
 define Package/fuckshadows-libev/description
 Shadowsocks-libev is a lightweight secured socks5 proxy for embedded devices and low end boxes.
 endef
