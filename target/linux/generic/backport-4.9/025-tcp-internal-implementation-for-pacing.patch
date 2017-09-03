@@ -93,8 +93,6 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  net/sched/sch_fq.c    |  8 ++++++
  8 files changed, 113 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index 089c7f6..8f48c4b 100644
 --- a/include/linux/tcp.h
 +++ b/include/linux/tcp.h
 @@ -287,6 +287,8 @@ struct tcp_sock {
@@ -106,8 +104,6 @@ index 089c7f6..8f48c4b 100644
  	/* from STCP, retrans queue hinting */
  	struct sk_buff* lost_skb_hint;
  	struct sk_buff *retransmit_skb_hint;
-diff --git a/include/net/sock.h b/include/net/sock.h
-index a186749..a24cadd 100644
 --- a/include/net/sock.h
 +++ b/include/net/sock.h
 @@ -250,6 +250,7 @@ struct sock_common {
@@ -139,8 +135,6 @@ index a186749..a24cadd 100644
  #define __sk_user_data(sk) ((*((void __rcu **)&(sk)->sk_user_data)))
  
  #define rcu_dereference_sk_user_data(sk)	rcu_dereference(__sk_user_data((sk)))
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 123979f..6c4f3e3 100644
 --- a/include/net/tcp.h
 +++ b/include/net/tcp.h
 @@ -572,6 +572,7 @@ void tcp_fin(struct sock *sk);
@@ -151,18 +145,16 @@ index 123979f..6c4f3e3 100644
  	inet_csk_clear_xmit_timers(sk);
  }
  
-@@ -1935,4 +1936,6 @@ static inline void tcp_listendrop(const struct sock *sk)
+@@ -1935,4 +1936,6 @@ static inline void tcp_listendrop(const
  	__NET_INC_STATS(sock_net(sk), LINUX_MIB_LISTENDROPS);
  }
  
 +enum hrtimer_restart tcp_pace_kick(struct hrtimer *timer);
 +
  #endif	/* _TCP_H */
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 1989b3d..8334c53 100644
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
-@@ -988,6 +988,10 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+@@ -988,6 +988,10 @@ set_rcvbuf:
  #endif
  
  	case SO_MAX_PACING_RATE:
@@ -173,8 +165,6 @@ index 1989b3d..8334c53 100644
  		sk->sk_max_pacing_rate = val;
  		sk->sk_pacing_rate = min(sk->sk_pacing_rate,
  					 sk->sk_max_pacing_rate);
-diff --git a/net/ipv4/tcp_bbr.c b/net/ipv4/tcp_bbr.c
-index 0ea66c2..13e3e75 100644
 --- a/net/ipv4/tcp_bbr.c
 +++ b/net/ipv4/tcp_bbr.c
 @@ -22,10 +22,9 @@
@@ -191,7 +181,7 @@ index 0ea66c2..13e3e75 100644
   */
  #include <linux/module.h>
  #include <net/tcp.h>
-@@ -800,6 +799,8 @@ static void bbr_init(struct sock *sk)
+@@ -827,6 +826,8 @@ static void bbr_init(struct sock *sk)
  	bbr->cycle_idx = 0;
  	bbr_reset_lt_bw_sampling(sk);
  	bbr_reset_startup_mode(sk);
@@ -200,11 +190,9 @@ index 0ea66c2..13e3e75 100644
  }
  
  static u32 bbr_sndbuf_expand(struct sock *sk)
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index d56d3e9..50679e5 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
-@@ -905,6 +905,72 @@ void tcp_wfree(struct sk_buff *skb)
+@@ -905,6 +905,72 @@ out:
  	sk_free(sk);
  }
  
@@ -277,7 +265,7 @@ index d56d3e9..50679e5 100644
  /* This routine actually transmits TCP packets queued in by
   * tcp_do_sendmsg().  This is used by both the initial
   * transmission and possible later retransmissions.
-@@ -1026,6 +1092,7 @@ static int tcp_transmit_skb(struct sock *sk, struct sk_buff *skb, int clone_it,
+@@ -1026,6 +1092,7 @@ static int tcp_transmit_skb(struct sock
  	if (skb->len != tcp_header_size) {
  		tcp_event_data_sent(tp, sk);
  		tp->data_segs_out += tcp_skb_pcount(skb);
@@ -285,7 +273,7 @@ index d56d3e9..50679e5 100644
  	}
  
  	if (after(tcb->end_seq, tp->snd_nxt) || tcb->seq == tcb->end_seq)
-@@ -2064,6 +2131,12 @@ static int tcp_mtu_probe(struct sock *sk)
+@@ -2064,6 +2131,12 @@ static int tcp_mtu_probe(struct sock *sk
  	return -1;
  }
  
@@ -298,7 +286,7 @@ index d56d3e9..50679e5 100644
  /* TCP Small Queues :
   * Control number of packets in qdisc/devices to two packets / or ~1 ms.
   * (These limits are doubled for retransmits)
-@@ -2147,6 +2220,9 @@ static bool tcp_write_xmit(struct sock *sk, unsigned int mss_now, int nonagle,
+@@ -2147,6 +2220,9 @@ static bool tcp_write_xmit(struct sock *
  	while ((skb = tcp_send_head(sk))) {
  		unsigned int limit;
  
@@ -308,7 +296,7 @@ index d56d3e9..50679e5 100644
  		tso_segs = tcp_init_tso_segs(skb, mss_now);
  		BUG_ON(!tso_segs);
  
-@@ -2851,6 +2927,10 @@ void tcp_xmit_retransmit_queue(struct sock *sk)
+@@ -2851,6 +2927,10 @@ void tcp_xmit_retransmit_queue(struct so
  
  		if (skb == tcp_send_head(sk))
  			break;
@@ -319,11 +307,9 @@ index d56d3e9..50679e5 100644
  		/* we could do better than to assign each time */
  		if (!hole)
  			tp->retransmit_skb_hint = skb;
-diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index 45d7075..2627c49 100644
 --- a/net/ipv4/tcp_timer.c
 +++ b/net/ipv4/tcp_timer.c
-@@ -710,4 +710,7 @@ void tcp_init_xmit_timers(struct sock *sk)
+@@ -711,4 +711,7 @@ void tcp_init_xmit_timers(struct sock *s
  {
  	inet_csk_init_xmit_timers(sk, &tcp_write_timer, &tcp_delack_timer,
  				  &tcp_keepalive_timer);
@@ -331,11 +317,9 @@ index 45d7075..2627c49 100644
 +		     HRTIMER_MODE_ABS_PINNED);
 +	tcp_sk(sk)->pacing_timer.function = tcp_pace_kick;
  }
-diff --git a/net/sched/sch_fq.c b/net/sched/sch_fq.c
-index 18e7524..e05e05e 100644
 --- a/net/sched/sch_fq.c
 +++ b/net/sched/sch_fq.c
-@@ -390,9 +390,17 @@ static int fq_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+@@ -390,9 +390,17 @@ static int fq_enqueue(struct sk_buff *sk
  		q->stat_tcp_retrans++;
  	qdisc_qstats_backlog_inc(sch, skb);
  	if (fq_flow_is_detached(f)) {
@@ -353,6 +337,3 @@ index 18e7524..e05e05e 100644
  		q->inactive_flows--;
  	}
  
--- 
-2.7.4
-

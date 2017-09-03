@@ -15,11 +15,9 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  net/ipv4/tcp_output.c | 18 +++++++++---------
  1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 28ed01b..7f65b06 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
-@@ -1925,26 +1925,26 @@ static inline void tcp_mtu_check_reprobe(struct sock *sk)
+@@ -1925,26 +1925,26 @@ static inline void tcp_mtu_check_reprobe
   */
  static int tcp_mtu_probe(struct sock *sk)
  {
@@ -55,6 +53,3 @@ index 28ed01b..7f65b06 100644
  		return -1;
  
  	/* Use binary search for probe_size between tcp_mss_base,
--- 
-2.7.4
-

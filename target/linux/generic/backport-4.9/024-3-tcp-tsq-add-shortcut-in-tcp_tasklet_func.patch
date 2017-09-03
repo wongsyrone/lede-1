@@ -20,11 +20,9 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  net/ipv4/tcp_output.c | 22 ++++++++++++----------
  1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index a022719..553b6d6 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
-@@ -767,19 +767,19 @@ static void tcp_tasklet_func(unsigned long data)
+@@ -767,19 +767,19 @@ static void tcp_tasklet_func(unsigned lo
  	list_for_each_safe(q, n, &list) {
  		tp = list_entry(q, struct tcp_sock, tsq_node);
  		list_del(&tp->tsq_node);
@@ -62,7 +60,7 @@ index a022719..553b6d6 100644
  		nval = cmpxchg(&tp->tsq_flags, oval, nval);
  		if (nval != oval)
  			continue;
-@@ -2179,6 +2179,8 @@ static bool tcp_write_xmit(struct sock *sk, unsigned int mss_now, int nonagle,
+@@ -2179,6 +2179,8 @@ static bool tcp_write_xmit(struct sock *
  		    unlikely(tso_fragment(sk, skb, limit, mss_now, gfp)))
  			break;
  
@@ -71,6 +69,3 @@ index a022719..553b6d6 100644
  		if (tcp_small_queue_check(sk, skb, 0))
  			break;
  
--- 
-2.7.4
-

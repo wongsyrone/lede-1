@@ -28,11 +28,9 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  net/ipv4/tcp_output.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 23eb7fe..d56d3e9 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
-@@ -769,6 +769,7 @@ static void tcp_tasklet_func(unsigned long data)
+@@ -769,6 +769,7 @@ static void tcp_tasklet_func(unsigned lo
  		list_del(&tp->tsq_node);
  
  		sk = (struct sock *)tp;
@@ -40,6 +38,3 @@ index 23eb7fe..d56d3e9 100644
  		clear_bit(TSQ_QUEUED, &sk->sk_tsq_flags);
  
  		if (!sk->sk_lock.owned &&
--- 
-2.7.4
-

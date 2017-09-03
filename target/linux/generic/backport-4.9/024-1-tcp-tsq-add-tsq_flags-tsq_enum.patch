@@ -16,8 +16,6 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  net/ipv4/tcp_output.c | 16 ++++++++--------
  2 files changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/tcp.h b/include/linux/tcp.h
-index 647532b..33a5a1a 100644
 --- a/include/linux/tcp.h
 +++ b/include/linux/tcp.h
 @@ -367,7 +367,7 @@ struct tcp_sock {
@@ -45,11 +43,9 @@ index 647532b..33a5a1a 100644
  static inline struct tcp_sock *tcp_sk(const struct sock *sk)
  {
  	return (struct tcp_sock *)sk;
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index dc4258f..e8a3b89 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
-@@ -784,10 +784,10 @@ static void tcp_tasklet_func(unsigned long data)
+@@ -784,10 +784,10 @@ static void tcp_tasklet_func(unsigned lo
  	}
  }
  
@@ -92,6 +88,3 @@ index dc4258f..e8a3b89 100644
  		inet_csk(sk)->icsk_af_ops->mtu_reduced(sk);
  		__sock_put(sk);
  	}
--- 
-2.7.4
-

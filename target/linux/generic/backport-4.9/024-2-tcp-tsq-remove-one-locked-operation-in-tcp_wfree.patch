@@ -15,8 +15,6 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  net/ipv4/tcp_output.c | 13 ++++++++++---
  1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index e8a3b89..a022719 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
 @@ -860,6 +860,7 @@ void tcp_wfree(struct sk_buff *skb)
@@ -48,6 +46,3 @@ index e8a3b89..a022719 100644
  		/* queue this socket to tasklet queue */
  		local_irq_save(flags);
  		tsq = this_cpu_ptr(&tsq_tasklet);
--- 
-2.7.4
-

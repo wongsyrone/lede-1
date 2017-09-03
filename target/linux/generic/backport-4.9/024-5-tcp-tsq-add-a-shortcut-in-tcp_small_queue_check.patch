@@ -17,11 +17,9 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  net/ipv4/tcp_output.c | 9 +++++++++
  1 file changed, 9 insertions(+)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 796e310..28ed01b 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
-@@ -2084,6 +2084,15 @@ static bool tcp_small_queue_check(struct sock *sk, const struct sk_buff *skb,
+@@ -2084,6 +2084,15 @@ static bool tcp_small_queue_check(struct
  	limit <<= factor;
  
  	if (atomic_read(&sk->sk_wmem_alloc) > limit) {
@@ -37,6 +35,3 @@ index 796e310..28ed01b 100644
  		set_bit(TSQ_THROTTLED, &tcp_sk(sk)->tsq_flags);
  		/* It is possible TX completion already happened
  		 * before we set TSQ_THROTTLED, so we must
--- 
-2.7.4
-

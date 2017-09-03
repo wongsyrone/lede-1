@@ -14,8 +14,6 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  net/ipv4/tcp_output.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 553b6d6..796e310 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
 @@ -880,6 +880,7 @@ void tcp_wfree(struct sk_buff *skb)
@@ -38,6 +36,3 @@ index 553b6d6..796e310 100644
  		local_irq_restore(flags);
  		return;
  	}
--- 
-2.7.4
-

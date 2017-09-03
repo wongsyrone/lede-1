@@ -1077,7 +1077,7 @@
  	}
  
  out_set_pte:
-@@ -1148,8 +1173,10 @@ again:
+@@ -1149,8 +1174,10 @@ again:
  			ptent = ptep_get_and_clear_full(mm, addr, pte,
  							tlb->fullmm);
  			tlb_remove_tlb_entry(tlb, pte, addr);
@@ -1089,7 +1089,7 @@
  
  			if (!PageAnon(page)) {
  				if (pte_dirty(ptent)) {
-@@ -2014,8 +2041,10 @@ static inline void cow_user_page(struct
+@@ -2015,8 +2042,10 @@ static inline void cow_user_page(struct
  			clear_page(kaddr);
  		kunmap_atomic(kaddr);
  		flush_dcache_page(dst);
@@ -1101,7 +1101,7 @@
  }
  
  static gfp_t __get_fault_gfp_mask(struct vm_area_struct *vma)
-@@ -2158,6 +2187,7 @@ static int wp_page_copy(struct fault_env
+@@ -2159,6 +2188,7 @@ static int wp_page_copy(struct fault_env
  		new_page = alloc_zeroed_user_highpage_movable(vma, fe->address);
  		if (!new_page)
  			goto oom;
@@ -1109,7 +1109,7 @@
  	} else {
  		new_page = alloc_page_vma(GFP_HIGHUSER_MOVABLE, vma,
  				fe->address);
-@@ -2184,7 +2214,9 @@ static int wp_page_copy(struct fault_env
+@@ -2185,7 +2215,9 @@ static int wp_page_copy(struct fault_env
  						mm_counter_file(old_page));
  				inc_mm_counter_fast(mm, MM_ANONPAGES);
  			}
@@ -1279,7 +1279,7 @@
  
 --- a/mm/rmap.c
 +++ b/mm/rmap.c
-@@ -1110,9 +1110,9 @@ void page_move_anon_rmap(struct page *pa
+@@ -1146,9 +1146,9 @@ void page_move_anon_rmap(struct page *pa
  
  /**
   * __page_set_anon_rmap - set up new anonymous rmap
