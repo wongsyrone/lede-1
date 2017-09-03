@@ -107,7 +107,7 @@
  ; On SVR4 targets, it also controls whether or not to emit a
 --- a/gcc/opts.c
 +++ b/gcc/opts.c
-@@ -1921,6 +1921,9 @@ common_handle_option (struct gcc_options
+@@ -1928,6 +1928,9 @@ common_handle_option (struct gcc_options
  			       opts, opts_set, loc, dc);
        break;
  
@@ -119,7 +119,7 @@
        opts->x_warn_larger_than = value != -1;
 --- a/gcc/doc/invoke.texi
 +++ b/gcc/doc/invoke.texi
-@@ -6565,6 +6565,17 @@ This option is only supported for C and
+@@ -6567,6 +6567,17 @@ This option is only supported for C and
  @option{-Wall} and by @option{-Wpedantic}, which can be disabled with
  @option{-Wno-pointer-sign}.
  
@@ -137,4 +137,3 @@
  @item -Wstack-protector
  @opindex Wstack-protector
  @opindex Wno-stack-protector
-

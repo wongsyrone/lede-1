@@ -1,6 +1,6 @@
 --- a/gcc/gcc.c
 +++ b/gcc/gcc.c
-@@ -9277,8 +9277,10 @@ getenv_spec_function (int argc, const ch
+@@ -9280,8 +9280,10 @@ getenv_spec_function (int argc, const ch
      value = varname;
  
    if (!value)
