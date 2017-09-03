@@ -44,7 +44,7 @@ endef
 define Package/dnsmasq
 $(call Package/dnsmasq/Default)
   VARIANT:=nodhcpv6
-  DEPENDS:=+kmod-ipt-ipset
+  DEPENDS+=+kmod-ipt-ipset
 endef
 
 define Package/dnsmasq-dhcpv6
