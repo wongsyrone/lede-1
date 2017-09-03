@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fuckshadows-libev
 PKG_VERSION:=0.2
-PKG_RELEASE:=10
+PKG_RELEASE:=11
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=167c44433f37184295c9aa8098047a05dd0dc453
+PKG_SOURCE_VERSION:=e9d041123fd865d6d7bec00999ce8aef5ed07b8a
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/fuckshadows/fuckshadows-libev.git
@@ -36,9 +36,9 @@ define Package/fuckshadows-libev
 	CATEGORY:=Network
 	TITLE:=Lightweight Secured Socks5 Proxy
 	URL:=https://github.com
-	DEPENDS:=+libmbedtls +libsodium +libev +ipset +ip +iptables-mod-tproxy
+	DEPENDS:=+libmbedtls +libsodium +libev
 endef
-
+#+ipset +ip +iptables-mod-tproxy
 define Package/fuckshadows-libev/description
 Shadowsocks-libev is a lightweight secured socks5 proxy for embedded devices and low end boxes.
 endef
@@ -64,6 +64,11 @@ TARGET_LDFLAGS += -Wl,--gc-sections
 # pass static archive
 CONFIGURE_VARS += LIBS="$(STAGING_DIR)/usr/lib/libpcre.a"
 #MAKE_VARS += LDLIBS="-Wl,-Bstatic -lpcre -Wl,-Bdynamic"
+
+# redef CPPFLAGS and CFLAGS
+# c-ares: Use CPPFLAGS for macro definitions
+TARGET_CPPFLAGS += $(filter -D%,$(TARGET_CFLAGS))
+TARGET_CFLAGS := $(filter-out -D%,$(TARGET_CFLAGS))
 
 define Package/fuckshadows-libev/install
 	$(INSTALL_DIR) $(1)/usr/bin

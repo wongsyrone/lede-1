@@ -4,7 +4,7 @@
  if ENABLE_OPTIMIZATION
  AM_CFLAGS = -O3 -pipe -ffast-math -ftree-vectorize -Wall -Werror -fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE
  else
--AM_CFLAGS = -Os -Wall -Werror -fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE
+-AM_CFLAGS = -Os -g -Wall -Werror -fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE
 +AM_CFLAGS = -Wall -Werror -fno-strict-aliasing -std=gnu99 -D_GNU_SOURCE
  endif
  
