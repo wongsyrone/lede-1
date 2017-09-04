@@ -82,7 +82,7 @@
  #include <linux/user_namespace.h>
  
  #include <asm/uaccess.h>
-@@ -1203,6 +1204,7 @@ void setup_new_exec(struct linux_binprm
+@@ -1204,6 +1205,7 @@ void setup_new_exec(struct linux_binprm
  	/* An exec changes our domain. We are no longer part of the thread
  	   group */
  	current->self_exec_id++;
@@ -1086,7 +1086,7 @@
  	}
  
  out_set_pte:
-@@ -1151,8 +1179,10 @@ again:
+@@ -1152,8 +1180,10 @@ again:
  			ptent = ptep_get_and_clear_full(mm, addr, pte,
  							tlb->fullmm);
  			tlb_remove_tlb_entry(tlb, pte, addr);
@@ -1098,7 +1098,7 @@
  			if (PageAnon(page))
  				rss[MM_ANONPAGES]--;
  			else {
-@@ -1985,8 +2015,10 @@ static inline void cow_user_page(struct
+@@ -1986,8 +2016,10 @@ static inline void cow_user_page(struct
  			clear_page(kaddr);
  		kunmap_atomic(kaddr);
  		flush_dcache_page(dst);
@@ -1110,7 +1110,7 @@
  }
  
  /*
-@@ -2116,6 +2148,7 @@ static int wp_page_copy(struct mm_struct
+@@ -2117,6 +2149,7 @@ static int wp_page_copy(struct mm_struct
  		new_page = alloc_zeroed_user_highpage_movable(vma, address);
  		if (!new_page)
  			goto oom;
@@ -1118,7 +1118,7 @@
  	} else {
  		new_page = alloc_page_vma(GFP_HIGHUSER_MOVABLE, vma, address);
  		if (!new_page)
-@@ -2140,7 +2173,9 @@ static int wp_page_copy(struct mm_struct
+@@ -2141,7 +2174,9 @@ static int wp_page_copy(struct mm_struct
  				dec_mm_counter_fast(mm, MM_FILEPAGES);
  				inc_mm_counter_fast(mm, MM_ANONPAGES);
  			}
@@ -1293,7 +1293,7 @@
  
 --- a/mm/rmap.c
 +++ b/mm/rmap.c
-@@ -1071,9 +1071,9 @@ void page_move_anon_rmap(struct page *pa
+@@ -1107,9 +1107,9 @@ void page_move_anon_rmap(struct page *pa
  
  /**
   * __page_set_anon_rmap - set up new anonymous rmap
