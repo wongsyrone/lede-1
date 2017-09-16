@@ -31,54 +31,32 @@
  *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/dts-v1/;
-
 #include "mt7620a.dtsi"
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 
 / {
-	compatible = "sanlinking,d240", "ralink,mt7620a-soc";
-	model = "Sanlinking Technologies D240";
+	compatible = "zbtlink,we1026-5g", "ralink,mt7620a-soc";
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
 	};
 
-	gpio-export {
-		compatible = "gpio-export";
-		#size-cells = <0>;
-
-		power_mpcie2 {
-			gpio-export,name = "power_mpcie2";
-			gpio-export,output = <1>;
-			gpios = <&gpio2 5 GPIO_ACTIVE_HIGH>;
-		};
-
-		power_mpcie1 {
-			gpio-export,name = "power_mpcie1";
-			gpio-export,output = <1>;
-			gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
-		};
-
-	};
-
 	gpio-leds {
 		compatible = "gpio-leds";
-
-		power {
-			label = "d240:blue:power";
-			gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
+		lan {
+			label = "we1026-5g:green:lan";
+			gpios = <&gpio2 0 GPIO_ACTIVE_LOW>;
 		};
 
 		usb {
-			label = "d240:blue:usb";
-			gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+			label = "we1026-5g:green:usb";
+			gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
 		};
 
-		air {
-			label = "d240:blue:wifi";
+		wifi {
+			label = "we1026-5g:green:wifi";
 			gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -88,7 +66,6 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 		poll-interval = <20>;
-
 		reset {
 			label = "reset";
 			gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
@@ -97,51 +74,12 @@
 	};
 };
 
-&gpio1 {
-	status = "okay";
-};
-
 &gpio2 {
 	status = "okay";
 };
 
 &gpio3 {
 	status = "okay";
-};
-
-&spi0 {
-	status = "okay";
-
-	en25q128@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
-		compatible = "jedec,spi-nor";
-		reg = <0>;
-		spi-max-frequency = <10000000>;
-
-		partition@0 {
-			label = "u-boot";
-			reg = <0x0 0x30000>;
-			read-only;
-		};
-
-		partition@30000 {
-			label = "u-boot-env";
-			reg = <0x30000 0x10000>;
-			read-only;
-		};
-
-		factory: partition@40000 {
-			label = "factory";
-			reg = <0x40000 0x10000>;
-			read-only;
-		};
-
-		partition@50000 {
-			label = "firmware";
-			reg = <0x50000 0xfb0000>;
-		};
-	};
 };
 
 &sdhci {
@@ -157,8 +95,7 @@
 };
 
 &ethernet {
-	mtd-mac-address = <&factory 0x4>;
-	mediatek,portmap = "wllll";
+	mtd-mac-address = <&factory 0x28>;
 };
 
 &wmac {
@@ -168,7 +105,7 @@
 &pinctrl {
 	state_default: pinctrl0 {
 		default {
-			ralink,group = "i2c", "uartf", "wled", "spi refclk", "pa", "nd_sd";
+			ralink,group = "i2c", "uartf", "spi refclk", "ephy", "wled";
 			ralink,function = "gpio";
 		};
 	};
@@ -176,4 +113,12 @@
 
 &pcie {
 	status = "okay";
+	pcie-bridge {
+		wifi@14c3,7662 {
+			compatible = "pci14c3,7662";
+			reg = <0x0000 0 0 0 0>;
+			mediatek,mtd-eeprom = <&factory 0x8000>;
+			ieee80211-freq-limit = <5000000 6000000>;
+		};
+	};
 };

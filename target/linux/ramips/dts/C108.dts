@@ -39,8 +39,8 @@
 #include <dt-bindings/input/input.h>
 
 / {
-	compatible = "sanlinking,d240", "ralink,mt7620a-soc";
-	model = "Sanlinking Technologies D240";
+	compatible = "hnet,c108", "ralink,mt7620a-soc";
+	model = "HNET C108";
 
 	chosen {
 		bootargs = "console=ttyS0,115200";
@@ -50,36 +50,39 @@
 		compatible = "gpio-export";
 		#size-cells = <0>;
 
-		power_mpcie2 {
-			gpio-export,name = "power_mpcie2";
+		power_modem {
+			gpio-export,name = "power_modem";
 			gpio-export,output = <1>;
-			gpios = <&gpio2 5 GPIO_ACTIVE_HIGH>;
+			gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
 		};
-
-		power_mpcie1 {
-			gpio-export,name = "power_mpcie1";
-			gpio-export,output = <1>;
-			gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
-		};
-
 	};
 
 	gpio-leds {
 		compatible = "gpio-leds";
 
-		power {
-			label = "d240:blue:power";
-			gpios = <&gpio1 14 GPIO_ACTIVE_HIGH>;
+		sdcard {
+			label = "c108:green:sdcard";
+			gpios = <&gpio0 13 GPIO_ACTIVE_HIGH>;
 		};
 
-		usb {
-			label = "d240:blue:usb";
-			gpios = <&gpio1 15 GPIO_ACTIVE_HIGH>;
+		modem_green {
+			label = "c108:green:modem";
+			gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
 		};
 
-		air {
-			label = "d240:blue:wifi";
-			gpios = <&gpio3 0 GPIO_ACTIVE_LOW>;
+		modem_red {
+			label = "c108:red:modem";
+			gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
+		};
+
+		lan_red {
+			label = "c108:red:lan";
+			gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;
+		};
+
+		lan_green {
+			label = "c108:green:lan";
+			gpios = <&gpio2 4 GPIO_ACTIVE_HIGH>;
 		};
 	};
 
@@ -102,10 +105,6 @@
 };
 
 &gpio2 {
-	status = "okay";
-};
-
-&gpio3 {
 	status = "okay";
 };
 
@@ -157,8 +156,7 @@
 };
 
 &ethernet {
-	mtd-mac-address = <&factory 0x4>;
-	mediatek,portmap = "wllll";
+	mtd-mac-address = <&factory 0x28>;
 };
 
 &wmac {
@@ -168,7 +166,7 @@
 &pinctrl {
 	state_default: pinctrl0 {
 		default {
-			ralink,group = "i2c", "uartf", "wled", "spi refclk", "pa", "nd_sd";
+			ralink,group = "i2c", "uartf", "spi refclk", "ephy";
 			ralink,function = "gpio";
 		};
 	};

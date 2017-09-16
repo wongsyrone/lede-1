@@ -372,7 +372,7 @@ hostapd_set_bss_options() {
 	[ -n "$network_bridge" ] && append bss_conf "bridge=$network_bridge" "$N"
 	[ -n "$iapp_interface" ] && {
 		local ifname
-		network_get_device ifname "$iapp_interface" || ifname = "$iapp_interface"
+		network_get_device ifname "$iapp_interface" || ifname="$iapp_interface"
 		append bss_conf "iapp_interface=$ifname" "$N"
 	}
 
@@ -627,7 +627,7 @@ wpa_supplicant_add_network() {
 		scan_ssid=""
 	}
 
-	[[ "$_w_mode" = "adhoc" -o "$_w_mode" = "mesh" ]] && append network_data "$_w_modestr" "$N$T"
+	[ "$_w_mode" = "adhoc" -o "$_w_mode" = "mesh" ] && append network_data "$_w_modestr" "$N$T"
 
 	case "$auth_type" in
 		none) ;;

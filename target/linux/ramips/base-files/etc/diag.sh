@@ -24,6 +24,7 @@ get_status_led() {
 	ex2700|\
 	ex3700|\
 	fonera20n|\
+	hg255d|\
 	kn|\
 	kn_rc|\
 	kn_rf|\
@@ -103,6 +104,9 @@ get_status_led() {
 	wrh-300cr)
 		status_led="$board:green:wps"
 		;;
+	c108)
+		status_led="$board:green:lan"
+		;;
 	cf-wr800n|\
 	psg1208)
 		status_led="$board:white:wps"
@@ -115,6 +119,7 @@ get_status_led() {
 	w502u)
 		status_led="$board:blue:wps"
 		;;
+	c20|\
 	d240|\
 	dap-1350|\
 	na930|\
