@@ -37,8 +37,8 @@ ifeq ($(PKG_VERSION),6.3.0)
 endif
 
 ifeq ($(PKG_VERSION),7.2.0)
-  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
   PKG_HASH:=1cf7adf8ff4b5aa49041c8734bbcf1ad18cc4c94d0029aae0f4e48841088479a
+  PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 endif
 
 ifneq ($(CONFIG_GCC_VERSION_6_3_ARC),)

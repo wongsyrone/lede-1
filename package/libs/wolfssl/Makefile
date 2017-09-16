@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2016 OpenWrt.org
+# Copyright (C) 2006-2017 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wolfssl
-PKG_VERSION:=3.10.0
+PKG_VERSION:=3.12.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).zip
 PKG_SOURCE_URL:=https://www.wolfssl.com/
-PKG_HASH:=66f7f2a8b8ee37d6b4beab3cb0dcb6a6980fd4674373bfd3bf1214b9d0d2c02e
+PKG_HASH:=5bb196056ac0086efbf07ecea7d3e73b1c31722eb52a88b85879f920428a9a0f
 
 PKG_FIXUP:=libtool
 PKG_INSTALL:=1
@@ -23,21 +23,23 @@ PKG_LICENSE:=GPL-2.0+
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/libcyassl
+define Package/libwolfssl
   SECTION:=libs
   SUBMENU:=SSL
   CATEGORY:=Libraries
-  TITLE:=CyaSSL library
+  TITLE:=wolfSSL library
   URL:=http://www.wolfssl.com/
+  MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>
   MENU:=1
+  PROVIDES:=libcyassl
 endef
 
-define Package/libcyassl/description
-CyaSSL is an SSL library optimized for small footprint, both on disk and for
-memory use.
+define Package/libwolfssl/description
+wolfSSL (formerly CyaSSL) is an SSL library optimized for small
+footprint, both on disk and for memory use.
 endef
 
-define Package/libcyassl/config
+define Package/libwolfssl/config
 	source "$(SOURCE)/Config.in"
 endef
 
@@ -55,58 +57,58 @@ CONFIGURE_ARGS += \
         --enable-ipv6
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_AES_CCM),y)
+ifeq ($(CONFIG_WOLFSSL_HAS_AES_CCM),y)
 CONFIGURE_ARGS += \
 	--enable-aesccm
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_AES_GCM),y)
+ifneq ($(CONFIG_WOLFSSL_HAS_AES_GCM),y)
 CONFIGURE_ARGS += \
-	--enable-aesgcm
+	--disable-aesgcm
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_CHACHA),y)
+ifneq ($(CONFIG_WOLFSSL_HAS_CHACHA),y)
 CONFIGURE_ARGS += \
-	--enable-chacha
+	--disable-chacha
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_ECC),y)
+ifeq ($(CONFIG_WOLFSSL_HAS_ECC),y)
 CONFIGURE_ARGS += \
 	--enable-ecc \
 	--enable-supportedcurves
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_DH),y)
+ifneq ($(CONFIG_WOLFSSL_HAS_DH),y)
 CONFIGURE_ARGS += \
 	--enable-dh
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_ARC4),n)
+ifeq ($(CONFIG_WOLFSSL_HAS_ARC4),n)
 CONFIGURE_ARGS += \
 	--disable-arc4
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_DES3),y)
+ifeq ($(CONFIG_WOLFSSL_HAS_DES3),y)
 CONFIGURE_ARGS += \
 	--disable-des3
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_PSK),y)
+ifeq ($(CONFIG_WOLFSSL_HAS_PSK),y)
 CONFIGURE_ARGS += \
 	--enable-psk
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_DTLS),y)
+ifeq ($(CONFIG_WOLFSSL_HAS_DTLS),y)
 CONFIGURE_ARGS += \
 	--enable-dtls
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_ECC25519),y)
+ifeq ($(CONFIG_WOLFSSL_HAS_ECC25519),y)
 CONFIGURE_ARGS += \
-	--enable-ecc25519
+	--enable-curve25519
 endif
 
-ifeq ($(CONFIG_CYASSL_HAS_POLY1305),y)
+ifneq ($(CONFIG_WOLFSSL_HAS_POLY1305),y)
 CONFIGURE_ARGS += \
 	--enable-poly1305
 endif
@@ -130,10 +132,10 @@ define Build/InstallDev
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/pkgconfig/*.pc $(1)/usr/lib/pkgconfig
 endef
 
-define Package/libcyassl/install
+define Package/libwolfssl/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libwolfssl.so* $(1)/usr/lib/
 	ln -s libwolfssl.so $(1)/usr/lib/libcyassl.so
 endef
 
-$(eval $(call BuildPackage,libcyassl))
+$(eval $(call BuildPackage,libwolfssl))
