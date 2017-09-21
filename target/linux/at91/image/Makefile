@@ -13,9 +13,15 @@ ifeq ($(SUBTARGET),legacy)
 include ./legacy.mk
 UBIFS_OPTS := -m 2048 -e 126KiB -c 2048
 endif
-ifeq ($(SUBTARGET),sama5d3)
-include ./sama5d3.mk
-UBIFS_OPTS := -m 2048 -e 124KiB -c 2048
+
+ifeq ($(SUBTARGET),sama5)
+include ./sama5.mk
+ifeq ($(TARGET_DEVICES),at91-sama5d4_xplained)
+  UBIFS_OPTS := -e 0x3e000 -c 2082 -m 0x1000 -x lzo
+  UBINIZE_OPTS := -m 0x1000 -p 0x40000
+else
+  UBIFS_OPTS := -m 2048 -e 124KiB -c 2048
+endif
 endif
 
 define Device/Default
@@ -42,9 +48,15 @@ define Device/evaluation
   IMAGE/root.ubi := append-ubi
 endef
 
+define Device/evaluation-zImage
+  IMAGES += zImage
+  IMAGE/zImage := install-zImage
+endef
+
 define Device/evaluation-dtb
   $(Device/evaluation)
   $(Device/dtb)
+  $(Device/evaluation-zImage)
   IMAGES += dtb
   IMAGE/dtb := install-dtb
 endef
