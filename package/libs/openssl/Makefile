@@ -103,6 +103,9 @@ OPENSSL_NO_CIPHERS:= no-idea no-md2 no-mdc2 no-rc5 no-sha0 no-camellia no-krb5 \
  no-whrlpool no-whirlpool no-seed no-jpake
 OPENSSL_OPTIONS:= shared no-err no-sse2 no-ssl2 no-ssl2-method no-heartbeats
 
+# Enable threading
+OPENSSL_OPTIONS += threads
+
 ifdef CONFIG_OPENSSL_ENGINE_CRYPTO
   OPENSSL_OPTIONS += -DHAVE_CRYPTODEV
   ifdef CONFIG_OPENSSL_ENGINE_DIGEST
@@ -196,7 +199,7 @@ define Build/Configure
 		depend
 endef
 
-TARGET_CFLAGS += $(FPIC) -I$(CURDIR)/include -DOPENSSL_THREADS -D_REENTRANT -D_THREAD_SAFE -D_THREADSAFE -pthread -ffunction-sections -fdata-sections
+TARGET_CFLAGS += $(FPIC) -I$(CURDIR)/include -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections
 
 define Build/Compile
@@ -256,5 +259,5 @@ define Package/openssl-util/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/openssl $(1)/usr/bin/
 endef
 
-$(eval $(call BuildPackage,libopenssl,+libpthread))
+$(eval $(call BuildPackage,libopenssl))
 $(eval $(call BuildPackage,openssl-util))
