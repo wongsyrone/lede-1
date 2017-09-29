@@ -52,7 +52,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  		goto fail;
 --- a/wpa_supplicant/config.c
 +++ b/wpa_supplicant/config.c
-@@ -2017,6 +2017,71 @@ static char * wpa_config_write_mcast_rat
+@@ -2051,6 +2051,71 @@ static char * wpa_config_write_mcast_rat
  }
  #endif /* NO_CONFIG_WRITE */
  
@@ -124,7 +124,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  static int wpa_config_parse_rates(const struct parse_data *data,
  				  struct wpa_ssid *ssid, int line,
  				  const char *value)
-@@ -2319,6 +2384,7 @@ static const struct parse_data ssid_fiel
+@@ -2354,6 +2419,7 @@ static const struct parse_data ssid_fiel
  	{ INT_RANGE(fixed_freq, 0, 1) },
  	{ FUNC(rates) },
  	{ FUNC(mcast_rate) },
@@ -134,7 +134,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  	{ INT_RANGE(macsec_integ_only, 0, 1) },
 --- a/wpa_supplicant/config_ssid.h
 +++ b/wpa_supplicant/config_ssid.h
-@@ -739,6 +739,8 @@ struct wpa_ssid {
+@@ -748,6 +748,8 @@ struct wpa_ssid {
  
  	unsigned char rates[WLAN_SUPP_RATES_MAX];
  	double mcast_rate;
@@ -145,7 +145,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  	/**
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -2788,6 +2788,8 @@ static void wpas_start_assoc_cb(struct w
+@@ -2821,6 +2821,8 @@ static void wpas_start_assoc_cb(struct w
  			i++;
  		}
  		params.mcast_rate = ssid->mcast_rate;

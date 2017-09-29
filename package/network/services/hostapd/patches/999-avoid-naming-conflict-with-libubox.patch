@@ -1,6 +1,6 @@
 --- a/src/ap/wpa_auth.c
 +++ b/src/ap/wpa_auth.c
-@@ -2732,7 +2732,7 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
+@@ -2745,7 +2745,7 @@ SM_STATE(WPA_PTK, PTKCALCNEGOTIATING)
  		idx = bitfield_get_first_zero(wpa_auth->ip_pool);
  		if (idx >= 0) {
  			u32 start = WPA_GET_BE32(wpa_auth->conf.ip_addr_start);
