@@ -5015,7 +5015,7 @@
 +}
 --- a/jffsX-utils/mkfs.jffs2.c
 +++ b/jffsX-utils/mkfs.jffs2.c
-@@ -1663,11 +1663,11 @@ int main(int argc, char **argv)
+@@ -1666,11 +1666,11 @@ int main(int argc, char **argv)
  						  }
  						  erase_block_size *= units;
  
