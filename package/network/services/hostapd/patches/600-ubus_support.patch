@@ -106,22 +106,20 @@
  
  	if (len < IEEE80211_HDRLEN + sizeof(mgmt->u.auth)) {
  		wpa_printf(MSG_INFO, "handle_auth - too short payload (len=%lu)",
-@@ -1783,6 +1789,14 @@ static void handle_auth(struct hostapd_d
- 	res = ieee802_11_allowed_address(
- 		hapd, mgmt->sa, (const u8 *) mgmt, len, &session_timeout,
- 		&acct_interim_interval, &vlan_id, &psk, &identity, &radius_cui);
-+
+@@ -1787,6 +1793,12 @@ static void handle_auth(struct hostapd_d
+ 		resp = WLAN_STATUS_UNSPECIFIED_FAILURE;
+ 		goto fail;
+ 	}
 +	if (hostapd_ubus_handle_event(hapd, &req)) {
 +		wpa_printf(MSG_DEBUG, "Station " MACSTR " rejected by ubus handler.\n",
-+		       MAC2STR(mgmt->sa));
++			MAC2STR(mgmt->sa));
 +		resp = WLAN_STATUS_UNSPECIFIED_FAILURE;
 +		goto fail;
 +	}
-+
- 	if (res == HOSTAPD_ACL_REJECT) {
- 		resp = WLAN_STATUS_UNSPECIFIED_FAILURE;
- 		goto fail;
-@@ -2887,7 +2901,7 @@ void fils_hlp_timeout(void *eloop_ctx, v
+ 	if (res == HOSTAPD_ACL_PENDING)
+ 		return;
+ 
+@@ -2887,7 +2899,7 @@ void fils_hlp_timeout(void *eloop_ctx, v
  
  static void handle_assoc(struct hostapd_data *hapd,
  			 const struct ieee80211_mgmt *mgmt, size_t len,
@@ -130,7 +128,7 @@
  {
  	u16 capab_info, listen_interval, seq_ctrl, fc;
  	u16 resp = WLAN_STATUS_SUCCESS, reply_res;
-@@ -2901,6 +2915,11 @@ static void handle_assoc(struct hostapd_
+@@ -2901,6 +2913,11 @@ static void handle_assoc(struct hostapd_
  #ifdef CONFIG_FILS
  	int delay_assoc = 0;
  #endif /* CONFIG_FILS */
@@ -142,7 +140,7 @@
  
  	if (len < IEEE80211_HDRLEN + (reassoc ? sizeof(mgmt->u.reassoc_req) :
  				      sizeof(mgmt->u.assoc_req))) {
-@@ -3068,6 +3087,13 @@ static void handle_assoc(struct hostapd_
+@@ -3068,6 +3085,13 @@ static void handle_assoc(struct hostapd_
  	}
  #endif /* CONFIG_MBO */
  
@@ -156,7 +154,7 @@
  	/*
  	 * sta->capability is used in check_assoc_ies() for RRM enabled
  	 * capability element.
-@@ -3275,6 +3301,7 @@ static void handle_disassoc(struct hosta
+@@ -3275,6 +3299,7 @@ static void handle_disassoc(struct hosta
  	wpa_printf(MSG_DEBUG, "disassocation: STA=" MACSTR " reason_code=%d",
  		   MAC2STR(mgmt->sa),
  		   le_to_host16(mgmt->u.disassoc.reason_code));
@@ -164,7 +162,7 @@
  
  	sta = ap_get_sta(hapd, mgmt->sa);
  	if (sta == NULL) {
-@@ -3340,6 +3367,8 @@ static void handle_deauth(struct hostapd
+@@ -3340,6 +3365,8 @@ static void handle_deauth(struct hostapd
  		" reason_code=%d",
  		MAC2STR(mgmt->sa), le_to_host16(mgmt->u.deauth.reason_code));
  
@@ -173,7 +171,7 @@
  	sta = ap_get_sta(hapd, mgmt->sa);
  	if (sta == NULL) {
  		wpa_msg(hapd->msg_ctx, MSG_DEBUG, "Station " MACSTR " trying "
-@@ -3654,7 +3683,7 @@ int ieee802_11_mgmt(struct hostapd_data
+@@ -3654,7 +3681,7 @@ int ieee802_11_mgmt(struct hostapd_data
  
  
  	if (stype == WLAN_FC_STYPE_PROBE_REQ) {
@@ -182,7 +180,7 @@
  		return 1;
  	}
  
-@@ -3674,17 +3703,17 @@ int ieee802_11_mgmt(struct hostapd_data
+@@ -3674,17 +3701,17 @@ int ieee802_11_mgmt(struct hostapd_data
  	switch (stype) {
  	case WLAN_FC_STYPE_AUTH:
  		wpa_printf(MSG_DEBUG, "mgmt::auth");
