@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
-PKG_VERSION:=0.4.9.3
-PKG_RELEASE:=1
+PKG_VERSION:=0.4.9.4
+PKG_RELEASE:=9a897ac
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=5306f9565bce320a144a4b8d52b0e931be5b9a9c
+PKG_SOURCE_VERSION:=9a897ac63b34eae98d2d68d3a8ab4c797e992496
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -25,6 +25,7 @@ PKG_MAINTAINER:=Chengr28 <chengr28@gmail.com>
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
+TARGET_CFLAGS += -ansi -pedantic -Wall -Wextra
 TARGET_CFLAGS += $(FPIC)
 
 CMAKE_OPTIONS += \

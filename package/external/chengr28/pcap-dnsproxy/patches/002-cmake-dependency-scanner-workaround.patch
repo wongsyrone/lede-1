@@ -18,33 +18,7 @@
  #endif
  
  //Windows API headers
-@@ -437,19 +437,19 @@
- #endif
- #if defined(PLATFORM_WIN64)
- #if defined(ENABLE_LIBSODIUM)
--	#pragma comment(lib, "..\\Dependency\\LibSodium\\LibSodium_x64.lib")
-+	#pragma comment(lib, "LibSodium\\LibSodium_x64.lib")
- #endif
- #if defined(ENABLE_PCAP)
--	#pragma comment(lib, "..\\Dependency\\WinPcap\\WPCAP_x64.lib")
--	#pragma comment(lib, "..\\Dependency\\WinPcap\\Packet_x64.lib")
-+	#pragma comment(lib, "WinPcap\\WPCAP_x64.lib")
-+	#pragma comment(lib, "WinPcap\\Packet_x64.lib")
- #endif
- #elif defined(PLATFORM_WIN32)
- #if defined(ENABLE_LIBSODIUM)
--	#pragma comment(lib, "..\\Dependency\\LibSodium\\LibSodium_x86.lib")
-+	#pragma comment(lib, "LibSodium\\LibSodium_x86.lib")
- #endif
- #if defined(ENABLE_PCAP)
--	#pragma comment(lib, "..\\Dependency\\WinPcap\\WPCAP_x86.lib")
--	#pragma comment(lib, "..\\Dependency\\WinPcap\\Packet_x86.lib")
-+	#pragma comment(lib, "WinPcap\\WPCAP_x86.lib")
-+	#pragma comment(lib, "WinPcap\\Packet_x86.lib")
- #endif
- #endif
- 
-@@ -527,8 +527,8 @@
+@@ -531,8 +531,8 @@
  #ifndef SODIUM_STATIC
  	#define SODIUM_STATIC
  #endif
@@ -55,7 +29,7 @@
  #else
  #if defined(ENABLE_LIBSODIUM)
  #ifndef SODIUM_STATIC
-@@ -553,13 +553,13 @@
+@@ -557,13 +557,13 @@
  #ifndef ENABLE_TLS
  	#define ENABLE_TLS
  #endif
