@@ -79,6 +79,9 @@ qihoo-c301)
 		ubootenv_add_uci_config "/dev/mtd${mtd}" "0x0" "0x10000" "0x10000"
 	fi
 	;;
+wi2a-ac200i)
+	ubootenv_add_uci_config "/dev/mtd4" "0x0" "0x8000" "0x10000"
+	;;
 esac
 
 config_load ubootenv

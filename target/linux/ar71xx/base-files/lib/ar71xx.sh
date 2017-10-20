@@ -455,6 +455,9 @@ ar71xx_board_detect() {
 	*"Archer C5")
 		name="archer-c5"
 		;;
+	*"Archer C7 v4")
+		name="archer-c7-v4"
+		;;
 	*"Archer C58 v1")
 		name="archer-c58-v1"
 		;;
@@ -914,6 +917,9 @@ ar71xx_board_detect() {
 	*"RouterBOARD 750GL")
 		name="rb-750gl"
 		;;
+	*"RouterBOARD 750P r2")
+		name="rb-750p-pbr2"
+		;;
 	*"RouterBOARD 750UP r2")
 		name="rb-750up-r2"
 		;;
@@ -1233,6 +1239,9 @@ ar71xx_board_detect() {
 		;;
 	"WeIO"*)
 		name="weio"
+		;;
+	*"WI2A-AC200i")
+		name="wi2a-ac200i"
 		;;
 	*"WHR-G301N")
 		name="whr-g301n"
