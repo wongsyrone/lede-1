@@ -1,13 +1,3 @@
---- a/pppd/plugins/pptp/pptp_ctrl.c
-+++ b/pppd/plugins/pptp/pptp_ctrl.c
-@@ -16,6 +16,7 @@
- #include <string.h>
- #include <ctype.h>
- #include <fcntl.h>
-+#include "pppd.h"
- #include "pptp_msg.h"
- #include "pptp_ctrl.h"
- #include "pptp_options.h"
 --- a/pppd/plugins/radius/radiusclient.h
 +++ b/pppd/plugins/radius/radiusclient.h
 @@ -440,6 +440,7 @@ UINT4 rc_get_ipaddr __P((char *));
