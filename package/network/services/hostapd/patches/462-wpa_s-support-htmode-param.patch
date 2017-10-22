@@ -27,7 +27,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  	 * bssid_hint - BSSID of a proposed AP
 --- a/src/drivers/driver_nl80211.c
 +++ b/src/drivers/driver_nl80211.c
-@@ -5065,6 +5065,22 @@ retry:
+@@ -5077,6 +5077,22 @@ retry:
  		nla_put_u32(msg, NL80211_ATTR_MCAST_RATE, params->mcast_rate);
  	}
  
@@ -52,7 +52,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  		goto fail;
 --- a/wpa_supplicant/config.c
 +++ b/wpa_supplicant/config.c
-@@ -2051,6 +2051,71 @@ static char * wpa_config_write_mcast_rat
+@@ -2069,6 +2069,71 @@ static char * wpa_config_write_mcast_rat
  }
  #endif /* NO_CONFIG_WRITE */
  
@@ -124,7 +124,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  static int wpa_config_parse_rates(const struct parse_data *data,
  				  struct wpa_ssid *ssid, int line,
  				  const char *value)
-@@ -2354,6 +2419,7 @@ static const struct parse_data ssid_fiel
+@@ -2373,6 +2438,7 @@ static const struct parse_data ssid_fiel
  	{ INT_RANGE(fixed_freq, 0, 1) },
  	{ FUNC(rates) },
  	{ FUNC(mcast_rate) },
@@ -134,7 +134,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  	{ INT_RANGE(macsec_integ_only, 0, 1) },
 --- a/wpa_supplicant/config_ssid.h
 +++ b/wpa_supplicant/config_ssid.h
-@@ -748,6 +748,8 @@ struct wpa_ssid {
+@@ -747,6 +747,8 @@ struct wpa_ssid {
  
  	unsigned char rates[WLAN_SUPP_RATES_MAX];
  	double mcast_rate;
@@ -145,7 +145,7 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
  	/**
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -2821,6 +2821,8 @@ static void wpas_start_assoc_cb(struct w
+@@ -2913,6 +2913,8 @@ static void wpas_start_assoc_cb(struct w
  			i++;
  		}
  		params.mcast_rate = ssid->mcast_rate;
@@ -153,4 +153,4 @@ Signed-off-by: Antonio Quartulli <ordex@autistici.org>
 +		params.htmode = ssid->htmode;
  	}
  
- 	params.wpa_ie = wpa_ie;
+ 	params.pairwise_suite = cipher_pairwise;
