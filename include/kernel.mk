@@ -64,7 +64,7 @@ else
   ifeq ($(call qstrip,$(CONFIG_EXTERNAL_KERNEL_TREE))$(call qstrip,$(CONFIG_KERNEL_GIT_CLONE_URI)),)
       LINUX_SITE:=@KERNEL/linux/kernel/v$(word 1,$(subst ., ,$(KERNEL_BASE))).x$(TESTING)
   else
-      LINUX_UNAME_VERSION:=$(strip $(shell cat $(LINUX_DIR)/include/config/kernel.release))
+      LINUX_UNAME_VERSION:=$(strip $(shell cat $(LINUX_DIR)/include/config/kernel.release 2>/dev/null))
   endif
 
   MODULES_SUBDIR:=lib/modules/$(LINUX_UNAME_VERSION)
@@ -85,6 +85,8 @@ else ifneq (,$(findstring $(ARCH) , armeb ))
   LINUX_KARCH := arm
 else ifneq (,$(findstring $(ARCH) , mipsel mips64 mips64el ))
   LINUX_KARCH := mips
+else ifneq (,$(findstring $(ARCH) , powerpc64 ))
+  LINUX_KARCH := powerpc
 else ifneq (,$(findstring $(ARCH) , sh2 sh3 sh4 ))
   LINUX_KARCH := sh
 else ifneq (,$(findstring $(ARCH) , i386 x86_64 ))

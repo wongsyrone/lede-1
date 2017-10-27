@@ -118,7 +118,7 @@ endef
 define Device/archer-c58-v1
   $(Device/archer-cxx)
   DEVICE_TITLE := TP-LINK Archer C58 v1
-  DEVICE_PACKAGES := kmod-ath10k
+  DEVICE_PACKAGES := kmod-ath10k ath10k-firmware-qca9888
   BOARDNAME := ARCHER-C58-V1
   TPLINK_BOARD_ID := ARCHER-C58-V1
   DEVICE_PROFILE := ARCHERC58V1
@@ -130,7 +130,7 @@ endef
 define Device/archer-c59-v1
   $(Device/archer-cxx)
   DEVICE_TITLE := TP-LINK Archer C59 v1
-  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport kmod-ath10k ath10k-firmware-qca988x
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport kmod-ath10k ath10k-firmware-qca9888
   BOARDNAME := ARCHER-C59-V1
   TPLINK_BOARD_ID := ARCHER-C59-V1
   DEVICE_PROFILE := ARCHERC59V1
@@ -142,7 +142,7 @@ endef
 define Device/archer-c60-v1
   $(Device/archer-cxx)
   DEVICE_TITLE := TP-LINK Archer C60 v1
-  DEVICE_PACKAGES := kmod-ath10k ath10k-firmware-qca988x
+  DEVICE_PACKAGES := kmod-ath10k ath10k-firmware-qca9888
   BOARDNAME := ARCHER-C60-V1
   TPLINK_BOARD_ID := ARCHER-C60-V1
   DEVICE_PROFILE := ARCHERC60V1
@@ -150,7 +150,7 @@ define Device/archer-c60-v1
   MTDPARTS := spi0.0:64k(u-boot)ro,64k(mac)ro,1344k(kernel),6592k(rootfs),64k(tplink)ro,64k(art)ro,7936k@0x20000(firmware)
   SUPPORTED_DEVICES := archer-c60-v1
 endef
-TARGET_DEVICES += archer-c25-v1 archer-c58-v1 archer-c59-v1 archer-c60-v1
+TARGET_DEVICES += archer-c25-v1 archer-c59-v1
 
 define Device/archer-c5-v1
   $(Device/tplink-16mlzma)
@@ -1055,7 +1055,6 @@ define Device/tl-wr902ac-v1
 	append-metadata | check-size $$$$(IMAGE_SIZE)
   MTDPARTS := spi0.0:128k(u-boot)ro,7360k(firmware),640k(tplink)ro,64k(art)ro
 endef
-TARGET_DEVICES += tl-wr902ac-v1
 
 define Device/tl-wr940n-v4
   $(Device/tplink-4mlzma)
@@ -1130,4 +1129,4 @@ define Device/tl-wr942n-v1
   MTDPARTS := spi0.0:128k(u-boot)ro,1344k(kernel),13120k(rootfs),64k(product-info)ro,64k(partition-table)ro,256k(oem-config)ro,1344k(oem-vars)ro,64k(ART)ro,14464k@0x20000(firmware)
   SUPPORTED_DEVICES := tl-wr942n-v1
 endef
-TARGET_DEVICES += tl-wr940n-v4 tl-wr941nd-v2 tl-wr941nd-v3 tl-wr941nd-v4 tl-wr941nd-v5 tl-wr941nd-v6 tl-wr941nd-v6-cn tl-wr942n-v1
+TARGET_DEVICES += tl-wr940n-v4 tl-wr941nd-v2 tl-wr941nd-v3 tl-wr941nd-v4 tl-wr941nd-v5 tl-wr941nd-v6 tl-wr941nd-v6-cn
