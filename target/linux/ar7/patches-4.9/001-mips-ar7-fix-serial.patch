@@ -13,7 +13,7 @@ Signed-off-by: Oswald Buddenhagen <oswald.buddenhagen@gmx.de>
 
 --- a/arch/mips/ar7/platform.c
 +++ b/arch/mips/ar7/platform.c
-@@ -577,6 +577,7 @@ static int __init ar7_register_uarts(voi
+@@ -576,6 +576,7 @@ static int __init ar7_register_uarts(voi
  	uart_port.type		= PORT_AR7;
  	uart_port.uartclk	= clk_get_rate(bus_clk) / 2;
  	uart_port.iotype	= UPIO_MEM32;

@@ -20,11 +20,11 @@
  };
  
 +int create_titan_partitions(struct mtd_info *master,
-+        struct mtd_partition **pparts,
++        const struct mtd_partition **pparts,
 +        struct mtd_part_parser_data *data);
 +
  static int create_mtd_partitions(struct mtd_info *master,
- 				 struct mtd_partition **pparts,
+ 				 const struct mtd_partition **pparts,
  				 struct mtd_part_parser_data *data)
  {
  	struct ar7_bin_rec header;
@@ -107,11 +107,13 @@
  		root_offset += master->erasesize - 1;
 --- a/drivers/mtd/titanpart.c
 +++ b/drivers/mtd/titanpart.c
-@@ -149,7 +149,7 @@ static void titan_add_partition(char * e
+@@ -148,8 +148,8 @@ static void titan_add_partition(char * e
+ 
  }
  int create_titan_partitions(struct mtd_info *master,
- 	struct mtd_partition **pparts,
+-	struct mtd_partition **pparts,
 -	unsigned long origin)
++	const struct mtd_partition **pparts,
 +	struct mtd_part_parser_data *data)
  {
  	struct nsp_img_hdr_head		hdr;
