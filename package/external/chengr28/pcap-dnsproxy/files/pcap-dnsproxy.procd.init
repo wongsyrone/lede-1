@@ -1,5 +1,5 @@
 #!/bin/sh /etc/rc.common
-# Copyright (C) 2016 wongsyrone
+# Copyright (C) 2016-2017 wongsyrone
 
 . /lib/functions.sh
 
@@ -38,8 +38,7 @@ boot() {
 		start
 	}
 
-	local _DELAY
-	_DELAY=$(uci_get "pcap-dnsproxy" "system" "boot_delay" "10")
+	local _DELAY=$(uci_get "pcap-dnsproxy" "system" "boot_delay" "10")
 	_start $_DELAY &
 	return 0
 }
@@ -48,7 +47,7 @@ shutdown() {
 	rm -f $HOTPLUGFILE
 	stop
 }
-# start() {}
+
 start_service() {
 	[ "1" = "$ENABLED" -o "on" = "$ENABLED" -o "true" = "$ENABLED" ] && {
 		[ $(ps|grep ${PROG}|grep -v grep|wc -l) -ge 1 ] && {
@@ -77,13 +76,13 @@ start_service() {
 		# wait to check error log file
 		sleep 1s
 		[ -f "$ERRLOG" ] \
-			&& echo "WARNING: ${ERRLOG##*/} exists, check its content and other config files in ${CONFDIR}" \
-			|| echo "Hooray! ${ERRLOG##*/} not found"
+			&& echo "WARNING: ${ERRLOG##*/} exists, check its content and other config files in ${CONFDIR}"
 	} || {
 		echo "Pcap_DNSProxy is disabled, please check /etc/config/pcap-dnsproxy for more info"
+		return 0
 	}
 }
-# stop() {}
+
 stop_service() {
 	rm -rf "/tmp/pcap_dnsproxy_fifo"
 }
@@ -92,10 +91,9 @@ service_triggers() {
 	procd_add_reload_trigger "pcap-dnsproxy"
 }
 
-# reload() {}
 reload_service() {
 	stop
-	sleep 5s
+	sleep 3s
 	start
 }
 

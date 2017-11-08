@@ -67,8 +67,7 @@ start() {
 		# wait to check error log file
 		sleep 1s
 		[ -f "$ERRLOG" ] \
-			&& echo "WARNING: ${ERRLOG##*/} exists, check its content and other config files in ${CONFDIR}" \
-			|| echo "Hooray! ${ERRLOG##*/} not found"
+			&& echo "WARNING: ${ERRLOG##*/} exists, check its content and other config files in ${CONFDIR}"
 		[ $RESULT -eq 0 -a $(ps|grep ${PROG}|grep -v grep|wc -l) -ge 1 ] && {
 			local _PID=$(pidof ${PROG##*/})
 			echo "Pcap_DNSProxy started successfully"
