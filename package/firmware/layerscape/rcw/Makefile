@@ -14,8 +14,8 @@ PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/qoriq-open-source/rcw.git
-PKG_SOURCE_VERSION:=1a6236a34166219de324a105971eb9de05cde76e
-PKG_MIRROR_HASH:=6da17ad6b4d148bd991a85bf601f845a41231d6f0bf20153ba1a7a387727aef0
+PKG_SOURCE_VERSION:=6719b046ee87b04026fe163e6c8fbbebba2186aa
+PKG_MIRROR_HASH:=555a0bda7236b6a0e9eb9337ec41ad140987e4def7e73c759699e415e31158b9
 
 PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
@@ -43,13 +43,31 @@ endef
 
 define rcw/ls1012ardb
 	TITLE=RCW binary $(PKG_NAME)-$(PKG_VERSION) for NXP ls1012ardb 64b/32b Dev Board
-	CONFIG=ls1012ardb/R_SPNH_3508/PBL_0x35_0x08_800_250_1000_default.bin
+	CONFIG=ls1012ardb/R_SPNH_3508/PBL_0x35_0x08_1000_250_1000_default.bin
+endef
+
+define rcw/ls1088ardb
+	TITLE=RCW binary $(PKG_NAME)-$(PKG_VERSION) for NXP ls1088ardb 64b/32b Dev Board
+	CONFIG=ls1088ardb/FCQQQQQQQQ_PPP_H_0x1d_0x0d/PBL_QSPI_1600_700_2100_0x1d_0x0d.bin
+endef
+
+define rcw/ls2088ardb
+	TITLE=RCW binary $(PKG_NAME)-$(PKG_VERSION) for NXP ls2088ardb 64b/32b Dev Board
+	CONFIG=ls2088ardb/FFFFFFFF_PP_HH_0x2a_0x41/PBL_0x2a_0x41_1800_700_1866_1600.bin
+endef
+
+define rcw/ls1012afrdm
+	TITLE=RCW binary $(PKG_NAME)-$(PKG_VERSION) for NXP ls1012afrdm 64b/32b Dev Board
+	CONFIG=ls1012afrdm/N_SSNP_3305/PBL_0x33_0x05_800_250_1000_default.bin
 endef
 
 RCWS := \
 	ls1043ardb \
 	ls1046ardb \
-	ls1012ardb
+	ls1012ardb \
+	ls1088ardb \
+	ls2088ardb \
+	ls1012afrdm
 
 define Package/rcw/template
 define Package/rcw-layerscape-$(1)
