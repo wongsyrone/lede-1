@@ -606,6 +606,9 @@ ar71xx_board_detect() {
 	*"Domino Pi")
 		name="gl-domino"
 		;;
+	*"DR342")
+		name="dr342"
+		;;
 	*"DR344")
 		name="dr344"
 		;;
@@ -965,6 +968,9 @@ ar71xx_board_detect() {
 	*"RouterBOARD LHG 5nD")
 		name="rb-lhg-5nd"
 		;;
+	*"RouterBOARD mAP 2nD")
+		name="rb-map-2nd"
+		;;
 	*"RouterBOARD mAP L-2nD")
 		name="rb-mapl-2nd"
 		;;
@@ -973,6 +979,9 @@ ar71xx_board_detect() {
 		;;
 	*"RouterBOARD SXT Lite5")
 		name="rb-sxt5n"
+		;;
+	*"RouterBOARD wAP 2nD r2")
+		name="rb-wap-2nd"
 		;;
 	*"RouterStation")
 		name="routerstation"
@@ -1100,6 +1109,9 @@ ar71xx_board_detect() {
 	*"TL-WA901ND v4")
 		name="tl-wa901nd-v4"
 		;;
+	*"TL-WA901ND v5")
+		name="tl-wa901nd-v5"
+		;;
 	*"TL-WDR3320 v2")
 		name="tl-wdr3320-v2"
 		;;
@@ -1120,6 +1132,9 @@ ar71xx_board_detect() {
 		;;
 	*"TL-WR1041N v2")
 		name="tl-wr1041n-v2"
+		;;
+	*"TL-WR1043N v5")
+		name="tl-wr1043n-v5"
 		;;
 	*"TL-WR1043ND")
 		name="tl-wr1043nd"
@@ -1162,6 +1177,9 @@ ar71xx_board_detect() {
 		;;
 	*"TL-WR810N")
 		name="tl-wr810n"
+		;;
+	*"TL-WR810N v2")
+		name="tl-wr810n-v2"
 		;;
 	*"TL-WR840N v2")
 		name="tl-wr840n-v2"

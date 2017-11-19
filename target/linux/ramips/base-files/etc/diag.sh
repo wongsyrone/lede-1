@@ -243,6 +243,12 @@ get_status_led() {
 	u25awf-h1)
 		status_led="u25awf:red:wifi"
 		;;
+	u7621-06-256M-16M)
+		status_led="u7621-06:green:status"
+		;;
+	u7628-01-128M-16M)
+		status_led="u7628-01:green:power"
+		;;
 	v22rw-2x2)
 		status_led="$board:green:security"
 		;;

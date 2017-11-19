@@ -145,6 +145,8 @@ platform_check_image() {
 	timecloud|\
 	tiny-ac|\
 	u25awf-h1|\
+	u7621-06-256M-16M|\
+	u7628-01-128M-16M|\
 	ur-326n4g|\
 	ur-336un|\
 	v22rw-2x2|\
@@ -200,6 +202,7 @@ platform_check_image() {
 	zbt-wa05|\
 	zbt-we1326|\
 	zbt-we2026|\
+	zbt-we3526|\
 	zbt-we826-16M|\
 	zbt-we826-32M|\
 	zbt-wg2626|\

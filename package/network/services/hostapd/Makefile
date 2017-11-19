@@ -17,6 +17,7 @@ PKG_SOURCE_VERSION:=1613e0121c78172be75c88604d79dd2604f9ec33
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=BSD-3-Clause
+PKG_CPE_ID:=cpe:/a:w1.fi:hostapd
 
 PKG_BUILD_PARALLEL:=1
 

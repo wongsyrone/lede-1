@@ -19,6 +19,7 @@ PKG_SOURCE_VERSION:=release-$(PKG_VERSION)-stable
 PKG_MIRROR_HASH:=7227b9ae556f22f9d9815c6ba2630b614510f3cb0ac44c3775fe55c5cae720bb
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=BSD-3-Clause
+PKG_CPE_ID:=cpe:/a:libevent_project:libevent
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1

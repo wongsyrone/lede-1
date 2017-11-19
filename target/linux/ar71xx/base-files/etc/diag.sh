@@ -38,6 +38,7 @@ get_status_led() {
 	ap531b0|\
 	cpe505n|\
 	db120|\
+	dr342|\
 	dr344|\
 	tew-632brp|\
 	tl-wr942n-v1|\
@@ -319,6 +320,7 @@ get_status_led() {
 	rb-952ui-5ac2nd|\
 	rb-962uigs-5hact2hnt|\
 	rb-lhg-5nd|\
+	rb-map-2nd|\
 	rb-mapl-2nd)
 		status_led="rb:green:user"
 		;;
@@ -389,10 +391,12 @@ get_status_led() {
 	tl-wa901nd-v2|\
 	tl-wa901nd-v3|\
 	tl-wa901nd-v4|\
+	tl-wa901nd-v5|\
 	tl-wdr3320-v2|\
 	tl-wdr3500|\
 	tl-wr2041n-v1|\
 	tl-wr1041n-v2|\
+	tl-wr1043n-v5|\
 	tl-wr1043nd|\
 	tl-wr1043nd-v2|\
 	tl-wr1043nd-v4|\
@@ -423,6 +427,7 @@ get_status_led() {
 	tl-wr720n-v3|\
 	tl-wr802n-v1|\
 	tl-wr810n|\
+	tl-wr810n-v2|\
 	tl-wr940n-v4|\
 	tl-wr941nd-v6)
 		status_led="tp-link:blue:system"
