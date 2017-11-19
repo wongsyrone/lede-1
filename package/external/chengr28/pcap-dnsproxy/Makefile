@@ -28,6 +28,9 @@ include $(INCLUDE_DIR)/cmake.mk
 TARGET_CFLAGS += -ansi -pedantic -Wall -Wextra
 TARGET_CFLAGS += $(FPIC)
 
+# redef CFLAGS, replace -Os with -O3
+TARGET_CFLAGS := $(filter-out -Os,$(TARGET_CFLAGS)) -O3
+
 CMAKE_OPTIONS += \
 	-DPLATFORM_OPENWRT=ON \
 	-DENABLE_LIBSODIUM=$(if $(CONFIG_PACKAGE_pcap-dnsproxy_libsodium),ON,OFF) \

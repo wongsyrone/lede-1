@@ -12,7 +12,7 @@ PKG_VERSION:=0.2
 PKG_RELEASE:=12
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=a486f9204f6c56c33110656930f364c2b7b367bf
+PKG_SOURCE_VERSION:=1939201fb3446dc2b2d592fef51347888aa4b0d2
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/fuckshadows/fuckshadows-libev.git
@@ -69,6 +69,9 @@ CONFIGURE_VARS += LIBS="$(STAGING_DIR)/usr/lib/libpcre.a"
 # c-ares: Use CPPFLAGS for macro definitions
 TARGET_CPPFLAGS += $(filter -D%,$(TARGET_CFLAGS))
 TARGET_CFLAGS := $(filter-out -D%,$(TARGET_CFLAGS))
+
+# redef CFLAGS, replace -Os with -O3
+TARGET_CFLAGS := $(filter-out -Os,$(TARGET_CFLAGS)) -O3
 
 define Package/fuckshadows-libev/install
 	$(INSTALL_DIR) $(1)/usr/bin
