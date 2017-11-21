@@ -178,7 +178,7 @@
  /*
 --- a/src/ap/drv_callbacks.c
 +++ b/src/ap/drv_callbacks.c
-@@ -1378,8 +1378,8 @@ static void hostapd_event_dfs_cac_starte
+@@ -1390,8 +1390,8 @@ static void hostapd_event_dfs_cac_starte
  #endif /* NEED_AP_MLME */
  
  
@@ -189,7 +189,7 @@
  {
  	struct hostapd_data *hapd = ctx;
  #ifndef CONFIG_NO_STDOUT_DEBUG
-@@ -1593,7 +1593,7 @@ void wpa_supplicant_event(void *ctx, enu
+@@ -1605,7 +1605,7 @@ void wpa_supplicant_event(void *ctx, enu
  }
  
  
