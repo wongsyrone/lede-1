@@ -231,7 +231,7 @@
  	NR_VM_ZONE_STAT_ITEMS };
  
  enum node_stat_item {
-@@ -844,7 +847,7 @@ static inline int is_highmem_idx(enum zo
+@@ -845,7 +848,7 @@ static inline int is_highmem_idx(enum zo
  }
  
  /**
