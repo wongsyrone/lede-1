@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fuckshadows-libev
 PKG_VERSION:=0.2
-PKG_RELEASE:=12
+PKG_RELEASE:=13
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=1939201fb3446dc2b2d592fef51347888aa4b0d2
+PKG_SOURCE_VERSION:=e289c7ebbf1439298b068b83923a7615c73ab6c7
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.bz2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
 PKG_SOURCE_URL:=https://github.com/fuckshadows/fuckshadows-libev.git
@@ -26,9 +26,6 @@ PKG_FIXUP:=autoreconf
 PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 
-# get pcre for static linking
-PKG_BUILD_DEPENDS:=libpcre
-
 include $(INCLUDE_DIR)/package.mk
 
 define Package/fuckshadows-libev
@@ -36,7 +33,7 @@ define Package/fuckshadows-libev
 	CATEGORY:=Network
 	TITLE:=Lightweight Secured Socks5 Proxy
 	URL:=https://github.com
-	DEPENDS:=+libmbedtls +libsodium +libev +ipset +ip +iptables-mod-tproxy
+	DEPENDS:=+libmbedtls +libsodium +libev +libpcre2 +ipset +ip +iptables-mod-tproxy
 endef
 
 define Package/fuckshadows-libev/description
@@ -60,10 +57,6 @@ TARGET_LDFLAGS += -Wl,-flto
 # strip unused functions and data
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections
-
-# pass static archive
-CONFIGURE_VARS += LIBS="$(STAGING_DIR)/usr/lib/libpcre.a"
-#MAKE_VARS += LDLIBS="-Wl,-Bstatic -lpcre -Wl,-Bdynamic"
 
 # redef CPPFLAGS and CFLAGS
 # c-ares: Use CPPFLAGS for macro definitions
