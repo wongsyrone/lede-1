@@ -17,9 +17,9 @@ Signed-off-by: Shane Wang <shane.wang@intel.com>
  INCLUDE=${1:-"$PWD/include"}
 +SYSROOT=$1
  
- # Make a temp directory in build tree.
- TMPDIR=$(mktemp -d config.XXXXXX)
-@@ -192,7 +193,7 @@ check_ipt_lib_dir()
+ # Output file which is input to Makefile
+ CONFIG=config.mk
+@@ -195,7 +196,7 @@ check_ipt_lib_dir()
  		return
  	fi
  
