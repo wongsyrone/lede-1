@@ -63,8 +63,8 @@ TARGET_LDFLAGS += -Wl,--gc-sections
 TARGET_CPPFLAGS += $(filter -D%,$(TARGET_CFLAGS))
 TARGET_CFLAGS := $(filter-out -D%,$(TARGET_CFLAGS))
 
-# redef CFLAGS, replace -Os with -O3
-TARGET_CFLAGS := $(filter-out -Os,$(TARGET_CFLAGS)) -O3
+# redef CFLAGS, replace -O* with -O3
+TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS)) -O3
 
 define Package/fuckshadows-libev/install
 	$(INSTALL_DIR) $(1)/usr/bin
