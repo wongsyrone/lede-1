@@ -4,10 +4,10 @@
 
 # get config entity via UCI
 enabled=$(uci -q get pcap-dnsproxy.@pcap-dnsproxy[0].enabled)
-[ "1" = "$enabled" -o "on" = "$enabled" -o "true" = "$enabled" ] || exit 0
-
+[ "1" = "$enabled" ] || [ "on" = "$enabled" ] || [ "true" = "$enabled" ] || exit 0
+[ "$INTERFACE" = wan ] || exit 0
 # We only handle 'ifup' and 'ifdown' events
-[ "$ACTION" = ifup -o "$ACTION" = ifdown ] || exit 1
+[ "$ACTION" = ifup ] || [ "$ACTION" = ifdown ] || exit 1
 # Exit if we don't have logger, this should not happen
 [ -x /usr/bin/logger ] || exit 2
 
@@ -20,8 +20,8 @@ case "$ACTION" in
 		# This hotplug script should be the last to execute
 		# due to high load on router
 		logger -p daemon.info -t "Pcap_DNSProxy" \
-				"Restart request sent due to '$ACTION' of '$INTERFACE'"
-		/etc/init.d/pcap-dnsproxy restart
+				"Start request sent due to '$ACTION' of '$INTERFACE'"
+		/etc/init.d/pcap-dnsproxy start
 	;;
 	ifdown)
 		# Shutdown

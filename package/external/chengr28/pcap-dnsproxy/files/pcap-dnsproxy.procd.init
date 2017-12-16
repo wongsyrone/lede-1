@@ -49,7 +49,7 @@ shutdown() {
 }
 
 start_service() {
-	[ "1" = "$ENABLED" -o "on" = "$ENABLED" -o "true" = "$ENABLED" ] && {
+	if [ "1" = "$ENABLED" ] || [ "on" = "$ENABLED" ] || [ "true" = "$ENABLED" ]; then
 		[ $(ps|grep ${PROG}|grep -v grep|wc -l) -ge 1 ] && {
 			echo "Pcap_DNSProxy is already running, no need to start again"
 			exit 1
@@ -77,10 +77,10 @@ start_service() {
 		sleep 1s
 		[ -f "$ERRLOG" ] \
 			&& echo "WARNING: ${ERRLOG##*/} exists, check its content and other config files in ${CONFDIR}"
-	} || {
+	else
 		echo "Pcap_DNSProxy is disabled, please check /etc/config/pcap-dnsproxy for more info"
 		return 0
-	}
+	fi
 }
 
 stop_service() {
@@ -98,14 +98,14 @@ reload_service() {
 }
 
 flush() {
-	[ $(ps|grep ${PROG}|grep -v grep|wc -l) -ge 1 ] && {
+	if [ $(ps|grep ${PROG}|grep -v grep|wc -l) -ge 1 ]; then
 		local _PID=$(pidof ${PROG##*/})
 		$PROG --flush-dns
 		logger -p daemon.notice -t "Pcap_DNSProxy[$_PID]" "Flush message sent"
-	} || {
+	else
 		echo "Pcap_DNSProxy is not running, I can NOT flush DNS cache for you."
 		exit 1
-	}
+	fi
 }
 
 libver() {
@@ -113,7 +113,9 @@ libver() {
 }
 
 status() {
-	[ $(ps|grep ${PROG}|grep -v grep|wc -l) -ge 1 ] \
-		&& echo "Pcap_DNSProxy is running, PID is $(pidof ${PROG##*/})" \
-		|| echo "Pcap_DNSProxy is NOT running"
+	if [ $(ps|grep ${PROG}|grep -v grep|wc -l) -ge 1 ]; then
+		echo "Pcap_DNSProxy is running, PID is $(pidof ${PROG##*/})"
+	else
+		echo "Pcap_DNSProxy is NOT running"
+	fi
 }
