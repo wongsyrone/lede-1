@@ -1211,7 +1211,7 @@
  	kmem_cache_free(vm_area_cachep, vma);
  unacct_error:
  	if (charged)
-@@ -2578,6 +2598,8 @@ static int __split_vma(struct mm_struct
+@@ -2580,6 +2600,8 @@ static int __split_vma(struct mm_struct
  	else
  		err = vma_adjust(vma, vma->vm_start, addr, vma->vm_pgoff, new);
  
@@ -1220,7 +1220,7 @@
  	/* Success. */
  	if (!err)
  		return 0;
-@@ -2856,6 +2878,7 @@ static int do_brk(unsigned long addr, un
+@@ -2858,6 +2880,7 @@ static int do_brk(unsigned long addr, un
  		return 0;
  
  	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
@@ -1228,7 +1228,7 @@
  
  	error = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
  	if (offset_in_page(error))
-@@ -2913,6 +2936,7 @@ static int do_brk(unsigned long addr, un
+@@ -2915,6 +2938,7 @@ static int do_brk(unsigned long addr, un
  	vma->vm_flags = flags;
  	vma->vm_page_prot = vm_get_page_prot(flags);
  	vma_link(mm, vma, prev, rb_link, rb_parent);
@@ -1236,7 +1236,7 @@
  out:
  	perf_event_mmap(vma);
  	mm->total_vm += len >> PAGE_SHIFT;
-@@ -2951,6 +2975,12 @@ void exit_mmap(struct mm_struct *mm)
+@@ -2953,6 +2977,12 @@ void exit_mmap(struct mm_struct *mm)
  	/* mm's last user has gone, and its about to be pulled down */
  	mmu_notifier_release(mm);
  
@@ -1249,7 +1249,7 @@
  	if (mm->locked_vm) {
  		vma = mm->mmap;
  		while (vma) {
-@@ -2986,6 +3016,11 @@ void exit_mmap(struct mm_struct *mm)
+@@ -2988,6 +3018,11 @@ void exit_mmap(struct mm_struct *mm)
  		vma = remove_vma(vma);
  	}
  	vm_unacct_memory(nr_accounted);
@@ -1261,7 +1261,7 @@
  }
  
  /* Insert vm structure into process list sorted by address
-@@ -3095,6 +3130,7 @@ struct vm_area_struct *copy_vma(struct v
+@@ -3097,6 +3132,7 @@ struct vm_area_struct *copy_vma(struct v
  			new_vma->vm_ops->open(new_vma);
  		vma_link(mm, new_vma, prev, rb_link, rb_parent);
  		*need_rmap_locks = false;
@@ -1269,7 +1269,7 @@
  	}
  	return new_vma;
  
-@@ -3242,6 +3278,7 @@ static struct vm_area_struct *__install_
+@@ -3244,6 +3280,7 @@ static struct vm_area_struct *__install_
  	vm_stat_account(mm, vma->vm_flags, len >> PAGE_SHIFT);
  
  	perf_event_mmap(vma);
