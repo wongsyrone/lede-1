@@ -1,9 +1,9 @@
 /*
- * Device Tree Source for Meraki MR24 (Ikarem)
+ * Device Tree Source for Meraki MX60/MX60W (Buckminster)
  *
  * Copyright (C) 2016 Chris Blake <chrisrblake93@gmail.com>
  *
- * Based on Cisco Meraki GPL Release r23-20150601 MR24 DTS
+ * Based on Cisco Meraki DTS extracted from release wired-12-217818
  *
  * This file is licensed under the terms of the GNU General Public
  * License version 2.  This program is licensed "as is" without
@@ -15,8 +15,8 @@
 #include "apm82181.dtsi"
 
 / {
-	model = "Meraki MR24 Access Point";
-	compatible = "meraki,ikarem";
+	model = "Meraki MX60/MX60W Security Appliance";
+	compatible = "meraki,mx60", "meraki,buckminster", "apm,bluestone";
 
 	aliases {
 		serial0 = &UART1;
@@ -32,7 +32,6 @@
 
 };
 
-
 &CRYPTO {
 	status = "okay";
 };
@@ -45,29 +44,44 @@
 	status = "okay";
 };
 
+&USBOTG0 {
+	status = "okay";
+	dr_mode = "host";
+};
+
 &EBC0 {
-	/* Ikarem has 32MB of NAND */
+	/* Buckminster has 1GiB of NAND */
 	ndfc@1,0 {
 		status = "okay";
-		/* 32 MiB NAND Flash */
 		nand {
 			#address-cells = <1>;
 			#size-cells = <1>;
 
 			partition@0 {
 				label = "u-boot";
-				reg = <0x00000000 0x00170000>;
+				reg = <0x00000000 0x00100000>;
 				read-only;
 			};
 
-			partition@170000 {
-				label = "oops";
-				reg = <0x00170000 0x00010000>;
+			partition@100000 {
+				label = "u-boot-env";
+				reg = <0x00100000 0x00100000>;
+				read-only;
 			};
 
-			partition@180000 {
+			partition@200000 {
+				label = "oops";
+				reg = <0x00200000 0x00040000>;
+			};
+
+			partition@240000 {
 				label = "ubi";
-				reg = <0x00180000 0x01e80000>;
+				reg = <0x00240000 0x3fdc0000>;
+			};
+
+			all {
+				label = "all";
+				reg = <0x00000000 0x40000000>;
 			};
 		};
 	};
@@ -83,12 +97,27 @@
 
 &IIC0 {
 	status = "okay";
-	/* Boot ROM is at 0x52-0x53, do not touch */
-	/* Unknown chip at 0x6e, not sure what it is */
 };
 
 &EMAC0 {
 	status = "okay";
+	phy-handle = <&phy0>;
+
+	mdio {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		phy0: ethernet-phy@0 {
+			device_type = "ethernet-phy";
+			reg = <0>;
+			qca,ar8327-initvals = <
+				0x0010 0x40000000
+				0x0624 0x007f7f7f
+				0x0004 0x07a00000	/* PAD0_MODE */
+				0x000c 0x01000000	/* PAD6_MODE */
+				0x007c 0x0000007e	/* PORT0_STATUS */
+			>;
+		};
+	};
 };
 
 &POB0 {
@@ -96,38 +125,43 @@
 		compatible = "gpio-leds";
 
 		status: power-green {
-			label = "mr24:green:power";
+			label = "mx60:green:power";
 			gpios = <&GPIO0 18 GPIO_ACTIVE_LOW>;
 		};
 
 		failsafe: power-orange {
-			label = "mr24:orange:power";
+			label = "mx60:orange:power";
 			gpios = <&GPIO0 19 GPIO_ACTIVE_LOW>;
 		};
 
-		lan {
-			label = "mr24:green:wan";
+		wan-green {
+			label = "mx60:green:wan";
 			gpios = <&GPIO0 17 GPIO_ACTIVE_LOW>;
 		};
 
-		ssi-0 {
-			label = "mr24:green:wifi1";
-			gpios = <&GPIO0 23 GPIO_ACTIVE_LOW>;
+		wan-orange {
+			label = "mx60:orange:wan";
+			gpios = <&GPIO0 15 GPIO_ACTIVE_LOW>;
 		};
 
-		ssi-1 {
-			label = "mr24:green:wifi2";
-			gpios = <&GPIO0 22 GPIO_ACTIVE_LOW>;
+		lan1 {
+			label = "mx60:green:lan1";
+			gpios = <&GPIO0 20 GPIO_ACTIVE_LOW>;
 		};
 
-		ssi-2 {
-			label = "mr24:green:wifi3";
+		lan2 {
+			label = "mx60:green:lan2";
 			gpios = <&GPIO0 21 GPIO_ACTIVE_LOW>;
 		};
 
-		ssi-3 {
-			label = "mr24:green:wifi4";
-			gpios = <&GPIO0 20 GPIO_ACTIVE_LOW>;
+		lan3 {
+			label = "mx60:green:lan3";
+			gpios = <&GPIO0 22 GPIO_ACTIVE_LOW>;
+		};
+
+		lan4 {
+			label = "mx60:green:lan4";
+			gpios = <&GPIO0 23 GPIO_ACTIVE_LOW>;
 		};
 	};
 
@@ -147,6 +181,7 @@
 };
 
 &PCIE0 {
+	/* Leave this enabled as u-boot on the MX60 will disable it for us */
 	status = "okay";
 };
 
