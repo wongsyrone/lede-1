@@ -38,6 +38,7 @@ get_status_led() {
 	nbg-419n2|\
 	pwh2004|\
 	r6220|\
+	tplink,c20-v4|\
 	tplink,tl-mr3420-v5|\
 	tl-wr840n-v4|\
 	tl-wr840n-v5|\
@@ -68,6 +69,13 @@ get_status_led() {
 	ai-br100|\
 	ht-tm02)
 		status_led="$boardname:blue:wlan"
+		;;
+	alfa-network,ac1200rm|\
+	awapn2403|\
+	dir-645|\
+	sk-wb8|\
+	wrh-300cr)
+		status_led="$boardname:green:wps"
 		;;
 	all0239-3g|\
 	dcs-930|\
@@ -102,12 +110,6 @@ get_status_led() {
 	ip2202)
 		status_led="$boardname:green:run"
 		;;
-	awapn2403|\
-	dir-645|\
-	sk-wb8|\
-	wrh-300cr)
-		status_led="$boardname:green:wps"
-		;;
 	c108)
 		status_led="$boardname:green:lan"
 		;;
@@ -123,7 +125,6 @@ get_status_led() {
 	w502u)
 		status_led="$boardname:blue:wps"
 		;;
-	c20|\
 	d240|\
 	dap-1350|\
 	na930|\
@@ -135,6 +136,7 @@ get_status_led() {
 	rt-n14u|\
 	rt-n15|\
 	rt-n56u|\
+	tplink,c20-v1|\
 	wl-330n|\
 	wl-330n3g|\
 	wli-tx4-ag300n|\
@@ -172,6 +174,7 @@ get_status_led() {
 		;;
 	k2p|\
 	m3|\
+	mir3g|\
 	miwifi-nano)
 		status_led="$boardname:blue:status"
 		;;
@@ -187,9 +190,6 @@ get_status_led() {
 	m4-4M|\
 	m4-8M)
 		status_led="m4:blue:status"
-		;;
-	mir3g)
-		status_led="$boardname:yellow:status"
 		;;
 	miwifi-mini|\
 	zte-q7)

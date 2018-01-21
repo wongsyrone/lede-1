@@ -27,6 +27,15 @@ define Device/ai-br100
 endef
 TARGET_DEVICES += ai-br100
 
+define Device/alfa-network_ac1200rm
+  DTS := AC1200RM
+  IMAGE_SIZE := 16064k
+  DEVICE_TITLE := ALFA Network AC1200RM
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
+  SUPPORTED_DEVICES := $(subst _,$(comma),$(1))
+endef
+TARGET_DEVICES += alfa-network_ac1200rm
+
 define Device/Archer
   TPLINK_HWREVADD := 0
   TPLINK_HVERSION := 3
@@ -35,20 +44,6 @@ define Device/Archer
   IMAGE/factory.bin := tplink-v2-image -e
   IMAGE/sysupgrade.bin := tplink-v2-image -s -e | append-metadata
 endef
-
-define Device/ArcherC20
-  $(Device/Archer)
-  DTS := ArcherC20
-  SUPPORTED_DEVICES := c20
-  TPLINK_FLASHLAYOUT := 8Mmtk
-  TPLINK_HWID := 0xc2000001
-  TPLINK_HWREV := 0x44
-  TPLINK_HWREVADD := 0x1
-  IMAGES += factory.bin
-  DEVICE_TITLE := TP-Link ArcherC20
-  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport
-endef
-TARGET_DEVICES += ArcherC20
 
 define Device/ArcherC20i
   $(Device/Archer)
@@ -423,6 +418,20 @@ define Device/tiny-ac
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
 endef
 TARGET_DEVICES += tiny-ac
+
+define Device/tplink_c20-v1
+  $(Device/Archer)
+  DTS := ArcherC20v1
+  SUPPORTED_DEVICES := c20v1
+  TPLINK_FLASHLAYOUT := 8Mmtk
+  TPLINK_HWID := 0xc2000001
+  TPLINK_HWREV := 0x44
+  TPLINK_HWREVADD := 0x1
+  IMAGES += factory.bin
+  DEVICE_TITLE := TP-Link ArcherC20 v1
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport
+endef
+TARGET_DEVICES += tplink_c20-v1
 
 define Device/vonets_var11n-300
   DTS := VAR11N-300
