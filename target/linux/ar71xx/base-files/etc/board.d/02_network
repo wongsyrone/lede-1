@@ -94,6 +94,8 @@ ar71xx_setup_interfaces()
 	pqi-air-pen|\
 	rb-411|\
 	rb-411u|\
+	rb-911-2hn|\
+	rb-911-5hn|\
 	rb-911g-2hpnd|\
 	rb-911g-5hpacd|\
 	rb-911g-5hpnd|\
@@ -370,6 +372,12 @@ ar71xx_setup_interfaces()
 	wndr4300)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1" "5:wan"
+		;;
+	ew-balin)
+# usb0 is RNDIS interface over USB in device mode
+		ucidef_set_interface_raw "usb2" "usb0" "static"
+		ucidef_add_switch "switch0" \
+			"0@eth0" "5:lan:4" "4:lan:5" "3:wan"
 		;;
 	ew-dorin)
 		ucidef_add_switch "switch0" \

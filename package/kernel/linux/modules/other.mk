@@ -55,6 +55,7 @@ define KernelPackage/bluetooth
 	CONFIG_BT_HCIUART_BCM=n \
 	CONFIG_BT_HCIUART_INTEL=n \
 	CONFIG_BT_HCIUART_H4 \
+	CONFIG_BT_HCIUART_NOKIA=n \
 	CONFIG_BT_HIDP \
 	CONFIG_HID_SUPPORT=y
   $(call AddDepends/rfkill)
@@ -617,6 +618,22 @@ define KernelPackage/mtdoops/description
 endef
 
 $(eval $(call KernelPackage,mtdoops))
+
+
+define KernelPackage/mtdram
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Test MTD driver using RAM
+  KCONFIG:=CONFIG_MTD_MTDRAM \
+    CONFIG_MTDRAM_TOTAL_SIZE=4096 \
+    CONFIG_MTDRAM_ERASE_SIZE=128
+  FILES:=$(LINUX_DIR)/drivers/mtd/devices/mtdram.ko
+endef
+
+define KernelPackage/mtdram/description
+  Test MTD driver using RAM
+endef
+
+$(eval $(call KernelPackage,mtdram))
 
 
 define KernelPackage/serial-8250

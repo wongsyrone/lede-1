@@ -3,6 +3,8 @@
  *
  *  - MikroTik RouterBOARD mAP 2nD
  *  - MikroTik RouterBOARD mAP L-2nD
+ *  - MikroTik RouterBOARD 911-2Hn (911 Lite2)
+ *  - MikroTik RouterBOARD 911-5Hn (911 Lite5)
  *  - MikroTik RouterBOARD 941L-2nD
  *  - MikroTik RouterBOARD 951Ui-2nD
  *  - MikroTik RouterBOARD 952Ui-5ac2nD
@@ -509,6 +511,56 @@ static struct platform_device rbwapgsc_phy_device = {
 	},
 };
 
+/* RB911L GPIOs */
+#define RB911L_GPIO_BTN_RESET	15
+#define RB911L_GPIO_LED_1	13
+#define RB911L_GPIO_LED_2	12
+#define RB911L_GPIO_LED_3	4
+#define RB911L_GPIO_LED_4	21
+#define RB911L_GPIO_LED_5	18
+#define RB911L_GPIO_LED_ETH	20
+#define RB911L_GPIO_LED_POWER	11
+#define RB911L_GPIO_LED_USER	3
+#define RB911L_GPIO_PIN_HOLE	14 /* for reference */
+
+static struct gpio_led rb911l_leds[] __initdata = {
+	{
+		.name = "rb:green:eth",
+		.gpio = RB911L_GPIO_LED_ETH,
+		.active_low = 1,
+	}, {
+		.name = "rb:green:led1",
+		.gpio = RB911L_GPIO_LED_1,
+		.active_low = 1,
+	}, {
+		.name = "rb:green:led2",
+		.gpio = RB911L_GPIO_LED_2,
+		.active_low = 1,
+	}, {
+		.name = "rb:green:led3",
+		.gpio = RB911L_GPIO_LED_3,
+		.active_low = 1,
+	}, {
+		.name = "rb:green:led4",
+		.gpio = RB911L_GPIO_LED_4,
+		.active_low = 1,
+	}, {
+		.name = "rb:green:led5",
+		.gpio = RB911L_GPIO_LED_5,
+		.active_low = 1,
+	}, {
+		.name = "rb:green:power",
+		.gpio = RB911L_GPIO_LED_POWER,
+		.default_state = LEDS_GPIO_DEFSTATE_ON,
+		.open_drain = 1,
+	}, {
+		.name = "rb:green:user",
+		.gpio = RB911L_GPIO_LED_USER,
+		.active_low = 1,
+		.open_drain = 1,
+	},
+};
+
 static struct gen_74x164_chip_platform_data rbspi_ssr_data = {
 	.base = RBSPI_SSR_GPIO_BASE,
 	.num_registers = 1,
@@ -564,7 +616,7 @@ void __init rbspi_wlan_init(u16 id, int wmac_offset)
 /*
  * Common platform init routine for all SPI NOR devices.
  */
-static int __init rbspi_platform_setup(void)
+static __init const struct rb_info *rbspi_platform_setup(void)
 {
 	const struct rb_info *info;
 	char buf[RBSPI_MACH_BUFLEN] = "MikroTik ";
@@ -573,7 +625,7 @@ static int __init rbspi_platform_setup(void)
 
 	info = rb_init_info((void *)(KSEG1ADDR(AR71XX_SPI_BASE)), 0x20000);
 	if (!info)
-		return -ENODEV;
+		return NULL;
 
 	if (info->board_name) {
 		str = "RouterBOARD ";
@@ -591,7 +643,7 @@ static int __init rbspi_platform_setup(void)
 	/* fix partitions based on flash parsing */
 	rbspi_init_partitions(info);
 
-	return 0;
+	return info;
 }
 
 /*
@@ -683,7 +735,7 @@ static void __init rbmapl_setup(void)
 {
 	u32 flags = RBSPI_HAS_WLAN0;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	rbspi_peripherals_setup(flags);
@@ -712,7 +764,7 @@ static void __init rbhapl_setup(void)
 {
 	u32 flags = RBSPI_HAS_WLAN0;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	rbspi_peripherals_setup(flags);
@@ -774,7 +826,7 @@ static void __init rb952_setup(void)
 	u32 flags = RBSPI_HAS_WAN4 | RBSPI_HAS_USB |
 			RBSPI_HAS_SSR | RBSPI_HAS_POE;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	/* differentiate the hAP from the hAP ac lite */
@@ -797,7 +849,7 @@ static void __init rb750upr2_setup(void)
 {
 	u32 flags = RBSPI_HAS_WAN4 | RBSPI_HAS_SSR;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	/* differentiate the hEX lite from the hEX PoE lite */
@@ -827,7 +879,7 @@ static void __init rb962_setup(void)
 {
 	u32 flags = RBSPI_HAS_USB | RBSPI_HAS_POE | RBSPI_HAS_PCI;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	rbspi_peripherals_setup(flags);
@@ -880,7 +932,7 @@ static void __init rblhg_setup(void)
 {
 	u32 flags = RBSPI_HAS_WLAN1 | RBSPI_HAS_MDIO1;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	rbspi_peripherals_setup(flags);
@@ -901,7 +953,7 @@ static void __init rbwap_setup(void)
 {
 	u32 flags = RBSPI_HAS_WLAN0;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	rbspi_peripherals_setup(flags);
@@ -923,7 +975,7 @@ static void __init rbcap_setup(void)
 {
 	u32 flags = RBSPI_HAS_WLAN0;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	rbspi_peripherals_setup(flags);
@@ -948,7 +1000,7 @@ static void __init rbmap_setup(void)
 	u32 flags = RBSPI_HAS_USB | RBSPI_HAS_WLAN0 |
 			RBSPI_HAS_SSR | RBSPI_HAS_POE;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	rbspi_spi_cs_gpios[1] = RBMAP_GPIO_SSR_CS;
@@ -985,7 +1037,7 @@ static void __init rbwapgsc_setup(void)
 {
 	u32 flags = RBSPI_HAS_PCI;
 
-	if (rbspi_platform_setup())
+	if (!rbspi_platform_setup())
 		return;
 
 	rbspi_peripherals_setup(flags);
@@ -1015,8 +1067,53 @@ static void __init rbwapgsc_setup(void)
 			rbwapgsc_leds);
 }
 
+/*
+ * Setup the 911L hardware (AR9344).
+ */
+static void __init rb911l_setup(void)
+{
+	const struct rb_info *info;
+
+	info = rbspi_platform_setup();
+	if (!info)
+		return;
+
+	if (!rb_has_hw_option(info, RB_HW_OPT_NO_NAND)) {
+		/*
+		 * Old hardware revisions might be equipped with a NAND flash
+		 * chip instead of the 16MiB SPI NOR device. Those boards are
+		 * not supported at the moment, so throw a warning and skip
+		 * the peripheral setup to avoid messing up the data in the
+		 * flash chip.
+		 */
+		WARN(1, "The NAND flash on this board is not supported.\n");
+	} else {
+		rbspi_peripherals_setup(0);
+	}
+
+	ath79_register_mdio(1, 0x0);
+
+	ath79_init_mac(ath79_eth1_data.mac_addr, ath79_mac_base, 0);
+
+	ath79_eth1_data.phy_if_mode = PHY_INTERFACE_MODE_GMII;
+	ath79_eth1_data.speed = SPEED_1000;
+	ath79_eth1_data.duplex = DUPLEX_FULL;
+
+	ath79_register_eth(1);
+
+	rbspi_wlan_init(0, 1);
+
+	rbspi_register_reset_button(RB911L_GPIO_BTN_RESET);
+
+	/* Make the eth LED controllable by software. */
+	ath79_gpio_output_select(RB911L_GPIO_LED_ETH, AR934X_GPIO_OUT_GPIO);
+
+	ath79_register_leds_gpio(-1, ARRAY_SIZE(rb911l_leds), rb911l_leds);
+}
+
 MIPS_MACHINE_NONAME(ATH79_MACH_RB_MAPL, "map-hb", rbmapl_setup);
 MIPS_MACHINE_NONAME(ATH79_MACH_RB_941, "H951L", rbhapl_setup);
+MIPS_MACHINE_NONAME(ATH79_MACH_RB_911L, "911L", rb911l_setup);
 MIPS_MACHINE_NONAME(ATH79_MACH_RB_952, "952-hb", rb952_setup);
 MIPS_MACHINE_NONAME(ATH79_MACH_RB_962, "962", rb962_setup);
 MIPS_MACHINE_NONAME(ATH79_MACH_RB_750UPR2, "750-hb", rb750upr2_setup);

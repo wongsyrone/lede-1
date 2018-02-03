@@ -218,7 +218,7 @@ define Package/iptables-mod-nflog/description
 endef
 
 define Package/iptables-mod-trace
-$(call Package/iptables/Module, +kmod-ipt-debug +kmod-ipt-raw)
+$(call Package/iptables/Module, +kmod-ipt-debug)
   TITLE:=Netfilter TRACE target
 endef
 

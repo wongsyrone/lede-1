@@ -167,7 +167,8 @@ platform_check_image() {
 	whr-300hp2|\
 	whr-600d|\
 	whr-g300n|\
-	widora-neo|\
+	widora,neo-16m|\
+	widora,neo-32m|\
 	witi|\
 	wizfi630a|\
 	wl-330n|\
@@ -203,6 +204,7 @@ platform_check_image() {
 	zbt-ape522ii|\
 	zbt-cpe102|\
 	zbt-wa05|\
+	zbt-we1226|\
 	zbt-we1326|\
 	zbt-we2026|\
 	zbtlink,zbt-we3526|\

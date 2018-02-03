@@ -215,13 +215,22 @@ define Device/wl-wn575a3
 endef
 TARGET_DEVICES += wl-wn575a3
 
-define Device/widora-neo
-  DTS := WIDORA-NEO
+define Device/widora_neo-16m
+  DTS := WIDORA-NEO-16M
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
-  DEVICE_TITLE := Widora-NEO
+  DEVICE_TITLE := Widora-NEO (16M)
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
+  SUPPORTED_DEVICES += widora-neo
+endef
+TARGET_DEVICES += widora_neo-16m
+
+define Device/widora_neo-32m
+  DTS := WIDORA-NEO-32M
+  IMAGE_SIZE := $(ralink_default_fw_size_32M)
+  DEVICE_TITLE := Widora-NEO (32M)
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
 endef
-TARGET_DEVICES += widora-neo
+TARGET_DEVICES += widora_neo-32m
 
 define Device/wrtnode2p
   DTS := WRTNODE2P
@@ -238,3 +247,10 @@ define Device/wrtnode2r
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci
 endef
 TARGET_DEVICES += wrtnode2r
+
+define Device/zbt-we1226
+  DTS := ZBT-WE1226
+  IMAGE_SIZE := $(ralink_default_fw_size_8M)
+  DEVICE_TITLE := ZBTlink ZBT-WE1226
+endef
+TARGET_DEVICES += zbt-we1226
