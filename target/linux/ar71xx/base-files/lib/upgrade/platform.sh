@@ -209,6 +209,7 @@ platform_check_image() {
 	cf-e316n-v2|\
 	cf-e320n-v2|\
 	cf-e355ac|\
+	cf-e375ac|\
 	cf-e380ac-v1|\
 	cf-e380ac-v2|\
 	cf-e520n|\
@@ -261,6 +262,7 @@ platform_check_image() {
 	pqi-air-pen|\
 	r36a|\
 	r602n|\
+	rme-eg200|\
 	rocket-m|\
 	rocket-m-ti|\
 	rocket-m-xw|\
@@ -389,6 +391,7 @@ platform_check_image() {
 	omy-x1|\
 	onion-omega|\
 	oolite|\
+	re355|\
 	re450|\
 	rut900|\
 	smart-300|\

@@ -108,6 +108,7 @@ ar71xx_setup_interfaces()
 	rb-sxt5n|\
 	rb-wap-2nd|\
 	rb-wapg-5hact2hnd|\
+	re355|\
 	re450|\
 	rocket-m-xw|\
 	sc300m |\
@@ -262,7 +263,8 @@ ar71xx_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth0" "3:wan" "4:lan"
 		;;
-	cap324)
+	cap324|\
+	rme-eg200)
 		ucidef_set_interface_lan "eth0" "dhcp"
 		;;
 	cpe210|\
@@ -435,6 +437,7 @@ ar71xx_setup_interfaces()
 		ucidef_add_switch "switch1" \
 			"0@eth1" "1:lan:4" "2:lan:1" "3:lan:3" "4:lan:2" "5:wan"
 		;;
+	cf-e375ac |\
 	rb-map-2nd)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:wan" "2:lan"

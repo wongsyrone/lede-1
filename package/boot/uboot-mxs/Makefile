@@ -8,10 +8,10 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_VERSION:=2016.01
+PKG_VERSION:=2017.11
 PKG_RELEASE:=1
 
-PKG_HASH:=e5792fba9399d9804aa2ef667f14ff771e2cdece72367d340250265bf095a5d5
+PKG_HASH:=6a018fd3caf58f3dcfa23ee989a82bd35df03af71872b9dca8c6d758a0d26c05
 
 include $(INCLUDE_DIR)/u-boot.mk
 include $(INCLUDE_DIR)/package.mk
@@ -35,7 +35,7 @@ UBOOT_TARGETS := \
 	mx23_olinuxino \
 	duckbill
 
-UBOOT_MAKE_FLAGS += $(UBOOT_IMAGE)
+UBOOT_MAKE_FLAGS = $(UBOOT_IMAGE)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)

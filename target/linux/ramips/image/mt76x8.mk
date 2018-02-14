@@ -152,6 +152,19 @@ define Device/tplink_c20-v4
 endef
 TARGET_DEVICES += tplink_c20-v4
 
+define Device/tplink_c50-v3
+  $(Device/tplink)
+  DTS := ArcherC50V3
+  IMAGE_SIZE := 7808k
+  DEVICE_TITLE := TP-Link ArcherC50 v3
+  TPLINK_FLASHLAYOUT := 8Mmtk
+  TPLINK_HWID := 0x001D9BA4
+  TPLINK_HWREV := 0x79
+  TPLINK_HWREVADD := 0x1
+  TPLINK_HVERSION := 3
+endef
+TARGET_DEVICES += tplink_c50-v3
+
 define Device/tplink_tl-mr3420-v5
   $(Device/tplink)
   DTS := TL-MR3420V5
@@ -248,9 +261,9 @@ define Device/wrtnode2r
 endef
 TARGET_DEVICES += wrtnode2r
 
-define Device/zbt-we1226
+define Device/zbtlink_zbt-we1226
   DTS := ZBT-WE1226
   IMAGE_SIZE := $(ralink_default_fw_size_8M)
   DEVICE_TITLE := ZBTlink ZBT-WE1226
 endef
-TARGET_DEVICES += zbt-we1226
+TARGET_DEVICES += zbtlink_zbt-we1226
