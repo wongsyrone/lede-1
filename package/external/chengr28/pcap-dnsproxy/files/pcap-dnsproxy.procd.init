@@ -63,10 +63,10 @@ start_service() {
 		procd_open_instance
 		procd_set_param command $PROG -c $CONFDIR --disable-daemon
 		procd_set_param file $CONFDIR/Config.conf
-		procd_set_param file $CONFDIR/Hosts.conf
-		procd_set_param file $CONFDIR/IPFilter.conf
-		procd_set_param file $CONFDIR/Routing.txt
-		procd_set_param file $CONFDIR/WhiteList.txt
+		procd_append_param file $CONFDIR/Hosts.conf
+		procd_append_param file $CONFDIR/IPFilter.conf
+		procd_append_param file $CONFDIR/Routing.txt
+		procd_append_param file $CONFDIR/WhiteList.txt
 		procd_set_param user root # run service as user root
 		procd_set_param stdout 1 # forward stdout of the command to logd
 		procd_set_param stderr 1 # same for stderr
