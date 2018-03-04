@@ -11,7 +11,7 @@ Signed-off-by: Shane Wang <shane.wang@intel.com>
 
 --- a/configure
 +++ b/configure
-@@ -2,6 +2,7 @@
+@@ -3,6 +3,7 @@
  # This is not an autoconf generated configure
  #
  INCLUDE=${1:-"$PWD/include"}
@@ -19,7 +19,7 @@ Signed-off-by: Shane Wang <shane.wang@intel.com>
  
  # Output file which is input to Makefile
  CONFIG=config.mk
-@@ -195,7 +196,7 @@ check_ipt_lib_dir()
+@@ -196,7 +197,7 @@ check_ipt_lib_dir()
  		return
  	fi
  
