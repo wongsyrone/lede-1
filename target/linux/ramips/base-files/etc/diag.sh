@@ -78,6 +78,9 @@ get_status_led() {
 	wrh-300cr)
 		status_led="$boardname:green:wps"
 		;;
+	alfa-network,awusfree1)
+		status_led="$boardname:orange:system"
+		;;
 	all0239-3g|\
 	dcs-930|\
 	dir-300-b1|\
@@ -91,7 +94,7 @@ get_status_led() {
 	dir-620-d1|\
 	dwr-512-b|\
 	gb-pc1|\
-	gb-pc2|\
+	gnubee,gb-pc2|\
 	hpm|\
 	hw550-3g|\
 	mac1200rv2|\
@@ -147,7 +150,7 @@ get_status_led() {
 	youku-yk1)
 		status_led="$boardname:blue:power"
 		;;
-	dap-1522-a1|\
+	dlink,dap-1522-a1|\
 	k2p|\
 	m3|\
 	mir3g|\
@@ -188,7 +191,7 @@ get_status_led() {
 		status_led="$boardname:blue:wifi"
 		;;
 	gl-mt300n-v2)
-		status_led="$boardname:red:wlan"
+		status_led="$boardname:green:power"
 		;;
 	m4-4M|\
 	m4-8M)

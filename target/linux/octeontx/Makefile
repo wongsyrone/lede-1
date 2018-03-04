@@ -9,8 +9,7 @@ include $(TOPDIR)/rules.mk
 ARCH:=aarch64
 BOARD:=octeontx
 BOARDNAME:=Octeon-TX
-FEATURES:=targz pcie gpio rtc usb
-CFLAGS:=-Os -pipe -fno-caller-saves
+FEATURES:=targz pcie gpio rtc usb fpu
 
 MAINTAINER:=Tim Harvey <tharvey@gateworks.com>
 

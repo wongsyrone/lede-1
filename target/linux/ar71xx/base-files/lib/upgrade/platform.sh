@@ -208,10 +208,12 @@ platform_check_image() {
 	carambola2|\
 	cf-e316n-v2|\
 	cf-e320n-v2|\
-	cf-e355ac|\
+	cf-e355ac-v1|\
+	cf-e355ac-v2|\
 	cf-e375ac|\
 	cf-e380ac-v1|\
 	cf-e380ac-v2|\
+	cf-e385ac|\
 	cf-e520n|\
 	cf-e530n|\
 	cpe505n|\
@@ -233,6 +235,9 @@ platform_check_image() {
 	dr342|\
 	dr531|\
 	dragino2|\
+	e1700ac-v2|\
+	e600g-v2|\
+	e600gac-v2|\
 	ebr-2310-c1|\
 	ens202ext|\
 	epg5000|\
@@ -271,6 +276,7 @@ platform_check_image() {
 	sc300m|\
 	sc450|\
 	sr3200|\
+	t830|\
 	tew-632brp|\
 	tew-712br|\
 	tew-732br|\
@@ -281,6 +287,7 @@ platform_check_image() {
 	unifi-outdoor|\
 	unifiac-lite|\
 	unifiac-pro|\
+	wam250|\
 	weio|\
 	whr-g301n|\
 	whr-hp-g300n|\
@@ -385,12 +392,16 @@ platform_check_image() {
 	el-m150|\
 	el-mini|\
 	gl-inet|\
+	lan-turtle|\
 	mc-mac1200r|\
 	minibox-v1|\
 	omy-g1|\
 	omy-x1|\
 	onion-omega|\
-	oolite|\
+	oolite-v1|\
+	oolite-v5.2|\
+	oolite-v5.2-dev|\
+	packet-squirrel|\
 	re355|\
 	re450|\
 	rut900|\
@@ -460,7 +471,8 @@ platform_check_image() {
 	tl-wr940n-v4|\
 	tl-wr941nd|\
 	tl-wr941nd-v5|\
-	tl-wr941nd-v6)
+	tl-wr941nd-v6|\
+	wifi-pineapple-nano)
 		local magic_ver="0100"
 
 		case "$board" in

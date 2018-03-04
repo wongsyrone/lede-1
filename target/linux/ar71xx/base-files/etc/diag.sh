@@ -23,8 +23,11 @@ get_status_led() {
 	antminer-s1|\
 	antminer-s3|\
 	antminer-r1|\
+	e1700ac-v2|\
+	e600gac-v2|\
 	eap120|\
 	minibox-v1|\
+	packet-squirrel|\
 	som9331|\
 	sr3200|\
 	tl-wr802n-v2|\
@@ -146,8 +149,10 @@ get_status_led() {
 	cf-e320n-v2)
 		status_led="$board:blue:wlan"
 		;;
+	cf-e375ac|\
 	cf-e380ac-v1|\
-	cf-e380ac-v2)
+	cf-e380ac-v2|\
+	cf-e385ac)
 		status_led="$board:blue:wlan2g"
 		;;
 	cpe510)
@@ -192,12 +197,17 @@ get_status_led() {
 		status_led="$board:green:sig4"
 		;;
 	dragino2|\
-	oolite)
+	oolite-v1)
 		status_led="$board:red:system"
 		;;
 	dw33d|\
 	r36a)
 		status_led="$board:blue:status"
+		;;
+	e600g-v2|\
+	oolite-v5.2-dev|\
+	wifi-pineapple-nano)
+		status_led="$board:blue:system"
 		;;
 	eap300v2)
 		status_led="engenius:blue:power"
@@ -229,7 +239,8 @@ get_status_led() {
 		;;
 	gl-ar750|\
 	hiveap-121|\
-	nbg6716)
+	nbg6716|\
+	wam250)
 		status_led="$board:white:power"
 		;;
 	hiwifi-hc6361)
@@ -245,6 +256,9 @@ get_status_led() {
 		;;
 	jwap230)
 		status_led="$board:green:led1"
+		;;
+	lan-turtle)
+		status_led="$board:orange:system"
 		;;
 	ls-sr71)
 		status_led="ubnt:green:d22"
@@ -379,6 +393,9 @@ get_status_led() {
 		;;
 	qihoo-c301)
 		status_led="qihoo:green:status"
+		;;
+	t830)
+		status_led="$board:green:usb"
 		;;
 	tellstick-znet-lite)
 		status_led="tellstick:white:system"
