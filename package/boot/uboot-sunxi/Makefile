@@ -9,9 +9,9 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_VERSION:=2017.07
+PKG_VERSION:=2017.11
 
-PKG_HASH:=5374bfdc8acb9a38c025371b1ff20f45e7533668e84e685d0df5d9e7c0e4feff
+PKG_HASH:=6a018fd3caf58f3dcfa23ee989a82bd35df03af71872b9dca8c6d758a0d26c05
 
 PKG_MAINTAINER:=Zoltan HERPAI <wigyori@uid0.hu>
 
@@ -190,6 +190,15 @@ define U-Boot/pine64_plus
   UENV:=a64
 endef
 
+define U-Boot/sopine_baseboard
+  BUILD_SUBTARGET:=cortexa53
+  NAME:=Sopine Baseboard
+  BUILD_DEVICES:=sun50i-a64-sopine-baseboard
+  DEPENDS:=+PACKAGE_u-boot-sopine_baseboard:arm-trusted-firmware-sunxi
+  UENV:=a64
+endef
+
+
 define U-Boot/orangepi_zero_plus
   BUILD_SUBTARGET:=cortexa53
   NAME:=Xunlong Orange Pi Zero Plus
@@ -226,6 +235,7 @@ UBOOT_TARGETS := \
 	orangepi_2 \
 	pangolin \
 	pine64_plus \
+	sopine_baseboard \
 	orangepi_zero_plus
 
 UBOOT_CONFIGURE_VARS += USE_PRIVATE_LIBGCC=yes
