@@ -32,6 +32,16 @@ define Build/mkwrggimg
 	mv $@.imghdr $@
 endef
 
+define Build/mkdapimg2
+	$(STAGING_DIR_HOST)/bin/mkdapimg2 \
+		-i $@ -o $@.new \
+		-s $(DAP_SIGNATURE) \
+		-v $(VERSION_DIST)-$(firstword $(subst -, ,$(REVISION))) \
+		-r Default \
+		$(if $(1),-k $(1))
+	mv $@.new $@
+endef
+
 define Build/netgear-squashfs
 	rm -rf $@.fs $@.squashfs
 	mkdir -p $@.fs/image
@@ -305,7 +315,7 @@ endef
 TARGET_DEVICES += dragino2
 
 define Device/e1700ac-v2-16M
-  DEVICE_TITLE := WHQX E1700AC v2 (16MB flash)
+  DEVICE_TITLE := Qxwlan E1700AC v2 (16MB flash)
   DEVICE_PACKAGES := kmod-ath10k ath10k-firmware-qca988x kmod-usb-core \
 	kmod-usb2 kmod-usb-ledtrig-usbport
   BOARDNAME := E1700AC-V2
@@ -319,13 +329,13 @@ TARGET_DEVICES += e1700ac-v2-16M
 
 define Device/e1700ac-v2-8M
   $(Device/e1700ac-v2-16M)
-  DEVICE_TITLE := WHQX E1700AC v2 (8MB flash)
+  DEVICE_TITLE := Qxwlan E1700AC v2 (8MB flash)
   IMAGE_SIZE := 7744k
 endef
 TARGET_DEVICES += e1700ac-v2-8M
 
 define Device/e600g-v2-16M
-  DEVICE_TITLE := WHQX E600G v2 (16MB flash)
+  DEVICE_TITLE := Qxwlan E600G v2 (16MB flash)
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2 -swconfig
   BOARDNAME := E600G-V2
   SUPPORTED_DEVICES := e600g-v2
@@ -338,13 +348,13 @@ TARGET_DEVICES += e600g-v2-16M
 
 define Device/e600g-v2-8M
   $(Device/e600g-v2-16M)
-  DEVICE_TITLE := WHQX E600G v2 (8MB flash)
+  DEVICE_TITLE := Qxwlan E600G v2 (8MB flash)
   IMAGE_SIZE := 7744k
 endef
 TARGET_DEVICES += e600g-v2-8M
 
 define Device/e600gac-v2-16M
-  DEVICE_TITLE := WHQX E600GAC v2 (16MB flash)
+  DEVICE_TITLE := Qxwlan E600GAC v2 (16MB flash)
   DEVICE_PACKAGES := kmod-ath10k ath10k-firmware-qca9887 kmod-usb-core \
 	kmod-usb2 -swconfig
   BOARDNAME := E600GAC-V2
@@ -358,7 +368,7 @@ TARGET_DEVICES += e600gac-v2-16M
 
 define Device/e600gac-v2-8M
   $(Device/e600gac-v2-16M)
-  DEVICE_TITLE := WHQX E600GAC v2 (8MB flash)
+  DEVICE_TITLE := Qxwlan E600GAC v2 (8MB flash)
   IMAGE_SIZE := 7744k
 endef
 TARGET_DEVICES += e600gac-v2-8M
@@ -1130,6 +1140,18 @@ define Device/qihoo-c301
   SEAMA_SIGNATURE := wrgac26_qihoo360_360rg
 endef
 TARGET_DEVICES += qihoo-c301
+
+define Device/dap-1330-a1
+  DEVICE_TITLE := D-Link DAP-1330 rev. A1
+  DEVICE_PACKAGES := rssileds
+  BOARDNAME := DAP-1330-A1
+  IMAGES := factory.img sysupgrade.bin
+  IMAGE_SIZE := 7936k
+  IMAGE/factory.img := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | mkdapimg2 917504
+  MTDPARTS := spi0.0:64k(u-boot)ro,64k(art)ro,64k(mp)ro,64k(config)ro,7936k(firmware)
+  DAP_SIGNATURE := HONEYBEE-FIRMWARE-DAP-1330
+endef
+TARGET_DEVICES += dap-1330-a1
 
 define Device/dap-2695-a1
   DEVICE_TITLE := D-Link DAP-2695 rev. A1

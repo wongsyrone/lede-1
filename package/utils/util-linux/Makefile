@@ -8,17 +8,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=util-linux
-PKG_VERSION:=2.31
-PKG_RELEASE:=2
+PKG_VERSION:=2.32
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@KERNEL/linux/utils/$(PKG_NAME)/v2.31
-PKG_HASH:=f9be7cdcf4fc5c5064a226599acdda6bdf3d86c640152ba01ea642d91108dc8a
+PKG_SOURCE_URL:=@KERNEL/linux/utils/$(PKG_NAME)/v2.32
+PKG_HASH:=6c7397abc764e32e8159c2e96042874a190303e77adceb4ac5bd502a272a4734
 PKG_CPE_ID:=cpe:/a:kernel:util-linux
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=	COPYING					\
-			getopt/COPYING				\
 			libblkid/COPYING			\
 			libmount/COPYING			\
 			Documentation/licenses/COPYING.GPLv2	\
@@ -462,7 +461,7 @@ endef
 define Package/wipefs
 $(call Package/util-linux/Default)
   TITLE:=wipe a signature from a device
-  DEPENDS:= +libblkid
+  DEPENDS:= +libblkid +libsmartcols
   SUBMENU:=Disc
 endef
 
@@ -473,16 +472,16 @@ define Package/wipefs/description
 endef
 
 CONFIGURE_ARGS += \
-	--disable-use-tty-group \
-	--disable-rpath \
-	--disable-tls		\
-	--disable-sulogin	\
-	--without-python	\
-	--without-udev		\
-	--without-readline	\
-	--disable-more		\
-	--with-ncursesw \
-	--disable-makeinstall-chown
+	--disable-use-tty-group		\
+	--disable-rpath			\
+	--disable-tls			\
+	--disable-sulogin		\
+	--disable-makeinstall-chown	\
+	--without-python		\
+	--without-udev			\
+	--without-readline		\
+	--disable-more			\
+	--with-ncursesw
 
 TARGET_CFLAGS += $(FPIC) -std=gnu99
 

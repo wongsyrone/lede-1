@@ -98,6 +98,27 @@ ubnt_xm_board_detect() {
 	[ -z "$model" ] || AR71XX_MODEL="${model}${magic:3:1}"
 }
 
+ubnt_ac_lite_get_mtd_part_magic() {
+	ar71xx_get_mtd_offset_size_format EEPROM 12 2 %02x
+}
+
+ubnt_ac_lite_board_detect() {
+	local model
+	local magic
+
+	magic="$(ubnt_ac_lite_get_mtd_part_magic)"
+	case ${magic:0:4} in
+	"e517")
+		model="Ubiquiti UniFi-AC-LITE"
+		;;
+	"e557")
+		model="Ubiquiti UniFi-AC-MESH"
+		;;
+	esac
+
+	[ -z "$model" ] || AR71XX_MODEL="${model}"
+}
+
 cybertan_get_hw_magic() {
 	local part
 
@@ -467,6 +488,9 @@ ar71xx_board_detect() {
 	*"Archer C60 v1")
 		name="archer-c60-v1"
 		;;
+	*"Archer C60 v2")
+		name="archer-c60-v2"
+		;;
 	*"Archer C7")
 		name="archer-c7"
 		;;
@@ -559,6 +583,9 @@ ar71xx_board_detect() {
 		;;
 	*"CR5000")
 		name="cr5000"
+		;;
+	*"DAP-1330 Rev. A1")
+		name="dap-1330-a1"
 		;;
 	*"DAP-2695 rev. A1")
 		name="dap-2695-a1"
@@ -1283,6 +1310,9 @@ ar71xx_board_detect() {
 	*"TL-WR940N v4")
 		name="tl-wr940n-v4"
 		;;
+	*"TL-WR940N v6")
+		name="tl-wr940n-v6"
+		;;
 	*"TL-WR941N/ND v5")
 		name="tl-wr941nd-v5"
 		;;
@@ -1306,6 +1336,7 @@ ar71xx_board_detect() {
 		;;
 	*"UniFi-AC-LITE/MESH")
 		name="unifiac-lite"
+		ubnt_ac_lite_board_detect
 		;;
 	*"UniFi-AC-PRO")
 		name="unifiac-pro"

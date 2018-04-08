@@ -17,7 +17,7 @@ DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg netifd fs
 # For nas targets
 DEFAULT_PACKAGES.nas:=block-mount fdisk lsblk mdadm
 # For router targets
-DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables ppp ppp-mod-pppoe firewall odhcpd-ipv6only odhcp6c
+DEFAULT_PACKAGES.router:=dnsmasq iptables ip6tables ppp ppp-mod-pppoe firewall odhcpd-ipv6only odhcp6c kmod-ipt-offload
 DEFAULT_PACKAGES.bootloader:=
 
 ifneq ($(DUMP),)
@@ -49,6 +49,10 @@ else
   ifneq ($(SUBTARGET),)
     -include ./$(SUBTARGET)/target.mk
   endif
+endif
+
+ifneq ($(filter 3.18 4.4 4.9,$(KERNEL_PATCHVER)),)
+  DEFAULT_PACKAGES.router:=$(filter-out kmod-ipt-offload,$(DEFAULT_PACKAGES.router))
 endif
 
 # Add device specific packages (here below to allow device type set from subtarget)
@@ -190,6 +194,7 @@ ifeq ($(DUMP),1)
     CPU_CFLAGS_cortex-a9 = -mcpu=cortex-a9
     CPU_CFLAGS_cortex-a15 = -mcpu=cortex-a15
     CPU_CFLAGS_cortex-a53 = -mcpu=cortex-a53
+    CPU_CFLAGS_cortex-a72 = -mcpu=cortex-a72
     CPU_CFLAGS_fa526 = -mcpu=fa526
     CPU_CFLAGS_mpcore = -mcpu=mpcore
     CPU_CFLAGS_xscale = -mcpu=xscale

@@ -48,6 +48,7 @@ enum ath79_mach_type {
 	ATH79_MACH_ARCHER_C58_V1,		/* TP-LINK Archer C58 V1 board */
 	ATH79_MACH_ARCHER_C59_V1,		/* TP-LINK Archer C59 V1 board */
 	ATH79_MACH_ARCHER_C60_V1,		/* TP-LINK Archer C60 V1 board */
+	ATH79_MACH_ARCHER_C60_V2,		/* TP-LINK Archer C60 V2 board */
 	ATH79_MACH_ARCHER_C7,			/* TP-LINK Archer C7 board */
 	ATH79_MACH_ARCHER_C7_V2,		/* TP-LINK Archer C7 V2 board */
 	ATH79_MACH_ARCHER_C7_V4,		/* TP-LINK Archer C7 V4 board */
@@ -78,6 +79,7 @@ enum ath79_mach_type {
 	ATH79_MACH_CPE870,			/* YunCore CPE870 */
 	ATH79_MACH_CR3000,			/* PowerCloud CR3000 */
 	ATH79_MACH_CR5000,			/* PowerCloud CR5000 */
+	ATH79_MACH_DAP_1330_A1,			/* D-Link DAP-1330 rev. A1 */
 	ATH79_MACH_DAP_2695_A1,			/* D-Link DAP-2695 rev. A1 */
 	ATH79_MACH_DB120,			/* Atheros DB120 reference board */
 	ATH79_MACH_DGL_5500_A1,			/* D-link DGL-5500 rev. A1 */
@@ -100,9 +102,9 @@ enum ath79_mach_type {
 	ATH79_MACH_DR344,			/* Wallys DR344 */
 	ATH79_MACH_DR531,			/* Wallys DR531 */
 	ATH79_MACH_DRAGINO2,			/* Dragino Version 2 */
-	ATH79_MACH_E1700AC_V2,			/* WHQX E1700AC v2 */
-	ATH79_MACH_E600G_V2,			/* WHQX E600G v2 */
-	ATH79_MACH_E600GAC_V2,			/* WHQX E600GAC v2 */
+	ATH79_MACH_E1700AC_V2,			/* Qxwlan E1700AC v2 */
+	ATH79_MACH_E600G_V2,			/* Qxwlan E600G v2 */
+	ATH79_MACH_E600GAC_V2,			/* Qxwlan E600GAC v2 */
 	ATH79_MACH_EAP120,			/* TP-LINK EAP120 */
 	ATH79_MACH_EAP300V2,			/* EnGenius EAP300 v2 */
 	ATH79_MACH_EAP7660D,			/* Senao EAP7660D */
@@ -298,6 +300,7 @@ enum ath79_mach_type {
 	ATH79_MACH_TL_WR941ND_V5,		/* TP-LINK TL-WR941ND v5 */
 	ATH79_MACH_TL_WR941ND_V6,		/* TP-LINK TL-WR941ND v6 */
 	ATH79_MACH_TL_WR940N_V4,		/* TP-LINK TL-WR940N v4 */
+	ATH79_MACH_TL_WR940N_V6,		/* TP-LINK TL-WR940N v6 */
 	ATH79_MACH_TL_WR942N_V1,		/* TP-LINK TL-WR942N v1 */
 	ATH79_MACH_TUBE2H,			/* Alfa Network Tube2H */
 	ATH79_MACH_UBNT_AIRGW,			/* Ubiquiti AirGateway */

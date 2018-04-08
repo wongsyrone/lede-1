@@ -64,6 +64,7 @@ get_status_led() {
 	archer-c58-v1|\
 	archer-c59-v1|\
 	archer-c60-v1|\
+	archer-c60-v2|\
 	archer-c7-v4|\
 	fritz300e|\
 	gl-usb150|\
@@ -162,6 +163,7 @@ get_status_led() {
 	cr5000)
 		status_led="pcs:amber:power"
 		;;
+	dap-1330-a1|\
 	dgl-5500-a1|\
 	dhp-1565-a1|\
 	dir-505-a1|\
@@ -467,6 +469,9 @@ get_status_led() {
 		;;
 	tl-wr841n-v9)
 		status_led="tp-link:green:qss"
+		;;
+	tl-wr940n-v6)
+		status_led="tp-link:orange:diag"
 		;;
 	tl-wdr6500-v2)
 		status_led="tp-link:white:system"

@@ -249,7 +249,8 @@ ar71xx_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth1" "1:lan:1" "2:lan:4" "3:lan:3" "4:lan:2"
 		;;
-	archer-c60-v1)
+	archer-c60-v1|\
+	archer-c60-v2)
 		ucidef_set_interfaces_lan_wan "eth1.1" "eth0"
 		ucidef_add_switch "switch0" \
 			"0@eth1" "1:lan:1" "2:lan:2" "3:lan:3" "4:lan:4"
@@ -342,6 +343,7 @@ ar71xx_setup_interfaces()
 	smart-300|\
 	tl-wdr6500-v2|\
 	tl-wr940n-v4|\
+	tl-wr940n-v6|\
 	tl-wr941nd-v6|\
 	wnr1000-v2|\
 	wnr2000-v4|\
