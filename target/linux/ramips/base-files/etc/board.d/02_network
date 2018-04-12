@@ -61,6 +61,7 @@ ramips_setup_interfaces()
 	widora,neo-32m|\
 	wnce2001|\
 	zbt-cpe102|\
+	zorlik,zl5900v2|\
 	zte-q7)
 		ucidef_add_switch "switch0"
 		ucidef_add_switch_attr "switch0" "enable" "false"
@@ -210,6 +211,7 @@ ramips_setup_interfaces()
 	wrtnode|\
 	wrtnode2p | \
 	wrtnode2r | \
+	youhua,wr1200js|\
 	zbt-wa05)
 		ucidef_add_switch "switch0" \
 			"1:lan" "2:lan" "3:lan" "4:lan" "0:wan" "6@eth0"

@@ -52,7 +52,6 @@ platform_check_image() {
 	dir-620-d1|\
 	dir-810l|\
 	duzun-dm06|\
-	dwr-512-b|\
 	e1700|\
 	esr-9753|\
 	ew1200|\
@@ -204,6 +203,7 @@ platform_check_image() {
 	x8|\
 	y1|\
 	y1s|\
+	youhua,wr1200js|\
 	we1026-5g-16m|\
 	zbt-ape522ii|\
 	zbt-cpe102|\
@@ -218,6 +218,7 @@ platform_check_image() {
 	zbt-wg3526-16M|\
 	zbt-wg3526-32M|\
 	zbt-wr8305rt|\
+	zorlik,zl5900v2|\
 	zte-q7|\
 	youku-yk1)
 		[ "$magic" != "27051956" ] && {
@@ -272,7 +273,8 @@ platform_check_image() {
 		return 0
 		;;
 	dlink,dwr-116-a1|\
-	dlink,dwr-921-c1)
+	dlink,dwr-921-c1|\
+	dwr-512-b)
 		[ "$magic" != "0404242b" ] && {
 			echo "Invalid image type."
 			return 1

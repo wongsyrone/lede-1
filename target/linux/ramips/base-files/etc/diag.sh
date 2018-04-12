@@ -132,7 +132,8 @@ get_status_led() {
 		status_led="$boardname:yellow:status"
 		;;
 	cy-swr1100|\
-	w502u)
+	w502u|\
+	youhua,wr1200js)
 		status_led="$boardname:blue:wps"
 		;;
 	d240|\
@@ -152,7 +153,8 @@ get_status_led() {
 	wli-tx4-ag300n|\
 	y1|\
 	y1s|\
-	youku-yk1)
+	youku-yk1|\
+	zorlik,zl5900v2)
 		status_led="$boardname:blue:power"
 		;;
 	dlink,dap-1522-a1|\
