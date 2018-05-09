@@ -8,13 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mtd-utils
-PKG_VERSION:=2.0.1
+PKG_VERSION:=2.0.2
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=git://git.infradead.org/mtd-utils.git
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=81049e599775bac4238361752f659a86f67328e6
-PKG_MIRROR_HASH:=a79784eb52c77dbc73a08863ce6651b3d22931e7c670cd1782168f9bba13f5a8
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_URL:=ftp://ftp.infradead.org/pub/mtd-utils/
+PKG_HASH:=fb3de61be8e932abb424e8ea3c30298f553d5f970ad158a737bb303bbf9660b8
 
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
@@ -61,6 +60,9 @@ CONFIGURE_ARGS += \
 	--disable-tests \
 	--without-xattr \
 	--without-lzo
+
+TARGET_CFLAGS += -ffunction-sections -fdata-sections
+TARGET_LDFLAGS += -Wl,--gc-sections
 
 define Package/ubi-utils/install
 	$(INSTALL_DIR) $(1)/usr/sbin

@@ -191,7 +191,7 @@
 +
 +	ret = lzma_alloc_workspace(&props);
 +	if (ret < 0)
-+	return ret;
++		return ret;
 +
 +	ret = jffs2_register_compressor(&jffs2_lzma_comp);
 +	if (ret)
