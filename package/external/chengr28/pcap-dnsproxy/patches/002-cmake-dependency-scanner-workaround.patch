@@ -1,35 +1,24 @@
 --- a/Source/Pcap_DNSProxy/Platform.h
 +++ b/Source/Pcap_DNSProxy/Platform.h
-@@ -373,7 +373,7 @@
+@@ -379,7 +379,7 @@
  	#define SODIUM_STATIC
  #endif
  #if defined(ENABLE_LIBSODIUM)
--	#include "..\\Dependency\\LibSodium\\sodium.h"
-+	#include "LibSodium\\sodium.h"
+-	#include "..\\Dependency\\LibSodium\\Include_Windows\\sodium.h"
++	#include "LibSodium\\Include_Windows\\sodium.h"
  #endif
  
  //WinPcap header, always enabled(Windows)
-@@ -387,7 +387,7 @@
+@@ -393,7 +393,7 @@
  	#define HAVE_REMOTE                //WinPcap preprocessor definitions
  #endif
  #if defined(ENABLE_PCAP)
--	#include "..\\Dependency\\WinPcap\\pcap.h"
-+	#include "WinPcap\\pcap.h"
+-	#include "..\\Dependency\\WinPcap\\Include\\pcap.h"
++	#include "WinPcap\\Include\\pcap.h"
  #endif
  
  //Windows API headers
-@@ -531,8 +531,8 @@
- #ifndef SODIUM_STATIC
- 	#define SODIUM_STATIC
- #endif
--	#include "../Dependency/LibSodium/sodium.h"
--	#pragma comment(lib, "../Dependency/LibSodium/LibSodium_macOS.a")
-+	#include "LibSodium/sodium.h"
-+	#pragma comment(lib, "LibSodium/LibSodium_macOS.a")
- #else
- #if defined(ENABLE_LIBSODIUM)
- #ifndef SODIUM_STATIC
-@@ -557,13 +557,13 @@
+@@ -575,13 +575,13 @@
  #ifndef ENABLE_TLS
  	#define ENABLE_TLS
  #endif

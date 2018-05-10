@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015-2017 wongsyrone
+# Copyright (C) 2015-2018 wongsyrone
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
-PKG_VERSION:=0.4.9.6
-PKG_RELEASE:=7394d44
+PKG_VERSION:=0.4.9.7
+PKG_RELEASE:=880f9c4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=7394d446e471b4b2cc22067148213220a60e8717
+PKG_SOURCE_VERSION:=880f9c471cee6c7d1a0c31e091b87b4226404edd
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 
@@ -98,7 +98,7 @@ define Package/pcap-dnsproxy
 	CATEGORY:=Network
 	TITLE:=A local DNS server based on LibPcap
 	URL:=https://github.com/chengr28/Pcap_DNSProxy
-	DEPENDS:=+libpthread +libstdcpp \
+	DEPENDS:=+libpthread +libstdcpp +libevent2 \
 		+PACKAGE_pcap-dnsproxy_libpcap:libpcap \
 		+PACKAGE_pcap-dnsproxy_libsodium:libsodium \
 		+PACKAGE_pcap-dnsproxy_tls:libopenssl \
