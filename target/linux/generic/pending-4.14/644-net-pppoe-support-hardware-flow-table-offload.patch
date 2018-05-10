@@ -64,7 +64,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  #include <linux/nsproxy.h>
  #include <net/net_namespace.h>
-@@ -970,8 +972,32 @@ static int pppoe_xmit(struct ppp_channel
+@@ -974,8 +976,32 @@ static int pppoe_xmit(struct ppp_channel
  	return __pppoe_xmit(sk, skb);
  }
  
