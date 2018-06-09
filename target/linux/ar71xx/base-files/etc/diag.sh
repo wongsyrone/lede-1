@@ -208,6 +208,7 @@ get_status_led() {
 		;;
 	e600g-v2|\
 	oolite-v5.2-dev|\
+	ts-d084|\
 	wifi-pineapple-nano)
 		status_led="$board:blue:system"
 		;;
@@ -258,6 +259,9 @@ get_status_led() {
 		;;
 	jwap230)
 		status_led="$board:green:led1"
+		;;
+	koala)
+		status_led="$board:blue:sys"
 		;;
 	lan-turtle)
 		status_led="$board:orange:system"

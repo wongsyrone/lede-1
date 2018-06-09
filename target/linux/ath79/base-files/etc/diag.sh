@@ -2,10 +2,19 @@
 
 . /lib/functions/leds.sh
 
+status_led="$(get_dt_led status)"
+
 get_status_led() {
 	local board=$(board_name)
+	local boardname="${board##*,}"
 
 	case $board in
+	"avm,fritz300e")
+		status_led="${boardname}:green:power"
+		;;
+	"embeddedwireless,dorin")
+		status_led="dorin:green:status"
+		;;
 	"glinet,ar150")
 		status_led="gl-ar150:orange:wlan"
 		;;
@@ -19,7 +28,7 @@ get_status_led() {
 }
 
 set_state() {
-	get_status_led
+	[ -z "$status_led" ] && get_status_led
 
 	case "$1" in
 	preinit)

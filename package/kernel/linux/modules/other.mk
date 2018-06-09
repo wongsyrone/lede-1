@@ -411,7 +411,8 @@ $(eval $(call KernelPackage,rfkill))
 define KernelPackage/softdog
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Software watchdog driver
-  KCONFIG:=CONFIG_SOFT_WATCHDOG
+  KCONFIG:=CONFIG_SOFT_WATCHDOG \
+  	CONFIG_SOFT_WATCHDOG_PRETIMEOUT=n
   FILES:=$(LINUX_DIR)/drivers/$(WATCHDOG_DIR)/softdog.ko
   AUTOLOAD:=$(call AutoLoad,50,softdog,1)
 endef
@@ -695,6 +696,22 @@ define KernelPackage/serial-8250/description
 endef
 
 $(eval $(call KernelPackage,serial-8250))
+
+
+define KernelPackage/serial-8250-exar
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Exar 8250 UARTs
+  KCONFIG:= CONFIG_SERIAL_8250_EXAR
+  FILES:=$(LINUX_DIR)/drivers/tty/serial/8250/8250_exar.ko
+  AUTOLOAD:=$(call AutoProbe,8250 8250_base 8250_exar)
+  DEPENDS:=+kmod-serial-8250
+endef
+
+define KernelPackage/serial-8250-exar/description
+ Kernel module for Exar serial ports
+endef
+
+$(eval $(call KernelPackage,serial-8250-exar))
 
 
 define KernelPackage/regmap

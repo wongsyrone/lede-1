@@ -260,6 +260,7 @@ platform_check_image() {
 	gl-ar300m|\
 	gl-ar300|\
 	gl-ar750|\
+	gl-ar750s|\
 	gl-domino|\
 	gl-mifi|\
 	gl-usb150|\
@@ -484,6 +485,7 @@ platform_check_image() {
 	tl-wr941nd|\
 	tl-wr941nd-v5|\
 	tl-wr941nd-v6|\
+	ts-d084|\
 	wifi-pineapple-nano)
 		local magic_ver="0100"
 
@@ -688,6 +690,7 @@ platform_check_image() {
 	# these boards use metadata images
 	fritz300e|\
 	fritz4020|\
+	koala|\
 	rb-750-r2|\
 	rb-750p-pbr2|\
 	rb-750up-r2|\

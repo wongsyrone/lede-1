@@ -44,6 +44,7 @@ ramips_setup_interfaces()
 	all0256n-8M|\
 	all5002|\
 	all5003|\
+	bocco|\
 	broadway|\
 	dcs-930|\
 	dcs-930l-b1|\
@@ -193,6 +194,7 @@ ramips_setup_interfaces()
 	gl-mt300n|\
 	gl-mt750|\
 	hg255d|\
+	iodata,wn-gx300gr|\
 	jhr-n805r|\
 	jhr-n825r|\
 	jhr-n926r|\
@@ -227,7 +229,7 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1" "0:wan" "6@eth0"
 		;;
-	gb-pc1|\
+	gnubee,gb-pc1|\
 	gnubee,gb-pc2)
 		ucidef_add_switch "switch0" \
 			"0:lan" "4:lan" "6@eth0"
@@ -457,6 +459,9 @@ ramips_setup_macs()
 		lan_mac=`mtd_get_mac_ascii bdinfo "Vfac_mac "`
 		[ -n "$lan_mac" ] || lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
+		;;
+	iodata,wn-gx300gr)
+		wan_mac=$(macaddr_add "$(mtd_get_mac_binary Factory 4)" 1)
 		;;
 	kn_rc|\
 	kn_rf|\

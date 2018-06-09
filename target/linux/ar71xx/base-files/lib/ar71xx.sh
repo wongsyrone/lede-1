@@ -730,6 +730,9 @@ ar71xx_board_detect() {
 	*"GL-AR750")
 		name="gl-ar750"
 		;;
+	*"GL-AR750S")
+		name="gl-ar750s"
+		;;
 	*"GL-CONNECT INET v1")
 		name="gl-inet"
 
@@ -767,6 +770,9 @@ ar71xx_board_detect() {
 		;;
 	*"JWAP230")
 		name="jwap230"
+		;;
+	*"Koala")
+		name="koala"
 		;;
 	*"LAN Turtle")
 		name="lan-turtle"
@@ -1330,6 +1336,9 @@ ar71xx_board_detect() {
 		;;
 	*"TL-WR942N v1")
 		name="tl-wr942n-v1"
+		;;
+	*"TS-D084")
+		name="ts-d084"
 		;;
 	*"Tube2H")
 		name="tube2h"
