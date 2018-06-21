@@ -21,17 +21,16 @@ Signed-off-by: Steven Barth <steven@midlink.org>
  ALL_TOOLS = obj/musl-gcc
  
  WRAPCC_GCC = gcc
-@@ -125,7 +125,8 @@ NOSSP_SRCS = $(wildcard crt/*.c) \
- 	src/thread/__set_thread_area.c src/thread/$(ARCH)/__set_thread_area.c \
- 	src/string/memset.c src/string/$(ARCH)/memset.c \
- 	src/string/memcpy.c src/string/$(ARCH)/memcpy.c \
--	ldso/dlstart.c ldso/dynlink.c
-+	ldso/dlstart.c ldso/dynlink.c \
-+	src/libssp_nonshared/__stack_chk_fail_local.c
- $(NOSSP_SRCS:%.c=obj/%.o) $(NOSSP_SRCS:%.c=obj/%.lo): CFLAGS_ALL += $(CFLAGS_NOSSP)
+@@ -122,7 +122,7 @@ $(MEMOPS_OBJS) $(MEMOPS_OBJS:%.o=%.lo):
+ NOSSP_OBJS = $(CRT_OBJS) $(LDSO_OBJS) $(filter \
+ 	%/__libc_start_main.o %/__init_tls.o %/__stack_chk_fail.o \
+ 	%/__set_thread_area.o %/memset.o %/memcpy.o \
+-	, $(LIBC_OBJS))
++	, $(LIBC_OBJS)) obj/src/libssp_nonshared/__stack_chk_fail_local.o
+ $(NOSSP_OBJS) $(NOSSP_OBJS:%.o=%.lo): CFLAGS_ALL += $(CFLAGS_NOSSP)
  
  $(CRT_OBJS): CFLAGS_ALL += -DCRT
-@@ -168,6 +169,11 @@ lib/libc.a: $(AOBJS)
+@@ -165,6 +165,11 @@ lib/libc.a: $(AOBJS)
  	$(AR) rc $@ $(AOBJS)
  	$(RANLIB) $@
  
