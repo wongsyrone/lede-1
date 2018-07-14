@@ -1192,7 +1192,7 @@
  	validate_mm(mm);
  
  	return 0;
-@@ -1378,6 +1393,9 @@ unsigned long do_mmap(struct file *file,
+@@ -1407,6 +1422,9 @@ unsigned long do_mmap(struct file *file,
  	vm_flags |= calc_vm_prot_bits(prot, pkey) | calc_vm_flag_bits(flags) |
  			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
  
@@ -1202,7 +1202,7 @@
  	if (flags & MAP_LOCKED)
  		if (!can_do_mlock())
  			return -EPERM;
-@@ -1717,6 +1735,7 @@ unsigned long mmap_region(struct file *f
+@@ -1749,6 +1767,7 @@ unsigned long mmap_region(struct file *f
  			allow_write_access(file);
  	}
  	file = vma->vm_file;
@@ -1210,7 +1210,7 @@
  out:
  	perf_event_mmap(vma);
  
-@@ -1758,6 +1777,7 @@ allow_write_and_free_vma:
+@@ -1790,6 +1809,7 @@ allow_write_and_free_vma:
  	if (vm_flags & VM_DENYWRITE)
  		allow_write_access(file);
  free_vma:
@@ -1218,7 +1218,7 @@
  	kmem_cache_free(vm_area_cachep, vma);
  unacct_error:
  	if (charged)
-@@ -2582,6 +2602,8 @@ int __split_vma(struct mm_struct *mm, st
+@@ -2614,6 +2634,8 @@ int __split_vma(struct mm_struct *mm, st
  	else
  		err = vma_adjust(vma, vma->vm_start, addr, vma->vm_pgoff, new);
  
@@ -1227,7 +1227,7 @@
  	/* Success. */
  	if (!err)
  		return 0;
-@@ -2874,6 +2896,7 @@ static int do_brk_flags(unsigned long ad
+@@ -2906,6 +2928,7 @@ static int do_brk_flags(unsigned long ad
  	if ((flags & (~VM_EXEC)) != 0)
  		return -EINVAL;
  	flags |= VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
@@ -1235,7 +1235,7 @@
  
  	error = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
  	if (offset_in_page(error))
-@@ -2931,6 +2954,7 @@ static int do_brk_flags(unsigned long ad
+@@ -2963,6 +2986,7 @@ static int do_brk_flags(unsigned long ad
  	vma->vm_flags = flags;
  	vma->vm_page_prot = vm_get_page_prot(flags);
  	vma_link(mm, vma, prev, rb_link, rb_parent);
@@ -1243,9 +1243,9 @@
  out:
  	perf_event_mmap(vma);
  	mm->total_vm += len >> PAGE_SHIFT;
-@@ -2982,6 +3006,12 @@ void exit_mmap(struct mm_struct *mm)
- 	/* mm's last user has gone, and its about to be pulled down */
- 	mmu_notifier_release(mm);
+@@ -3040,6 +3064,12 @@ void exit_mmap(struct mm_struct *mm)
+ 		up_write(&mm->mmap_sem);
+ 	}
  
 +	/*
 +	 * Taking write lock on mmap_sem does not harm others,
@@ -1256,7 +1256,7 @@
  	if (mm->locked_vm) {
  		vma = mm->mmap;
  		while (vma) {
-@@ -3034,6 +3064,11 @@ void exit_mmap(struct mm_struct *mm)
+@@ -3074,6 +3104,11 @@ void exit_mmap(struct mm_struct *mm)
  		vma = remove_vma(vma);
  	}
  	vm_unacct_memory(nr_accounted);
@@ -1268,7 +1268,7 @@
  }
  
  /* Insert vm structure into process list sorted by address
-@@ -3143,6 +3178,7 @@ struct vm_area_struct *copy_vma(struct v
+@@ -3183,6 +3218,7 @@ struct vm_area_struct *copy_vma(struct v
  			new_vma->vm_ops->open(new_vma);
  		vma_link(mm, new_vma, prev, rb_link, rb_parent);
  		*need_rmap_locks = false;
@@ -1276,7 +1276,7 @@
  	}
  	return new_vma;
  
-@@ -3293,6 +3329,7 @@ static struct vm_area_struct *__install_
+@@ -3333,6 +3369,7 @@ static struct vm_area_struct *__install_
  	vm_stat_account(mm, vma->vm_flags, len >> PAGE_SHIFT);
  
  	perf_event_mmap(vma);
