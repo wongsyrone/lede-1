@@ -48,7 +48,7 @@ TARGET_LDFLAGS += -Wl,--gc-sections
 
 # Use Link time optimization
 TARGET_CFLAGS += -flto
-TARGET_LDFLAGS += -Wl,-flto
+TARGET_LDFLAGS += -flto
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin

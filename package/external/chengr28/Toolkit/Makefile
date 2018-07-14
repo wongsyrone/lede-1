@@ -28,7 +28,7 @@ PKG_MAINTAINER:=Chengr28 <chengr28@twitter>
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-TARGET_CFLAGS += $(FPIC)
+TARGET_CXXFLAGS += $(FPIC)
 
 CMAKE_OPTIONS += \
 	-DPLATFORM_OPENWRT=ON
@@ -60,11 +60,11 @@ endef
 # Some advanced compile flags for expert
 ifneq ($(CONFIG_PACKAGE_Toolkit_advancedoptions),)
 	# Try to reduce binary size
-	TARGET_CFLAGS += -ffunction-sections -fdata-sections
+	TARGET_CXXFLAGS += -ffunction-sections -fdata-sections
 	TARGET_LDFLAGS += -Wl,--gc-sections
 	# Use Link time optimization
-	TARGET_CFLAGS += -flto
-	TARGET_LDFLAGS += -Wl,-flto
+	TARGET_CXXFLAGS += -flto
+	TARGET_LDFLAGS += -flto
 endif
 
 define Package/Toolkit/install

@@ -52,7 +52,7 @@ TARGET_CFLAGS += -Wno-error=inline -Winline
 
 # Use Link time optimization
 TARGET_CFLAGS += -flto
-TARGET_LDFLAGS += -Wl,-flto
+TARGET_LDFLAGS += -flto
 
 # strip unused functions and data
 TARGET_CFLAGS += -ffunction-sections -fdata-sections

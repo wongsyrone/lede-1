@@ -25,11 +25,12 @@ PKG_MAINTAINER:=Chengr28 <chengr28@gmail.com>
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-TARGET_CFLAGS += -ansi -pedantic -Wall -Wextra
-TARGET_CFLAGS += $(FPIC)
+TARGET_CXXFLAGS += -Wall -Wextra
+TARGET_CXXFLAGS += $(FPIC)
 
-# redef CFLAGS, replace -O* with -O3
+# redef CFLAGS and CXXFLAGS, replace -O* with -O3
 TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS)) -O3
+TARGET_CXXFLAGS := $(filter-out -O%,$(TARGET_CXXFLAGS)) -O3
 
 # CXX standard
 TARGET_CXXFLAGS += -std=c++14
@@ -111,11 +112,11 @@ endef
 # Some advanced compile flags for expert
 ifneq ($(CONFIG_PACKAGE_pcap-dnsproxy_advancedoptions),)
 	# Try to reduce binary size
-	TARGET_CFLAGS += -ffunction-sections -fdata-sections
+	TARGET_CXXFLAGS += -ffunction-sections -fdata-sections
 	TARGET_LDFLAGS += -Wl,--gc-sections
 	# Use Link time optimization
-	TARGET_CFLAGS += -flto
-	TARGET_LDFLAGS += -Wl,-flto
+	TARGET_CXXFLAGS += -flto
+	TARGET_LDFLAGS += -flto
 endif
 
 define Package/pcap-dnsproxy/conffiles
