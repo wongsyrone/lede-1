@@ -1,3 +1,9 @@
+1.0.8:
+ * Fix incomplete jitterentropy core 2.1.1 import
+
+1.0.7:
+ * Inlcude jitterentropy core 2.1.1
+
 1.0.6:
  * Include jitterentropy core 2.0.1
  * Compile jitterentropy core without optimizations using GCC pragmas instead

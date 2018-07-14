@@ -1,6 +1,6 @@
 --- a/Makefile
 +++ b/Makefile
-@@ -1,27 +1,12 @@
+@@ -1,28 +1,12 @@
  # Compile Noise Source as user space application
 -
 -CC=$(CROSS_COMPILE)gcc
@@ -12,6 +12,7 @@
 -DESTDIR :=
 -INSTALL ?= install
 -PREFIX := /usr/local
+-UNITDIR := $(shell pkg-config --variable=systemdsystemunitdir systemd 2>/dev/null || echo /usr/lib/systemd/system)
 -
  NAME := jitterentropy-rngd
  #C_SRCS := $(wildcard *.c)
@@ -28,7 +29,7 @@
  LDFLAGS += $(foreach library,$(LIBRARIES),-l$(library))
  
  .PHONY: all clean distclean
-@@ -32,14 +17,6 @@ $(NAME): $(OBJS)
+@@ -33,19 +17,8 @@ $(NAME): $(OBJS)
  #	scan-build --use-analyzer=/usr/bin/clang $(CC) $(OBJS) -o $(NAME) $(LDFLAGS)
  	$(CC) $(OBJS) -o $(NAME) $(LDFLAGS)
  
@@ -37,9 +38,14 @@
 -
 -install: strip
 -	$(INSTALL) -D -m 0755 -s $(NAME) $(DESTDIR)$(PREFIX)/sbin/$(NAME)
--#	$(INSTALL) -D -m 0644 $(NAME).1 $(DESTDIR)$(PREFIX)/share/man/man1/$(NAME).1
+-	$(INSTALL) -D -m 0644 $(NAME).1 $(DESTDIR)$(PREFIX)/share/man/man1/$(NAME).1
 -#	gzip -9 $(DESTDIR)$(PREFIX)/share/man/man1/$(NAME).1
+-	sed "s|@PATH@|$(PREFIX)/sbin|" jitterentropy.service.in > jitterentropy.service
+-#	$(INSTALL) -D -m 0644 jitterentropy.service $(DESTDIR)$(UNITDIR)/jitterentropy.service
 -
  clean:
  	@- $(RM) $(NAME)
  	@- $(RM) $(OBJS)
+-	@- $(RM) jitterentropy.service
+ 
+ distclean: clean
