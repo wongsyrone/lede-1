@@ -156,7 +156,7 @@
  
      parsePacket(packet, parseForHostUniq, &forMe);
      return forMe;
-@@ -482,16 +482,12 @@ sendPADI(PPPoEConnection *conn)
+@@ -494,16 +494,12 @@ sendPADI(PPPoEConnection *conn)
      cursor += namelen + TAG_HDR_SIZE;
  
      /* If we're using Host-Uniq, copy it over */
@@ -179,17 +179,50 @@
      }
  
      packet.length = htons(plen);
-@@ -653,7 +649,7 @@ int main(int argc, char *argv[])
+@@ -542,12 +538,12 @@ waitForPADO(PPPoEConnection *conn, int t
+     pc.seenACName    = 0;
+     pc.seenServiceName = 0;
+     conn->error = 0;
+-	
++
+     do {
+ 	if (BPF_BUFFER_IS_EMPTY) {
+ 	    tv.tv_sec = timeout;
+ 	    tv.tv_usec = 0;
+-	
++
+ 	    FD_ZERO(&readable);
+ 	    FD_SET(conn->discoverySocket, &readable);
  
-     memset(conn, 0, sizeof(PPPoEConnection));
+@@ -561,7 +557,7 @@ waitForPADO(PPPoEConnection *conn, int t
+ 	    }
+ 	    if (r == 0) return;        /* Timed out */
+ 	}
+-	
++
+ 	/* Get the packet */
+ 	receivePacket(conn->discoverySocket, &packet, &len);
  
--    while ((opt = getopt(argc, argv, "I:D:VUAS:C:h")) > 0) {
-+    while ((opt = getopt(argc, argv, "I:D:VUW:AS:C:h")) > 0) {
+@@ -606,7 +602,7 @@ waitForPADO(PPPoEConnection *conn, int t
+ 		memcpy(conn->peerEth, packet.ethHdr.h_source, ETH_ALEN);
+ 		if (conn->printACNames) {
+ 		    printf("AC-Ethernet-Address: %02x:%02x:%02x:%02x:%02x:%02x\n",
+-			   (unsigned) conn->peerEth[0], 
++			   (unsigned) conn->peerEth[0],
+ 			   (unsigned) conn->peerEth[1],
+ 			   (unsigned) conn->peerEth[2],
+ 			   (unsigned) conn->peerEth[3],
+@@ -669,7 +665,7 @@ int main(int argc, char *argv[])
+     conn->discoveryTimeout = PADI_TIMEOUT;
+     conn->discoveryAttempts = MAX_PADI_ATTEMPTS;
+ 
+-    while ((opt = getopt(argc, argv, "I:D:VUQS:C:t:a:h")) > 0) {
++    while ((opt = getopt(argc, argv, "I:D:VUW:QS:C:t:a:h")) > 0) {
  	switch(opt) {
  	case 'S':
  	    conn->serviceName = xstrdup(optarg);
-@@ -662,7 +658,23 @@ int main(int argc, char *argv[])
- 	    conn->acName = xstrdup(optarg);
+@@ -696,7 +692,23 @@ int main(int argc, char *argv[])
+ 	    }
  	    break;
  	case 'U':
 -	    conn->useHostUniq = 1;
@@ -233,7 +266,7 @@
      int printACNames;		/* Just print AC names */
      FILE *debugFile;		/* Debug file for dumping packets */
      int numPADOs;		/* Number of PADO packets received */
-@@ -292,6 +294,33 @@ void pppoe_printpkt(PPPoEPacket *packet,
+@@ -293,6 +295,33 @@ void pppoe_printpkt(PPPoEPacket *packet,
  		    void (*printer)(void *, char *, ...), void *arg);
  void pppoe_log_packet(const char *prefix, PPPoEPacket *packet);
  

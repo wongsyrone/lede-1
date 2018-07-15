@@ -11,7 +11,7 @@
   */
 --- a/pppd/Makefile.linux
 +++ b/pppd/Makefile.linux
-@@ -129,7 +129,7 @@ LIBS	+= -lcrypt
+@@ -134,7 +134,7 @@ LIBS	+= -lcrypt
  #endif
  
  ifdef USE_LIBUTIL
@@ -67,39 +67,6 @@
  #ifdef HAVE_ASM_TYPES_H
  #include <asm/types.h>
  #endif
-@@ -526,12 +522,12 @@ waitForPADO(PPPoEConnection *conn, int t
-     pc.seenACName    = 0;
-     pc.seenServiceName = 0;
-     conn->error = 0;
--	
-+
-     do {
- 	if (BPF_BUFFER_IS_EMPTY) {
- 	    tv.tv_sec = timeout;
- 	    tv.tv_usec = 0;
--	
-+
- 	    FD_ZERO(&readable);
- 	    FD_SET(conn->discoverySocket, &readable);
- 
-@@ -545,7 +541,7 @@ waitForPADO(PPPoEConnection *conn, int t
- 	    }
- 	    if (r == 0) return;        /* Timed out */
- 	}
--	
-+
- 	/* Get the packet */
- 	receivePacket(conn->discoverySocket, &packet, &len);
- 
-@@ -591,7 +587,7 @@ waitForPADO(PPPoEConnection *conn, int t
- 		memcpy(conn->peerEth, packet.ethHdr.h_source, ETH_ALEN);
- 		if (conn->printACNames) {
- 		    printf("AC-Ethernet-Address: %02x:%02x:%02x:%02x:%02x:%02x\n",
--			   (unsigned) conn->peerEth[0], 
-+			   (unsigned) conn->peerEth[0],
- 			   (unsigned) conn->peerEth[1],
- 			   (unsigned) conn->peerEth[2],
- 			   (unsigned) conn->peerEth[3],
 --- a/pppd/plugins/rp-pppoe/pppoe.h
 +++ b/pppd/plugins/rp-pppoe/pppoe.h
 @@ -90,18 +90,6 @@ typedef unsigned long UINT32_t;

@@ -60,7 +60,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  
 --- a/pppd/options.c
 +++ b/pppd/options.c
-@@ -114,6 +114,8 @@ char	linkname[MAXPATHLEN];	/* logical na
+@@ -117,6 +117,8 @@ char	linkname[MAXPATHLEN];	/* logical na
  bool	tune_kernel;		/* may alter kernel settings */
  int	connect_delay = 1000;	/* wait this many ms after connect script */
  int	req_unit = -1;		/* requested interface unit */
@@ -69,7 +69,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  char	req_ifname[MAXIFNAMELEN];	/* requested interface name */
  bool	multilink = 0;		/* Enable multilink operation */
  char	*bundle_name = NULL;	/* bundle name for multilink */
-@@ -127,7 +129,7 @@ int	dfl_route_metric = -1;	/* metric of
+@@ -130,7 +132,7 @@ int	dfl_route_metric = -1;	/* metric of
  #ifdef MAXOCTETS
  unsigned int  maxoctets = 0;    /* default - no limit */
  int maxoctets_dir = 0;       /* default - sum of traffic */
@@ -78,7 +78,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  #endif
  
  
-@@ -309,6 +311,13 @@ option_t general_options[] = {
+@@ -317,6 +319,13 @@ option_t general_options[] = {
        "Metric to use for the default route (Linux only; -1 for default behavior)",
        OPT_PRIV|OPT_LLIMIT|OPT_INITONLY, NULL, 0, -1 },
  
@@ -92,7 +92,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  #ifdef HAVE_MULTILINK
      { "multilink", o_bool, &multilink,
        "Enable multilink operation", OPT_PRIO | 1 },
-@@ -1530,7 +1539,7 @@ setactivefilter(argv)
+@@ -1538,7 +1547,7 @@ setactivefilter(argv)
  #endif
  
  /*
@@ -103,7 +103,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  setdomain(argv)
 --- a/pppd/pppd.h
 +++ b/pppd/pppd.h
-@@ -328,6 +328,8 @@ extern bool	tune_kernel;	/* May alter ke
+@@ -331,6 +331,8 @@ extern bool	tune_kernel;	/* May alter ke
  extern int	connect_delay;	/* Time to delay after connect script */
  extern int	max_data_rate;	/* max bytes/sec through charshunt */
  extern int	req_unit;	/* interface unit number to use */

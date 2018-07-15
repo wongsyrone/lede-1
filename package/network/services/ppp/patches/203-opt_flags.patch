@@ -36,8 +36,8 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  	$(CC) $(CFLAGS) -c -o debug.o debug.c
  
  rp-pppoe.so: plugin.o discovery.o if.o common.o
--	$(CC) $(CFLAGS) -o rp-pppoe.so -shared plugin.o discovery.o if.o common.o
-+	$(CC) $(CFLAGS) -fPIC -o rp-pppoe.so -shared plugin.o discovery.o if.o common.o
+-	$(CC) $(LDFLAGS) -o rp-pppoe.so -shared plugin.o discovery.o if.o common.o
++	$(CC) $(LDFLAGS) -fPIC -o rp-pppoe.so -shared plugin.o discovery.o if.o common.o
  
  install: all
  	$(INSTALL) -d -m 755 $(LIBDIR)
