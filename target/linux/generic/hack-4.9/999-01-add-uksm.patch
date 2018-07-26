@@ -106,7 +106,7 @@
  #endif
 --- a/include/asm-generic/pgtable.h
 +++ b/include/asm-generic/pgtable.h
-@@ -601,12 +601,25 @@ extern void untrack_pfn(struct vm_area_s
+@@ -616,12 +616,25 @@ extern void untrack_pfn(struct vm_area_s
  extern void untrack_pfn_moved(struct vm_area_struct *vma);
  #endif
  
@@ -133,7 +133,7 @@
  }
  
  #define my_zero_pfn(addr)	page_to_pfn(ZERO_PAGE(addr))
-@@ -615,7 +628,7 @@ static inline int is_zero_pfn(unsigned l
+@@ -630,7 +643,7 @@ static inline int is_zero_pfn(unsigned l
  static inline int is_zero_pfn(unsigned long pfn)
  {
  	extern unsigned long zero_pfn;
@@ -221,7 +221,7 @@
  struct core_thread {
 --- a/include/linux/mmzone.h
 +++ b/include/linux/mmzone.h
-@@ -138,6 +138,9 @@ enum zone_stat_item {
+@@ -139,6 +139,9 @@ enum zone_stat_item {
  	NUMA_OTHER,		/* allocation from other node */
  #endif
  	NR_FREE_CMA_PAGES,
@@ -231,7 +231,7 @@
  	NR_VM_ZONE_STAT_ITEMS };
  
  enum node_stat_item {
-@@ -845,7 +848,7 @@ static inline int is_highmem_idx(enum zo
+@@ -848,7 +851,7 @@ static inline int is_highmem_idx(enum zo
  }
  
  /**
@@ -474,7 +474,7 @@
 +#endif /* __LINUX_UKSM_H */
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -604,7 +604,7 @@ static __latent_entropy int dup_mmap(str
+@@ -610,7 +610,7 @@ static __latent_entropy int dup_mmap(str
  				goto fail_nomem;
  			charge = len;
  		}
@@ -483,7 +483,7 @@
  		if (!tmp)
  			goto fail_nomem;
  		*tmp = *mpnt;
-@@ -657,7 +657,7 @@ static __latent_entropy int dup_mmap(str
+@@ -663,7 +663,7 @@ static __latent_entropy int dup_mmap(str
  		__vma_link_rb(mm, tmp, rb_link, rb_parent);
  		rb_link = &tmp->vm_rb.rb_right;
  		rb_parent = &tmp->vm_rb;
@@ -1185,7 +1185,7 @@
  	validate_mm(mm);
  
  	return 0;
-@@ -1374,6 +1389,9 @@ unsigned long do_mmap(struct file *file,
+@@ -1403,6 +1418,9 @@ unsigned long do_mmap(struct file *file,
  	vm_flags |= calc_vm_prot_bits(prot, pkey) | calc_vm_flag_bits(flags) |
  			mm->def_flags | VM_MAYREAD | VM_MAYWRITE | VM_MAYEXEC;
  
@@ -1195,7 +1195,7 @@
  	if (flags & MAP_LOCKED)
  		if (!can_do_mlock())
  			return -EPERM;
-@@ -1712,6 +1730,7 @@ unsigned long mmap_region(struct file *f
+@@ -1744,6 +1762,7 @@ unsigned long mmap_region(struct file *f
  			allow_write_access(file);
  	}
  	file = vma->vm_file;
@@ -1203,7 +1203,7 @@
  out:
  	perf_event_mmap(vma);
  
-@@ -1753,6 +1772,7 @@ allow_write_and_free_vma:
+@@ -1785,6 +1804,7 @@ allow_write_and_free_vma:
  	if (vm_flags & VM_DENYWRITE)
  		allow_write_access(file);
  free_vma:
@@ -1211,7 +1211,7 @@
  	kmem_cache_free(vm_area_cachep, vma);
  unacct_error:
  	if (charged)
-@@ -2580,6 +2600,8 @@ static int __split_vma(struct mm_struct
+@@ -2614,6 +2634,8 @@ static int __split_vma(struct mm_struct
  	else
  		err = vma_adjust(vma, vma->vm_start, addr, vma->vm_pgoff, new);
  
@@ -1220,7 +1220,7 @@
  	/* Success. */
  	if (!err)
  		return 0;
-@@ -2858,6 +2880,7 @@ static int do_brk(unsigned long addr, un
+@@ -2892,6 +2914,7 @@ static int do_brk(unsigned long addr, un
  		return 0;
  
  	flags = VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
@@ -1228,7 +1228,7 @@
  
  	error = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
  	if (offset_in_page(error))
-@@ -2915,6 +2938,7 @@ static int do_brk(unsigned long addr, un
+@@ -2949,6 +2972,7 @@ static int do_brk(unsigned long addr, un
  	vma->vm_flags = flags;
  	vma->vm_page_prot = vm_get_page_prot(flags);
  	vma_link(mm, vma, prev, rb_link, rb_parent);
@@ -1236,7 +1236,7 @@
  out:
  	perf_event_mmap(vma);
  	mm->total_vm += len >> PAGE_SHIFT;
-@@ -2953,6 +2977,12 @@ void exit_mmap(struct mm_struct *mm)
+@@ -2987,6 +3011,12 @@ void exit_mmap(struct mm_struct *mm)
  	/* mm's last user has gone, and its about to be pulled down */
  	mmu_notifier_release(mm);
  
@@ -1249,7 +1249,7 @@
  	if (mm->locked_vm) {
  		vma = mm->mmap;
  		while (vma) {
-@@ -2988,6 +3018,11 @@ void exit_mmap(struct mm_struct *mm)
+@@ -3022,6 +3052,11 @@ void exit_mmap(struct mm_struct *mm)
  		vma = remove_vma(vma);
  	}
  	vm_unacct_memory(nr_accounted);
@@ -1261,7 +1261,7 @@
  }
  
  /* Insert vm structure into process list sorted by address
-@@ -3097,6 +3132,7 @@ struct vm_area_struct *copy_vma(struct v
+@@ -3131,6 +3166,7 @@ struct vm_area_struct *copy_vma(struct v
  			new_vma->vm_ops->open(new_vma);
  		vma_link(mm, new_vma, prev, rb_link, rb_parent);
  		*need_rmap_locks = false;
@@ -1269,7 +1269,7 @@
  	}
  	return new_vma;
  
-@@ -3244,6 +3280,7 @@ static struct vm_area_struct *__install_
+@@ -3278,6 +3314,7 @@ static struct vm_area_struct *__install_
  	vm_stat_account(mm, vma->vm_flags, len >> PAGE_SHIFT);
  
  	perf_event_mmap(vma);
@@ -6876,7 +6876,7 @@
 +
 --- a/mm/vmstat.c
 +++ b/mm/vmstat.c
-@@ -974,6 +974,9 @@ const char * const vmstat_text[] = {
+@@ -975,6 +975,9 @@ const char * const vmstat_text[] = {
  	"nr_dirtied",
  	"nr_written",
  

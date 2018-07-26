@@ -1117,7 +1117,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	return work_done;
 --- a/drivers/net/ethernet/sun/sungem.c
 +++ b/drivers/net/ethernet/sun/sungem.c
-@@ -922,7 +922,7 @@ static int gem_poll(struct napi_struct *
+@@ -924,7 +924,7 @@ static int gem_poll(struct napi_struct *
  		gp->status = readl(gp->regs + GREG_STAT);
  	} while (gp->status & GREG_STAT_NAPI);
  
