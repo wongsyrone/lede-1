@@ -21,7 +21,7 @@ PKG_CPE_ID:=cpe:/a:samba:ppp
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(BUILD_VARIANT)/$(PKG_NAME)-$(PKG_VERSION)
 
-PKG_BUILD_DEPENDS:=libpcap
+PKG_BUILD_DEPENDS:=libpcap openssl
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
@@ -36,7 +36,7 @@ endef
 
 define Package/ppp
 $(call Package/ppp/Default)
-  DEPENDS:=+kmod-ppp +libopenssl
+  DEPENDS:=+kmod-ppp
   TITLE:=PPP daemon
   VARIANT:=default
 endef

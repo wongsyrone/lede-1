@@ -1,15 +1,17 @@
 --- a/pppd/Makefile.linux
 +++ b/pppd/Makefile.linux
-@@ -140,7 +140,8 @@ endif
+@@ -140,8 +140,9 @@ endif
  
  ifdef NEEDDES
  ifndef USE_CRYPT
 -CFLAGS   += -I/usr/include/openssl
+-LIBS     += -lcrypto
 +#pass by openwrt buildroot
 +#CFLAGS   += -I/usr/include/openssl
- LIBS     += -lcrypto
++LIBS     += -Wl,-Bstatic -lcrypto -Wl,-Bdynamic
  else
  CFLAGS   += -DUSE_CRYPT=1
+ endif
 --- a/pppd/pppcrypt.h
 +++ b/pppd/pppcrypt.h
 @@ -38,7 +38,7 @@
