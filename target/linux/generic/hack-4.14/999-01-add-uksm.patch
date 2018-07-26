@@ -1227,7 +1227,7 @@
  	/* Success. */
  	if (!err)
  		return 0;
-@@ -2906,6 +2928,7 @@ static int do_brk_flags(unsigned long ad
+@@ -2899,6 +2921,7 @@ static int do_brk_flags(unsigned long ad
  	if ((flags & (~VM_EXEC)) != 0)
  		return -EINVAL;
  	flags |= VM_DATA_DEFAULT_FLAGS | VM_ACCOUNT | mm->def_flags;
@@ -1235,7 +1235,7 @@
  
  	error = get_unmapped_area(NULL, addr, len, 0, MAP_FIXED);
  	if (offset_in_page(error))
-@@ -2963,6 +2986,7 @@ static int do_brk_flags(unsigned long ad
+@@ -2956,6 +2979,7 @@ static int do_brk_flags(unsigned long ad
  	vma->vm_flags = flags;
  	vma->vm_page_prot = vm_get_page_prot(flags);
  	vma_link(mm, vma, prev, rb_link, rb_parent);
@@ -1243,7 +1243,7 @@
  out:
  	perf_event_mmap(vma);
  	mm->total_vm += len >> PAGE_SHIFT;
-@@ -3040,6 +3064,12 @@ void exit_mmap(struct mm_struct *mm)
+@@ -3035,6 +3059,12 @@ void exit_mmap(struct mm_struct *mm)
  		up_write(&mm->mmap_sem);
  	}
  
@@ -1256,7 +1256,7 @@
  	if (mm->locked_vm) {
  		vma = mm->mmap;
  		while (vma) {
-@@ -3074,6 +3104,11 @@ void exit_mmap(struct mm_struct *mm)
+@@ -3069,6 +3099,11 @@ void exit_mmap(struct mm_struct *mm)
  		vma = remove_vma(vma);
  	}
  	vm_unacct_memory(nr_accounted);
@@ -1268,7 +1268,7 @@
  }
  
  /* Insert vm structure into process list sorted by address
-@@ -3183,6 +3218,7 @@ struct vm_area_struct *copy_vma(struct v
+@@ -3178,6 +3213,7 @@ struct vm_area_struct *copy_vma(struct v
  			new_vma->vm_ops->open(new_vma);
  		vma_link(mm, new_vma, prev, rb_link, rb_parent);
  		*need_rmap_locks = false;
@@ -1276,7 +1276,7 @@
  	}
  	return new_vma;
  
-@@ -3333,6 +3369,7 @@ static struct vm_area_struct *__install_
+@@ -3328,6 +3364,7 @@ static struct vm_area_struct *__install_
  	vm_stat_account(mm, vma->vm_flags, len >> PAGE_SHIFT);
  
  	perf_event_mmap(vma);
@@ -1286,7 +1286,7 @@
  
 --- a/mm/rmap.c
 +++ b/mm/rmap.c
-@@ -1013,9 +1013,9 @@ void page_move_anon_rmap(struct page *pa
+@@ -1014,9 +1014,9 @@ void page_move_anon_rmap(struct page *pa
  
  /**
   * __page_set_anon_rmap - set up new anonymous rmap
