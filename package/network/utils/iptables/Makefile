@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=iptables
 PKG_VERSION:=1.6.2
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://git.netfilter.org/iptables
@@ -106,8 +106,23 @@ IP firewall administration tool.
 
 endef
 
+define Package/iptables-compat
+$(call Package/iptables/Default)
+  TITLE:=IP firewall administration tool compat
+  DEPENDS:=iptables @IPTABLES_NFTABLES +libxtables-compat
+endef
+
+define Package/iptables-compat/description
+Extra iptables nftables compat binaries.
+  iptables-compat
+  iptables-compat-restore
+  iptables-compat-save
+  iptables-translate
+  iptables-restore-translate
+endef
+
 define Package/iptables-mod-conntrack-extra
-$(call Package/iptables/Module, +kmod-ipt-conntrack-extra)
+$(call Package/iptables/Module, +kmod-ipt-conntrack-extra +kmod-ipt-raw)
   TITLE:=Extra connection tracking extensions
 endef
 
@@ -438,6 +453,20 @@ $(call Package/iptables/Default)
   MENU:=1
 endef
 
+define Package/ip6tables-compat
+$(call Package/iptables/Default)
+  DEPENDS:=ip6tables @IPTABLES_NFTABLES +libxtables-compat
+  TITLE:=IP firewall administration tool compat
+endef
+
+define Package/ip6tables-compat/description
+Extra ip6tables nftables compat binaries.
+  iptables-compat
+  iptables-compat-restore
+  iptables-compat-save
+  iptables-translate
+  iptables-restore-translate
+endef
 
 define Package/ip6tables-extra
 $(call Package/iptables/Default)
@@ -497,10 +526,28 @@ define Package/libxtables
 	+IPTABLES_NFTABLES:libnftnl
 endef
 
-TARGET_CFLAGS += -ffunction-sections -fdata-sections \
+define Package/libxtables-compat
+ $(call Package/iptables/Default)
+ SECTION:=libs
+ CATEGORY:=Libraries
+ TITLE:=IPv4/IPv6 firewall - shared xtables compat library
+ ABI_VERSION:=$(PKG_VERSION)
+ DEPENDS:=libxtables
+endef
+
+TARGET_CPPFLAGS := \
+	-I$(PKG_BUILD_DIR)/include \
+	-I$(LINUX_DIR)/user_headers/include \
+	$(TARGET_CPPFLAGS)
+
+TARGET_CFLAGS += \
+	-I$(PKG_BUILD_DIR)/include \
+	-I$(LINUX_DIR)/user_headers/include \
+	-ffunction-sections -fdata-sections \
 	-DNO_LEGACY
 
-TARGET_LDFLAGS += -Wl,--gc-sections
+TARGET_LDFLAGS += \
+	-Wl,--gc-sections
 
 CONFIGURE_ARGS += \
 	--enable-shared \
@@ -511,8 +558,7 @@ CONFIGURE_ARGS += \
 	--with-xt-lock-name=/var/run/xtables.lock \
 	$(if $(CONFIG_IPTABLES_CONNLABEL),,--disable-connlabel) \
 	$(if $(CONFIG_IPTABLES_NFTABLES),,--disable-nftables) \
-	$(if $(CONFIG_IPV6),,--disable-ipv6) \
-	--disable-libnfnetlink
+	$(if $(CONFIG_IPV6),,--disable-ipv6)
 
 MAKE_FLAGS := \
 	$(TARGET_CONFIGURE_OPTS) \
@@ -566,9 +612,22 @@ define Package/iptables/install
 	$(INSTALL_DIR) $(1)/usr/lib/iptables
 endef
 
+define Package/iptables-compat/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/xtables-compat-multi $(1)/usr/sbin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/iptables-compat{,-restore,-save} $(1)/usr/sbin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/iptables{,-restore}-translate $(1)/usr/sbin/
+endef
+
 define Package/ip6tables/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/ip6tables{,-restore,-save} $(1)/usr/sbin/
+endef
+
+define Package/ip6tables-compat/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/ip6tables-compat{,-restore,-save} $(1)/usr/sbin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/ip6tables{,-restore}-translate $(1)/usr/sbin/
 endef
 
 define Package/libiptc/install
@@ -594,6 +653,11 @@ define Package/libxtables/install
 	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext.so $(1)/usr/lib/
 endef
 
+define Package/libxtables-compat/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext_*.so $(1)/usr/lib/
+endef
+
 define BuildPlugin
   define Package/$(1)/install
 	$(INSTALL_DIR) $$(1)/usr/lib/iptables
@@ -609,6 +673,7 @@ define BuildPlugin
 endef
 
 $(eval $(call BuildPackage,iptables))
+$(eval $(call BuildPackage,iptables-compat))
 $(eval $(call BuildPlugin,iptables-mod-conntrack-extra,$(IPT_CONNTRACK_EXTRA-m)))
 $(eval $(call BuildPlugin,iptables-mod-conntrack-label,$(IPT_CONNTRACK_LABEL-m)))
 $(eval $(call BuildPlugin,iptables-mod-extra,$(IPT_EXTRA-m)))
@@ -632,9 +697,11 @@ $(eval $(call BuildPlugin,iptables-mod-trace,$(IPT_DEBUG-m)))
 $(eval $(call BuildPlugin,iptables-mod-nfqueue,$(IPT_NFQUEUE-m)))
 $(eval $(call BuildPlugin,iptables-mod-checksum,$(IPT_CHECKSUM-m)))
 $(eval $(call BuildPackage,ip6tables))
+$(eval $(call BuildPackage,ip6tables-compat))
 $(eval $(call BuildPlugin,ip6tables-extra,$(IPT_IPV6_EXTRA-m)))
 $(eval $(call BuildPlugin,ip6tables-mod-nat,$(IPT_NAT6-m)))
 $(eval $(call BuildPackage,libiptc))
 $(eval $(call BuildPackage,libip4tc))
 $(eval $(call BuildPackage,libip6tc))
 $(eval $(call BuildPackage,libxtables))
+$(eval $(call BuildPackage,libxtables-compat))

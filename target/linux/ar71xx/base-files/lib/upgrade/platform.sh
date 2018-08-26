@@ -212,6 +212,7 @@ platform_check_image() {
 	archer-c25-v1|\
 	archer-c58-v1|\
 	archer-c59-v1|\
+	archer-c59-v2|\
 	archer-c60-v1|\
 	archer-c60-v2|\
 	archer-c7-v4|\
@@ -250,8 +251,11 @@ platform_check_image() {
 	dr531|\
 	dragino2|\
 	e1700ac-v2|\
+	e558-v2|\
 	e600g-v2|\
 	e600gac-v2|\
+	e750a-v4|\
+	e750g-v8|\
 	ebr-2310-c1|\
 	ens202ext|\
 	epg5000|\
@@ -579,7 +583,6 @@ platform_check_image() {
 		return $?
 		;;
 	cpe210|\
-	cpe510|\
 	eap120|\
 	wbs210|\
 	wbs510)
@@ -589,6 +592,20 @@ platform_check_image() {
 	cpe210-v2)
 		tplink_pharos_check_image "$1" "01000000" "$(tplink_pharos_v2_get_model_string)" '\0\xff\r' && return 0
 		return 1
+		;;
+	cpe510)
+		local modelstr="$(tplink_pharos_v2_get_model_string)"
+		tplink_pharos_board_detect $modelstr
+		case $AR71XX_MODEL in
+		'TP-Link CPE510 v2.0')
+			tplink_pharos_check_image "$1" "7f454c46" "$modelstr" '\0\xff\r' && return 0
+			return 1
+			;;
+		*)
+			tplink_pharos_check_image "$1" "7f454c46" "$(tplink_pharos_get_model_string)" '' && return 0
+			return 1
+			;;
+		esac
 		;;
 	a40|\
 	a60|\

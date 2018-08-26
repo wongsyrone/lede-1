@@ -53,7 +53,7 @@
 				status = "disabled";
 			};
 
-			usb_phy0: usb-phy@18030000 {
+			usb_phy0: usb-phy0 {
 				compatible ="qca,qca9550-usb-phy", "qca,ar7200-usb-phy";
 
 				reset-names = "usb-phy", "usb-suspend-override";
@@ -64,7 +64,7 @@
 				status = "disabled";
 			};
 
-			usb_phy1: usb-phy {
+			usb_phy1: usb-phy1 {
 				compatible = "qca,qca9550-usb-phy", "qca,ar7200-usb-phy";
 
 				reset-names = "usb-phy", "usb-suspend-override";
@@ -109,7 +109,7 @@
 
 			pll: pll-controller@18050000 {
 				compatible = "qca,ar9557-pll",
-						"qca,qca9550-pll";
+						"qca,qca9550-pll", "syscon";
 				reg = <0x18050000 0x50>;
 
 				#clock-cells = <1>;
@@ -137,7 +137,7 @@
 				#reset-cells = <1>;
 				interrupt-parent = <&cpuintc>;
 
-				intc2: interrupt-controller@2 {
+				intc2: interrupt-controller2 {
 					compatible = "qca,ar9340-intc";
 
 					interrupt-parent = <&cpuintc>;
@@ -151,7 +151,7 @@
 							<0x1f0>;	/* pcie rc 0 */
 				};
 
-				intc3: interrupt-controller@3 {
+				intc3: interrupt-controller3 {
 					compatible = "qca,ar9340-intc";
 
 					interrupt-parent = <&cpuintc>;
@@ -218,6 +218,11 @@
 				interrupt-map-mask = <0 0 0 1>;
 				interrupt-map = <0 0 0 0 &pcie1 0>;
 				status = "disabled";
+			};
+
+			gmac: gmac@18070000 {
+				compatible = "qca,qca9550-gmac";
+				reg = <0x18070000 0x14>;
 			};
 
 			wmac: wmac@18100000 {
@@ -288,9 +293,12 @@
 };
 
 &eth0 {
-	compatible = "qca,qca9550-eth", "syscon";
+	compatible = "qca,qca9550-eth", "syscon", "simple-mfd";
 
-	pll-data = <0x82000101 0x80000101 0x80001313>;
+	pll-reg = <0 0x28 0>;
+	pll-handle = <&pll>;
+
+	pll-data = <0x16000000 0x00000101 0x00001616>;
 	phy-mode = "rgmii";
 
 	resets = <&rst 9>;
@@ -303,9 +311,12 @@
 };
 
 &eth1 {
-	compatible = "qca,qca9550-eth", "syscon";
+	compatible = "qca,qca9550-eth", "syscon", "simple-mfd";
 
-	pll-data = <0x82000101 0x80000101 0x80001313>;
+	pll-reg = <0 0x48 0>;
+	pll-handle = <&pll>;
+
+	pll-data = <0x16000000 0x00000101 0x00001616>;
 	phy-mode = "sgmii";
 
 	resets = <&rst 13>;

@@ -495,6 +495,9 @@ ar71xx_board_detect() {
 		;;
 	*"Archer C59 v1")
 		name="archer-c59-v1"
+        ;;
+	*"Archer C59 v2")
+		name="archer-c59-v2"
 		;;
 	*"Archer C60 v1")
 		name="archer-c60-v1"
@@ -585,7 +588,14 @@ ar71xx_board_detect() {
 		;;
 	*"CPE510/520")
 		name="cpe510"
-		tplink_pharos_board_detect "$(tplink_pharos_get_model_string | tr -d '\r')"
+		tplink_pharos_board_detect "$(tplink_pharos_v2_get_model_string)"
+		case $AR71XX_MODEL in
+		'TP-Link CPE510 v2.0')
+			;;
+		*)
+			tplink_pharos_board_detect "$(tplink_pharos_get_model_string | tr -d '\r')"
+			;;
+		esac
 		;;
 	*"CPE830")
 		name="cpe830"
@@ -678,11 +688,20 @@ ar71xx_board_detect() {
 	*"E2100L")
 		name="e2100l"
 		;;
+	*"E558 v2")
+		name="e558-v2"
+		;;
 	*"E600G v2")
 		name="e600g-v2"
 		;;
 	*"E600GAC v2")
 		name="e600gac-v2"
+		;;
+	*"E750A v4")
+		name="e750a-v4"
+		;;
+	*"E750G v8")
+		name="e750g-v8"
 		;;
 	*"EAP120")
 		name="eap120"

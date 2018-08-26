@@ -43,8 +43,6 @@
 
 	gpio-keys-polled {
 		compatible = "gpio-keys-polled";
-		#address-cells = <1>;
-		#size-cells = <0>;
 		poll-interval = <20>;
 
 		reset {
@@ -58,7 +56,7 @@
 			gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_WPS_BUTTON>;
 		};
-		
+
 		scm1 {
 			label = "SCM1";
 			gpios = <&gpio0 19 GPIO_ACTIVE_LOW>;
@@ -81,37 +79,41 @@
 	status = "okay";
 
 	m25p80@0 {
-		#address-cells = <1>;
-		#size-cells = <1>;
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 		spi-max-frequency = <10000000>;
 
-		partition@0 {
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
 			#size-cells = <1>;
-			label = "uboot";
-			reg = <0x0 0x30000>;
-			read-only;
-		};
 
-		partition@30000 {
-			#size-cells = <1>;
-			label = "uboot-env";
-			reg = <0x30000 0x10000>;
-			read-only;
-		};
+			partition@0 {
+				#size-cells = <1>;
+				label = "uboot";
+				reg = <0x0 0x30000>;
+				read-only;
+			};
 
-		factory: partition@40000 {
-			#size-cells = <1>;
-			label = "factory";
-			reg = <0x40000 0x10000>;
-			read-only;
-		};
+			partition@30000 {
+				#size-cells = <1>;
+				label = "uboot-env";
+				reg = <0x30000 0x10000>;
+				read-only;
+			};
 
-		partition@50000 {
-			#size-cells = <1>;
-			label = "firmware";
-			reg = <0x50000 0xfb0000>;
+			factory: partition@40000 {
+				#size-cells = <1>;
+				label = "factory";
+				reg = <0x40000 0x10000>;
+				read-only;
+			};
+
+			partition@50000 {
+				#size-cells = <1>;
+				label = "firmware";
+				reg = <0x50000 0xfb0000>;
+			};
 		};
 	};
 };
