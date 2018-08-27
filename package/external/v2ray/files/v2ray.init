@@ -27,7 +27,7 @@ start_service() {
 		procd_set_param env V2RAY_LOCATION_ASSET=$ASSLOC
 		procd_append_param env V2RAY_LOCATION_CONFIG=/etc
 		procd_append_param env V2RAY_RAY_BUFFER_SIZE=8
-		procd_append_param env V2RAY_BUF_READV=1
+		procd_append_param env V2RAY_BUF_READV=enable
 		procd_set_param user root
 		procd_set_param stdout 1
 		procd_set_param stderr 1
