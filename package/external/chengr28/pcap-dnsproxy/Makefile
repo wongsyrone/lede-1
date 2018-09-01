@@ -7,15 +7,16 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pcap-dnsproxy
-PKG_VERSION:=0.4.9.9
-PKG_RELEASE:=796497c
+PKG_VERSION:=0.4.9.10
+PKG_RELEASE:=17a8516
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/chengr28/Pcap_DNSProxy.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=796497c4e1f017464253f29fba4abb7d40c4b7b7
+PKG_SOURCE_VERSION:=17a851623a52612b8c39f70a3bc17bf734f0a7f4
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
+PKG_BUILD_PARALLEL:=1
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
@@ -73,11 +74,6 @@ if PACKAGE_pcap-dnsproxy
 		  You can customize the listen port of Pcap_DNSProxy.
 		  Note that you should NOT set the value to 53, which
 		  conflicts with DNSMasq in OpenWrt.
-	config PACKAGE_pcap-dnsproxy_procdinit
-		bool "Ship with procd init script"
-		default y
-		help
-		  Use new procd init script.
 	config PACKAGE_pcap-dnsproxy_advancedoptions
 		bool "Compile with advanced options. (for expert only)"
 		default n
@@ -149,22 +145,13 @@ fi
 exit 0
 endef
 
-# cmake dependency scanner workaround
-# just remove bloating headers
-define Build/Prepare
-	$(call Build/Prepare/Default)
-	rm -rf $(PKG_BUILD_DIR)/Source/Dependency
-endef
-
 define Package/pcap-dnsproxy/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/Pcap_DNSProxy $(1)/usr/sbin/Pcap_DNSProxy
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DATA) ./files/pcap-dnsproxy.config $(1)/etc/config/pcap-dnsproxy
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(if $(CONFIG_PACKAGE_pcap-dnsproxy_procdinit),\
-		$(INSTALL_BIN) ./files/pcap-dnsproxy.procd.init $(1)/etc/init.d/pcap-dnsproxy,\
-		$(INSTALL_BIN) ./files/pcap-dnsproxy.init $(1)/etc/init.d/pcap-dnsproxy)
+	$(INSTALL_BIN) ./files/pcap-dnsproxy.procd.init $(1)/etc/init.d/pcap-dnsproxy
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/pcap-dnsproxy.hotplug $(1)/etc/hotplug.d/iface/99-pcap-dnsproxy
 	$(INSTALL_DIR) $(1)/etc/pcap-dnsproxy

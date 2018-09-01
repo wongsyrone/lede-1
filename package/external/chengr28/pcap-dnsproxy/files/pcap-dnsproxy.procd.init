@@ -16,7 +16,7 @@ EXTRA_HELP=\
 PROG=/usr/sbin/Pcap_DNSProxy
 CONFDIR=/etc/pcap-dnsproxy
 HOTPLUGFILE=/tmp/pcap-dnsproxy.hotplug
-ERRLOG=$CONFDIR/Error.log
+ERRLOG=/tmp/pcap-dnsproxy-error.log
 
 config_load "pcap-dnsproxy"
 
@@ -26,22 +26,6 @@ parse_pcap_dnsproxy()
 }
 
 config_foreach parse_pcap_dnsproxy 'pcap-dnsproxy'
-
-boot() {
-	# wait a given time (default 10 seconds) before startup
-	# to wait for interfaces to come up / not using hotplug events during boot
-	_start() {
-		[ $1 -gt 0 ] && {
-			logger -p daemon.info -t "pcap-dnsproxy[]" "Scheduled startup in $1 seconds"
-			sleep $1
-		}
-		start
-	}
-
-	local _DELAY=$(uci_get "pcap-dnsproxy" "system" "boot_delay" "10")
-	_start $_DELAY &
-	return 0
-}
 
 shutdown() {
 	rm -f $HOTPLUGFILE
@@ -61,7 +45,7 @@ start_service() {
 		# do NOT use daemon code inside pcap-dnsproxy, use start-stop-daemon instead
 		# procd requires running in Foreground
 		procd_open_instance
-		procd_set_param command $PROG -c $CONFDIR --disable-daemon
+		procd_set_param command $PROG --config-path $CONFDIR --disable-daemon --log-file $ERRLOG
 		procd_set_param file $CONFDIR/Config.conf
 		procd_append_param file $CONFDIR/Hosts.conf
 		procd_append_param file $CONFDIR/IPFilter.conf
