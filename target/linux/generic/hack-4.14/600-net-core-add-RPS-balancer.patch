@@ -1,7 +1,9 @@
 From 3e969c9695b45e1a052d43b367096ec99f2f0aac Mon Sep 17 00:00:00 2001
 From: John Crispin <john@phrozen.org>
 Date: Thu, 10 Aug 2017 15:58:29 +0200
-Subject: [PATCH 48/57] net: core: add RPS balancer
+Subject: [PATCH] net: core: add RPS balancer
+
+This patch adds a hash bucket based rps hash balancer.
 
 Signed-off-by: John Crispin <john@phrozen.org>
 ---
@@ -10,7 +12,7 @@ Signed-off-by: John Crispin <john@phrozen.org>
 
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -3636,6 +3636,58 @@ set_rps_cpu(struct net_device *dev, stru
+@@ -3626,6 +3626,58 @@ set_rps_cpu(struct net_device *dev, stru
  	return rflow;
  }
  
@@ -69,7 +71,7 @@ Signed-off-by: John Crispin <john@phrozen.org>
  /*
   * get_rps_cpu is called from netif_receive_skb and returns the target
   * CPU from the RPS map of the receiving queue for a given skb.
-@@ -3725,7 +3777,7 @@ static int get_rps_cpu(struct net_device
+@@ -3715,7 +3767,7 @@ static int get_rps_cpu(struct net_device
  try_rps:
  
  	if (map) {
@@ -78,12 +80,13 @@ Signed-off-by: John Crispin <john@phrozen.org>
  		if (cpu_online(tcpu)) {
  			cpu = tcpu;
  			goto done;
-@@ -8810,6 +8862,9 @@ static int __init net_dev_init(void)
+@@ -8800,6 +8852,10 @@ static int __init net_dev_init(void)
  		sd->backlog.weight = weight_p;
  	}
  
-+	if (IS_ENABLED(CONFIG_RPS))
++#ifdef CONFIG_RPS
 +		rps_table_init();
++#endif
 +
  	dev_boot_phase = 0;
  
