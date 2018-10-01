@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dropbear
 PKG_VERSION:=2017.75
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 #PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 #PKG_SOURCE_URL:= \
@@ -68,7 +68,7 @@ endef
 
 define Package/dropbear/conffiles
 /etc/dropbear/dropbear_rsa_host_key
-/etc/config/dropbear 
+/etc/config/dropbear
 endef
 
 define Package/dropbearconvert
@@ -145,7 +145,7 @@ define Package/dropbear/install
 	$(LN) ../sbin/dropbear $(1)/usr/bin/dbclient
 	$(LN) ../sbin/dropbear $(1)/usr/bin/dropbearkey
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DATA) ./files/dropbear.config $(1)/etc/config/dropbear
+	$(INSTALL_CONF) ./files/dropbear.config $(1)/etc/config/dropbear
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/dropbear.init $(1)/etc/init.d/dropbear
 	$(INSTALL_DIR) $(1)/usr/lib/opkg/info
