@@ -8,9 +8,9 @@ PKG_LICENSE_FILES:=
 
 PKG_SOURCE_URL:=https://github.com/openwrt/mt76
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2018-09-29
-PKG_SOURCE_VERSION:=7464cc9710df1f10590d2e3bdd7339861b92f46c
-PKG_MIRROR_HASH:=9ee9ba2a49f9fc00804b62a086f02e872ac45937640c5b70d2d52e461dca023b
+PKG_SOURCE_DATE:=2018-10-05
+PKG_SOURCE_VERSION:=d533f1351834ba2899897b090aa56a5f5b922bd7
+PKG_MIRROR_HASH:=27e9c4cf876ad26a6f854d2b00d7e3b100980e820444f13986bf66f3f539eed3
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_BUILD_PARALLEL:=1
@@ -47,6 +47,7 @@ endef
 define KernelPackage/mt76-core
   $(KernelPackage/mt76-default)
   TITLE:=MediaTek MT76xx wireless driver
+  HIDDEN:=1
   FILES:=\
 	$(PKG_BUILD_DIR)/mt76.ko
 endef
@@ -54,7 +55,7 @@ endef
 define KernelPackage/mt76-usb
   $(KernelPackage/mt76-default)
   TITLE:=MediaTek MT76xx wireless driver USB support
-  DEPENDS += kmod-usb-core kmod-mt76-core
+  DEPENDS += +kmod-usb-core +kmod-mt76-core
   HIDDEN:=1
   FILES:=\
 	$(PKG_BUILD_DIR)/mt76-usb.ko
@@ -63,7 +64,7 @@ endef
 define KernelPackage/mt76x02-usb
   $(KernelPackage/mt76-default)
   TITLE:=MediaTek MT76x0/MT76x2 USB wireless driver common code
-  DEPENDS+=+kmod-mt76-usb
+  DEPENDS+=+kmod-mt76-usb +kmod-mt76x02-common
   HIDDEN:=1
   FILES:=$(PKG_BUILD_DIR)/mt76x02-usb.ko
 endef
@@ -98,7 +99,7 @@ define KernelPackage/mt76x2-common
   TITLE:=MediaTek MT76x2 wireless driver common code
   DEPENDS+=+kmod-mt76-core +kmod-mt76x02-common
   HIDDEN:=1
-  FILES:=$(PKG_BUILD_DIR)/mt76x2-common.ko
+  FILES:=$(PKG_BUILD_DIR)/mt76x2/mt76x2-common.ko
 endef
 
 define KernelPackage/mt76x2u
@@ -106,7 +107,7 @@ define KernelPackage/mt76x2u
   TITLE:=MediaTek MT76x2U wireless driver
   DEPENDS+=+kmod-mt76x2-common +kmod-mt76x02-usb
   FILES:=\
-	$(PKG_BUILD_DIR)/mt76x2u.ko
+	$(PKG_BUILD_DIR)/mt76x2/mt76x2u.ko
   AUTOLOAD:=$(call AutoProbe,mt76x2u)
 endef
 
@@ -115,7 +116,7 @@ define KernelPackage/mt76x2
   TITLE:=MediaTek MT76x2 wireless driver
   DEPENDS+=+kmod-mt76x2-common
   FILES:=\
-	$(PKG_BUILD_DIR)/mt76x2e.ko
+	$(PKG_BUILD_DIR)/mt76x2/mt76x2e.ko
   AUTOLOAD:=$(call AutoProbe,mt76x2e)
 endef
 
@@ -160,10 +161,10 @@ ifdef CONFIG_PACKAGE_kmod-mt76x2-common
   PKG_MAKE_FLAGS += CONFIG_MT76x2_COMMON=m
 endif
 ifdef CONFIG_PACKAGE_kmod-mt76x2
-  PKG_MAKE_FLAGS += CONFIG_MT76X2E=m
+  PKG_MAKE_FLAGS += CONFIG_MT76x2E=m
 endif
 ifdef CONFIG_PACKAGE_kmod-mt76x2u
-  PKG_MAKE_FLAGS += CONFIG_MT76X2U=m
+  PKG_MAKE_FLAGS += CONFIG_MT76x2U=m
 endif
 ifdef CONFIG_PACKAGE_kmod-mt7603
   PKG_MAKE_FLAGS += CONFIG_MT7603E=m
