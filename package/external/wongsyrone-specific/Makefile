@@ -20,7 +20,7 @@ define Package/wongsyrone-specific
 	DEPENDS:=+ipset +ip +iptables-mod-extra +iptables-mod-filter +iptables-mod-ipopt +iptables-mod-nat-extra +iptables-mod-tproxy \
 		+IPV6:ip6tables-extra +IPV6:ip6tables-mod-nat \
 		+libsodium \
-		+redsocks +pdnsd +trojan +v2ray
+		+redsocks +pdnsd +trojan +v2ray +vlmcsd +pcap-dnsproxy +jitterentropy-rngd
 endef
 
 define Package/wongsyrone-specific/description
