@@ -30,7 +30,7 @@ PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 
 # get pcre for static linking
-PKG_BUILD_DEPENDS:=libpcre
+PKG_BUILD_DEPENDS:=pcre
 
 include $(INCLUDE_DIR)/package.mk
 
