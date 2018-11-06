@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/wongsyrone/transocks-wong.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=a7db975f8d626b1afade75afa92d3d56e8a1de7f
+PKG_SOURCE_VERSION:=a20ca2619fee4e3d2b44edc736e89ac43f2a04ee
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 PKG_BUILD_PARALLEL:=0
@@ -23,12 +23,6 @@ PKG_LICENSE:=GPL-2.0
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-ifeq ($(CONFIG_DEBUG),y)
-CMAKE_OPTIONS += \
-	-DENABLE_DEBUG=ON
-endif
-
-TARGET_CFLAGS += -ggdb3
 TARGET_CFLAGS += -Wall -Wextra
 TARGET_CFLAGS += $(FPIC)
 
@@ -36,10 +30,20 @@ TARGET_CFLAGS += $(FPIC)
 TARGET_CFLAGS += -flto
 TARGET_LDFLAGS += -flto
 
-TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CXXFLAGS)) -O3
-
 TARGET_CFLAGS += -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections
+
+TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CXXFLAGS)) -O3
+
+# should be the last block
+# make package/*/compile STRIP=true
+ifeq ($(CONFIG_DEBUG),y)
+CMAKE_OPTIONS += \
+	-DENABLE_DEBUG=ON
+
+TARGET_CFLAGS += -ggdb3
+TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CXXFLAGS)) -O1
+endif
 
 define Package/transocks-wong
 	SECTION:=wongsyrone

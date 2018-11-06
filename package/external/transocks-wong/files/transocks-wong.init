@@ -11,6 +11,7 @@ USE_PROCD=1
 PROG=/usr/sbin/transocks-wong
 LISTENARG=--listener-addr-port="[::]:8123"
 TARGETARG=--socks5-addr-port="[::1]:1081"
+PUMPARG=--pump-method=splicepump
 
 config_load "transocks-wong"
 
@@ -28,6 +29,7 @@ start_service() {
 		procd_set_param command $PROG
 		procd_append_param command $LISTENARG
 		procd_append_param command $TARGETARG
+		#procd_append_param command $PUMPARG
 		procd_set_param user root # run service as user root
 		procd_set_param stdout 1 # forward stdout of the command to logd
 		procd_set_param stderr 1 # same for stderr
