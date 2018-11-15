@@ -13,15 +13,19 @@ PKG_RELEASE:=1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/wongsyrone/transocks-wong.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=a20ca2619fee4e3d2b44edc736e89ac43f2a04ee
+PKG_SOURCE_VERSION:=e0c348160b19bd35adddd9e53fe4fcc72e47031c
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 PKG_BUILD_PARALLEL:=0
 
 PKG_LICENSE:=GPL-2.0
 
+PKG_BUILD_DEPENDS := libevent2-wong
+
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
+
+MY_LIBEVENT_STAGING_DIR := $(BUILD_DIR)/libevent2-wong/usr
 
 TARGET_CFLAGS += -Wall -Wextra
 TARGET_CFLAGS += $(FPIC)
@@ -35,6 +39,8 @@ TARGET_LDFLAGS += -Wl,--gc-sections
 
 TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CXXFLAGS)) -O3
 
+CMAKE_OPTIONS += -DLibevent2_USE_STATIC_LIB=ON
+
 # should be the last block
 # make package/*/compile STRIP=true
 ifeq ($(CONFIG_DEBUG),y)
@@ -45,11 +51,15 @@ TARGET_CFLAGS += -ggdb3
 TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CXXFLAGS)) -O1
 endif
 
+# prepend to use libevent2 and link static lib
+CMAKE_FIND_ROOT_PATH := $(MY_LIBEVENT_STAGING_DIR);$(CMAKE_FIND_ROOT_PATH)
+TARGET_CXXFLAGS := -I$(MY_LIBEVENT_STAGING_DIR)/include $(TARGET_CXXFLAGS)
+TARGET_LDFLAGS := -L$(MY_LIBEVENT_STAGING_DIR)/lib $(TARGET_LDFLAGS)
+
 define Package/transocks-wong
 	SECTION:=wongsyrone
 	CATEGORY:=wongsyrone Specific
 	TITLE:=transparent ipv4 ipv6 tcp proxy
-	DEPENDS:=+libevent2-core
 endef
 
 define Package/transocks-wong/install
