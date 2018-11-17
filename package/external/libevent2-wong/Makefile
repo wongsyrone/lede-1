@@ -36,8 +36,8 @@ include $(INCLUDE_DIR)/package.mk
 MY_LIBEVENT_STAGING_DIR := $(BUILD_DIR)/libevent2-wong
 
 define Package/libevent2-wong/Default
-  SECTION:=libs
-  CATEGORY:=Libraries
+  SECTION:=wongsyrone
+  CATEGORY:=wongsyrone Specific
   TITLE:=Event notification(wong)
   URL:=http://libevent.org
 endef
@@ -136,23 +136,23 @@ define Build/Clean
 	$(call Build/Clean/Default)
 endef
 
-define Package/libevent2/install
+define Package/libevent2-wong/install
 true
 endef
 
-define Package/libevent2-core/install
+define Package/libevent2-wong-core/install
 true
 endef
 
-define Package/libevent2-extra/install
+define Package/libevent2-wong-extra/install
 true
 endef
 
-define Package/libevent2-openssl/install
+define Package/libevent2-wong-openssl/install
 true
 endef
 
-define Package/libevent2-pthreads/install
+define Package/libevent2-wong-pthreads/install
 true
 endef
 
