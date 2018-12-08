@@ -25,19 +25,23 @@ config_foreach parse_transocks_wong 'transocks-wong'
 
 start_service() {
 	if [ "1" = "$ENABLED" ] || [ "on" = "$ENABLED" ] || [ "true" = "$ENABLED" ]; then
-		procd_open_instance
-		procd_set_param command $PROG
-		procd_append_param command $LISTENARG
-		procd_append_param command $TARGETARG
-		#procd_append_param command $PUMPARG
-		procd_set_param user root # run service as user root
-		procd_set_param stdout 1 # forward stdout of the command to logd
-		procd_set_param stderr 1 # same for stderr
-		procd_set_param limits nofile="unlimited"
-		[ -e /proc/sys/kernel/core_pattern ] && {
-			procd_append_param limits core="unlimited"
-		}
-		procd_close_instance
+		local cpunum=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}' )
+		for i in $(seq 1 ${cpunum});
+		do
+			procd_open_instance
+			procd_set_param command $PROG
+			procd_append_param command $LISTENARG
+			procd_append_param command $TARGETARG
+			procd_append_param command $PUMPARG
+			procd_set_param user root # run service as user root
+			procd_set_param stdout 1 # forward stdout of the command to logd
+			procd_set_param stderr 1 # same for stderr
+			procd_set_param limits nofile="unlimited"
+			[ -e /proc/sys/kernel/core_pattern ] && {
+				procd_append_param limits core="unlimited"
+			}
+			procd_close_instance
+		done
 	else
 		echo "transocks-wong is disabled"
 	fi
