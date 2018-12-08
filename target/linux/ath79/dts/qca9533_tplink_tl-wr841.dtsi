@@ -4,7 +4,7 @@
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
 
-#include "qca9533.dtsi"
+#include "qca953x.dtsi"
 
 / {
 	chosen {
@@ -102,6 +102,7 @@
 			};
 
 			partition@20000 {
+				compatible = "tplink,firmware";
 				label = "firmware";
 				reg = <0x020000 0x3d0000>;
 			};

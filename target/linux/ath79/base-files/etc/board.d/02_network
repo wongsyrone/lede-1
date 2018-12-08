@@ -22,16 +22,20 @@ ath79_setup_interfaces()
 	tplink,tl-wa901nd-v2|\
 	tplink,tl-wr703n|\
 	ubnt,bullet-m|\
+	ubnt,bullet-m-xw|\
 	ubnt,lap-120|\
 	ubnt,nanostation-ac-loco|\
 	ubnt,rocket-m|\
 	ubnt,unifiac-lite|\
 	ubnt,unifiac-mesh|\
 	ubnt,unifi|\
-	wd,mynet-wifi-rangeextender)
+	wd,mynet-wifi-rangeextender|\
+	winchannel,wb2000)
 		ucidef_set_interface_lan "eth0"
 		;;
-	avm,fritz4020)
+	avm,fritz4020|\
+	tplink,archer-c58-v1|\
+	tplink,archer-c59-v1)
 		ucidef_set_interface_wan "eth0"
 		ucidef_add_switch "switch0" \
 			"0@eth1" "1:lan:1" "2:lan:4" "3:lan:3" "4:lan:2"
@@ -71,12 +75,14 @@ ath79_setup_interfaces()
 		ucidef_set_interface_lan "eth0" "dhcp"
 		;;
 	glinet,ar150|\
-	glinet,ar300m)
+	glinet,ar300m|\
+	glinet,gl-x750)
 		ucidef_set_interfaces_lan_wan "eth1" "eth0"
 		;;
 	iodata,etg3-r|\
 	iodata,wn-ac1167dgr|\
 	iodata,wn-ac1600dgr2|\
+	iodata,wn-ag300dgr|\
 	pcs,cr5000)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "5:wan"
@@ -107,6 +113,10 @@ ath79_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth0" "3:lan:1" "5:lan:2" "4:wan"
 		;;
+	rosinson,wr818)
+		ucidef_add_switch "switch0" \
+			"0@eth0" "1:lan" "2:lan" "3:wan"
+		;;
 	tplink,archer-c7-v1|\
 	tplink,archer-c7-v2|\
 	tplink,tl-wdr4900-v2)
@@ -116,7 +126,8 @@ ath79_setup_interfaces()
 	buffalo,whr-g301n|\
 	tplink,tl-mr3220-v1|\
 	tplink,tl-mr3420-v1|\
-	tplink,tl-wr841-v7)
+	tplink,tl-wr841-v7|\
+	ubnt,airrouter)
 		ucidef_set_interface_wan "eth0"
 		ucidef_add_switch "switch0" \
 			"0@eth1" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1"
@@ -213,7 +224,8 @@ ath79_setup_macs()
 		wan_mac=$(macaddr_add "$lan_mac" -1)
 		;;
 	iodata,wn-ac1167dgr|\
-	iodata,wn-ac1600dgr2)
+	iodata,wn-ac1600dgr2|\
+	iodata,wn-ag300dgr)
 		lan_mac=$(mtd_get_mac_ascii u-boot-env ethaddr)
 		wan_mac=$(mtd_get_mac_ascii u-boot-env wanaddr)
 		;;
@@ -225,6 +237,10 @@ ath79_setup_macs()
 	phicomm,k2t)
 		lan_mac=$(k2t_get_mac "lan_mac")
 		wan_mac=$(k2t_get_mac "wan_mac")
+		;;
+	rosinson,wr818)
+		wan_mac=$(mtd_get_mac_binary factory 0)
+		lan_mac=$(macaddr_setbit_la "$wan_mac")
 		;;
 	tplink,tl-wr1043nd-v4)
 		base_mac=$(mtd_get_mac_binary product-info 8)

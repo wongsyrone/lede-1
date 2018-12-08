@@ -6,9 +6,6 @@
 #include "ar9344.dtsi"
 
 / {
-	model = "TP-Link WDR4300";
-	compatible = "tplink,tl-wdr4300";
-
 	aliases {
 		led-boot = &system;
 		led-failsafe = &system;
@@ -147,6 +144,7 @@
 			};
 
 			partition@20000 {
+				compatible = "tplink,firmware";
 				label = "firmware";
 				reg = <0x020000 0x7d0000>;
 			};

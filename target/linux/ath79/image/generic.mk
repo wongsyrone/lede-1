@@ -82,6 +82,13 @@ define Device/buffalo_bhr-4grv
 endef
 TARGET_DEVICES += buffalo_bhr-4grv
 
+define Device/buffalo_bhr-4grv2
+  ATH_SOC := qca9557
+  DEVICE_TITLE := Buffalo BHR-4GRV2
+  IMAGE_SIZE := 16000k
+endef
+TARGET_DEVICES += buffalo_bhr-4grv2
+
 define Device/buffalo_wzr-hp-ag300h
   ATH_SOC := ar7161
   DEVICE_TITLE := Buffalo WZR-HP-AG300H
@@ -167,14 +174,22 @@ define Device/glinet_ar150
 endef
 TARGET_DEVICES += glinet_ar150
 
-define Device/glinet_ar300m_nor
-  ATH_SOC := qca9533
+define Device/glinet_ar300m-nor
+  ATH_SOC := qca9531
   DEVICE_TITLE := GL.iNet GL-AR300M
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2
   IMAGE_SIZE := 16000k
   SUPPORTED_DEVICES += gl-ar300m
 endef
-TARGET_DEVICES += glinet_ar300m_nor
+TARGET_DEVICES += glinet_ar300m-nor
+
+define Device/glinet_gl-x750
+  ATH_SOC := qca9531
+  DEVICE_TITLE := GL.iNet GL-X750
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2  kmod-ath10k ath10k-firmware-qca9887
+  IMAGE_SIZE := 16000k
+endef
+TARGET_DEVICES += glinet_gl-x750
 
 define Device/iodata_etg3-r
   ATH_SOC := ar9342
@@ -207,6 +222,18 @@ define Device/iodata_wn-ac1600dgr2
 endef
 TARGET_DEVICES += iodata_wn-ac1600dgr2
 
+define Device/iodata_wn-ag300dgr
+  ATH_SOC := ar1022
+  DEVICE_TITLE := I-O DATA WN-AG300DGR
+  IMAGE_SIZE := 15424k
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | \
+    append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | \
+    senao-header -r 0x30a -p 0x47 -t 2
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2
+endef
+TARGET_DEVICES += iodata_wn-ag300dgr
+
 define Device/ocedo_koala
   ATH_SOC := qca9558
   DEVICE_TITLE := OCEDO Koala
@@ -238,7 +265,6 @@ define Device/pcs_cap324
   ATH_SOC := ar9344
   DEVICE_TITLE := PowerCloud Systems CAP324
   IMAGE_SIZE := 16000k
-  IMAGES := sysupgrade.bin
   SUPPORTED_DEVICES += cap324
 endef
 TARGET_DEVICES += pcs_cap324
@@ -247,7 +273,6 @@ define Device/pcs_cr3000
   ATH_SOC := ar9341
   DEVICE_TITLE := PowerCloud Systems CR3000
   IMAGE_SIZE := 7808k
-  IMAGES := sysupgrade.bin
   SUPPORTED_DEVICES += cr3000
 endef
 TARGET_DEVICES += pcs_cr3000
@@ -257,7 +282,6 @@ define Device/pcs_cr5000
   DEVICE_TITLE := PowerCloud Systems CR5000
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-core
   IMAGE_SIZE := 7808k
-  IMAGES := sysupgrade.bin
   SUPPORTED_DEVICES += cr5000
 endef
 TARGET_DEVICES += pcs_cr5000
@@ -265,7 +289,7 @@ TARGET_DEVICES += pcs_cr5000
 define Device/netgear_wndr3x00
   ATH_SOC := ar7161
   KERNEL := kernel-bin | append-dtb | lzma -d20 | netgear-uImage lzma
-  IMAGES := sysupgrade.bin factory.img
+  IMAGES += factory.img
   IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | netgear-squashfs | append-rootfs | pad-rootfs
   IMAGE/sysupgrade.bin := $$(IMAGE/default) | append-metadata | check-size $$$$(IMAGE_SIZE)
   IMAGE/factory.img := $$(IMAGE/default) | netgear-dni | check-size $$$$(IMAGE_SIZE)
@@ -301,7 +325,6 @@ define Device/pisen_wmm003n
   DEVICE_TITLE := Pisen WMM003N (Cloud Easy Power)
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-chipidea2
   TPLINK_HWID := 0x07030101
-  IMAGES := sysupgrade.bin
 endef
 TARGET_DEVICES += pisen_wmm003n
 
@@ -319,15 +342,19 @@ TARGET_DEVICES += netgear_wndr3800
 define Device/phicomm_k2t
   ATH_SOC := qca9563
   DEVICE_TITLE := Phicomm K2T
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | uImage lzma
   IMAGE_SIZE := 15744k
-  IMAGES := sysupgrade.bin
-  IMAGE/default := append-kernel | append-rootfs | pad-rootfs
-  IMAGE/sysupgrade.bin := $$(IMAGE/default) | append-metadata | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata | check-size $$$$(IMAGE_SIZE)
   DEVICE_PACKAGES := kmod-leds-reset kmod-ath10k-ct ath10k-firmware-qca9888-ct
 endef
 TARGET_DEVICES += phicomm_k2t
+
+define Device/rosinson_wr818
+  ATH_SOC := qca9563
+  DEVICE_TITLE := ROSINSON WR818
+  IMAGE_SIZE := 15872k
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport
+endef
+TARGET_DEVICES += rosinson_wr818
 
 define Device/wd_mynet-wifi-rangeextender
   ATH_SOC := ar9344
@@ -341,3 +368,11 @@ define Device/wd_mynet-wifi-rangeextender
   SUPPORTED_DEVICES += mynet-rext
 endef
 TARGET_DEVICES += wd_mynet-wifi-rangeextender
+
+define Device/winchannel_wb2000
+  ATH_SOC := ar9344
+  DEVICE_TITLE := Winchannel WB2000
+  IMAGE_SIZE := 15872k
+  DEVICE_PACKAGES := kmod-i2c-core kmod-i2c-gpio kmod-rtc-ds1307 kmod-usb2 kmod-usb-ledtrig-usbport
+endef
+TARGET_DEVICES += winchannel_wb2000

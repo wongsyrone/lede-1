@@ -8,7 +8,7 @@
 
 / {
 	model = "Phicomm K2T";
-	compatible = "phicomm,k2t";
+	compatible = "phicomm,k2t", "qca,qca9563";
 
 	aliases {
 		led-boot = &status_red;
@@ -101,6 +101,7 @@
 			};
 
 			partition@90000 {
+				compatible = "denx,uimage";
 				label = "firmware";
 				reg = <0x090000 0xf60000>;
 			};

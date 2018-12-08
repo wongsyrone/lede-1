@@ -8,7 +8,7 @@
 
 / {
 	model = "TP-Link TL-WR842N/ND v2";
-	compatible = "tplink,tl-wr842n-v2";
+	compatible = "tplink,tl-wr842n-v2", "qca,ar9341";
 
 	aliases {
 		serial0 = &uart;
@@ -146,6 +146,7 @@
 			};
 
 			partition@20000 {
+				compatible = "tplink,firmware";
 				label = "firmware";
 				reg = <0x020000 0x7d0000>;
 			};
