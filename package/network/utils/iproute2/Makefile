@@ -54,7 +54,7 @@ endef
 define Package/tc
 $(call Package/iproute2/Default)
   TITLE:=Traffic control utility
-  DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl +libxtables
 endef
 
 define Package/genl
