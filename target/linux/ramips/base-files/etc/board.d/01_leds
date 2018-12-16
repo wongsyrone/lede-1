@@ -167,15 +167,11 @@ hc5661a)
 	ucidef_set_led_netdev "internet" "internet" "$boardname:blue:internet" "eth0.2"
 	set_wifi_led "$boardname:blue:wlan2g"
 	;;
-hc5761)
-	ucidef_set_led_netdev "internet" "internet" "$boardname:blue:internet" "eth0.2"
-	set_wifi_led "$boardname:blue:wlan2g"
-	ucidef_set_led_netdev "wifi5g" "wifi5g" "$boardname:blue:wlan5g" "rai0"
-	;;
+hc5761|\
 hc5861)
 	ucidef_set_led_netdev "internet" "internet" "$boardname:blue:internet" "eth0.2"
-	set_wifi_led "$boardname:blue:wlan2g"
-	ucidef_set_led_netdev "wifi5g" "wifi5g" "$boardname:blue:wlan5g" "rai0"
+	ucidef_set_led_netdev "wifi5g" "wifi5g" "$boardname:blue:wlan5g" "wlan0"
+	ucidef_set_led_netdev "wifi2g" "wifi2g" "$boardname:blue:wlan2g" "wlan1"
 	;;
 hg255d)
 	set_wifi_led "$boardname:green:wlan"
@@ -270,7 +266,8 @@ px-4885-4M|\
 px-4885-8M)
 	set_wifi_led "px-4885:orange:wifi"
 	;;
-r6220)
+r6220|\
+netgear,r6350)
 	ucidef_set_led_netdev "wan" "wan" "$boardname:green:wan" eth0.2
 	set_wifi_led "$boardname:green:wifi"
 	;;
