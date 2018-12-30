@@ -90,6 +90,10 @@ define Build/append-squashfs-fakeroot-be
 	cat $@.fakesquashfs >> $@
 endef
 
+define Build/append-string
+	echo -n $(1) >> $@
+endef
+
 # append a fake/empty uImage header, to fool bootloaders rootfs integrity check
 # for example
 define Build/append-uImage-fakehdr
@@ -236,6 +240,11 @@ define Build/pad-offset
 		newsize='size + pad'; \
 		dd if=$@ of=$@.new bs=$$newsize count=1 conv=sync
 	mv $@.new $@
+endef
+
+define Build/xor-image
+	$(STAGING_DIR_HOST)/bin/xorimage -i $@ -o $@.xor $(1)
+	mv $@.xor $@
 endef
 
 define Build/check-size

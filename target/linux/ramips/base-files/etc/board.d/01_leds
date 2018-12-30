@@ -124,9 +124,12 @@ dlink,dwr-118-a2)
 	ucidef_set_led_switch "wan" "wan" "$boardname:green:wan" "switch0" "0x01"
 	set_wifi_led "$boardname:green:wlan2g" "wlan1"
 	;;
-dlink,dwr-921-c1)
+dlink,dwr-921-c1|\
+dlink,dwr-922-e2)
 	set_wifi_led "$boardname:green:wifi"
 	ucidef_set_led_switch "lan" "lan" "$boardname:green:lan" "switch0" "0x0f"
+	ucidef_set_led_netdev "signalstrength" "signalstrength" "$boardname:green:sigstrength" "wwan0" "link"
+	ucidef_set_led_netdev "4g" "4g" "$boardname:green:4g" "wwan0" "tx rx"
 	;;
 dir-860l-b1)
 	ucidef_set_led_netdev "wan" "wan" "$boardname:green:net" "eth0.2"
@@ -251,6 +254,7 @@ netgear,r6120)
 oy-0001)
 	set_wifi_led "$boardname:green:wifi"
 	;;
+gehua,ghl-r-001|\
 pbr-m1)
 	ucidef_set_led_netdev "internet" "internet" "$boardname:blue:internet" "eth0.2"
 	;;
@@ -396,6 +400,9 @@ wl-wn575a3)
 wrh-300cr)
 	set_wifi_led "$boardname:green:wlan"
 	ucidef_set_led_netdev "lan" "lan" "$boardname:green:ethernet" "eth0"
+	;;
+xzwifi,creativebox-v1)
+	ucidef_set_led_switch "internet" "internet" "$boardname:blue:internet" "switch0" "0x10"
 	;;
 y1)
 	ucidef_set_led_netdev "wifi" "WIFI" "$boardname:blue:wifi" "wlan1"

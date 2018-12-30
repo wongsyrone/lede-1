@@ -80,6 +80,7 @@ ramips_setup_interfaces()
 	ai-br100|\
 	alfa-network,ac1200rm|\
 	mediatek,ap-mt7621a-v60|\
+	xzwifi,creativebox-v1|\
 	d240|\
 	db-wrt01|\
 	dir-300-b7|\
@@ -89,6 +90,7 @@ ramips_setup_interfaces()
 	dir-810l|\
 	dlink,dwr-116-a1|\
 	dlink,dwr-921-c1|\
+	dlink,dwr-922-e2|\
 	ew1200|\
 	firewrt|\
 	hc5661a|\
@@ -139,6 +141,10 @@ ramips_setup_interfaces()
 	zbt-wr8305rt)
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "2:lan" "3:lan" "4:wan" "6@eth0"
+		;;
+	gehua,ghl-r-001)
+		ucidef_add_switch "switch0" \
+			"0:lan" "1:lan" "2:lan" "4:wan" "6@eth0"
 		;;
 	alfa-network,awusfree1|\
 	cs-qr10|\
@@ -487,6 +493,7 @@ ramips_setup_macs()
 	dlink,dwr-118-a1|\
 	dlink,dwr-118-a2|\
 	dlink,dwr-921-c1|\
+	dlink,dwr-922-e2|\
 	lava,lr-25g001)
 		wan_mac=$(jboot_config_read -m -i $(find_mtd_part "config") -o 0xE000)
 		lan_mac=$(macaddr_add "$wan_mac" 1)

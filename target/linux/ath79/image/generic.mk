@@ -43,6 +43,16 @@ define Build/elecom-header
 
 endef
 
+define Build/nec-fw
+  ( stat -c%s $@ | tr -d "\n" | dd bs=16 count=1 conv=sync; ) >> $@
+  ( \
+    echo -n -e "$(1)" | dd bs=16 count=1 conv=sync; \
+    echo -n "0.0.00" | dd bs=16 count=1 conv=sync; \
+    dd if=$@; \
+  ) > $@.new
+  mv $@.new $@
+endef
+
 define Device/avm_fritz300e
   ATH_SOC := ar7242
   DEVICE_TITLE := AVM FRITZ!WLAN Repeater 300E
@@ -128,6 +138,22 @@ define Device/buffalo_wzr-hp-g450h
 endef
 TARGET_DEVICES += buffalo_wzr-hp-g450h
 
+define Device/devolo_dvl1200e
+  ATH_SOC := qca9558
+  DEVICE_TITLE := devolo WiFi pro 1200e
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
+  IMAGE_SIZE := 15936k
+endef
+TARGET_DEVICES += devolo_dvl1200e
+
+define Device/devolo_dvl1750c
+  ATH_SOC := qca9558
+  DEVICE_TITLE := devolo WiFi pro 1750c
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
+  IMAGE_SIZE := 15936k
+endef
+TARGET_DEVICES += devolo_dvl1750c
+
 define Device/dlink_dir-825-b1
   ATH_SOC := ar7161
   DEVICE_TITLE := D-LINK DIR-825 B1
@@ -137,6 +163,34 @@ define Device/dlink_dir-825-b1
   SUPPORTED_DEVICES += dir-825-b1
 endef
 TARGET_DEVICES += dlink_dir-825-b1
+
+define Device/dlink_dir-825-c1
+  ATH_SOC := ar9344
+  DEVICE_TITLE := D-LINK DIR-825 C1
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport kmod-leds-reset kmod-owl-loader
+  SUPPORTED_DEVICES += dir-825-c1
+  IMAGE_SIZE := 15936k
+  IMAGES := factory.bin sysupgrade.bin
+  IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs
+  IMAGE/factory.bin := $$(IMAGE/default) | pad-offset $$$$(IMAGE_SIZE) 26 | \
+	append-string 00DB120AR9344-RT-101214-00 | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := $$(IMAGE/default) | append-metadata | check-size $$$$(IMAGE_SIZE)
+endef
+TARGET_DEVICES += dlink_dir-825-c1
+
+define Device/dlink_dir-835-a1
+  ATH_SOC := ar9344
+  DEVICE_TITLE := D-LINK DIR-835 A1
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-leds-reset kmod-owl-loader
+  SUPPORTED_DEVICES += dir-835-a1
+  IMAGE_SIZE := 15936k
+  IMAGES := factory.bin sysupgrade.bin
+  IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs
+  IMAGE/factory.bin := $$(IMAGE/default) | pad-offset $$$$(IMAGE_SIZE) 26 | \
+	append-string 00DB120AR9344-RT-101214-00 | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.bin := $$(IMAGE/default) | append-metadata | check-size $$$$(IMAGE_SIZE)
+endef
+TARGET_DEVICES += dlink_dir-835-a1
 
 define Device/elecom_wrc-300ghbk2-i
   ATH_SOC := qca9563
@@ -186,7 +240,7 @@ TARGET_DEVICES += glinet_ar300m-nor
 define Device/glinet_gl-x750
   ATH_SOC := qca9531
   DEVICE_TITLE := GL.iNet GL-X750
-  DEVICE_PACKAGES := kmod-usb-core kmod-usb2  kmod-ath10k ath10k-firmware-qca9887
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-ath10k-ct ath10k-firmware-qca9887-ct
   IMAGE_SIZE := 16000k
 endef
 TARGET_DEVICES += glinet_gl-x750
@@ -233,6 +287,19 @@ define Device/iodata_wn-ag300dgr
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2
 endef
 TARGET_DEVICES += iodata_wn-ag300dgr
+
+define Device/nec_wg800hp
+  ATH_SOC := qca9563
+  DEVICE_TITLE := NEC Aterm WG800HP
+  IMAGE_SIZE := 7104k
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | \
+    append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | \
+    xor-image -p 6A57190601121E4C004C1E1201061957 -x | \
+    nec-fw LASER_ATERM
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca9887-ct-htt
+endef
+TARGET_DEVICES += nec_wg800hp
 
 define Device/ocedo_koala
   ATH_SOC := qca9558
