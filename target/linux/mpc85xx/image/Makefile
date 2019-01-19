@@ -49,6 +49,7 @@ define Device/tl-wdr4900-v1
   TPLINK_HWREV := 1
   TPLINK_FLASHLAYOUT := 16Mppc
   KERNEL_NAME := cuImage.tl-wdr4900-v1
+  KERNEL_INITRAMFS :=
   SUPPORTED_DEVICES:=tl-wdr4900-v1 tplink,tl-wdr4900-v1
   IMAGES := fdt.bin factory.bin sysupgrade.bin
   IMAGE/fdt.bin := append-dtb
@@ -56,6 +57,18 @@ define Device/tl-wdr4900-v1
   IMAGE/factory.bin := append-rootfs | mktplinkfw factory
 endef
 TARGET_DEVICES += tl-wdr4900-v1
+
+define Device/red-15w-rev1
+  DEVICE_TITLE := Sophos RED 15w Rev.1
+  DEVICE_PACKAGES := kmod-usb2
+  # Original firmware uses a dedicated DTB-partition.
+  # The bootloader however supports FIT-images.
+  KERNEL = kernel-bin | gzip | fit gzip $(KDIR)/image-$$(DEVICE_DTS).dtb
+  SUPPORTED_DEVICES := sophos,red-15w-rev1
+  IMAGES := sysupgrade.bin
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += red-15w-rev1
 
 endif
 
@@ -76,6 +89,25 @@ define Device/hiveap-330
 	append-kernel | append-metadata
 endef
 TARGET_DEVICES += hiveap-330
+
+endif
+
+ifeq ($(SUBTARGET),p2020)
+
+define Device/p2020rdb
+  DEVICE_TITLE := Freescale P2020RDB
+  DEVICE_DTS_DIR := $(DTS_DIR)/fsl
+  DEVICE_PACKAGES := kmod-hwmon-core kmod-hwmon-lm90 kmod-rtc-ds1307 \
+	kmod-gpio-pca953x kmod-eeprom-at24
+  BLOCKSIZE := 128k
+  KERNEL := kernel-bin | gzip | \
+	fit gzip $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
+  SUPPORTED_DEVICES := fsl,P2020RDB
+  IMAGES := sysupgrade.bin
+  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | \
+	pad-rootfs $$(BLOCKSIZE) | append-metadata
+endef
+TARGET_DEVICES += p2020rdb
 
 endif
 
