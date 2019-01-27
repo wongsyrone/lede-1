@@ -22,9 +22,9 @@
  
 --- a/pppd/magic.h
 +++ b/pppd/magic.h
-@@ -42,6 +42,8 @@
-  * $Id: magic.h,v 1.5 2003/06/11 23:56:26 paulus Exp $
-  */
+@@ -44,6 +44,8 @@
+ 
+ #include "pppd.h"
  
 +#include <sys/cdefs.h>
 +
@@ -67,46 +67,3 @@
  #ifdef HAVE_ASM_TYPES_H
  #include <asm/types.h>
  #endif
---- a/pppd/plugins/rp-pppoe/pppoe.h
-+++ b/pppd/plugins/rp-pppoe/pppoe.h
-@@ -90,18 +90,6 @@ typedef unsigned long UINT32_t;
- #include <linux/if_ether.h>
- #endif
- 
--#ifdef HAVE_NETINET_IF_ETHER_H
--#include <sys/types.h>
--
--#ifdef HAVE_SYS_SOCKET_H
--#include <sys/socket.h>
--#endif
--#ifndef HAVE_SYS_DLPI_H
--#include <netinet/if_ether.h>
--#endif
--#endif
--
--
- /* Ethernet frame types according to RFC 2516 */
- #define ETH_PPPOE_DISCOVERY 0x8863
- #define ETH_PPPOE_SESSION   0x8864
---- a/pppd/sys-linux.c
-+++ b/pppd/sys-linux.c
-@@ -102,19 +102,11 @@
- #define MAX_ADDR_LEN 7
- #endif
- 
--#if __GLIBC__ >= 2
- #include <asm/types.h>		/* glibc 2 conflicts with linux/types.h */
- #include <net/if.h>
- #include <net/if_arp.h>
- #include <net/route.h>
- #include <netinet/if_ether.h>
--#else
--#include <linux/types.h>
--#include <linux/if.h>
--#include <linux/if_arp.h>
--#include <linux/route.h>
--#include <linux/if_ether.h>
--#endif
- #include <netinet/in.h>
- #include <arpa/inet.h>
- 

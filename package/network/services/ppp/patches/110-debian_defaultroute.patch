@@ -183,7 +183,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
      SIN_ADDR(rt->rt_dst) = strtoul(cols[route_dest_col], NULL, 16);
      SIN_ADDR(rt->rt_gateway) = strtoul(cols[route_gw_col], NULL, 16);
      SIN_ADDR(rt->rt_genmask) = strtoul(cols[route_mask_col], NULL, 16);
-@@ -1642,20 +1647,51 @@ int have_route_to(u_int32_t addr)
+@@ -1642,20 +1647,52 @@ int have_route_to(u_int32_t addr)
  /********************************************************************
   *
   * sifdefaultroute - assign a default route through the address given.
@@ -236,7 +236,8 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +		old_def_rt.rt_dev = tmp_dev;
 +
 +		notice("replacing old default route to %s [%I] with metric %d",
-+			old_def_rt.rt_dev, SIN_ADDR(old_def_rt.rt_gateway), dfl_route_metric);
++			old_def_rt.rt_dev, SIN_ADDR(old_def_rt.rt_gateway),
++		        dfl_route_metric);
 +		default_rt_repl_rest = 1;
 +		del_rt = &old_def_rt;
 +	    }
@@ -248,7 +249,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
      }
  
      memset (&rt, 0, sizeof (rt));
-@@ -1671,10 +1707,16 @@ int sifdefaultroute (int unit, u_int32_t
+@@ -1671,10 +1708,16 @@ int sifdefaultroute (int unit, u_int32_t
  
      rt.rt_flags = RTF_UP;
      if (ioctl(sock_fd, SIOCADDRT, &rt) < 0) {
@@ -266,7 +267,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  
      have_default_route = 1;
      return 1;
-@@ -1708,11 +1750,21 @@ int cifdefaultroute (int unit, u_int32_t
+@@ -1708,11 +1751,21 @@ int cifdefaultroute (int unit, u_int32_t
      rt.rt_flags = RTF_UP;
      if (ioctl(sock_fd, SIOCDELRT, &rt) < 0 && errno != ESRCH) {
  	if (still_ppp()) {
