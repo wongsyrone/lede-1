@@ -119,7 +119,7 @@ define Device/netgear_r6120
   DTS := R6120
   BLOCKSIZE := 64k
   IMAGE_SIZE := $(ralink_default_fw_size_16M)
-  DEVICE_TITLE := Netgear AC1200 R6120
+  DEVICE_TITLE := Netgear R6120
   DEVICE_PACKAGES := kmod-mt76x2 kmod-usb2 kmod-usb-ohci
   SERCOMM_HWID := CGQ
   SERCOMM_HWVER := A001
@@ -246,6 +246,21 @@ define Device/tplink_c50-v3
   DEVICE_PACKAGES := kmod-mt76x2
 endef
 TARGET_DEVICES += tplink_c50-v3
+
+define Device/tplink_c50-v4
+  $(Device/tplink)
+  DTS := ArcherC50V4
+  IMAGE_SIZE := 7616k
+  DEVICE_TITLE := TP-Link ArcherC50 v4
+  TPLINK_FLASHLAYOUT := 8MSUmtk
+  TPLINK_HWID := 0x001D589B
+  TPLINK_HWREV := 0x93
+  TPLINK_HWREVADD := 0x2
+  TPLINK_HVERSION := 3
+  DEVICE_PACKAGES := kmod-mt76x2
+  IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += tplink_c50-v4
 
 define Device/tplink_tl-mr3020-v3
   $(Device/tplink)
