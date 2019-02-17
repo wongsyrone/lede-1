@@ -349,6 +349,18 @@ define Device/iodata_wn-ac1167dgr
 endef
 TARGET_DEVICES += iodata_wn-ac1167dgr
 
+define Device/iodata_wn-ac1600dgr
+  ATH_SOC := qca9557
+  DEVICE_TITLE := I-O DATA WN-AC1600DGR
+  IMAGE_SIZE := 14656k
+  IMAGES += factory.bin
+  IMAGE/factory.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | \
+    append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | \
+    senao-header -r 0x30a -p 0x60 -t 2 -v 200
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-ath10k-ct ath10k-firmware-qca988x-ct
+endef
+TARGET_DEVICES += iodata_wn-ac1600dgr
+
 define Device/iodata_wn-ac1600dgr2
   ATH_SOC := qca9557
   DEVICE_TITLE := I-O DATA WN-AC1600DGR2
@@ -528,3 +540,10 @@ define Device/winchannel_wb2000
   DEVICE_PACKAGES := kmod-i2c-core kmod-i2c-gpio kmod-rtc-ds1307 kmod-usb2 kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += winchannel_wb2000
+
+define Device/xiaomi_mi-router-4q
+  ATH_SOC := qca9561
+  DEVICE_TITLE := Xiaomi Mi Router 4Q
+  IMAGE_SIZE := 14336k
+endef
+TARGET_DEVICES += xiaomi_mi-router-4q

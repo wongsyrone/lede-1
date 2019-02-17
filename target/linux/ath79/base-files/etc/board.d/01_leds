@@ -52,7 +52,7 @@ etactica,eg200)
 	;;
 glinet,gl-ar150)
 	ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
-	ucidef_set_led_netdev "lan" "LAN" "$boardname:green:lan" "eth1"
+	ucidef_set_led_switch "lan" "LAN" "$boardname:green:lan" "switch0" "0x02"
 	;;
 glinet,gl-x750)
 	ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
@@ -119,7 +119,7 @@ tplink,tl-wr941-v4)
 	ucidef_set_led_switch "lan3" "LAN3" "tp-link:green:lan3" "switch0" "0x08"
 	ucidef_set_led_switch "lan4" "LAN4" "tp-link:green:lan4" "switch0" "0x10"
 	;;
-tplink,tl-wr740nd-v4|\
+tplink,tl-wr740n-v4|\
 tplink,tl-wr741nd-v4|\
 tplink,tl-wr841-v8|\
 tplink,tl-wr842n-v2)

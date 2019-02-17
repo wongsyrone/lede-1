@@ -109,6 +109,7 @@ ath79_setup_interfaces()
 		;;
 	iodata,etg3-r|\
 	iodata,wn-ac1167dgr|\
+	iodata,wn-ac1600dgr|\
 	iodata,wn-ac1600dgr2|\
 	iodata,wn-ag300dgr|\
 	pcs,cr5000)
@@ -131,10 +132,11 @@ ath79_setup_interfaces()
 		ucidef_add_switch_port_attr "switch0" 5 led 2
 		;;
 	netgear,wnr612-v2|\
-	on,n150r)
+	on,n150r|\
+	tplink,tl-wr841-v7)
 		ucidef_set_interface_wan "eth0"
 		ucidef_add_switch "switch0" \
-		"0@eth1" "1:lan" "2:lan" "3:lan:3" "4:lan:4"
+		"0@eth1" "1:lan" "2:lan" "3:lan" "4:lan"
 		;;
 	phicomm,k2t)
 		ucidef_add_switch "switch0" \
@@ -153,8 +155,6 @@ ath79_setup_interfaces()
 	buffalo,whr-g301n|\
 	tplink,tl-mr3220-v1|\
 	tplink,tl-mr3420-v1|\
-	tplink,tl-wr741nd-v4|\
-	tplink,tl-wr841-v7|\
 	tplink,tl-wr841-v9|\
 	tplink,tl-wr841-v11|\
 	ubnt,airrouter)
@@ -194,7 +194,8 @@ ath79_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth1" "1:lan" "2:lan" "3:lan" "4:lan"
 		;;
-	tplink,tl-wr740nd-v4|\
+	tplink,tl-wr740n-v4|\
+	tplink,tl-wr741nd-v4|\
 	tplink,tl-wr841-v8|\
 	tplink,tl-wr842n-v1|\
 	tplink,tl-wr842n-v2)
@@ -215,6 +216,11 @@ ath79_setup_interfaces()
 	ubnt,unifiac-pro)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "2:lan" "3:wan"
+		;;
+	xiaomi,mi-router-4q)
+		ucidef_set_interface_wan "eth0"
+		ucidef_add_switch "switch0" \
+			"0@eth1" "3:lan:1" "4:lan:2"
 		;;
 	*)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
@@ -262,6 +268,7 @@ ath79_setup_macs()
 		wan_mac=$(macaddr_add "$lan_mac" -1)
 		;;
 	iodata,wn-ac1167dgr|\
+	iodata,wn-ac1600dgr|\
 	iodata,wn-ac1600dgr2|\
 	iodata,wn-ag300dgr)
 		lan_mac=$(mtd_get_mac_ascii u-boot-env ethaddr)
