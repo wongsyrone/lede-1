@@ -330,6 +330,7 @@ define KernelPackage/ipt-ipset
 	CONFIG_IP_SET_BITMAP_IPMAC \
 	CONFIG_IP_SET_BITMAP_PORT \
 	CONFIG_IP_SET_HASH_IP \
+	CONFIG_IP_SET_HASH_IPMAC \
 	CONFIG_IP_SET_HASH_IPMARK \
 	CONFIG_IP_SET_HASH_IPPORT \
 	CONFIG_IP_SET_HASH_IPPORTIP \
@@ -646,6 +647,8 @@ define KernelPackage/ipt-tproxy
   TITLE:=Transparent proxying support
   DEPENDS+=+kmod-ipt-conntrack +IPV6:kmod-nf-conntrack6 +IPV6:kmod-ip6tables
   KCONFIG:= \
+  	CONFIG_NF_SOCKET_IPV4 \
+  	CONFIG_NF_SOCKET_IPV6 \
   	CONFIG_NETFILTER_XT_MATCH_SOCKET \
   	CONFIG_NETFILTER_XT_TARGET_TPROXY
   FILES:= \
