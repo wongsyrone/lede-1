@@ -1,0 +1,96 @@
+From 3260f65b82ef2ea4051465b826ae9e89333be166 Mon Sep 17 00:00:00 2001
+From: Syrone Wong <wong.syrone@gmail.com>
+Date: Sun, 17 Feb 2019 09:56:36 +0800
+Subject: [PATCH] Extract error code and error string from OpenSSL
+
+for both client and server sessions
+and warn user when openssl err facility is disabled
+at compile time
+
+Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
+---
+ src/clientsession.cpp | 21 ++++++++++++++++++++-
+ src/serversession.cpp | 21 ++++++++++++++++++++-
+ 2 files changed, 40 insertions(+), 2 deletions(-)
+
+diff --git a/src/clientsession.cpp b/src/clientsession.cpp
+index 6e38fb1..03277ae 100644
+--- a/src/clientsession.cpp
++++ b/src/clientsession.cpp
+@@ -16,6 +16,10 @@
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
++#include <openssl/err.h>
++#include <openssl/opensslconf.h>
++
++#include <boost/lexical_cast.hpp>
+ 
+ #include "clientsession.h"
+ #include "trojanrequest.h"
+@@ -240,7 +244,22 @@ void ClientSession::in_sent() {
+                     }
+                     out_socket.async_handshake(stream_base::client, [this, self](const boost::system::error_code error) {
+                         if (error) {
+-                            Log::log_with_endpoint(in_endpoint, "SSL handshake failed with " + config.remote_addr + ':' + to_string(config.remote_port) + ": " + error.message(), Log::ERROR);
++                            string errstr = error.message();
++#ifdef OPENSSL_NO_ERR
++#warning OpenSSL ERR disabled
++#else // OPENSSL_NO_ERR
++                            if (error.category() == boost::asio::error::get_ssl_category()) {
++                                // override 'asio.ssl error' error message
++                                errstr = string(" (")
++                                    + boost::lexical_cast<string>(ERR_GET_LIB(error.value()))+ ","
++                                    + boost::lexical_cast<string>(ERR_GET_FUNC(error.value()))+ ","
++                                    + boost::lexical_cast<string>(ERR_GET_REASON(error.value()))+ ") ";
++                                char buf[128];
++                                ::ERR_error_string_n(error.value(), buf, sizeof(buf));
++                                errstr += buf;
++                            }
++#endif // OPENSSL_NO_ERR
++                            Log::log_with_endpoint(in_endpoint, "SSL handshake failed with " + config.remote_addr + ':' + to_string(config.remote_port) + ": " + errstr, Log::ERROR);
+                             destroy();
+                             return;
+                         }
+diff --git a/src/serversession.cpp b/src/serversession.cpp
+index 88280d6..289132c 100644
+--- a/src/serversession.cpp
++++ b/src/serversession.cpp
+@@ -16,6 +16,10 @@
+  * You should have received a copy of the GNU General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
++#include <openssl/err.h>
++#include <openssl/opensslconf.h>
++
++#include <boost/lexical_cast.hpp>
+ 
+ #include "serversession.h"
+ #include "trojanrequest.h"
+@@ -43,7 +47,22 @@ void ServerSession::start() {
+     auto self = shared_from_this();
+     in_socket.async_handshake(stream_base::server, [this, self](const boost::system::error_code error) {
+         if (error) {
+-            Log::log_with_endpoint(in_endpoint, "SSL handshake failed: " + error.message(), Log::ERROR);
++            string errstr = error.message();
++#ifdef OPENSSL_NO_ERR
++#warning OpenSSL ERR disabled
++#else // OPENSSL_NO_ERR
++            if (error.category() == boost::asio::error::get_ssl_category()) {
++                // override 'asio.ssl error' error message
++                errstr = string(" (")
++                    + boost::lexical_cast<string>(ERR_GET_LIB(error.value()))+ ","
++                    + boost::lexical_cast<string>(ERR_GET_FUNC(error.value()))+ ","
++                    + boost::lexical_cast<string>(ERR_GET_REASON(error.value()))+ ") ";
++                char buf[128];
++                ::ERR_error_string_n(error.value(), buf, sizeof(buf));
++                errstr += buf;
++            }
++#endif // OPENSSL_NO_ERR
++            Log::log_with_endpoint(in_endpoint, "SSL handshake failed: " + errstr, Log::ERROR);
+             if (error.message() == "http request" && plain_http_response != "") {
+                 sent_len += plain_http_response.length();
+                 boost::asio::async_write(accept_socket(), boost::asio::buffer(plain_http_response), [this, self](const boost::system::error_code, size_t) {
+-- 
+2.20.1
+
