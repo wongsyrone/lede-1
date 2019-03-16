@@ -63,6 +63,13 @@ glinet,gl-ar150)
 	ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
 	ucidef_set_led_switch "lan" "LAN" "$boardname:green:lan" "switch0" "0x02"
 	;;
+glinet,gl-ar300m-nand|\
+glinet,gl-ar300m-nor)
+	ucidef_set_led_netdev "lan" "LAN" "gl-ar300m:green:lan" "eth0"
+	;;
+glinet,gl-ar300m-lite)
+	ucidef_set_led_netdev "lan" "LAN" "gl-ar300m-lite:green:lan" "eth0"
+	;;
 glinet,gl-x750)
 	ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
 	;;
@@ -170,6 +177,10 @@ wd,mynet-wifi-rangeextender)
 	ucidef_set_led_rssi "rssilow" "RSSILOW" "$boardname:rssi-low" "wlan0" "1" "100"
 	ucidef_set_led_rssi "rssimedium" "RSSIMED" "$boardname:blue:rssi-med" "wlan0" "33" "100"
 	ucidef_set_led_rssi "rssihigh" "RSSIMAX" "$boardname:blue:rssi-max" "wlan0" "66" "100"
+	;;
+yuncore,a770)
+	ucidef_set_led_netdev "wan" "WAN" "$boardname:green:wan" "eth0"
+	ucidef_set_led_switch "lan" "LAN" "$boardname:green:lan" "switch0" "0x10"
 	;;
 esac
 
