@@ -171,6 +171,15 @@ define Device/comfast_cf-e120a-v3
 endef
 TARGET_DEVICES += comfast_cf-e120a-v3
 
+define Device/comfast_cf-e5
+  ATH_SOC := qca9531
+  DEVICE_TITLE := COMFAST CF-E5/E7
+  DEVICE_PACKAGES := rssileds kmod-leds-gpio kmod-usb-core kmod-usb2 kmod-usb-net \
+	kmod-usb-net-qmi-wwan -swconfig -uboot-envtools
+  IMAGE_SIZE := 16192k
+endef
+TARGET_DEVICES += comfast_cf-e5
+
 define Device/devolo_dvl1200e
   ATH_SOC := qca9558
   DEVICE_TITLE := devolo WiFi pro 1200e
@@ -416,6 +425,18 @@ define Device/iodata_wn-ag300dgr
   DEVICE_PACKAGES := kmod-usb-core kmod-usb2
 endef
 TARGET_DEVICES += iodata_wn-ag300dgr
+
+define Device/jjplus_ja76pf2
+  ATH_SOC := ar7161
+  DEVICE_TITLE := jjPlus JA76PF2
+  DEVICE_PACKAGES += -kmod-ath9k -swconfig -wpad-mini -uboot-envtools fconfig
+  IMAGE/sysupgrade.bin := append-rootfs | pad-rootfs | combined-image | check-size $$$$(IMAGE_SIZE)
+#  IMAGE/sysupgrade.bin := append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | sysupgrade-tar rootfs=$$$$@ | append-metadata
+  KERNEL := kernel-bin | append-dtb | lzma | pad-to $$(BLOCKSIZE)
+  KERNEL_INITRAMFS := kernel-bin | append-dtb
+  IMAGE_SIZE := 16000k
+endef
+TARGET_DEVICES += jjplus_ja76pf2
 
 define Device/librerouter_librerouter-v1
   ATH_SOC := qca9558
