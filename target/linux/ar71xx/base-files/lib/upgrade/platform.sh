@@ -558,6 +558,7 @@ platform_check_image() {
 	rb-912uag-2hpnd|\
 	rb-912uag-5hpnd|\
 	rb-921gs-5hpacd-r2|\
+	rb-922uags-5hpacd|\
 	rb-951g-2hnd|\
 	rb-951ui-2hnd|\
 	rb-2011l|\
@@ -590,7 +591,8 @@ platform_check_image() {
 		tplink_pharos_check_image "$1" "7f454c46" "$(tplink_pharos_get_model_string)" '' && return 0
 		return 1
 		;;
-	cpe210-v2)
+	cpe210-v2|\
+	cpe210-v3)
 		tplink_pharos_check_image "$1" "01000000" "$(tplink_pharos_v2_get_model_string)" '\0\xff\r' && return 0
 		return 1
 		;;
@@ -879,6 +881,7 @@ platform_do_upgrade() {
 	rb-912uag-2hpnd|\
 	rb-912uag-5hpnd|\
 	rb-921gs-5hpacd-r2|\
+	rb-922uags-5hpacd|\
 	rb-951g-2hnd|\
 	rb-951ui-2hnd|\
 	rb-2011il|\
