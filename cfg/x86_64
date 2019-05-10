@@ -19,9 +19,6 @@ CONFIG_HAVE_DOT_CONFIG=y
 # CONFIG_TARGET_mpc85xx is not set
 # CONFIG_TARGET_imx6 is not set
 # CONFIG_TARGET_mxs is not set
-# CONFIG_TARGET_adm8668 is not set
-# CONFIG_TARGET_adm5120 is not set
-# CONFIG_TARGET_xburst is not set
 # CONFIG_TARGET_ixp4xx is not set
 # CONFIG_TARGET_lantiq is not set
 # CONFIG_TARGET_malta is not set
@@ -32,14 +29,13 @@ CONFIG_HAVE_DOT_CONFIG=y
 # CONFIG_TARGET_ramips is not set
 # CONFIG_TARGET_at91 is not set
 # CONFIG_TARGET_rb532 is not set
-# CONFIG_TARGET_mcs814x is not set
+# CONFIG_TARGET_tegra is not set
 # CONFIG_TARGET_layerscape is not set
 # CONFIG_TARGET_octeontx is not set
 # CONFIG_TARGET_oxnas is not set
 # CONFIG_TARGET_armvirt is not set
 # CONFIG_TARGET_ipq40xx is not set
 # CONFIG_TARGET_ipq806x is not set
-# CONFIG_TARGET_au1000 is not set
 # CONFIG_TARGET_samsung is not set
 # CONFIG_TARGET_arc770 is not set
 # CONFIG_TARGET_archs38 is not set
@@ -70,6 +66,7 @@ CONFIG_DEFAULT_firewall=y
 CONFIG_DEFAULT_fstools=y
 CONFIG_DEFAULT_ip6tables=y
 CONFIG_DEFAULT_iptables=y
+CONFIG_DEFAULT_kmod-bnx2=y
 CONFIG_DEFAULT_kmod-button-hotplug=y
 CONFIG_DEFAULT_kmod-e1000=y
 CONFIG_DEFAULT_kmod-e1000e=y
@@ -176,6 +173,7 @@ CONFIG_BUILD_PATENTED=y
 # CONFIG_BUILD_NLS is not set
 CONFIG_SHADOW_PASSWORDS=y
 # CONFIG_CLEAN_IPKG is not set
+# CONFIG_IPK_FILES_CHECKSUMS is not set
 # CONFIG_INCLUDE_CONFIG is not set
 # CONFIG_COLLECT_KERNEL_DEBUG is not set
 
@@ -282,6 +280,8 @@ CONFIG_PKG_CC_STACKPROTECTOR_REGULAR=y
 # CONFIG_KERNEL_CC_STACKPROTECTOR_NONE is not set
 CONFIG_KERNEL_CC_STACKPROTECTOR_REGULAR=y
 # CONFIG_KERNEL_CC_STACKPROTECTOR_STRONG is not set
+CONFIG_KERNEL_STACKPROTECTOR=y
+# CONFIG_KERNEL_STACKPROTECTOR_STRONG is not set
 # CONFIG_PKG_FORTIFY_SOURCE_NONE is not set
 CONFIG_PKG_FORTIFY_SOURCE_1=y
 # CONFIG_PKG_FORTIFY_SOURCE_2 is not set
@@ -297,7 +297,7 @@ CONFIG_AUTOREBUILD=y
 # CONFIG_AUTOREMOVE is not set
 CONFIG_BUILD_SUFFIX=""
 CONFIG_TARGET_ROOTFS_DIR=""
-CONFIG_CCACHE=y
+# CONFIG_CCACHE is not set
 CONFIG_EXTERNAL_KERNEL_TREE=""
 CONFIG_KERNEL_GIT_CLONE_URI=""
 CONFIG_BUILD_LOG=y
@@ -314,8 +314,8 @@ CONFIG_TOOLCHAINOPTS=y
 # Binary tools
 #
 # CONFIG_BINUTILS_USE_VERSION_2_29_1 is not set
-# CONFIG_BINUTILS_USE_VERSION_2_30 is not set
-CONFIG_BINUTILS_USE_VERSION_2_31_1=y
+# CONFIG_BINUTILS_USE_VERSION_2_31_1 is not set
+CONFIG_BINUTILS_USE_VERSION_2_32=y
 CONFIG_EXTRA_BINUTILS_CONFIG_OPTIONS=""
 
 #
@@ -324,7 +324,8 @@ CONFIG_EXTRA_BINUTILS_CONFIG_OPTIONS=""
 # CONFIG_GCC_USE_VERSION_5 is not set
 # CONFIG_GCC_USE_VERSION_7 is not set
 CONFIG_GCC_USE_VERSION_8=y
-# CONFIG_GCC_USE_GRAPHITE is not set
+# CONFIG_GCC_USE_VERSION_9 is not set
+CONFIG_GCC_USE_GRAPHITE=y
 CONFIG_EXTRA_GCC_CONFIG_OPTIONS=""
 # CONFIG_GCC_DEFAULT_PIE is not set
 # CONFIG_GCC_DEFAULT_SSP is not set
@@ -337,6 +338,7 @@ CONFIG_NASM=y
 #
 # CONFIG_LIBC_USE_GLIBC is not set
 CONFIG_LIBC_USE_MUSL=y
+# CONFIG_MUSL_DISABLE_CRYPT_SIZE_HACK is not set
 
 #
 # Debuggers
@@ -344,11 +346,11 @@ CONFIG_LIBC_USE_MUSL=y
 CONFIG_GDB=y
 CONFIG_USE_MUSL=y
 CONFIG_SSP_SUPPORT=y
-CONFIG_BINUTILS_VERSION_2_31_1=y
-CONFIG_BINUTILS_VERSION="2.31.1"
+CONFIG_BINUTILS_VERSION_2_32=y
+CONFIG_BINUTILS_VERSION="2.32"
 CONFIG_GCC_VERSION_8=y
 CONFIG_GCC_USE_EMBEDDED_PATH_REMAP=y
-CONFIG_GCC_VERSION="8.2.0"
+CONFIG_GCC_VERSION="8.3.0"
 CONFIG_LIBC="musl"
 CONFIG_TARGET_SUFFIX="musl"
 # CONFIG_IB is not set
@@ -407,6 +409,7 @@ CONFIG_BUSYBOX_DEFAULT_FEATURE_DEVPTS=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_PIDFILE=y
 CONFIG_BUSYBOX_DEFAULT_PID_FILE_PATH="/var/run"
 # CONFIG_BUSYBOX_DEFAULT_BUSYBOX is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_SHOW_SCRIPT is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_INSTALLER is not set
 # CONFIG_BUSYBOX_DEFAULT_INSTALL_NO_USR is not set
 CONFIG_BUSYBOX_DEFAULT_FEATURE_SUID=y
@@ -449,7 +452,9 @@ CONFIG_BUSYBOX_DEFAULT_NO_DEBUG_LIB=y
 # CONFIG_BUSYBOX_DEFAULT_DMALLOC is not set
 # CONFIG_BUSYBOX_DEFAULT_EFENCE is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_USE_BSS_TAIL is not set
+# CONFIG_BUSYBOX_DEFAULT_FLOAT_DURATION is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_RTMINMAX is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_RTMINMAX_USE_LIBC_DEFINITIONS is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_BUFFERS_USE_MALLOC is not set
 CONFIG_BUSYBOX_DEFAULT_FEATURE_BUFFERS_GO_ON_STACK=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_BUFFERS_GO_IN_BSS is not set
@@ -560,6 +565,7 @@ CONFIG_BUSYBOX_DEFAULT_CHROOT=y
 # CONFIG_BUSYBOX_DEFAULT_COMM is not set
 CONFIG_BUSYBOX_DEFAULT_CP=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_CP_LONG_OPTIONS is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_CP_REFLINK is not set
 CONFIG_BUSYBOX_DEFAULT_CUT=y
 CONFIG_BUSYBOX_DEFAULT_DATE=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_DATE_ISOFMT=y
@@ -638,7 +644,6 @@ CONFIG_BUSYBOX_DEFAULT_SEQ=y
 # CONFIG_BUSYBOX_DEFAULT_SHUF is not set
 CONFIG_BUSYBOX_DEFAULT_SLEEP=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FANCY_SLEEP=y
-# CONFIG_BUSYBOX_DEFAULT_FEATURE_FLOAT_SLEEP is not set
 CONFIG_BUSYBOX_DEFAULT_SORT=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_SORT_BIG is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_SORT_OPTIMIZE_MEMORY is not set
@@ -757,6 +762,7 @@ CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_MTIME=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_MMIN is not set
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_PERM=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_TYPE=y
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_EXECUTABLE is not set
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_XDEV=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_MAXDEPTH=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_NEWER=y
@@ -770,6 +776,7 @@ CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_DEPTH=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_PAREN=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_SIZE=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_PRUNE=y
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_QUIT is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_DELETE is not set
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_PATH=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FIND_REGEX=y
@@ -948,6 +955,8 @@ CONFIG_BUSYBOX_DEFAULT_FEATURE_MOUNT_FLAGS=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_MOUNT_FSTAB=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_MOUNT_OTHERTAB is not set
 # CONFIG_BUSYBOX_DEFAULT_MOUNTPOINT is not set
+# CONFIG_BUSYBOX_DEFAULT_NOLOGIN is not set
+# CONFIG_BUSYBOX_DEFAULT_NOLOGIN_DEPENDENCIES is not set
 # CONFIG_BUSYBOX_DEFAULT_NSENTER is not set
 CONFIG_BUSYBOX_DEFAULT_PIVOT_ROOT=y
 # CONFIG_BUSYBOX_DEFAULT_RDATE is not set
@@ -1011,6 +1020,12 @@ CONFIG_BUSYBOX_DEFAULT_FEATURE_MOUNT_LOOP=y
 # CONFIG_BUSYBOX_DEFAULT_ADJTIMEX is not set
 # CONFIG_BUSYBOX_DEFAULT_BBCONFIG is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_COMPRESS_BBCONFIG is not set
+# CONFIG_BUSYBOX_DEFAULT_BC is not set
+# CONFIG_BUSYBOX_DEFAULT_DC is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_DC_BIG is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_DC_LIBM is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_BC_INTERACTIVE is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_BC_LONG_OPTIONS is not set
 # CONFIG_BUSYBOX_DEFAULT_BEEP is not set
 CONFIG_BUSYBOX_DEFAULT_FEATURE_BEEP_FREQ=0
 CONFIG_BUSYBOX_DEFAULT_FEATURE_BEEP_LENGTH_MS=0
@@ -1029,8 +1044,6 @@ CONFIG_BUSYBOX_DEFAULT_CROND=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_CROND_SPECIAL_TIMES is not set
 CONFIG_BUSYBOX_DEFAULT_FEATURE_CROND_DIR="/etc"
 CONFIG_BUSYBOX_DEFAULT_CRONTAB=y
-# CONFIG_BUSYBOX_DEFAULT_DC is not set
-# CONFIG_BUSYBOX_DEFAULT_FEATURE_DC_LIBM is not set
 # CONFIG_BUSYBOX_DEFAULT_DEVFSD is not set
 # CONFIG_BUSYBOX_DEFAULT_DEVFSD_MODLOAD is not set
 # CONFIG_BUSYBOX_DEFAULT_DEVFSD_FG_NP is not set
@@ -1102,6 +1115,7 @@ CONFIG_BUSYBOX_DEFAULT_FEATURE_IPV6=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_UNIX_LOCAL is not set
 CONFIG_BUSYBOX_DEFAULT_FEATURE_PREFER_IPV4_ADDRESS=y
 CONFIG_BUSYBOX_DEFAULT_VERBOSE_RESOLUTION_ERRORS=y
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_TLS_SHA1 is not set
 # CONFIG_BUSYBOX_DEFAULT_ARP is not set
 # CONFIG_BUSYBOX_DEFAULT_ARPING is not set
 CONFIG_BUSYBOX_DEFAULT_BRCTL=y
@@ -1192,6 +1206,7 @@ CONFIG_BUSYBOX_DEFAULT_NSLOOKUP_OPENWRT=y
 CONFIG_BUSYBOX_DEFAULT_NTPD=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_NTPD_SERVER=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_NTPD_CONF is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_NTP_AUTH is not set
 CONFIG_BUSYBOX_DEFAULT_PING=y
 CONFIG_BUSYBOX_DEFAULT_PING6=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_FANCY_PING=y
@@ -1398,6 +1413,7 @@ CONFIG_BUSYBOX_DEFAULT_FEATURE_SH_MATH_64=y
 CONFIG_BUSYBOX_DEFAULT_FEATURE_SH_NOFORK=y
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_SH_READ_FRAC is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_SH_HISTFILESIZE is not set
+# CONFIG_BUSYBOX_DEFAULT_FEATURE_SH_EMBEDDED_SCRIPTS is not set
 # CONFIG_BUSYBOX_DEFAULT_KLOGD is not set
 # CONFIG_BUSYBOX_DEFAULT_FEATURE_KLOGD_KLOGCTL is not set
 CONFIG_BUSYBOX_DEFAULT_LOGGER=y
@@ -1425,6 +1441,7 @@ CONFIG_PACKAGE_dnsmasq_full_ipset=y
 CONFIG_PACKAGE_dnsmasq_full_conntrack=y
 CONFIG_PACKAGE_dnsmasq_full_noid=y
 # CONFIG_PACKAGE_dnsmasq_full_broken_rtc is not set
+CONFIG_PACKAGE_dnsmasq_full_tftp=y
 CONFIG_PACKAGE_dropbear=y
 
 #
@@ -1433,6 +1450,7 @@ CONFIG_PACKAGE_dropbear=y
 CONFIG_DROPBEAR_CURVE25519=y
 # CONFIG_DROPBEAR_ECC is not set
 # CONFIG_DROPBEAR_ZLIB is not set
+CONFIG_DROPBEAR_DBCLIENT=y
 # CONFIG_PACKAGE_ead is not set
 CONFIG_PACKAGE_firewall=y
 CONFIG_PACKAGE_fstools=y
@@ -1451,6 +1469,7 @@ CONFIG_PACKAGE_libstdcpp=y
 CONFIG_PACKAGE_logd=y
 CONFIG_PACKAGE_mtd=y
 CONFIG_PACKAGE_netifd=y
+# CONFIG_PACKAGE_nft-qos is not set
 # CONFIG_PACKAGE_om-watchdog is not set
 CONFIG_PACKAGE_openwrt-keyring=y
 CONFIG_PACKAGE_opkg=y
@@ -1468,7 +1487,7 @@ CONFIG_PACKAGE_rpcd=y
 # CONFIG_PACKAGE_rpcd-mod-iwinfo is not set
 # CONFIG_PACKAGE_rpcd-mod-rpcsys is not set
 # CONFIG_PACKAGE_snapshot-tool is not set
-# CONFIG_PACKAGE_sqm-scripts is not set
+CONFIG_PACKAGE_sqm-scripts=y
 # CONFIG_PACKAGE_sqm-scripts-extra is not set
 # CONFIG_PACKAGE_swconfig is not set
 CONFIG_PACKAGE_ubox=y
@@ -1497,13 +1516,29 @@ CONFIG_PACKAGE_usign=y
 # zabbix
 #
 # CONFIG_PACKAGE_zabbix-agentd is not set
+
+#
+# SSL support
+#
+# CONFIG_ZABBIX_OPENSSL is not set
+# CONFIG_ZABBIX_GNUTLS is not set
+CONFIG_ZABBIX_NOSSL=y
 # CONFIG_PACKAGE_zabbix-extra-network is not set
 # CONFIG_PACKAGE_zabbix-extra-wifi is not set
 # CONFIG_PACKAGE_zabbix-get is not set
 # CONFIG_PACKAGE_zabbix-proxy is not set
 # CONFIG_PACKAGE_zabbix-sender is not set
 # CONFIG_PACKAGE_zabbix-server is not set
+
+#
+# Database Software
+#
+# CONFIG_ZABBIX_MYSQL is not set
+CONFIG_ZABBIX_POSTGRESQL=y
+# CONFIG_PACKAGE_zabbix-server-frontend is not set
 # CONFIG_PACKAGE_atop is not set
+# CONFIG_PACKAGE_debootstrap is not set
+# CONFIG_PACKAGE_gkrellmd is not set
 # CONFIG_PACKAGE_htop is not set
 # CONFIG_PACKAGE_ipmitool is not set
 # CONFIG_PACKAGE_monit is not set
@@ -1529,13 +1564,14 @@ CONFIG_PACKAGE_grub2=y
 # CONFIG_PACKAGE_libncurses-dev is not set
 # CONFIG_PACKAGE_zlib-dev is not set
 # CONFIG_PACKAGE_ar is not set
+# CONFIG_PACKAGE_asu is not set
 # CONFIG_PACKAGE_autoconf is not set
 # CONFIG_PACKAGE_automake is not set
 # CONFIG_PACKAGE_binutils is not set
 # CONFIG_PACKAGE_diffutils is not set
 # CONFIG_PACKAGE_gcc is not set
 # CONFIG_PACKAGE_gdb is not set
-# CONFIG_PACKAGE_gdbserver is not set
+CONFIG_PACKAGE_gdbserver=y
 # CONFIG_PACKAGE_libtool-bin is not set
 # CONFIG_PACKAGE_lpc21isp is not set
 # CONFIG_PACKAGE_lttng-tools is not set
@@ -1546,11 +1582,21 @@ CONFIG_PACKAGE_grub2=y
 # CONFIG_PACKAGE_pkg-config is not set
 # CONFIG_PACKAGE_trace-cmd is not set
 # CONFIG_PACKAGE_trace-cmd-extra is not set
-# CONFIG_PACKAGE_valgrind is not set
+CONFIG_PACKAGE_valgrind=y
+# CONFIG_PACKAGE_valgrind-cachegrind is not set
+CONFIG_PACKAGE_valgrind-callgrind=y
+# CONFIG_PACKAGE_valgrind-drd is not set
+# CONFIG_PACKAGE_valgrind-helgrind is not set
+# CONFIG_PACKAGE_valgrind-massif is not set
+CONFIG_PACKAGE_valgrind-vgdb=y
 
 #
 # Extra packages
 #
+# CONFIG_PACKAGE_jose is not set
+# CONFIG_PACKAGE_libevent2-wong-extra is not set
+# CONFIG_PACKAGE_libjose is not set
+# CONFIG_PACKAGE_tang is not set
 
 #
 # Firmware
@@ -1561,6 +1607,7 @@ CONFIG_PACKAGE_grub2=y
 #
 # CONFIG_PACKAGE_aircard-pcmcia-firmware is not set
 # CONFIG_PACKAGE_amd64-microcode is not set
+# CONFIG_PACKAGE_amdgpu-firmware is not set
 # CONFIG_PACKAGE_ar3k-firmware is not set
 # CONFIG_PACKAGE_ath10k-firmware-qca4019 is not set
 # CONFIG_PACKAGE_ath10k-firmware-qca4019-ct is not set
@@ -1588,9 +1635,11 @@ CONFIG_PACKAGE_grub2=y
 # CONFIG_PACKAGE_brcmfmac-firmware-4329-sdio is not set
 # CONFIG_PACKAGE_brcmfmac-firmware-43362-sdio is not set
 # CONFIG_PACKAGE_brcmfmac-firmware-43430-sdio is not set
+# CONFIG_PACKAGE_brcmfmac-firmware-43430a0-sdio is not set
 # CONFIG_PACKAGE_brcmfmac-firmware-43455-sdio is not set
 # CONFIG_PACKAGE_brcmfmac-firmware-43602a1-pcie is not set
 # CONFIG_PACKAGE_brcmfmac-firmware-4366b1-pcie is not set
+# CONFIG_PACKAGE_brcmfmac-firmware-4366c0-pcie is not set
 # CONFIG_PACKAGE_brcmfmac-firmware-usb is not set
 # CONFIG_PACKAGE_brcmsmac-firmware is not set
 # CONFIG_PACKAGE_carl9170-firmware is not set
@@ -1619,6 +1668,8 @@ CONFIG_PACKAGE_intel-microcode=y
 # CONFIG_PACKAGE_iwlwifi-firmware-iwl7265d is not set
 # CONFIG_PACKAGE_iwlwifi-firmware-iwl8260c is not set
 # CONFIG_PACKAGE_iwlwifi-firmware-iwl8265 is not set
+# CONFIG_PACKAGE_iwlwifi-firmware-iwl9000 is not set
+# CONFIG_PACKAGE_iwlwifi-firmware-iwl9260 is not set
 # CONFIG_PACKAGE_libertas-sdio-firmware is not set
 # CONFIG_PACKAGE_libertas-spi-firmware is not set
 # CONFIG_PACKAGE_libertas-usb-firmware is not set
@@ -1631,6 +1682,7 @@ CONFIG_PACKAGE_intel-microcode=y
 # CONFIG_PACKAGE_p54-usb-firmware is not set
 # CONFIG_PACKAGE_prism54-firmware is not set
 CONFIG_PACKAGE_r8169-firmware=y
+# CONFIG_PACKAGE_radeon-firmware is not set
 # CONFIG_PACKAGE_rs9113-firmware is not set
 # CONFIG_PACKAGE_rt2800-pci-firmware is not set
 # CONFIG_PACKAGE_rt2800-usb-firmware is not set
@@ -1744,6 +1796,7 @@ CONFIG_PACKAGE_kmod-crypto-hash=y
 # CONFIG_PACKAGE_kmod-crypto-null is not set
 # CONFIG_PACKAGE_kmod-crypto-pcbc is not set
 # CONFIG_PACKAGE_kmod-crypto-pcompress is not set
+# CONFIG_PACKAGE_kmod-crypto-rmd160 is not set
 # CONFIG_PACKAGE_kmod-crypto-rng is not set
 # CONFIG_PACKAGE_kmod-crypto-seqiv is not set
 # CONFIG_PACKAGE_kmod-crypto-sha1 is not set
@@ -1752,6 +1805,7 @@ CONFIG_PACKAGE_kmod-crypto-hash=y
 # CONFIG_PACKAGE_kmod-crypto-test is not set
 # CONFIG_PACKAGE_kmod-crypto-user is not set
 # CONFIG_PACKAGE_kmod-crypto-wq is not set
+# CONFIG_PACKAGE_kmod-crypto-xcbc is not set
 # CONFIG_PACKAGE_kmod-crypto-xts is not set
 # CONFIG_PACKAGE_kmod-cryptodev is not set
 
@@ -1801,6 +1855,7 @@ CONFIG_PACKAGE_kmod-fs-ext4=y
 #
 CONFIG_PACKAGE_kmod-hwmon-core=y
 # CONFIG_PACKAGE_kmod-hwmon-adcxx is not set
+# CONFIG_PACKAGE_kmod-hwmon-ads1015 is not set
 # CONFIG_PACKAGE_kmod-hwmon-adt7410 is not set
 # CONFIG_PACKAGE_kmod-hwmon-adt7475 is not set
 # CONFIG_PACKAGE_kmod-hwmon-gpiofan is not set
@@ -1827,6 +1882,8 @@ CONFIG_PACKAGE_kmod-hwmon-core=y
 # CONFIG_PACKAGE_kmod-hwmon-w83627ehf is not set
 # CONFIG_PACKAGE_kmod-hwmon-w83627hf is not set
 # CONFIG_PACKAGE_kmod-hwmon-w83793 is not set
+# CONFIG_PACKAGE_kmod-pmbus-core is not set
+# CONFIG_PACKAGE_kmod-pmbus-zl6100 is not set
 
 #
 # I2C support
@@ -1847,11 +1904,17 @@ CONFIG_PACKAGE_kmod-i2c-algo-bit=y
 # Industrial I/O Modules
 #
 # CONFIG_PACKAGE_kmod-iio-ad799x is not set
+# CONFIG_PACKAGE_kmod-iio-am2315 is not set
+# CONFIG_PACKAGE_kmod-iio-bh1750 is not set
 # CONFIG_PACKAGE_kmod-iio-bmp280 is not set
 # CONFIG_PACKAGE_kmod-iio-bmp280-i2c is not set
 # CONFIG_PACKAGE_kmod-iio-bmp280-spi is not set
+# CONFIG_PACKAGE_kmod-iio-ccs811 is not set
 # CONFIG_PACKAGE_kmod-iio-core is not set
+# CONFIG_PACKAGE_kmod-iio-hmc5843 is not set
 # CONFIG_PACKAGE_kmod-iio-htu21 is not set
+# CONFIG_PACKAGE_kmod-iio-si7020 is not set
+# CONFIG_PACKAGE_kmod-iio-tsl4531 is not set
 
 #
 # Input modules
@@ -1866,6 +1929,7 @@ CONFIG_PACKAGE_kmod-input-evdev=y
 # CONFIG_PACKAGE_kmod-input-joydev is not set
 # CONFIG_PACKAGE_kmod-input-matrixkmap is not set
 # CONFIG_PACKAGE_kmod-input-polldev is not set
+# CONFIG_PACKAGE_kmod-input-touchscreen-ads7846 is not set
 # CONFIG_PACKAGE_kmod-input-uinput is not set
 
 #
@@ -1929,7 +1993,7 @@ CONFIG_PACKAGE_kmod-br-netfilter=y
 # CONFIG_PACKAGE_kmod-ebtables-ipv6 is not set
 # CONFIG_PACKAGE_kmod-ebtables-watchers is not set
 CONFIG_PACKAGE_kmod-ip6tables=y
-# CONFIG_PACKAGE_kmod-ip6tables-extra is not set
+CONFIG_PACKAGE_kmod-ip6tables-extra=y
 # CONFIG_PACKAGE_kmod-ipt-account is not set
 # CONFIG_PACKAGE_kmod-ipt-chaos is not set
 # CONFIG_PACKAGE_kmod-ipt-checksum is not set
@@ -1938,7 +2002,7 @@ CONFIG_PACKAGE_kmod-ip6tables=y
 # CONFIG_PACKAGE_kmod-ipt-compat-xtables is not set
 # CONFIG_PACKAGE_kmod-ipt-condition is not set
 CONFIG_PACKAGE_kmod-ipt-conntrack=y
-# CONFIG_PACKAGE_kmod-ipt-conntrack-extra is not set
+CONFIG_PACKAGE_kmod-ipt-conntrack-extra=y
 # CONFIG_PACKAGE_kmod-ipt-conntrack-label is not set
 CONFIG_PACKAGE_kmod-ipt-core=y
 # CONFIG_PACKAGE_kmod-ipt-debug is not set
@@ -1965,7 +2029,7 @@ CONFIG_PACKAGE_kmod-ipt-ipset=y
 # CONFIG_PACKAGE_kmod-ipt-lua is not set
 CONFIG_PACKAGE_kmod-ipt-nat=y
 CONFIG_PACKAGE_kmod-ipt-nat-extra=y
-# CONFIG_PACKAGE_kmod-ipt-nat6 is not set
+CONFIG_PACKAGE_kmod-ipt-nat6=y
 # CONFIG_PACKAGE_kmod-ipt-nathelper-rtsp is not set
 # CONFIG_PACKAGE_kmod-ipt-nflog is not set
 # CONFIG_PACKAGE_kmod-ipt-nfqueue is not set
@@ -1973,7 +2037,7 @@ CONFIG_PACKAGE_kmod-ipt-nat-extra=y
 # CONFIG_PACKAGE_kmod-ipt-physdev is not set
 # CONFIG_PACKAGE_kmod-ipt-psd is not set
 # CONFIG_PACKAGE_kmod-ipt-quota2 is not set
-# CONFIG_PACKAGE_kmod-ipt-raw is not set
+CONFIG_PACKAGE_kmod-ipt-raw=y
 # CONFIG_PACKAGE_kmod-ipt-raw6 is not set
 # CONFIG_PACKAGE_kmod-ipt-rpfilter is not set
 # CONFIG_PACKAGE_kmod-ipt-sysrq is not set
@@ -1989,8 +2053,9 @@ CONFIG_PACKAGE_kmod-nf-conntrack6=y
 # CONFIG_PACKAGE_kmod-nf-flow is not set
 CONFIG_PACKAGE_kmod-nf-ipt=y
 CONFIG_PACKAGE_kmod-nf-ipt6=y
+# CONFIG_PACKAGE_kmod-nf-ipvs is not set
 CONFIG_PACKAGE_kmod-nf-nat=y
-# CONFIG_PACKAGE_kmod-nf-nat6 is not set
+CONFIG_PACKAGE_kmod-nf-nat6=y
 # CONFIG_PACKAGE_kmod-nf-nathelper is not set
 # CONFIG_PACKAGE_kmod-nf-nathelper-extra is not set
 CONFIG_PACKAGE_kmod-nf-reject=y
@@ -2001,6 +2066,7 @@ CONFIG_PACKAGE_kmod-nfnetlink=y
 # CONFIG_PACKAGE_kmod-nft-arp is not set
 # CONFIG_PACKAGE_kmod-nft-bridge is not set
 # CONFIG_PACKAGE_kmod-nft-core is not set
+# CONFIG_PACKAGE_kmod-nft-fib is not set
 # CONFIG_PACKAGE_kmod-nft-nat is not set
 # CONFIG_PACKAGE_kmod-nft-nat6 is not set
 # CONFIG_PACKAGE_kmod-nft-netdev is not set
@@ -2029,7 +2095,7 @@ CONFIG_PACKAGE_kmod-e1000e=y
 # CONFIG_PACKAGE_kmod-gigaset is not set
 # CONFIG_PACKAGE_kmod-hfcmulti is not set
 # CONFIG_PACKAGE_kmod-hfcpci is not set
-# CONFIG_PACKAGE_kmod-ifb is not set
+CONFIG_PACKAGE_kmod-ifb=y
 CONFIG_PACKAGE_kmod-igb=y
 # CONFIG_PACKAGE_kmod-igbvf is not set
 # CONFIG_PACKAGE_kmod-ixgbe is not set
@@ -2044,6 +2110,7 @@ CONFIG_PACKAGE_kmod-mii=y
 # CONFIG_PACKAGE_kmod-of-mdio is not set
 # CONFIG_PACKAGE_kmod-pcnet32 is not set
 # CONFIG_PACKAGE_kmod-phy-broadcom is not set
+# CONFIG_PACKAGE_kmod-phy-realtek is not set
 # CONFIG_PACKAGE_kmod-r6040 is not set
 CONFIG_PACKAGE_kmod-r8169=y
 # CONFIG_PACKAGE_kmod-siit is not set
@@ -2075,9 +2142,11 @@ CONFIG_PACKAGE_kmod-vmxnet3=y
 # CONFIG_PACKAGE_kmod-ax25 is not set
 # CONFIG_PACKAGE_kmod-batman-adv is not set
 # CONFIG_PACKAGE_kmod-bonding is not set
+# CONFIG_PACKAGE_kmod-bpf-test is not set
 # CONFIG_PACKAGE_kmod-capi is not set
 # CONFIG_PACKAGE_kmod-dnsresolver is not set
 # CONFIG_PACKAGE_kmod-fou is not set
+# CONFIG_PACKAGE_kmod-fou6 is not set
 # CONFIG_PACKAGE_kmod-geneve is not set
 # CONFIG_PACKAGE_kmod-gre is not set
 # CONFIG_PACKAGE_kmod-gre6 is not set
@@ -2100,8 +2169,15 @@ CONFIG_PACKAGE_kmod-ppp=y
 # CONFIG_PACKAGE_kmod-nlmon is not set
 # CONFIG_PACKAGE_kmod-openvswitch is not set
 # CONFIG_PACKAGE_kmod-openvswitch-geneve is not set
+# CONFIG_PACKAGE_kmod-openvswitch-geneve-intree is not set
 # CONFIG_PACKAGE_kmod-openvswitch-gre is not set
+# CONFIG_PACKAGE_kmod-openvswitch-gre-intree is not set
+# CONFIG_PACKAGE_kmod-openvswitch-intree is not set
+# CONFIG_PACKAGE_kmod-openvswitch-lisp-intree is not set
+# CONFIG_PACKAGE_kmod-openvswitch-stt-intree is not set
 # CONFIG_PACKAGE_kmod-openvswitch-vxlan is not set
+# CONFIG_PACKAGE_kmod-openvswitch-vxlan-intree is not set
+# CONFIG_PACKAGE_kmod-pf-ring is not set
 # CONFIG_PACKAGE_kmod-pktgen is not set
 # CONFIG_PACKAGE_kmod-ppp-synctty is not set
 # CONFIG_PACKAGE_kmod-pppoa is not set
@@ -2110,9 +2186,14 @@ CONFIG_PACKAGE_kmod-pppoe=y
 CONFIG_PACKAGE_kmod-pppox=y
 # CONFIG_PACKAGE_kmod-pptp is not set
 # CONFIG_PACKAGE_kmod-sched is not set
-# CONFIG_PACKAGE_kmod-sched-cake is not set
+# CONFIG_PACKAGE_kmod-sched-act-vlan is not set
+# CONFIG_PACKAGE_kmod-sched-bpf is not set
+CONFIG_PACKAGE_kmod-sched-cake=y
 # CONFIG_PACKAGE_kmod-sched-connmark is not set
 CONFIG_PACKAGE_kmod-sched-core=y
+# CONFIG_PACKAGE_kmod-sched-flower is not set
+# CONFIG_PACKAGE_kmod-sched-ipset is not set
+# CONFIG_PACKAGE_kmod-sched-mqprio is not set
 # CONFIG_PACKAGE_kmod-sctp is not set
 # CONFIG_PACKAGE_kmod-sit is not set
 CONFIG_PACKAGE_kmod-slhc=y
@@ -2166,10 +2247,10 @@ CONFIG_PACKAGE_kmod-pps=y
 CONFIG_PACKAGE_kmod-ptp=y
 # CONFIG_PACKAGE_kmod-random-core is not set
 # CONFIG_PACKAGE_kmod-random-tpm is not set
-# CONFIG_PACKAGE_kmod-regmap is not set
 # CONFIG_PACKAGE_kmod-rtc-ds1307 is not set
 # CONFIG_PACKAGE_kmod-rtc-ds1374 is not set
 # CONFIG_PACKAGE_kmod-rtc-ds1672 is not set
+# CONFIG_PACKAGE_kmod-rtc-em3027 is not set
 # CONFIG_PACKAGE_kmod-rtc-isl1208 is not set
 # CONFIG_PACKAGE_kmod-rtc-pcf2123 is not set
 # CONFIG_PACKAGE_kmod-rtc-pcf8563 is not set
@@ -2257,11 +2338,18 @@ CONFIG_PACKAGE_kmod-usb3=y
 # Video Support
 #
 # CONFIG_PACKAGE_kmod-backlight-pwm is not set
+# CONFIG_PACKAGE_kmod-drm-amdgpu is not set
+# CONFIG_PACKAGE_kmod-drm-kms-helper is not set
+# CONFIG_PACKAGE_kmod-drm-radeon is not set
+# CONFIG_PACKAGE_kmod-drm-ttm is not set
 # CONFIG_PACKAGE_kmod-fb is not set
 # CONFIG_PACKAGE_kmod-fb-cfb-copyarea is not set
 # CONFIG_PACKAGE_kmod-fb-cfb-fillrect is not set
 # CONFIG_PACKAGE_kmod-fb-cfb-imgblt is not set
 # CONFIG_PACKAGE_kmod-fb-sys-fops is not set
+# CONFIG_PACKAGE_kmod-fb-sys-ram is not set
+# CONFIG_PACKAGE_kmod-fb-tft is not set
+# CONFIG_PACKAGE_kmod-fb-tft-ili9486 is not set
 # CONFIG_PACKAGE_kmod-video-core is not set
 
 #
@@ -2314,6 +2402,7 @@ CONFIG_PACKAGE_kmod-usb3=y
 # CONFIG_PACKAGE_kmod-cfg80211 is not set
 # CONFIG_PACKAGE_kmod-hermes is not set
 # CONFIG_PACKAGE_kmod-hermes-pci is not set
+# CONFIG_PACKAGE_kmod-hermes-pcmcia is not set
 # CONFIG_PACKAGE_kmod-hermes-plx is not set
 # CONFIG_PACKAGE_kmod-ipw2100 is not set
 # CONFIG_PACKAGE_kmod-ipw2200 is not set
@@ -2329,10 +2418,12 @@ CONFIG_PACKAGE_kmod-usb3=y
 # CONFIG_PACKAGE_kmod-mac80211 is not set
 # CONFIG_PACKAGE_kmod-mac80211-hwsim is not set
 # CONFIG_PACKAGE_kmod-mt76 is not set
-# CONFIG_PACKAGE_kmod-mt76-core is not set
 # CONFIG_PACKAGE_kmod-mt7601u is not set
 # CONFIG_PACKAGE_kmod-mt7603 is not set
+# CONFIG_PACKAGE_kmod-mt76x0e is not set
+# CONFIG_PACKAGE_kmod-mt76x0u is not set
 # CONFIG_PACKAGE_kmod-mt76x2 is not set
+# CONFIG_PACKAGE_kmod-mt76x2u is not set
 # CONFIG_PACKAGE_kmod-mwifiex-pcie is not set
 # CONFIG_PACKAGE_kmod-mwifiex-sdio is not set
 # CONFIG_PACKAGE_kmod-mwl8k is not set
@@ -2359,6 +2450,7 @@ CONFIG_PACKAGE_kmod-usb3=y
 # CONFIG_PACKAGE_kmod-rtl8192cu is not set
 # CONFIG_PACKAGE_kmod-rtl8192de is not set
 # CONFIG_PACKAGE_kmod-rtl8192se is not set
+# CONFIG_PACKAGE_kmod-rtl8812au-ct is not set
 # CONFIG_PACKAGE_kmod-rtl8821ae is not set
 # CONFIG_PACKAGE_kmod-rtl8xxxu is not set
 # CONFIG_PACKAGE_kmod-wl12xx is not set
@@ -2397,7 +2489,9 @@ CONFIG_PACKAGE_kmod-usb3=y
 #
 # CONFIG_PACKAGE_golang is not set
 # CONFIG_PACKAGE_golang-doc is not set
+# CONFIG_PACKAGE_golang-gitlab-yawning-obfs4-dev is not set
 # CONFIG_PACKAGE_golang-src is not set
+# CONFIG_PACKAGE_golang-torproject-tor-fw-helper-dev is not set
 
 #
 # Java
@@ -2418,7 +2512,9 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_lua-cjson is not set
 # CONFIG_PACKAGE_lua-copas is not set
 # CONFIG_PACKAGE_lua-coxpcall is not set
+# CONFIG_PACKAGE_lua-ev is not set
 # CONFIG_PACKAGE_lua-examples is not set
+# CONFIG_PACKAGE_lua-libmodbus is not set
 # CONFIG_PACKAGE_lua-lzlib is not set
 # CONFIG_PACKAGE_lua-md5 is not set
 # CONFIG_PACKAGE_lua-mobdebug is not set
@@ -2453,17 +2549,13 @@ CONFIG_PACKAGE_lua=y
 # Node.js
 #
 # CONFIG_PACKAGE_node is not set
-
-#
-# Module Selection
-#
-# CONFIG_NODEJS_ICU is not set
 # CONFIG_PACKAGE_node-arduino-firmata is not set
 # CONFIG_PACKAGE_node-cylon is not set
 # CONFIG_PACKAGE_node-cylon-firmata is not set
 # CONFIG_PACKAGE_node-cylon-gpio is not set
 # CONFIG_PACKAGE_node-cylon-i2c is not set
 # CONFIG_PACKAGE_node-hid is not set
+# CONFIG_PACKAGE_node-homebridge is not set
 # CONFIG_PACKAGE_node-mozilla-iot-gateway is not set
 # CONFIG_PACKAGE_node-npm is not set
 # CONFIG_PACKAGE_node-serialport is not set
@@ -2481,42 +2573,55 @@ CONFIG_PACKAGE_lua=y
 #
 # Python
 #
-# CONFIG_PACKAGE_chardet is not set
 # CONFIG_PACKAGE_django is not set
 # CONFIG_PACKAGE_django-appconf is not set
 # CONFIG_PACKAGE_django-compressor is not set
 # CONFIG_PACKAGE_django-constance is not set
 # CONFIG_PACKAGE_django-formtools is not set
+# CONFIG_PACKAGE_django-formtools-src is not set
 # CONFIG_PACKAGE_django-jsonfield is not set
 # CONFIG_PACKAGE_django-picklefield is not set
 # CONFIG_PACKAGE_django-postoffice is not set
 # CONFIG_PACKAGE_django-ranged-response is not set
+# CONFIG_PACKAGE_django-ranged-response-src is not set
 # CONFIG_PACKAGE_django-restframework is not set
 # CONFIG_PACKAGE_django-simple-captcha is not set
+# CONFIG_PACKAGE_django-simple-captcha-src is not set
 # CONFIG_PACKAGE_django-statici18n is not set
 # CONFIG_PACKAGE_django-webpack-loader is not set
-# CONFIG_PACKAGE_et_xmlfile is not set
+# CONFIG_PACKAGE_django-webpack-loader-src is not set
 # CONFIG_PACKAGE_flup is not set
 # CONFIG_PACKAGE_gunicorn is not set
-# CONFIG_PACKAGE_jdcal is not set
 # CONFIG_PACKAGE_micropython is not set
 # CONFIG_PACKAGE_micropython-lib is not set
 # CONFIG_PACKAGE_openpyxl is not set
 # CONFIG_PACKAGE_pillow is not set
-# CONFIG_PACKAGE_pyjwt is not set
 # CONFIG_PACKAGE_python is not set
 # CONFIG_PACKAGE_python-asn1crypto is not set
+# CONFIG_PACKAGE_python-astral is not set
+# CONFIG_PACKAGE_python-astral-src is not set
 # CONFIG_PACKAGE_python-attrs is not set
 # CONFIG_PACKAGE_python-attrs-src is not set
 # CONFIG_PACKAGE_python-automat is not set
 # CONFIG_PACKAGE_python-automat-src is not set
+# CONFIG_PACKAGE_python-awscli is not set
+# CONFIG_PACKAGE_python-awscli-src is not set
 # CONFIG_PACKAGE_python-base is not set
 # CONFIG_PACKAGE_python-base-src is not set
+# CONFIG_PACKAGE_python-bcrypt is not set
+# CONFIG_PACKAGE_python-bcrypt-src is not set
+# CONFIG_PACKAGE_python-botocore is not set
+# CONFIG_PACKAGE_python-botocore-src is not set
 # CONFIG_PACKAGE_python-certifi is not set
+# CONFIG_PACKAGE_python-certifi-src is not set
 # CONFIG_PACKAGE_python-cffi is not set
 # CONFIG_PACKAGE_python-cffi-src is not set
+# CONFIG_PACKAGE_python-chardet is not set
+# CONFIG_PACKAGE_python-chardet-src is not set
 # CONFIG_PACKAGE_python-codecs is not set
 # CONFIG_PACKAGE_python-codecs-src is not set
+# CONFIG_PACKAGE_python-colorama is not set
+# CONFIG_PACKAGE_python-colorama-src is not set
 # CONFIG_PACKAGE_python-compiler is not set
 # CONFIG_PACKAGE_python-compiler-src is not set
 # CONFIG_PACKAGE_python-constantly is not set
@@ -2524,12 +2629,18 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python-crcmod is not set
 # CONFIG_PACKAGE_python-crypto is not set
 # CONFIG_PACKAGE_python-crypto-src is not set
+# CONFIG_PACKAGE_python-cryptodome is not set
+# CONFIG_PACKAGE_python-cryptodome-src is not set
+# CONFIG_PACKAGE_python-cryptodomex is not set
+# CONFIG_PACKAGE_python-cryptodomex-src is not set
 # CONFIG_PACKAGE_python-cryptography is not set
 # CONFIG_PACKAGE_python-cryptography-src is not set
 # CONFIG_PACKAGE_python-ctypes is not set
 # CONFIG_PACKAGE_python-ctypes-src is not set
 # CONFIG_PACKAGE_python-curl is not set
+# CONFIG_PACKAGE_python-curl-src is not set
 # CONFIG_PACKAGE_python-dateutil is not set
+# CONFIG_PACKAGE_python-dateutil-src is not set
 # CONFIG_PACKAGE_python-db is not set
 # CONFIG_PACKAGE_python-db-src is not set
 # CONFIG_PACKAGE_python-decimal is not set
@@ -2539,6 +2650,9 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python-distutils is not set
 # CONFIG_PACKAGE_python-distutils-src is not set
 # CONFIG_PACKAGE_python-dns is not set
+# CONFIG_PACKAGE_python-dns-src is not set
+# CONFIG_PACKAGE_python-docutils is not set
+# CONFIG_PACKAGE_python-docutils-src is not set
 # CONFIG_PACKAGE_python-dpkt is not set
 # CONFIG_PACKAGE_python-egenix-mx-base is not set
 # CONFIG_PACKAGE_python-email is not set
@@ -2546,9 +2660,12 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python-enum34 is not set
 # CONFIG_PACKAGE_python-enum34-src is not set
 # CONFIG_PACKAGE_python-evdev is not set
+# CONFIG_PACKAGE_python-futures is not set
+# CONFIG_PACKAGE_python-futures-src is not set
 # CONFIG_PACKAGE_python-gdbm is not set
 # CONFIG_PACKAGE_python-gdbm-src is not set
 # CONFIG_PACKAGE_python-gmpy2 is not set
+# CONFIG_PACKAGE_python-gmpy2-src is not set
 # CONFIG_PACKAGE_python-gnupg is not set
 # CONFIG_PACKAGE_python-hyperlink is not set
 # CONFIG_PACKAGE_python-hyperlink-src is not set
@@ -2558,6 +2675,8 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python-incremental-src is not set
 # CONFIG_PACKAGE_python-ipaddress is not set
 # CONFIG_PACKAGE_python-ipaddress-src is not set
+# CONFIG_PACKAGE_python-jmespath is not set
+# CONFIG_PACKAGE_python-jmespath-src is not set
 # CONFIG_PACKAGE_python-ldap is not set
 # CONFIG_PACKAGE_python-lib2to3 is not set
 # CONFIG_PACKAGE_python-lib2to3-src is not set
@@ -2577,11 +2696,14 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python-ncurses is not set
 # CONFIG_PACKAGE_python-ncurses-src is not set
 # CONFIG_PACKAGE_python-oauthlib is not set
+# CONFIG_PACKAGE_python-oauthlib-src is not set
 # CONFIG_PACKAGE_python-openssl is not set
 # CONFIG_PACKAGE_python-openssl-src is not set
 # CONFIG_PACKAGE_python-packages is not set
 # CONFIG_PACKAGE_python-parsley is not set
 # CONFIG_PACKAGE_python-parsley-src is not set
+# CONFIG_PACKAGE_python-passlib is not set
+# CONFIG_PACKAGE_python-passlib-src is not set
 # CONFIG_PACKAGE_python-pcapy is not set
 # CONFIG_PACKAGE_python-pip is not set
 # CONFIG_PACKAGE_python-pip-conf is not set
@@ -2597,6 +2719,8 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python-pycparser-src is not set
 # CONFIG_PACKAGE_python-pydoc is not set
 # CONFIG_PACKAGE_python-pydoc-src is not set
+# CONFIG_PACKAGE_python-pyjwt is not set
+# CONFIG_PACKAGE_python-pyjwt-src is not set
 # CONFIG_PACKAGE_python-pyodbc is not set
 # CONFIG_PACKAGE_python-pyopenssl is not set
 # CONFIG_PACKAGE_python-pyopenssl-src is not set
@@ -2604,64 +2728,128 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python-pyptlib-src is not set
 # CONFIG_PACKAGE_python-pyserial is not set
 # CONFIG_PACKAGE_python-pyserial-src is not set
+# CONFIG_PACKAGE_python-pytz is not set
+# CONFIG_PACKAGE_python-pytz-src is not set
 # CONFIG_PACKAGE_python-qrcode is not set
+# CONFIG_PACKAGE_python-qrcode-src is not set
 # CONFIG_PACKAGE_python-requests is not set
 # CONFIG_PACKAGE_python-requests-oauthlib is not set
+# CONFIG_PACKAGE_python-requests-oauthlib-src is not set
+# CONFIG_PACKAGE_python-requests-src is not set
+# CONFIG_PACKAGE_python-rsa is not set
+# CONFIG_PACKAGE_python-rsa-src is not set
+# CONFIG_PACKAGE_python-ruamel-yaml is not set
+# CONFIG_PACKAGE_python-ruamel-yaml-src is not set
+# CONFIG_PACKAGE_python-s3transfer is not set
+# CONFIG_PACKAGE_python-s3transfer-src is not set
 # CONFIG_PACKAGE_python-service-identity is not set
 # CONFIG_PACKAGE_python-service-identity-src is not set
 # CONFIG_PACKAGE_python-setuptools is not set
 # CONFIG_PACKAGE_python-setuptools-src is not set
+# CONFIG_PACKAGE_python-simplejson is not set
+# CONFIG_PACKAGE_python-simplejson-src is not set
 # CONFIG_PACKAGE_python-six is not set
 # CONFIG_PACKAGE_python-six-src is not set
 # CONFIG_PACKAGE_python-smbus is not set
 # CONFIG_PACKAGE_python-sqlite3 is not set
 # CONFIG_PACKAGE_python-sqlite3-src is not set
+# CONFIG_PACKAGE_python-text-unidecode is not set
+# CONFIG_PACKAGE_python-text-unidecode-src is not set
+# CONFIG_PACKAGE_python-twisted is not set
+# CONFIG_PACKAGE_python-twisted-src is not set
 # CONFIG_PACKAGE_python-txsocksx is not set
 # CONFIG_PACKAGE_python-txsocksx-src is not set
 # CONFIG_PACKAGE_python-unittest is not set
 # CONFIG_PACKAGE_python-unittest-src is not set
 # CONFIG_PACKAGE_python-urllib3 is not set
+# CONFIG_PACKAGE_python-urllib3-src is not set
+# CONFIG_PACKAGE_python-vobject is not set
+# CONFIG_PACKAGE_python-vobject-src is not set
+# CONFIG_PACKAGE_python-voluptuous is not set
+# CONFIG_PACKAGE_python-voluptuous-src is not set
 # CONFIG_PACKAGE_python-xml is not set
 # CONFIG_PACKAGE_python-xml-src is not set
 # CONFIG_PACKAGE_python-yaml is not set
+# CONFIG_PACKAGE_python-yaml-src is not set
 # CONFIG_PACKAGE_python-zope-interface is not set
 # CONFIG_PACKAGE_python-zope-interface-src is not set
 # CONFIG_PACKAGE_python3 is not set
+# CONFIG_PACKAGE_python3-aiohttp is not set
+# CONFIG_PACKAGE_python3-aiohttp-src is not set
+# CONFIG_PACKAGE_python3-appdirs is not set
+# CONFIG_PACKAGE_python3-appdirs-src is not set
 # CONFIG_PACKAGE_python3-asn1crypto is not set
+# CONFIG_PACKAGE_python3-astral is not set
+# CONFIG_PACKAGE_python3-astral-src is not set
+# CONFIG_PACKAGE_python3-async-timeout is not set
+# CONFIG_PACKAGE_python3-async-timeout-src is not set
 # CONFIG_PACKAGE_python3-asyncio is not set
 # CONFIG_PACKAGE_python3-asyncio-src is not set
 # CONFIG_PACKAGE_python3-attrs is not set
 # CONFIG_PACKAGE_python3-attrs-src is not set
 # CONFIG_PACKAGE_python3-automat is not set
 # CONFIG_PACKAGE_python3-automat-src is not set
+# CONFIG_PACKAGE_python3-awscli is not set
+# CONFIG_PACKAGE_python3-awscli-src is not set
 # CONFIG_PACKAGE_python3-base is not set
 # CONFIG_PACKAGE_python3-base-src is not set
+# CONFIG_PACKAGE_python3-bcrypt is not set
+# CONFIG_PACKAGE_python3-bcrypt-src is not set
+# CONFIG_PACKAGE_python3-boto3 is not set
+# CONFIG_PACKAGE_python3-boto3-src is not set
+# CONFIG_PACKAGE_python3-botocore is not set
+# CONFIG_PACKAGE_python3-botocore-src is not set
 # CONFIG_PACKAGE_python3-bottle is not set
+# CONFIG_PACKAGE_python3-bottle-src is not set
+# CONFIG_PACKAGE_python3-certifi is not set
+# CONFIG_PACKAGE_python3-certifi-src is not set
 # CONFIG_PACKAGE_python3-cffi is not set
 # CONFIG_PACKAGE_python3-cffi-src is not set
 # CONFIG_PACKAGE_python3-cgi is not set
 # CONFIG_PACKAGE_python3-cgi-src is not set
 # CONFIG_PACKAGE_python3-cgitb is not set
 # CONFIG_PACKAGE_python3-cgitb-src is not set
+# CONFIG_PACKAGE_python3-chardet is not set
+# CONFIG_PACKAGE_python3-chardet-src is not set
 # CONFIG_PACKAGE_python3-click is not set
+# CONFIG_PACKAGE_python3-click-log is not set
+# CONFIG_PACKAGE_python3-click-log-src is not set
 # CONFIG_PACKAGE_python3-codecs is not set
 # CONFIG_PACKAGE_python3-codecs-src is not set
+# CONFIG_PACKAGE_python3-colorama is not set
+# CONFIG_PACKAGE_python3-colorama-src is not set
 # CONFIG_PACKAGE_python3-constantly is not set
 # CONFIG_PACKAGE_python3-constantly-src is not set
+# CONFIG_PACKAGE_python3-contextlib2 is not set
+# CONFIG_PACKAGE_python3-contextlib2-src is not set
 # CONFIG_PACKAGE_python3-crypto is not set
 # CONFIG_PACKAGE_python3-crypto-src is not set
+# CONFIG_PACKAGE_python3-cryptodome is not set
+# CONFIG_PACKAGE_python3-cryptodome-src is not set
+# CONFIG_PACKAGE_python3-cryptodomex is not set
+# CONFIG_PACKAGE_python3-cryptodomex-src is not set
 # CONFIG_PACKAGE_python3-cryptography is not set
 # CONFIG_PACKAGE_python3-cryptography-src is not set
 # CONFIG_PACKAGE_python3-ctypes is not set
 # CONFIG_PACKAGE_python3-ctypes-src is not set
+# CONFIG_PACKAGE_python3-curl is not set
+# CONFIG_PACKAGE_python3-curl-src is not set
+# CONFIG_PACKAGE_python3-dateutil is not set
+# CONFIG_PACKAGE_python3-dateutil-src is not set
 # CONFIG_PACKAGE_python3-dbm is not set
 # CONFIG_PACKAGE_python3-dbm-src is not set
 # CONFIG_PACKAGE_python3-decimal is not set
 # CONFIG_PACKAGE_python3-decimal-src is not set
+# CONFIG_PACKAGE_python3-decorator is not set
+# CONFIG_PACKAGE_python3-decorator-src is not set
 # CONFIG_PACKAGE_python3-dev is not set
 # CONFIG_PACKAGE_python3-dev-src is not set
 # CONFIG_PACKAGE_python3-distutils is not set
 # CONFIG_PACKAGE_python3-distutils-src is not set
+# CONFIG_PACKAGE_python3-dns is not set
+# CONFIG_PACKAGE_python3-dns-src is not set
+# CONFIG_PACKAGE_python3-docutils is not set
+# CONFIG_PACKAGE_python3-docutils-src is not set
 # CONFIG_PACKAGE_python3-email is not set
 # CONFIG_PACKAGE_python3-email-src is not set
 # CONFIG_PACKAGE_python3-evdev is not set
@@ -2669,15 +2857,25 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python3-gdbm is not set
 # CONFIG_PACKAGE_python3-gdbm-src is not set
 # CONFIG_PACKAGE_python3-gmpy2 is not set
+# CONFIG_PACKAGE_python3-gmpy2-src is not set
 # CONFIG_PACKAGE_python3-gnupg is not set
 # CONFIG_PACKAGE_python3-hyperlink is not set
 # CONFIG_PACKAGE_python3-hyperlink-src is not set
 # CONFIG_PACKAGE_python3-idna is not set
 # CONFIG_PACKAGE_python3-idna-src is not set
+# CONFIG_PACKAGE_python3-ifaddr is not set
+# CONFIG_PACKAGE_python3-ifaddr-src is not set
 # CONFIG_PACKAGE_python3-incremental is not set
 # CONFIG_PACKAGE_python3-incremental-src is not set
+# CONFIG_PACKAGE_python3-influxdb is not set
+# CONFIG_PACKAGE_python3-influxdb-src is not set
 # CONFIG_PACKAGE_python3-itsdangerous is not set
 # CONFIG_PACKAGE_python3-jinja2 is not set
+# CONFIG_PACKAGE_python3-jinja2-src is not set
+# CONFIG_PACKAGE_python3-jmespath is not set
+# CONFIG_PACKAGE_python3-jmespath-src is not set
+# CONFIG_PACKAGE_python3-jsonpath-ng is not set
+# CONFIG_PACKAGE_python3-jsonpath-ng-src is not set
 # CONFIG_PACKAGE_python3-lib2to3 is not set
 # CONFIG_PACKAGE_python3-lib2to3-src is not set
 # CONFIG_PACKAGE_python3-light is not set
@@ -2693,15 +2891,28 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python3-lzma is not set
 # CONFIG_PACKAGE_python3-lzma-src is not set
 # CONFIG_PACKAGE_python3-markupsafe is not set
+# CONFIG_PACKAGE_python3-multidict is not set
+# CONFIG_PACKAGE_python3-multidict-src is not set
 # CONFIG_PACKAGE_python3-multiprocessing is not set
 # CONFIG_PACKAGE_python3-multiprocessing-src is not set
 # CONFIG_PACKAGE_python3-mysql is not set
 # CONFIG_PACKAGE_python3-ncurses is not set
 # CONFIG_PACKAGE_python3-ncurses-src is not set
+# CONFIG_PACKAGE_python3-netdisco is not set
+# CONFIG_PACKAGE_python3-netdisco-src is not set
+# CONFIG_PACKAGE_python3-netifaces is not set
+# CONFIG_PACKAGE_python3-netifaces-src is not set
+# CONFIG_PACKAGE_python3-oauthlib is not set
+# CONFIG_PACKAGE_python3-oauthlib-src is not set
 # CONFIG_PACKAGE_python3-openssl is not set
 # CONFIG_PACKAGE_python3-openssl-src is not set
+# CONFIG_PACKAGE_python3-packages is not set
+# CONFIG_PACKAGE_python3-paho-mqtt is not set
+# CONFIG_PACKAGE_python3-paho-mqtt-src is not set
 # CONFIG_PACKAGE_python3-parsley is not set
 # CONFIG_PACKAGE_python3-parsley-src is not set
+# CONFIG_PACKAGE_python3-passlib is not set
+# CONFIG_PACKAGE_python3-passlib-src is not set
 # CONFIG_PACKAGE_python3-pip is not set
 # CONFIG_PACKAGE_python3-pip-src is not set
 # CONFIG_PACKAGE_python3-ply is not set
@@ -2714,42 +2925,85 @@ CONFIG_PACKAGE_lua=y
 # CONFIG_PACKAGE_python3-pycparser-src is not set
 # CONFIG_PACKAGE_python3-pydoc is not set
 # CONFIG_PACKAGE_python3-pydoc-src is not set
+# CONFIG_PACKAGE_python3-pyjwt is not set
+# CONFIG_PACKAGE_python3-pyjwt-src is not set
 # CONFIG_PACKAGE_python3-pyodbc is not set
 # CONFIG_PACKAGE_python3-pyopenssl is not set
 # CONFIG_PACKAGE_python3-pyopenssl-src is not set
+# CONFIG_PACKAGE_python3-pyotp is not set
+# CONFIG_PACKAGE_python3-pyotp-src is not set
+# CONFIG_PACKAGE_python3-pyroute2 is not set
+# CONFIG_PACKAGE_python3-pyroute2-src is not set
 # CONFIG_PACKAGE_python3-pyserial is not set
 # CONFIG_PACKAGE_python3-pyserial-src is not set
+# CONFIG_PACKAGE_python3-pytz is not set
+# CONFIG_PACKAGE_python3-pytz-src is not set
+# CONFIG_PACKAGE_python3-requests is not set
+# CONFIG_PACKAGE_python3-requests-src is not set
+# CONFIG_PACKAGE_python3-rsa is not set
+# CONFIG_PACKAGE_python3-rsa-src is not set
+# CONFIG_PACKAGE_python3-ruamel-yaml is not set
+# CONFIG_PACKAGE_python3-ruamel-yaml-src is not set
+# CONFIG_PACKAGE_python3-s3transfer is not set
+# CONFIG_PACKAGE_python3-s3transfer-src is not set
+# CONFIG_PACKAGE_python3-schema is not set
+# CONFIG_PACKAGE_python3-schema-src is not set
 # CONFIG_PACKAGE_python3-service-identity is not set
 # CONFIG_PACKAGE_python3-service-identity-src is not set
 # CONFIG_PACKAGE_python3-setuptools is not set
 # CONFIG_PACKAGE_python3-setuptools-src is not set
+# CONFIG_PACKAGE_python3-simplejson is not set
+# CONFIG_PACKAGE_python3-simplejson-src is not set
 # CONFIG_PACKAGE_python3-six is not set
 # CONFIG_PACKAGE_python3-six-src is not set
+# CONFIG_PACKAGE_python3-slugify is not set
+# CONFIG_PACKAGE_python3-slugify-src is not set
 # CONFIG_PACKAGE_python3-smbus is not set
 # CONFIG_PACKAGE_python3-sqlite3 is not set
 # CONFIG_PACKAGE_python3-sqlite3-src is not set
+# CONFIG_PACKAGE_python3-text-unidecode is not set
+# CONFIG_PACKAGE_python3-text-unidecode-src is not set
+# CONFIG_PACKAGE_python3-twisted is not set
+# CONFIG_PACKAGE_python3-twisted-src is not set
+# CONFIG_PACKAGE_python3-unidecode is not set
+# CONFIG_PACKAGE_python3-unidecode-src is not set
 # CONFIG_PACKAGE_python3-unittest is not set
 # CONFIG_PACKAGE_python3-unittest-src is not set
+# CONFIG_PACKAGE_python3-urllib is not set
+# CONFIG_PACKAGE_python3-urllib-src is not set
+# CONFIG_PACKAGE_python3-urllib3 is not set
+# CONFIG_PACKAGE_python3-urllib3-src is not set
+# CONFIG_PACKAGE_python3-vobject is not set
+# CONFIG_PACKAGE_python3-vobject-src is not set
+# CONFIG_PACKAGE_python3-voluptuous is not set
+# CONFIG_PACKAGE_python3-voluptuous-serialize is not set
+# CONFIG_PACKAGE_python3-voluptuous-serialize-src is not set
+# CONFIG_PACKAGE_python3-voluptuous-src is not set
 # CONFIG_PACKAGE_python3-werkzeug is not set
 # CONFIG_PACKAGE_python3-xml is not set
 # CONFIG_PACKAGE_python3-xml-src is not set
+# CONFIG_PACKAGE_python3-xmltodict is not set
+# CONFIG_PACKAGE_python3-xmltodict-src is not set
 # CONFIG_PACKAGE_python3-yaml is not set
+# CONFIG_PACKAGE_python3-yaml-src is not set
+# CONFIG_PACKAGE_python3-yarl is not set
+# CONFIG_PACKAGE_python3-yarl-src is not set
+# CONFIG_PACKAGE_python3-zeroconf is not set
+# CONFIG_PACKAGE_python3-zeroconf-src is not set
 # CONFIG_PACKAGE_python3-zope-interface is not set
 # CONFIG_PACKAGE_python3-zope-interface-src is not set
-# CONFIG_PACKAGE_pytz is not set
-# CONFIG_PACKAGE_rcssmin is not set
-# CONFIG_PACKAGE_simplejson is not set
-# CONFIG_PACKAGE_twisted is not set
-# CONFIG_PACKAGE_twisted-src is not set
 
 #
 # Ruby
 #
 # CONFIG_PACKAGE_ruby is not set
+# CONFIG_PACKAGE_ruby-dev is not set
 
 #
 # Tcl
 #
+# CONFIG_PACKAGE_tcl is not set
+# CONFIG_PACKAGE_chicken-scheme-interpreter is not set
 # CONFIG_PACKAGE_vala is not set
 
 #
@@ -2762,6 +3016,8 @@ CONFIG_PACKAGE_lua=y
 CONFIG_PACKAGE_libbz2=y
 # CONFIG_PACKAGE_liblzma is not set
 # CONFIG_PACKAGE_libunrar is not set
+# CONFIG_PACKAGE_libzstd is not set
+CONFIG_ZSTD_OPTIMIZE_O3=y
 
 #
 # Filesystem
@@ -2781,7 +3037,7 @@ CONFIG_PACKAGE_libip4tc=y
 CONFIG_PACKAGE_libip6tc=y
 # CONFIG_PACKAGE_libiptc is not set
 CONFIG_PACKAGE_libxtables=y
-# CONFIG_PACKAGE_libxtables-compat is not set
+# CONFIG_PACKAGE_libxtables-nft is not set
 
 #
 # Instant Messaging
@@ -2791,116 +3047,903 @@ CONFIG_PACKAGE_libxtables=y
 #
 # IoT
 #
+# CONFIG_PACKAGE_libmraa is not set
+# CONFIG_PACKAGE_libmraa-node is not set
+# CONFIG_PACKAGE_libmraa-python is not set
+# CONFIG_PACKAGE_libmraa-python3 is not set
 # CONFIG_PACKAGE_libupm is not set
 # CONFIG_PACKAGE_libupm-a110x is not set
+# CONFIG_PACKAGE_libupm-a110x-node is not set
+# CONFIG_PACKAGE_libupm-a110x-python is not set
+# CONFIG_PACKAGE_libupm-a110x-python3 is not set
+# CONFIG_PACKAGE_libupm-abp is not set
+# CONFIG_PACKAGE_libupm-abp-node is not set
+# CONFIG_PACKAGE_libupm-abp-python is not set
+# CONFIG_PACKAGE_libupm-abp-python3 is not set
 # CONFIG_PACKAGE_libupm-ad8232 is not set
+# CONFIG_PACKAGE_libupm-ad8232-node is not set
+# CONFIG_PACKAGE_libupm-ad8232-python is not set
+# CONFIG_PACKAGE_libupm-ad8232-python3 is not set
+# CONFIG_PACKAGE_libupm-adafruitms1438 is not set
+# CONFIG_PACKAGE_libupm-adafruitms1438-node is not set
+# CONFIG_PACKAGE_libupm-adafruitms1438-python is not set
+# CONFIG_PACKAGE_libupm-adafruitms1438-python3 is not set
 # CONFIG_PACKAGE_libupm-adafruitss is not set
+# CONFIG_PACKAGE_libupm-adafruitss-node is not set
+# CONFIG_PACKAGE_libupm-adafruitss-python is not set
+# CONFIG_PACKAGE_libupm-adafruitss-python3 is not set
 # CONFIG_PACKAGE_libupm-adc121c021 is not set
+# CONFIG_PACKAGE_libupm-adc121c021-node is not set
+# CONFIG_PACKAGE_libupm-adc121c021-python is not set
+# CONFIG_PACKAGE_libupm-adc121c021-python3 is not set
 # CONFIG_PACKAGE_libupm-adis16448 is not set
+# CONFIG_PACKAGE_libupm-adis16448-node is not set
+# CONFIG_PACKAGE_libupm-adis16448-python is not set
+# CONFIG_PACKAGE_libupm-adis16448-python3 is not set
+# CONFIG_PACKAGE_libupm-ads1x15 is not set
+# CONFIG_PACKAGE_libupm-ads1x15-node is not set
+# CONFIG_PACKAGE_libupm-ads1x15-python is not set
+# CONFIG_PACKAGE_libupm-ads1x15-python3 is not set
 # CONFIG_PACKAGE_libupm-adxl335 is not set
+# CONFIG_PACKAGE_libupm-adxl335-node is not set
+# CONFIG_PACKAGE_libupm-adxl335-python is not set
+# CONFIG_PACKAGE_libupm-adxl335-python3 is not set
 # CONFIG_PACKAGE_libupm-adxl345 is not set
+# CONFIG_PACKAGE_libupm-adxl345-node is not set
+# CONFIG_PACKAGE_libupm-adxl345-python is not set
+# CONFIG_PACKAGE_libupm-adxl345-python3 is not set
+# CONFIG_PACKAGE_libupm-adxrs610 is not set
+# CONFIG_PACKAGE_libupm-adxrs610-node is not set
+# CONFIG_PACKAGE_libupm-adxrs610-python is not set
+# CONFIG_PACKAGE_libupm-adxrs610-python3 is not set
 # CONFIG_PACKAGE_libupm-am2315 is not set
+# CONFIG_PACKAGE_libupm-am2315-node is not set
+# CONFIG_PACKAGE_libupm-am2315-python is not set
+# CONFIG_PACKAGE_libupm-am2315-python3 is not set
+# CONFIG_PACKAGE_libupm-apa102 is not set
+# CONFIG_PACKAGE_libupm-apa102-node is not set
+# CONFIG_PACKAGE_libupm-apa102-python is not set
+# CONFIG_PACKAGE_libupm-apa102-python3 is not set
 # CONFIG_PACKAGE_libupm-apds9002 is not set
+# CONFIG_PACKAGE_libupm-apds9002-node is not set
+# CONFIG_PACKAGE_libupm-apds9002-python is not set
+# CONFIG_PACKAGE_libupm-apds9002-python3 is not set
+# CONFIG_PACKAGE_libupm-apds9930 is not set
+# CONFIG_PACKAGE_libupm-apds9930-node is not set
+# CONFIG_PACKAGE_libupm-apds9930-python is not set
+# CONFIG_PACKAGE_libupm-apds9930-python3 is not set
 # CONFIG_PACKAGE_libupm-at42qt1070 is not set
+# CONFIG_PACKAGE_libupm-at42qt1070-node is not set
+# CONFIG_PACKAGE_libupm-at42qt1070-python is not set
+# CONFIG_PACKAGE_libupm-at42qt1070-python3 is not set
+# CONFIG_PACKAGE_libupm-bh1749 is not set
+# CONFIG_PACKAGE_libupm-bh1749-node is not set
+# CONFIG_PACKAGE_libupm-bh1749-python is not set
+# CONFIG_PACKAGE_libupm-bh1749-python3 is not set
+# CONFIG_PACKAGE_libupm-bh1750 is not set
+# CONFIG_PACKAGE_libupm-bh1750-node is not set
+# CONFIG_PACKAGE_libupm-bh1750-python is not set
+# CONFIG_PACKAGE_libupm-bh1750-python3 is not set
+# CONFIG_PACKAGE_libupm-bh1792 is not set
+# CONFIG_PACKAGE_libupm-bh1792-node is not set
+# CONFIG_PACKAGE_libupm-bh1792-python is not set
+# CONFIG_PACKAGE_libupm-bh1792-python3 is not set
 # CONFIG_PACKAGE_libupm-biss0001 is not set
+# CONFIG_PACKAGE_libupm-biss0001-node is not set
+# CONFIG_PACKAGE_libupm-biss0001-python is not set
+# CONFIG_PACKAGE_libupm-biss0001-python3 is not set
+# CONFIG_PACKAGE_libupm-bma220 is not set
+# CONFIG_PACKAGE_libupm-bma220-node is not set
+# CONFIG_PACKAGE_libupm-bma220-python is not set
+# CONFIG_PACKAGE_libupm-bma220-python3 is not set
+# CONFIG_PACKAGE_libupm-bma250e is not set
+# CONFIG_PACKAGE_libupm-bma250e-node is not set
+# CONFIG_PACKAGE_libupm-bma250e-python is not set
+# CONFIG_PACKAGE_libupm-bma250e-python3 is not set
+# CONFIG_PACKAGE_libupm-bmg160 is not set
+# CONFIG_PACKAGE_libupm-bmg160-node is not set
+# CONFIG_PACKAGE_libupm-bmg160-python is not set
+# CONFIG_PACKAGE_libupm-bmg160-python3 is not set
+# CONFIG_PACKAGE_libupm-bmi160 is not set
+# CONFIG_PACKAGE_libupm-bmi160-node is not set
+# CONFIG_PACKAGE_libupm-bmi160-python is not set
+# CONFIG_PACKAGE_libupm-bmi160-python3 is not set
+# CONFIG_PACKAGE_libupm-bmm150 is not set
+# CONFIG_PACKAGE_libupm-bmm150-node is not set
+# CONFIG_PACKAGE_libupm-bmm150-python is not set
+# CONFIG_PACKAGE_libupm-bmm150-python3 is not set
+# CONFIG_PACKAGE_libupm-bmp280 is not set
+# CONFIG_PACKAGE_libupm-bmp280-node is not set
+# CONFIG_PACKAGE_libupm-bmp280-python is not set
+# CONFIG_PACKAGE_libupm-bmp280-python3 is not set
 # CONFIG_PACKAGE_libupm-bmpx8x is not set
+# CONFIG_PACKAGE_libupm-bmpx8x-node is not set
+# CONFIG_PACKAGE_libupm-bmpx8x-python is not set
+# CONFIG_PACKAGE_libupm-bmpx8x-python3 is not set
+# CONFIG_PACKAGE_libupm-bmx055 is not set
+# CONFIG_PACKAGE_libupm-bmx055-node is not set
+# CONFIG_PACKAGE_libupm-bmx055-python is not set
+# CONFIG_PACKAGE_libupm-bmx055-python3 is not set
+# CONFIG_PACKAGE_libupm-bno055 is not set
+# CONFIG_PACKAGE_libupm-bno055-node is not set
+# CONFIG_PACKAGE_libupm-bno055-python is not set
+# CONFIG_PACKAGE_libupm-bno055-python3 is not set
+# CONFIG_PACKAGE_libupm-button is not set
+# CONFIG_PACKAGE_libupm-button-node is not set
+# CONFIG_PACKAGE_libupm-button-python is not set
+# CONFIG_PACKAGE_libupm-button-python3 is not set
 # CONFIG_PACKAGE_libupm-buzzer is not set
+# CONFIG_PACKAGE_libupm-buzzer-node is not set
+# CONFIG_PACKAGE_libupm-buzzer-python is not set
+# CONFIG_PACKAGE_libupm-buzzer-python3 is not set
 # CONFIG_PACKAGE_libupm-cjq4435 is not set
+# CONFIG_PACKAGE_libupm-cjq4435-node is not set
+# CONFIG_PACKAGE_libupm-cjq4435-python is not set
+# CONFIG_PACKAGE_libupm-cjq4435-python3 is not set
+# CONFIG_PACKAGE_libupm-collision is not set
+# CONFIG_PACKAGE_libupm-collision-node is not set
+# CONFIG_PACKAGE_libupm-collision-python is not set
+# CONFIG_PACKAGE_libupm-collision-python3 is not set
+# CONFIG_PACKAGE_libupm-curieimu is not set
+# CONFIG_PACKAGE_libupm-curieimu-node is not set
+# CONFIG_PACKAGE_libupm-curieimu-python is not set
+# CONFIG_PACKAGE_libupm-curieimu-python3 is not set
+# CONFIG_PACKAGE_libupm-cwlsxxa is not set
+# CONFIG_PACKAGE_libupm-cwlsxxa-node is not set
+# CONFIG_PACKAGE_libupm-cwlsxxa-python is not set
+# CONFIG_PACKAGE_libupm-cwlsxxa-python3 is not set
+# CONFIG_PACKAGE_libupm-dfrec is not set
+# CONFIG_PACKAGE_libupm-dfrec-node is not set
+# CONFIG_PACKAGE_libupm-dfrec-python is not set
+# CONFIG_PACKAGE_libupm-dfrec-python3 is not set
+# CONFIG_PACKAGE_libupm-dfrorp is not set
+# CONFIG_PACKAGE_libupm-dfrorp-node is not set
+# CONFIG_PACKAGE_libupm-dfrorp-python is not set
+# CONFIG_PACKAGE_libupm-dfrorp-python3 is not set
+# CONFIG_PACKAGE_libupm-dfrph is not set
+# CONFIG_PACKAGE_libupm-dfrph-node is not set
+# CONFIG_PACKAGE_libupm-dfrph-python is not set
+# CONFIG_PACKAGE_libupm-dfrph-python3 is not set
 # CONFIG_PACKAGE_libupm-ds1307 is not set
+# CONFIG_PACKAGE_libupm-ds1307-node is not set
+# CONFIG_PACKAGE_libupm-ds1307-python is not set
+# CONFIG_PACKAGE_libupm-ds1307-python3 is not set
+# CONFIG_PACKAGE_libupm-ds1808lc is not set
+# CONFIG_PACKAGE_libupm-ds1808lc-node is not set
+# CONFIG_PACKAGE_libupm-ds1808lc-python is not set
+# CONFIG_PACKAGE_libupm-ds1808lc-python3 is not set
+# CONFIG_PACKAGE_libupm-ds18b20 is not set
+# CONFIG_PACKAGE_libupm-ds18b20-node is not set
+# CONFIG_PACKAGE_libupm-ds18b20-python is not set
+# CONFIG_PACKAGE_libupm-ds18b20-python3 is not set
+# CONFIG_PACKAGE_libupm-ds2413 is not set
+# CONFIG_PACKAGE_libupm-ds2413-node is not set
+# CONFIG_PACKAGE_libupm-ds2413-python is not set
+# CONFIG_PACKAGE_libupm-ds2413-python3 is not set
+# CONFIG_PACKAGE_libupm-ecezo is not set
+# CONFIG_PACKAGE_libupm-ecezo-node is not set
+# CONFIG_PACKAGE_libupm-ecezo-python is not set
+# CONFIG_PACKAGE_libupm-ecezo-python3 is not set
 # CONFIG_PACKAGE_libupm-ecs1030 is not set
+# CONFIG_PACKAGE_libupm-ecs1030-node is not set
+# CONFIG_PACKAGE_libupm-ecs1030-python is not set
+# CONFIG_PACKAGE_libupm-ecs1030-python3 is not set
+# CONFIG_PACKAGE_libupm-ehr is not set
+# CONFIG_PACKAGE_libupm-ehr-node is not set
+# CONFIG_PACKAGE_libupm-ehr-python is not set
+# CONFIG_PACKAGE_libupm-ehr-python3 is not set
+# CONFIG_PACKAGE_libupm-eldriver is not set
+# CONFIG_PACKAGE_libupm-eldriver-node is not set
+# CONFIG_PACKAGE_libupm-eldriver-python is not set
+# CONFIG_PACKAGE_libupm-eldriver-python3 is not set
+# CONFIG_PACKAGE_libupm-electromagnet is not set
+# CONFIG_PACKAGE_libupm-electromagnet-node is not set
+# CONFIG_PACKAGE_libupm-electromagnet-python is not set
+# CONFIG_PACKAGE_libupm-electromagnet-python3 is not set
+# CONFIG_PACKAGE_libupm-emg is not set
+# CONFIG_PACKAGE_libupm-emg-node is not set
+# CONFIG_PACKAGE_libupm-emg-python is not set
+# CONFIG_PACKAGE_libupm-emg-python3 is not set
 # CONFIG_PACKAGE_libupm-enc03r is not set
+# CONFIG_PACKAGE_libupm-enc03r-node is not set
+# CONFIG_PACKAGE_libupm-enc03r-python is not set
+# CONFIG_PACKAGE_libupm-enc03r-python3 is not set
 # CONFIG_PACKAGE_libupm-flex is not set
+# CONFIG_PACKAGE_libupm-flex-node is not set
+# CONFIG_PACKAGE_libupm-flex-python is not set
+# CONFIG_PACKAGE_libupm-flex-python3 is not set
 # CONFIG_PACKAGE_libupm-gas is not set
+# CONFIG_PACKAGE_libupm-gas-node is not set
+# CONFIG_PACKAGE_libupm-gas-python is not set
+# CONFIG_PACKAGE_libupm-gas-python3 is not set
 # CONFIG_PACKAGE_libupm-gp2y0a is not set
+# CONFIG_PACKAGE_libupm-gp2y0a-node is not set
+# CONFIG_PACKAGE_libupm-gp2y0a-python is not set
+# CONFIG_PACKAGE_libupm-gp2y0a-python3 is not set
+# CONFIG_PACKAGE_libupm-gprs is not set
+# CONFIG_PACKAGE_libupm-gprs-node is not set
+# CONFIG_PACKAGE_libupm-gprs-python is not set
+# CONFIG_PACKAGE_libupm-gprs-python3 is not set
 # CONFIG_PACKAGE_libupm-grove is not set
-# CONFIG_PACKAGE_libupm-grovecircularled is not set
+# CONFIG_PACKAGE_libupm-grove-node is not set
+# CONFIG_PACKAGE_libupm-grove-python is not set
+# CONFIG_PACKAGE_libupm-grove-python3 is not set
 # CONFIG_PACKAGE_libupm-grovecollision is not set
+# CONFIG_PACKAGE_libupm-grovecollision-node is not set
+# CONFIG_PACKAGE_libupm-grovecollision-python is not set
+# CONFIG_PACKAGE_libupm-grovecollision-python3 is not set
 # CONFIG_PACKAGE_libupm-groveehr is not set
+# CONFIG_PACKAGE_libupm-groveehr-node is not set
+# CONFIG_PACKAGE_libupm-groveehr-python is not set
+# CONFIG_PACKAGE_libupm-groveehr-python3 is not set
 # CONFIG_PACKAGE_libupm-groveeldriver is not set
+# CONFIG_PACKAGE_libupm-groveeldriver-node is not set
+# CONFIG_PACKAGE_libupm-groveeldriver-python is not set
+# CONFIG_PACKAGE_libupm-groveeldriver-python3 is not set
 # CONFIG_PACKAGE_libupm-groveelectromagnet is not set
+# CONFIG_PACKAGE_libupm-groveelectromagnet-node is not set
+# CONFIG_PACKAGE_libupm-groveelectromagnet-python is not set
+# CONFIG_PACKAGE_libupm-groveelectromagnet-python3 is not set
 # CONFIG_PACKAGE_libupm-groveemg is not set
+# CONFIG_PACKAGE_libupm-groveemg-node is not set
+# CONFIG_PACKAGE_libupm-groveemg-python is not set
+# CONFIG_PACKAGE_libupm-groveemg-python3 is not set
 # CONFIG_PACKAGE_libupm-grovegprs is not set
+# CONFIG_PACKAGE_libupm-grovegprs-node is not set
+# CONFIG_PACKAGE_libupm-grovegprs-python is not set
+# CONFIG_PACKAGE_libupm-grovegprs-python3 is not set
 # CONFIG_PACKAGE_libupm-grovegsr is not set
+# CONFIG_PACKAGE_libupm-grovegsr-node is not set
+# CONFIG_PACKAGE_libupm-grovegsr-python is not set
+# CONFIG_PACKAGE_libupm-grovegsr-python3 is not set
 # CONFIG_PACKAGE_libupm-grovelinefinder is not set
+# CONFIG_PACKAGE_libupm-grovelinefinder-node is not set
+# CONFIG_PACKAGE_libupm-grovelinefinder-python is not set
+# CONFIG_PACKAGE_libupm-grovelinefinder-python3 is not set
 # CONFIG_PACKAGE_libupm-grovemd is not set
+# CONFIG_PACKAGE_libupm-grovemd-node is not set
+# CONFIG_PACKAGE_libupm-grovemd-python is not set
+# CONFIG_PACKAGE_libupm-grovemd-python3 is not set
 # CONFIG_PACKAGE_libupm-grovemoisture is not set
+# CONFIG_PACKAGE_libupm-grovemoisture-node is not set
+# CONFIG_PACKAGE_libupm-grovemoisture-python is not set
+# CONFIG_PACKAGE_libupm-grovemoisture-python3 is not set
 # CONFIG_PACKAGE_libupm-groveo2 is not set
+# CONFIG_PACKAGE_libupm-groveo2-node is not set
+# CONFIG_PACKAGE_libupm-groveo2-python is not set
+# CONFIG_PACKAGE_libupm-groveo2-python3 is not set
 # CONFIG_PACKAGE_libupm-grovescam is not set
+# CONFIG_PACKAGE_libupm-grovescam-node is not set
+# CONFIG_PACKAGE_libupm-grovescam-python is not set
+# CONFIG_PACKAGE_libupm-grovescam-python3 is not set
 # CONFIG_PACKAGE_libupm-grovespeaker is not set
+# CONFIG_PACKAGE_libupm-grovespeaker-node is not set
+# CONFIG_PACKAGE_libupm-grovespeaker-python is not set
+# CONFIG_PACKAGE_libupm-grovespeaker-python3 is not set
+# CONFIG_PACKAGE_libupm-groveultrasonic is not set
+# CONFIG_PACKAGE_libupm-groveultrasonic-node is not set
+# CONFIG_PACKAGE_libupm-groveultrasonic-python is not set
+# CONFIG_PACKAGE_libupm-groveultrasonic-python3 is not set
 # CONFIG_PACKAGE_libupm-grovevdiv is not set
+# CONFIG_PACKAGE_libupm-grovevdiv-node is not set
+# CONFIG_PACKAGE_libupm-grovevdiv-python is not set
+# CONFIG_PACKAGE_libupm-grovevdiv-python3 is not set
 # CONFIG_PACKAGE_libupm-grovewater is not set
+# CONFIG_PACKAGE_libupm-grovewater-node is not set
+# CONFIG_PACKAGE_libupm-grovewater-python is not set
+# CONFIG_PACKAGE_libupm-grovewater-python3 is not set
 # CONFIG_PACKAGE_libupm-grovewfs is not set
+# CONFIG_PACKAGE_libupm-grovewfs-node is not set
+# CONFIG_PACKAGE_libupm-grovewfs-python is not set
+# CONFIG_PACKAGE_libupm-grovewfs-python3 is not set
+# CONFIG_PACKAGE_libupm-gsr is not set
+# CONFIG_PACKAGE_libupm-gsr-node is not set
+# CONFIG_PACKAGE_libupm-gsr-python is not set
+# CONFIG_PACKAGE_libupm-gsr-python3 is not set
 # CONFIG_PACKAGE_libupm-guvas12d is not set
+# CONFIG_PACKAGE_libupm-guvas12d-node is not set
+# CONFIG_PACKAGE_libupm-guvas12d-python is not set
+# CONFIG_PACKAGE_libupm-guvas12d-python3 is not set
 # CONFIG_PACKAGE_libupm-h3lis331dl is not set
+# CONFIG_PACKAGE_libupm-h3lis331dl-node is not set
+# CONFIG_PACKAGE_libupm-h3lis331dl-python is not set
+# CONFIG_PACKAGE_libupm-h3lis331dl-python3 is not set
+# CONFIG_PACKAGE_libupm-h803x is not set
+# CONFIG_PACKAGE_libupm-h803x-node is not set
+# CONFIG_PACKAGE_libupm-h803x-python is not set
+# CONFIG_PACKAGE_libupm-h803x-python3 is not set
 # CONFIG_PACKAGE_libupm-hcsr04 is not set
+# CONFIG_PACKAGE_libupm-hcsr04-node is not set
+# CONFIG_PACKAGE_libupm-hcsr04-python is not set
+# CONFIG_PACKAGE_libupm-hcsr04-python3 is not set
+# CONFIG_PACKAGE_libupm-hdc1000 is not set
+# CONFIG_PACKAGE_libupm-hdc1000-node is not set
+# CONFIG_PACKAGE_libupm-hdc1000-python is not set
+# CONFIG_PACKAGE_libupm-hdc1000-python3 is not set
+# CONFIG_PACKAGE_libupm-hdxxvxta is not set
+# CONFIG_PACKAGE_libupm-hdxxvxta-node is not set
+# CONFIG_PACKAGE_libupm-hdxxvxta-python is not set
+# CONFIG_PACKAGE_libupm-hdxxvxta-python3 is not set
+# CONFIG_PACKAGE_libupm-hka5 is not set
+# CONFIG_PACKAGE_libupm-hka5-node is not set
+# CONFIG_PACKAGE_libupm-hka5-python is not set
+# CONFIG_PACKAGE_libupm-hka5-python3 is not set
+# CONFIG_PACKAGE_libupm-hlg150h is not set
+# CONFIG_PACKAGE_libupm-hlg150h-node is not set
+# CONFIG_PACKAGE_libupm-hlg150h-python is not set
+# CONFIG_PACKAGE_libupm-hlg150h-python3 is not set
 # CONFIG_PACKAGE_libupm-hm11 is not set
+# CONFIG_PACKAGE_libupm-hm11-node is not set
+# CONFIG_PACKAGE_libupm-hm11-python is not set
+# CONFIG_PACKAGE_libupm-hm11-python3 is not set
 # CONFIG_PACKAGE_libupm-hmc5883l is not set
+# CONFIG_PACKAGE_libupm-hmc5883l-node is not set
+# CONFIG_PACKAGE_libupm-hmc5883l-python is not set
+# CONFIG_PACKAGE_libupm-hmc5883l-python3 is not set
 # CONFIG_PACKAGE_libupm-hmtrp is not set
+# CONFIG_PACKAGE_libupm-hmtrp-node is not set
+# CONFIG_PACKAGE_libupm-hmtrp-python is not set
+# CONFIG_PACKAGE_libupm-hmtrp-python3 is not set
 # CONFIG_PACKAGE_libupm-hp20x is not set
+# CONFIG_PACKAGE_libupm-hp20x-node is not set
+# CONFIG_PACKAGE_libupm-hp20x-python is not set
+# CONFIG_PACKAGE_libupm-hp20x-python3 is not set
 # CONFIG_PACKAGE_libupm-ht9170 is not set
+# CONFIG_PACKAGE_libupm-ht9170-node is not set
+# CONFIG_PACKAGE_libupm-ht9170-python is not set
+# CONFIG_PACKAGE_libupm-ht9170-python3 is not set
 # CONFIG_PACKAGE_libupm-htu21d is not set
+# CONFIG_PACKAGE_libupm-htu21d-node is not set
+# CONFIG_PACKAGE_libupm-htu21d-python is not set
+# CONFIG_PACKAGE_libupm-htu21d-python3 is not set
+# CONFIG_PACKAGE_libupm-hwxpxx is not set
+# CONFIG_PACKAGE_libupm-hwxpxx-node is not set
+# CONFIG_PACKAGE_libupm-hwxpxx-python is not set
+# CONFIG_PACKAGE_libupm-hwxpxx-python3 is not set
 # CONFIG_PACKAGE_libupm-hx711 is not set
-# CONFIG_PACKAGE_libupm-i2clcd is not set
+# CONFIG_PACKAGE_libupm-hx711-node is not set
+# CONFIG_PACKAGE_libupm-hx711-python is not set
+# CONFIG_PACKAGE_libupm-hx711-python3 is not set
+# CONFIG_PACKAGE_libupm-ili9341 is not set
+# CONFIG_PACKAGE_libupm-ili9341-node is not set
+# CONFIG_PACKAGE_libupm-ili9341-python is not set
+# CONFIG_PACKAGE_libupm-ili9341-python3 is not set
+# CONFIG_PACKAGE_libupm-ims is not set
+# CONFIG_PACKAGE_libupm-ims-node is not set
+# CONFIG_PACKAGE_libupm-ims-python is not set
+# CONFIG_PACKAGE_libupm-ims-python3 is not set
 # CONFIG_PACKAGE_libupm-ina132 is not set
+# CONFIG_PACKAGE_libupm-ina132-node is not set
+# CONFIG_PACKAGE_libupm-ina132-python is not set
+# CONFIG_PACKAGE_libupm-ina132-python3 is not set
+# CONFIG_PACKAGE_libupm-interfaces is not set
+# CONFIG_PACKAGE_libupm-interfaces-node is not set
+# CONFIG_PACKAGE_libupm-interfaces-python is not set
+# CONFIG_PACKAGE_libupm-interfaces-python3 is not set
 # CONFIG_PACKAGE_libupm-isd1820 is not set
+# CONFIG_PACKAGE_libupm-isd1820-node is not set
+# CONFIG_PACKAGE_libupm-isd1820-python is not set
+# CONFIG_PACKAGE_libupm-isd1820-python3 is not set
 # CONFIG_PACKAGE_libupm-itg3200 is not set
+# CONFIG_PACKAGE_libupm-itg3200-node is not set
+# CONFIG_PACKAGE_libupm-itg3200-python is not set
+# CONFIG_PACKAGE_libupm-itg3200-python3 is not set
+# CONFIG_PACKAGE_libupm-jhd1313m1 is not set
+# CONFIG_PACKAGE_libupm-jhd1313m1-node is not set
+# CONFIG_PACKAGE_libupm-jhd1313m1-python is not set
+# CONFIG_PACKAGE_libupm-jhd1313m1-python3 is not set
 # CONFIG_PACKAGE_libupm-joystick12 is not set
+# CONFIG_PACKAGE_libupm-joystick12-node is not set
+# CONFIG_PACKAGE_libupm-joystick12-python is not set
+# CONFIG_PACKAGE_libupm-joystick12-python3 is not set
+# CONFIG_PACKAGE_libupm-kx122 is not set
+# CONFIG_PACKAGE_libupm-kx122-node is not set
+# CONFIG_PACKAGE_libupm-kx122-python is not set
+# CONFIG_PACKAGE_libupm-kx122-python3 is not set
+# CONFIG_PACKAGE_libupm-kxcjk1013 is not set
+# CONFIG_PACKAGE_libupm-kxcjk1013-node is not set
+# CONFIG_PACKAGE_libupm-kxcjk1013-python is not set
+# CONFIG_PACKAGE_libupm-kxcjk1013-python3 is not set
+# CONFIG_PACKAGE_libupm-kxtj3 is not set
+# CONFIG_PACKAGE_libupm-kxtj3-node is not set
+# CONFIG_PACKAGE_libupm-kxtj3-python is not set
+# CONFIG_PACKAGE_libupm-kxtj3-python3 is not set
 # CONFIG_PACKAGE_libupm-l298 is not set
+# CONFIG_PACKAGE_libupm-l298-node is not set
+# CONFIG_PACKAGE_libupm-l298-python is not set
+# CONFIG_PACKAGE_libupm-l298-python3 is not set
+# CONFIG_PACKAGE_libupm-l3gd20 is not set
+# CONFIG_PACKAGE_libupm-l3gd20-node is not set
+# CONFIG_PACKAGE_libupm-l3gd20-python is not set
+# CONFIG_PACKAGE_libupm-l3gd20-python3 is not set
+# CONFIG_PACKAGE_libupm-lcd is not set
+# CONFIG_PACKAGE_libupm-lcd-node is not set
+# CONFIG_PACKAGE_libupm-lcd-python is not set
+# CONFIG_PACKAGE_libupm-lcd-python3 is not set
+# CONFIG_PACKAGE_libupm-lcdks is not set
+# CONFIG_PACKAGE_libupm-lcdks-node is not set
+# CONFIG_PACKAGE_libupm-lcdks-python is not set
+# CONFIG_PACKAGE_libupm-lcdks-python3 is not set
+# CONFIG_PACKAGE_libupm-lcm1602 is not set
+# CONFIG_PACKAGE_libupm-lcm1602-node is not set
+# CONFIG_PACKAGE_libupm-lcm1602-python is not set
+# CONFIG_PACKAGE_libupm-lcm1602-python3 is not set
 # CONFIG_PACKAGE_libupm-ldt0028 is not set
+# CONFIG_PACKAGE_libupm-ldt0028-node is not set
+# CONFIG_PACKAGE_libupm-ldt0028-python is not set
+# CONFIG_PACKAGE_libupm-ldt0028-python3 is not set
+# CONFIG_PACKAGE_libupm-led is not set
+# CONFIG_PACKAGE_libupm-led-node is not set
+# CONFIG_PACKAGE_libupm-led-python is not set
+# CONFIG_PACKAGE_libupm-led-python3 is not set
+# CONFIG_PACKAGE_libupm-lidarlitev3 is not set
+# CONFIG_PACKAGE_libupm-lidarlitev3-node is not set
+# CONFIG_PACKAGE_libupm-lidarlitev3-python is not set
+# CONFIG_PACKAGE_libupm-lidarlitev3-python3 is not set
+# CONFIG_PACKAGE_libupm-light is not set
+# CONFIG_PACKAGE_libupm-light-node is not set
+# CONFIG_PACKAGE_libupm-light-python is not set
+# CONFIG_PACKAGE_libupm-light-python3 is not set
+# CONFIG_PACKAGE_libupm-linefinder is not set
+# CONFIG_PACKAGE_libupm-linefinder-node is not set
+# CONFIG_PACKAGE_libupm-linefinder-python is not set
+# CONFIG_PACKAGE_libupm-linefinder-python3 is not set
+# CONFIG_PACKAGE_libupm-lis2ds12 is not set
+# CONFIG_PACKAGE_libupm-lis2ds12-node is not set
+# CONFIG_PACKAGE_libupm-lis2ds12-python is not set
+# CONFIG_PACKAGE_libupm-lis2ds12-python3 is not set
+# CONFIG_PACKAGE_libupm-lis3dh is not set
+# CONFIG_PACKAGE_libupm-lis3dh-node is not set
+# CONFIG_PACKAGE_libupm-lis3dh-python is not set
+# CONFIG_PACKAGE_libupm-lis3dh-python3 is not set
 # CONFIG_PACKAGE_libupm-lm35 is not set
+# CONFIG_PACKAGE_libupm-lm35-node is not set
+# CONFIG_PACKAGE_libupm-lm35-python is not set
+# CONFIG_PACKAGE_libupm-lm35-python3 is not set
 # CONFIG_PACKAGE_libupm-lol is not set
+# CONFIG_PACKAGE_libupm-lol-node is not set
+# CONFIG_PACKAGE_libupm-lol-python is not set
+# CONFIG_PACKAGE_libupm-lol-python3 is not set
 # CONFIG_PACKAGE_libupm-loudness is not set
+# CONFIG_PACKAGE_libupm-loudness-node is not set
+# CONFIG_PACKAGE_libupm-loudness-python is not set
+# CONFIG_PACKAGE_libupm-loudness-python3 is not set
+# CONFIG_PACKAGE_libupm-lp8860 is not set
+# CONFIG_PACKAGE_libupm-lp8860-node is not set
+# CONFIG_PACKAGE_libupm-lp8860-python is not set
+# CONFIG_PACKAGE_libupm-lp8860-python3 is not set
 # CONFIG_PACKAGE_libupm-lpd8806 is not set
-# CONFIG_PACKAGE_libupm-lsm303 is not set
+# CONFIG_PACKAGE_libupm-lpd8806-node is not set
+# CONFIG_PACKAGE_libupm-lpd8806-python is not set
+# CONFIG_PACKAGE_libupm-lpd8806-python3 is not set
+# CONFIG_PACKAGE_libupm-lsm303agr is not set
+# CONFIG_PACKAGE_libupm-lsm303agr-node is not set
+# CONFIG_PACKAGE_libupm-lsm303agr-python is not set
+# CONFIG_PACKAGE_libupm-lsm303agr-python3 is not set
+# CONFIG_PACKAGE_libupm-lsm303d is not set
+# CONFIG_PACKAGE_libupm-lsm303d-node is not set
+# CONFIG_PACKAGE_libupm-lsm303d-python is not set
+# CONFIG_PACKAGE_libupm-lsm303d-python3 is not set
+# CONFIG_PACKAGE_libupm-lsm303dlh is not set
+# CONFIG_PACKAGE_libupm-lsm303dlh-node is not set
+# CONFIG_PACKAGE_libupm-lsm303dlh-python is not set
+# CONFIG_PACKAGE_libupm-lsm303dlh-python3 is not set
+# CONFIG_PACKAGE_libupm-lsm6ds3h is not set
+# CONFIG_PACKAGE_libupm-lsm6ds3h-node is not set
+# CONFIG_PACKAGE_libupm-lsm6ds3h-python is not set
+# CONFIG_PACKAGE_libupm-lsm6ds3h-python3 is not set
+# CONFIG_PACKAGE_libupm-lsm6dsl is not set
+# CONFIG_PACKAGE_libupm-lsm6dsl-node is not set
+# CONFIG_PACKAGE_libupm-lsm6dsl-python is not set
+# CONFIG_PACKAGE_libupm-lsm6dsl-python3 is not set
 # CONFIG_PACKAGE_libupm-lsm9ds0 is not set
+# CONFIG_PACKAGE_libupm-lsm9ds0-node is not set
+# CONFIG_PACKAGE_libupm-lsm9ds0-python is not set
+# CONFIG_PACKAGE_libupm-lsm9ds0-python3 is not set
 # CONFIG_PACKAGE_libupm-m24lr64e is not set
+# CONFIG_PACKAGE_libupm-m24lr64e-node is not set
+# CONFIG_PACKAGE_libupm-m24lr64e-python is not set
+# CONFIG_PACKAGE_libupm-m24lr64e-python3 is not set
+# CONFIG_PACKAGE_libupm-mag3110 is not set
+# CONFIG_PACKAGE_libupm-mag3110-node is not set
+# CONFIG_PACKAGE_libupm-mag3110-python is not set
+# CONFIG_PACKAGE_libupm-mag3110-python3 is not set
+# CONFIG_PACKAGE_libupm-max30100 is not set
+# CONFIG_PACKAGE_libupm-max30100-node is not set
+# CONFIG_PACKAGE_libupm-max30100-python is not set
+# CONFIG_PACKAGE_libupm-max30100-python3 is not set
 # CONFIG_PACKAGE_libupm-max31723 is not set
+# CONFIG_PACKAGE_libupm-max31723-node is not set
+# CONFIG_PACKAGE_libupm-max31723-python is not set
+# CONFIG_PACKAGE_libupm-max31723-python3 is not set
 # CONFIG_PACKAGE_libupm-max31855 is not set
+# CONFIG_PACKAGE_libupm-max31855-node is not set
+# CONFIG_PACKAGE_libupm-max31855-python is not set
+# CONFIG_PACKAGE_libupm-max31855-python3 is not set
 # CONFIG_PACKAGE_libupm-max44000 is not set
+# CONFIG_PACKAGE_libupm-max44000-node is not set
+# CONFIG_PACKAGE_libupm-max44000-python is not set
+# CONFIG_PACKAGE_libupm-max44000-python3 is not set
+# CONFIG_PACKAGE_libupm-max44009 is not set
+# CONFIG_PACKAGE_libupm-max44009-node is not set
+# CONFIG_PACKAGE_libupm-max44009-python is not set
+# CONFIG_PACKAGE_libupm-max44009-python3 is not set
 # CONFIG_PACKAGE_libupm-max5487 is not set
+# CONFIG_PACKAGE_libupm-max5487-node is not set
+# CONFIG_PACKAGE_libupm-max5487-python is not set
+# CONFIG_PACKAGE_libupm-max5487-python3 is not set
 # CONFIG_PACKAGE_libupm-maxds3231m is not set
+# CONFIG_PACKAGE_libupm-maxds3231m-node is not set
+# CONFIG_PACKAGE_libupm-maxds3231m-python is not set
+# CONFIG_PACKAGE_libupm-maxds3231m-python3 is not set
 # CONFIG_PACKAGE_libupm-maxsonarez is not set
+# CONFIG_PACKAGE_libupm-maxsonarez-node is not set
+# CONFIG_PACKAGE_libupm-maxsonarez-python is not set
+# CONFIG_PACKAGE_libupm-maxsonarez-python3 is not set
+# CONFIG_PACKAGE_libupm-mb704x is not set
+# CONFIG_PACKAGE_libupm-mb704x-node is not set
+# CONFIG_PACKAGE_libupm-mb704x-python is not set
+# CONFIG_PACKAGE_libupm-mb704x-python3 is not set
+# CONFIG_PACKAGE_libupm-mcp2515 is not set
+# CONFIG_PACKAGE_libupm-mcp2515-node is not set
+# CONFIG_PACKAGE_libupm-mcp2515-python is not set
+# CONFIG_PACKAGE_libupm-mcp2515-python3 is not set
+# CONFIG_PACKAGE_libupm-mcp9808 is not set
+# CONFIG_PACKAGE_libupm-mcp9808-node is not set
+# CONFIG_PACKAGE_libupm-mcp9808-python is not set
+# CONFIG_PACKAGE_libupm-mcp9808-python3 is not set
+# CONFIG_PACKAGE_libupm-md is not set
+# CONFIG_PACKAGE_libupm-md-node is not set
+# CONFIG_PACKAGE_libupm-md-python is not set
+# CONFIG_PACKAGE_libupm-md-python3 is not set
 # CONFIG_PACKAGE_libupm-mg811 is not set
+# CONFIG_PACKAGE_libupm-mg811-node is not set
+# CONFIG_PACKAGE_libupm-mg811-python is not set
+# CONFIG_PACKAGE_libupm-mg811-python3 is not set
 # CONFIG_PACKAGE_libupm-mhz16 is not set
+# CONFIG_PACKAGE_libupm-mhz16-node is not set
+# CONFIG_PACKAGE_libupm-mhz16-python is not set
+# CONFIG_PACKAGE_libupm-mhz16-python3 is not set
 # CONFIG_PACKAGE_libupm-mic is not set
+# CONFIG_PACKAGE_libupm-mic-node is not set
+# CONFIG_PACKAGE_libupm-mic-python is not set
+# CONFIG_PACKAGE_libupm-mic-python3 is not set
+# CONFIG_PACKAGE_libupm-micsv89 is not set
+# CONFIG_PACKAGE_libupm-micsv89-node is not set
+# CONFIG_PACKAGE_libupm-micsv89-python is not set
+# CONFIG_PACKAGE_libupm-micsv89-python3 is not set
 # CONFIG_PACKAGE_libupm-mlx90614 is not set
+# CONFIG_PACKAGE_libupm-mlx90614-node is not set
+# CONFIG_PACKAGE_libupm-mlx90614-python is not set
+# CONFIG_PACKAGE_libupm-mlx90614-python3 is not set
+# CONFIG_PACKAGE_libupm-mma7361 is not set
+# CONFIG_PACKAGE_libupm-mma7361-node is not set
+# CONFIG_PACKAGE_libupm-mma7361-python is not set
+# CONFIG_PACKAGE_libupm-mma7361-python3 is not set
 # CONFIG_PACKAGE_libupm-mma7455 is not set
+# CONFIG_PACKAGE_libupm-mma7455-node is not set
+# CONFIG_PACKAGE_libupm-mma7455-python is not set
+# CONFIG_PACKAGE_libupm-mma7455-python3 is not set
 # CONFIG_PACKAGE_libupm-mma7660 is not set
+# CONFIG_PACKAGE_libupm-mma7660-node is not set
+# CONFIG_PACKAGE_libupm-mma7660-python is not set
+# CONFIG_PACKAGE_libupm-mma7660-python3 is not set
+# CONFIG_PACKAGE_libupm-mma8x5x is not set
+# CONFIG_PACKAGE_libupm-mma8x5x-node is not set
+# CONFIG_PACKAGE_libupm-mma8x5x-python is not set
+# CONFIG_PACKAGE_libupm-mma8x5x-python3 is not set
+# CONFIG_PACKAGE_libupm-mmc35240 is not set
+# CONFIG_PACKAGE_libupm-mmc35240-node is not set
+# CONFIG_PACKAGE_libupm-mmc35240-python is not set
+# CONFIG_PACKAGE_libupm-mmc35240-python3 is not set
+# CONFIG_PACKAGE_libupm-moisture is not set
+# CONFIG_PACKAGE_libupm-moisture-node is not set
+# CONFIG_PACKAGE_libupm-moisture-python is not set
+# CONFIG_PACKAGE_libupm-moisture-python3 is not set
 # CONFIG_PACKAGE_libupm-mpl3115a2 is not set
+# CONFIG_PACKAGE_libupm-mpl3115a2-node is not set
+# CONFIG_PACKAGE_libupm-mpl3115a2-python is not set
+# CONFIG_PACKAGE_libupm-mpl3115a2-python3 is not set
 # CONFIG_PACKAGE_libupm-mpr121 is not set
+# CONFIG_PACKAGE_libupm-mpr121-node is not set
+# CONFIG_PACKAGE_libupm-mpr121-python is not set
+# CONFIG_PACKAGE_libupm-mpr121-python3 is not set
 # CONFIG_PACKAGE_libupm-mpu9150 is not set
+# CONFIG_PACKAGE_libupm-mpu9150-node is not set
+# CONFIG_PACKAGE_libupm-mpu9150-python is not set
+# CONFIG_PACKAGE_libupm-mpu9150-python3 is not set
 # CONFIG_PACKAGE_libupm-mq303a is not set
+# CONFIG_PACKAGE_libupm-mq303a-node is not set
+# CONFIG_PACKAGE_libupm-mq303a-python is not set
+# CONFIG_PACKAGE_libupm-mq303a-python3 is not set
+# CONFIG_PACKAGE_libupm-ms5611 is not set
+# CONFIG_PACKAGE_libupm-ms5611-node is not set
+# CONFIG_PACKAGE_libupm-ms5611-python is not set
+# CONFIG_PACKAGE_libupm-ms5611-python3 is not set
+# CONFIG_PACKAGE_libupm-ms5803 is not set
+# CONFIG_PACKAGE_libupm-ms5803-node is not set
+# CONFIG_PACKAGE_libupm-ms5803-python is not set
+# CONFIG_PACKAGE_libupm-ms5803-python3 is not set
 # CONFIG_PACKAGE_libupm-my9221 is not set
+# CONFIG_PACKAGE_libupm-my9221-node is not set
+# CONFIG_PACKAGE_libupm-my9221-python is not set
+# CONFIG_PACKAGE_libupm-my9221-python3 is not set
+# CONFIG_PACKAGE_libupm-nlgpio16 is not set
+# CONFIG_PACKAGE_libupm-nlgpio16-node is not set
+# CONFIG_PACKAGE_libupm-nlgpio16-python is not set
+# CONFIG_PACKAGE_libupm-nlgpio16-python3 is not set
+# CONFIG_PACKAGE_libupm-nmea_gps is not set
+# CONFIG_PACKAGE_libupm-nmea_gps-node is not set
+# CONFIG_PACKAGE_libupm-nmea_gps-python is not set
+# CONFIG_PACKAGE_libupm-nmea_gps-python3 is not set
 # CONFIG_PACKAGE_libupm-nrf24l01 is not set
+# CONFIG_PACKAGE_libupm-nrf24l01-node is not set
+# CONFIG_PACKAGE_libupm-nrf24l01-python is not set
+# CONFIG_PACKAGE_libupm-nrf24l01-python3 is not set
 # CONFIG_PACKAGE_libupm-nrf8001 is not set
+# CONFIG_PACKAGE_libupm-nrf8001-node is not set
+# CONFIG_PACKAGE_libupm-nrf8001-python is not set
+# CONFIG_PACKAGE_libupm-nrf8001-python3 is not set
 # CONFIG_PACKAGE_libupm-nunchuck is not set
+# CONFIG_PACKAGE_libupm-nunchuck-node is not set
+# CONFIG_PACKAGE_libupm-nunchuck-python is not set
+# CONFIG_PACKAGE_libupm-nunchuck-python3 is not set
+# CONFIG_PACKAGE_libupm-o2 is not set
+# CONFIG_PACKAGE_libupm-o2-node is not set
+# CONFIG_PACKAGE_libupm-o2-python is not set
+# CONFIG_PACKAGE_libupm-o2-python3 is not set
 # CONFIG_PACKAGE_libupm-otp538u is not set
+# CONFIG_PACKAGE_libupm-otp538u-node is not set
+# CONFIG_PACKAGE_libupm-otp538u-python is not set
+# CONFIG_PACKAGE_libupm-otp538u-python3 is not set
+# CONFIG_PACKAGE_libupm-ozw is not set
+# CONFIG_PACKAGE_libupm-ozw-node is not set
+# CONFIG_PACKAGE_libupm-ozw-python is not set
+# CONFIG_PACKAGE_libupm-ozw-python3 is not set
+# CONFIG_PACKAGE_libupm-p9813 is not set
+# CONFIG_PACKAGE_libupm-p9813-node is not set
+# CONFIG_PACKAGE_libupm-p9813-python is not set
+# CONFIG_PACKAGE_libupm-p9813-python3 is not set
+# CONFIG_PACKAGE_libupm-pca9685 is not set
+# CONFIG_PACKAGE_libupm-pca9685-node is not set
+# CONFIG_PACKAGE_libupm-pca9685-python is not set
+# CONFIG_PACKAGE_libupm-pca9685-python3 is not set
 # CONFIG_PACKAGE_libupm-pn532 is not set
+# CONFIG_PACKAGE_libupm-pn532-node is not set
+# CONFIG_PACKAGE_libupm-pn532-python is not set
+# CONFIG_PACKAGE_libupm-pn532-python3 is not set
 # CONFIG_PACKAGE_libupm-ppd42ns is not set
+# CONFIG_PACKAGE_libupm-ppd42ns-node is not set
+# CONFIG_PACKAGE_libupm-ppd42ns-python is not set
+# CONFIG_PACKAGE_libupm-ppd42ns-python3 is not set
 # CONFIG_PACKAGE_libupm-pulsensor is not set
+# CONFIG_PACKAGE_libupm-pulsensor-node is not set
+# CONFIG_PACKAGE_libupm-pulsensor-python is not set
+# CONFIG_PACKAGE_libupm-pulsensor-python3 is not set
+# CONFIG_PACKAGE_libupm-relay is not set
+# CONFIG_PACKAGE_libupm-relay-node is not set
+# CONFIG_PACKAGE_libupm-relay-python is not set
+# CONFIG_PACKAGE_libupm-relay-python3 is not set
+# CONFIG_PACKAGE_libupm-rf22 is not set
+# CONFIG_PACKAGE_libupm-rf22-node is not set
+# CONFIG_PACKAGE_libupm-rf22-python is not set
+# CONFIG_PACKAGE_libupm-rf22-python3 is not set
 # CONFIG_PACKAGE_libupm-rfr359f is not set
+# CONFIG_PACKAGE_libupm-rfr359f-node is not set
+# CONFIG_PACKAGE_libupm-rfr359f-python is not set
+# CONFIG_PACKAGE_libupm-rfr359f-python3 is not set
 # CONFIG_PACKAGE_libupm-rgbringcoder is not set
+# CONFIG_PACKAGE_libupm-rgbringcoder-node is not set
+# CONFIG_PACKAGE_libupm-rgbringcoder-python is not set
+# CONFIG_PACKAGE_libupm-rgbringcoder-python3 is not set
+# CONFIG_PACKAGE_libupm-rhusb is not set
+# CONFIG_PACKAGE_libupm-rhusb-node is not set
+# CONFIG_PACKAGE_libupm-rhusb-python is not set
+# CONFIG_PACKAGE_libupm-rhusb-python3 is not set
+# CONFIG_PACKAGE_libupm-rn2903 is not set
+# CONFIG_PACKAGE_libupm-rn2903-node is not set
+# CONFIG_PACKAGE_libupm-rn2903-python is not set
+# CONFIG_PACKAGE_libupm-rn2903-python3 is not set
+# CONFIG_PACKAGE_libupm-rotary is not set
+# CONFIG_PACKAGE_libupm-rotary-node is not set
+# CONFIG_PACKAGE_libupm-rotary-python is not set
+# CONFIG_PACKAGE_libupm-rotary-python3 is not set
 # CONFIG_PACKAGE_libupm-rotaryencoder is not set
+# CONFIG_PACKAGE_libupm-rotaryencoder-node is not set
+# CONFIG_PACKAGE_libupm-rotaryencoder-python is not set
+# CONFIG_PACKAGE_libupm-rotaryencoder-python3 is not set
 # CONFIG_PACKAGE_libupm-rpr220 is not set
+# CONFIG_PACKAGE_libupm-rpr220-node is not set
+# CONFIG_PACKAGE_libupm-rpr220-python is not set
+# CONFIG_PACKAGE_libupm-rpr220-python3 is not set
+# CONFIG_PACKAGE_libupm-rsc is not set
+# CONFIG_PACKAGE_libupm-rsc-node is not set
+# CONFIG_PACKAGE_libupm-rsc-python is not set
+# CONFIG_PACKAGE_libupm-rsc-python3 is not set
+# CONFIG_PACKAGE_libupm-scam is not set
+# CONFIG_PACKAGE_libupm-scam-node is not set
+# CONFIG_PACKAGE_libupm-scam-python is not set
+# CONFIG_PACKAGE_libupm-scam-python3 is not set
+# CONFIG_PACKAGE_libupm-sensortemplate is not set
+# CONFIG_PACKAGE_libupm-sensortemplate-node is not set
+# CONFIG_PACKAGE_libupm-sensortemplate-python is not set
+# CONFIG_PACKAGE_libupm-sensortemplate-python3 is not set
 # CONFIG_PACKAGE_libupm-servo is not set
+# CONFIG_PACKAGE_libupm-servo-node is not set
+# CONFIG_PACKAGE_libupm-servo-python is not set
+# CONFIG_PACKAGE_libupm-servo-python3 is not set
+# CONFIG_PACKAGE_libupm-sht1x is not set
+# CONFIG_PACKAGE_libupm-sht1x-node is not set
+# CONFIG_PACKAGE_libupm-sht1x-python is not set
+# CONFIG_PACKAGE_libupm-sht1x-python3 is not set
+# CONFIG_PACKAGE_libupm-si1132 is not set
+# CONFIG_PACKAGE_libupm-si1132-node is not set
+# CONFIG_PACKAGE_libupm-si1132-python is not set
+# CONFIG_PACKAGE_libupm-si1132-python3 is not set
 # CONFIG_PACKAGE_libupm-si114x is not set
+# CONFIG_PACKAGE_libupm-si114x-node is not set
+# CONFIG_PACKAGE_libupm-si114x-python is not set
+# CONFIG_PACKAGE_libupm-si114x-python3 is not set
+# CONFIG_PACKAGE_libupm-si7005 is not set
+# CONFIG_PACKAGE_libupm-si7005-node is not set
+# CONFIG_PACKAGE_libupm-si7005-python is not set
+# CONFIG_PACKAGE_libupm-si7005-python3 is not set
+# CONFIG_PACKAGE_libupm-slide is not set
+# CONFIG_PACKAGE_libupm-slide-node is not set
+# CONFIG_PACKAGE_libupm-slide-python is not set
+# CONFIG_PACKAGE_libupm-slide-python3 is not set
 # CONFIG_PACKAGE_libupm-sm130 is not set
+# CONFIG_PACKAGE_libupm-sm130-node is not set
+# CONFIG_PACKAGE_libupm-sm130-python is not set
+# CONFIG_PACKAGE_libupm-sm130-python3 is not set
+# CONFIG_PACKAGE_libupm-smartdrive is not set
+# CONFIG_PACKAGE_libupm-smartdrive-node is not set
+# CONFIG_PACKAGE_libupm-smartdrive-python is not set
+# CONFIG_PACKAGE_libupm-smartdrive-python3 is not set
+# CONFIG_PACKAGE_libupm-speaker is not set
+# CONFIG_PACKAGE_libupm-speaker-node is not set
+# CONFIG_PACKAGE_libupm-speaker-python is not set
+# CONFIG_PACKAGE_libupm-speaker-python3 is not set
+# CONFIG_PACKAGE_libupm-ssd1351 is not set
+# CONFIG_PACKAGE_libupm-ssd1351-node is not set
+# CONFIG_PACKAGE_libupm-ssd1351-python is not set
+# CONFIG_PACKAGE_libupm-ssd1351-python3 is not set
 # CONFIG_PACKAGE_libupm-st7735 is not set
+# CONFIG_PACKAGE_libupm-st7735-node is not set
+# CONFIG_PACKAGE_libupm-st7735-python is not set
+# CONFIG_PACKAGE_libupm-st7735-python3 is not set
 # CONFIG_PACKAGE_libupm-stepmotor is not set
+# CONFIG_PACKAGE_libupm-stepmotor-node is not set
+# CONFIG_PACKAGE_libupm-stepmotor-python is not set
+# CONFIG_PACKAGE_libupm-stepmotor-python3 is not set
+# CONFIG_PACKAGE_libupm-sx1276 is not set
+# CONFIG_PACKAGE_libupm-sx1276-node is not set
+# CONFIG_PACKAGE_libupm-sx1276-python is not set
+# CONFIG_PACKAGE_libupm-sx1276-python3 is not set
 # CONFIG_PACKAGE_libupm-sx6119 is not set
+# CONFIG_PACKAGE_libupm-sx6119-node is not set
+# CONFIG_PACKAGE_libupm-sx6119-python is not set
+# CONFIG_PACKAGE_libupm-sx6119-python3 is not set
+# CONFIG_PACKAGE_libupm-t3311 is not set
+# CONFIG_PACKAGE_libupm-t3311-node is not set
+# CONFIG_PACKAGE_libupm-t3311-python is not set
+# CONFIG_PACKAGE_libupm-t3311-python3 is not set
+# CONFIG_PACKAGE_libupm-t6713 is not set
+# CONFIG_PACKAGE_libupm-t6713-node is not set
+# CONFIG_PACKAGE_libupm-t6713-python is not set
+# CONFIG_PACKAGE_libupm-t6713-python3 is not set
 # CONFIG_PACKAGE_libupm-ta12200 is not set
+# CONFIG_PACKAGE_libupm-ta12200-node is not set
+# CONFIG_PACKAGE_libupm-ta12200-python is not set
+# CONFIG_PACKAGE_libupm-ta12200-python3 is not set
+# CONFIG_PACKAGE_libupm-tca9548a is not set
+# CONFIG_PACKAGE_libupm-tca9548a-node is not set
+# CONFIG_PACKAGE_libupm-tca9548a-python is not set
+# CONFIG_PACKAGE_libupm-tca9548a-python3 is not set
 # CONFIG_PACKAGE_libupm-tcs3414cs is not set
+# CONFIG_PACKAGE_libupm-tcs3414cs-node is not set
+# CONFIG_PACKAGE_libupm-tcs3414cs-python is not set
+# CONFIG_PACKAGE_libupm-tcs3414cs-python3 is not set
+# CONFIG_PACKAGE_libupm-tcs37727 is not set
+# CONFIG_PACKAGE_libupm-tcs37727-node is not set
+# CONFIG_PACKAGE_libupm-tcs37727-python is not set
+# CONFIG_PACKAGE_libupm-tcs37727-python3 is not set
+# CONFIG_PACKAGE_libupm-teams is not set
+# CONFIG_PACKAGE_libupm-teams-node is not set
+# CONFIG_PACKAGE_libupm-teams-python is not set
+# CONFIG_PACKAGE_libupm-teams-python3 is not set
+# CONFIG_PACKAGE_libupm-temperature is not set
+# CONFIG_PACKAGE_libupm-temperature-node is not set
+# CONFIG_PACKAGE_libupm-temperature-python is not set
+# CONFIG_PACKAGE_libupm-temperature-python3 is not set
+# CONFIG_PACKAGE_libupm-tex00 is not set
+# CONFIG_PACKAGE_libupm-tex00-node is not set
+# CONFIG_PACKAGE_libupm-tex00-python is not set
+# CONFIG_PACKAGE_libupm-tex00-python3 is not set
 # CONFIG_PACKAGE_libupm-th02 is not set
+# CONFIG_PACKAGE_libupm-th02-node is not set
+# CONFIG_PACKAGE_libupm-th02-python is not set
+# CONFIG_PACKAGE_libupm-th02-python3 is not set
 # CONFIG_PACKAGE_libupm-tm1637 is not set
+# CONFIG_PACKAGE_libupm-tm1637-node is not set
+# CONFIG_PACKAGE_libupm-tm1637-python is not set
+# CONFIG_PACKAGE_libupm-tm1637-python3 is not set
+# CONFIG_PACKAGE_libupm-tmp006 is not set
+# CONFIG_PACKAGE_libupm-tmp006-node is not set
+# CONFIG_PACKAGE_libupm-tmp006-python is not set
+# CONFIG_PACKAGE_libupm-tmp006-python3 is not set
 # CONFIG_PACKAGE_libupm-tsl2561 is not set
+# CONFIG_PACKAGE_libupm-tsl2561-node is not set
+# CONFIG_PACKAGE_libupm-tsl2561-python is not set
+# CONFIG_PACKAGE_libupm-tsl2561-python3 is not set
 # CONFIG_PACKAGE_libupm-ttp223 is not set
-# CONFIG_PACKAGE_libupm-ublox6 is not set
+# CONFIG_PACKAGE_libupm-ttp223-node is not set
+# CONFIG_PACKAGE_libupm-ttp223-python is not set
+# CONFIG_PACKAGE_libupm-ttp223-python3 is not set
+# CONFIG_PACKAGE_libupm-uartat is not set
+# CONFIG_PACKAGE_libupm-uartat-node is not set
+# CONFIG_PACKAGE_libupm-uartat-python is not set
+# CONFIG_PACKAGE_libupm-uartat-python3 is not set
 # CONFIG_PACKAGE_libupm-uln200xa is not set
+# CONFIG_PACKAGE_libupm-uln200xa-node is not set
+# CONFIG_PACKAGE_libupm-uln200xa-python is not set
+# CONFIG_PACKAGE_libupm-uln200xa-python3 is not set
+# CONFIG_PACKAGE_libupm-ultrasonic is not set
+# CONFIG_PACKAGE_libupm-ultrasonic-node is not set
+# CONFIG_PACKAGE_libupm-ultrasonic-python is not set
+# CONFIG_PACKAGE_libupm-ultrasonic-python3 is not set
+# CONFIG_PACKAGE_libupm-urm37 is not set
+# CONFIG_PACKAGE_libupm-urm37-node is not set
+# CONFIG_PACKAGE_libupm-urm37-python is not set
+# CONFIG_PACKAGE_libupm-urm37-python3 is not set
+# CONFIG_PACKAGE_libupm-utilities is not set
+# CONFIG_PACKAGE_libupm-utilities-node is not set
+# CONFIG_PACKAGE_libupm-utilities-python is not set
+# CONFIG_PACKAGE_libupm-utilities-python3 is not set
+# CONFIG_PACKAGE_libupm-vcap is not set
+# CONFIG_PACKAGE_libupm-vcap-node is not set
+# CONFIG_PACKAGE_libupm-vcap-python is not set
+# CONFIG_PACKAGE_libupm-vcap-python3 is not set
+# CONFIG_PACKAGE_libupm-vdiv is not set
+# CONFIG_PACKAGE_libupm-vdiv-node is not set
+# CONFIG_PACKAGE_libupm-vdiv-python is not set
+# CONFIG_PACKAGE_libupm-vdiv-python3 is not set
+# CONFIG_PACKAGE_libupm-veml6070 is not set
+# CONFIG_PACKAGE_libupm-veml6070-node is not set
+# CONFIG_PACKAGE_libupm-veml6070-python is not set
+# CONFIG_PACKAGE_libupm-veml6070-python3 is not set
+# CONFIG_PACKAGE_libupm-water is not set
+# CONFIG_PACKAGE_libupm-water-node is not set
+# CONFIG_PACKAGE_libupm-water-python is not set
+# CONFIG_PACKAGE_libupm-water-python3 is not set
 # CONFIG_PACKAGE_libupm-waterlevel is not set
+# CONFIG_PACKAGE_libupm-waterlevel-node is not set
+# CONFIG_PACKAGE_libupm-waterlevel-python is not set
+# CONFIG_PACKAGE_libupm-waterlevel-python3 is not set
+# CONFIG_PACKAGE_libupm-wfs is not set
+# CONFIG_PACKAGE_libupm-wfs-node is not set
+# CONFIG_PACKAGE_libupm-wfs-python is not set
+# CONFIG_PACKAGE_libupm-wfs-python3 is not set
 # CONFIG_PACKAGE_libupm-wheelencoder is not set
+# CONFIG_PACKAGE_libupm-wheelencoder-node is not set
+# CONFIG_PACKAGE_libupm-wheelencoder-python is not set
+# CONFIG_PACKAGE_libupm-wheelencoder-python3 is not set
 # CONFIG_PACKAGE_libupm-wt5001 is not set
+# CONFIG_PACKAGE_libupm-wt5001-node is not set
+# CONFIG_PACKAGE_libupm-wt5001-python is not set
+# CONFIG_PACKAGE_libupm-wt5001-python3 is not set
+# CONFIG_PACKAGE_libupm-xbee is not set
+# CONFIG_PACKAGE_libupm-xbee-node is not set
+# CONFIG_PACKAGE_libupm-xbee-python is not set
+# CONFIG_PACKAGE_libupm-xbee-python3 is not set
 # CONFIG_PACKAGE_libupm-yg1006 is not set
+# CONFIG_PACKAGE_libupm-yg1006-node is not set
+# CONFIG_PACKAGE_libupm-yg1006-python is not set
+# CONFIG_PACKAGE_libupm-yg1006-python3 is not set
 # CONFIG_PACKAGE_libupm-zfm20 is not set
+# CONFIG_PACKAGE_libupm-zfm20-node is not set
+# CONFIG_PACKAGE_libupm-zfm20-python is not set
+# CONFIG_PACKAGE_libupm-zfm20-python3 is not set
 
 #
 # Languages
@@ -2923,21 +3966,59 @@ CONFIG_PACKAGE_libxtables=y
 #
 # SSL
 #
+# CONFIG_PACKAGE_libbotan is not set
 # CONFIG_PACKAGE_libgnutls is not set
-CONFIG_PACKAGE_libmbedtls=y
+# CONFIG_PACKAGE_libmbedtls is not set
+# CONFIG_PACKAGE_libnss is not set
 CONFIG_PACKAGE_libopenssl=y
+
+#
+# Build Options
+#
+CONFIG_OPENSSL_OPTIMIZE_SPEED=y
+CONFIG_OPENSSL_WITH_ASM=y
+CONFIG_OPENSSL_WITH_DEPRECATED=y
+# CONFIG_OPENSSL_NO_DEPRECATED is not set
+CONFIG_OPENSSL_WITH_ERROR_MESSAGES=y
+
+#
+# Protocol Support
+#
+CONFIG_OPENSSL_WITH_TLS13=y
+# CONFIG_OPENSSL_WITH_DTLS is not set
+CONFIG_OPENSSL_WITH_NPN=y
+CONFIG_OPENSSL_WITH_SRP=y
+CONFIG_OPENSSL_WITH_CMS=y
+
+#
+# Algorithm Selection
+#
 CONFIG_OPENSSL_WITH_EC=y
 # CONFIG_OPENSSL_WITH_EC2M is not set
-# CONFIG_OPENSSL_WITH_SSL3 is not set
-CONFIG_OPENSSL_WITH_DEPRECATED=y
-# CONFIG_OPENSSL_WITH_DTLS is not set
-# CONFIG_OPENSSL_WITH_COMPRESSION is not set
-CONFIG_OPENSSL_WITH_NPN=y
+CONFIG_OPENSSL_WITH_CHACHA_POLY1305=y
+# CONFIG_OPENSSL_PREFER_CHACHA_OVER_GCM is not set
 CONFIG_OPENSSL_WITH_PSK=y
-CONFIG_OPENSSL_WITH_SRP=y
-# CONFIG_OPENSSL_HARDWARE_SUPPORT is not set
-# CONFIG_OPENSSL_OPTIMIZE_SPEED is not set
-# CONFIG_OPENSSL_ENGINE_CRYPTO is not set
+
+#
+# Less commonly used build options
+#
+# CONFIG_OPENSSL_WITH_ARIA is not set
+# CONFIG_OPENSSL_WITH_CAMELLIA is not set
+# CONFIG_OPENSSL_WITH_IDEA is not set
+# CONFIG_OPENSSL_WITH_SEED is not set
+# CONFIG_OPENSSL_WITH_SM234 is not set
+# CONFIG_OPENSSL_WITH_BLAKE2 is not set
+# CONFIG_OPENSSL_WITH_MDC2 is not set
+# CONFIG_OPENSSL_WITH_WHIRLPOOL is not set
+# CONFIG_OPENSSL_WITH_COMPRESSION is not set
+# CONFIG_OPENSSL_WITH_RFC3779 is not set
+
+#
+# Engine/Hardware Support
+#
+# CONFIG_OPENSSL_ENGINE is not set
+# CONFIG_PACKAGE_libopenssl-conf is not set
+# CONFIG_PACKAGE_libopenssl1.1 is not set
 # CONFIG_PACKAGE_libwolfssl is not set
 
 #
@@ -2979,8 +4060,14 @@ CONFIG_PACKAGE_libsqlite3=y
 #
 # Configuration
 #
-CONFIG_SQLITE_FTS3=y
-CONFIG_SQLITE_RTREE=y
+CONFIG_SQLITE3_DYNAMIC_EXTENSIONS=y
+CONFIG_SQLITE3_FTS3=y
+CONFIG_SQLITE3_FTS4=y
+CONFIG_SQLITE3_FTS5=y
+CONFIG_SQLITE3_JSON1=y
+CONFIG_SQLITE3_RTREE=y
+# CONFIG_SQLITE3_SESSION is not set
+CONFIG_SQLITE3_THREADSAFE=y
 # CONFIG_PACKAGE_pgsqlodbc is not set
 # CONFIG_PACKAGE_psqlodbca is not set
 # CONFIG_PACKAGE_psqlodbcw is not set
@@ -3011,21 +4098,79 @@ CONFIG_PACKAGE_alsa-lib=y
 # CONFIG_PACKAGE_avro-c is not set
 CONFIG_PACKAGE_bind-libs=y
 # CONFIG_PACKAGE_bluez-libs is not set
-# CONFIG_PACKAGE_boost is not set
+CONFIG_PACKAGE_boost=y
+
+#
+# Select Boost Options
+#
+
+#
+# Boost compilation options.
+#
+# CONFIG_boost-compile-visibility-global is not set
+# CONFIG_boost-compile-visibility-protected is not set
+CONFIG_boost-compile-visibility-hidden=y
+# CONFIG_boost-shared-libs is not set
+# CONFIG_boost-static-libs is not set
+CONFIG_boost-static-and-shared-libs=y
+CONFIG_boost-runtime-shared=y
+CONFIG_boost-variant-release=y
+# CONFIG_boost-variant-debug is not set
+# CONFIG_boost-variant-profile is not set
+# CONFIG_boost-use-name-tags is not set
+
+#
+# Select Boost libraries
+#
+
+#
+# Libraries
+#
+# CONFIG_boost-libs-all is not set
+# CONFIG_boost-test-pkg is not set
+# CONFIG_boost-coroutine2 is not set
+# CONFIG_boost-graph-parallel is not set
+# CONFIG_PACKAGE_boost-atomic is not set
+# CONFIG_PACKAGE_boost-chrono is not set
+# CONFIG_PACKAGE_boost-container is not set
+# CONFIG_PACKAGE_boost-context is not set
+# CONFIG_PACKAGE_boost-contract is not set
+# CONFIG_PACKAGE_boost-coroutine is not set
+CONFIG_PACKAGE_boost-date_time=y
+# CONFIG_PACKAGE_boost-fiber is not set
+# CONFIG_PACKAGE_boost-filesystem is not set
+# CONFIG_PACKAGE_boost-graph is not set
+# CONFIG_PACKAGE_boost-iostreams is not set
+# CONFIG_PACKAGE_boost-log is not set
+# CONFIG_PACKAGE_boost-math is not set
+CONFIG_PACKAGE_boost-program_options=y
+# CONFIG_PACKAGE_boost-random is not set
+# CONFIG_PACKAGE_boost-regex is not set
+# CONFIG_PACKAGE_boost-serialization is not set
+# CONFIG_PACKAGE_boost-wserialization is not set
+# CONFIG_PACKAGE_boost-stacktrace is not set
+CONFIG_PACKAGE_boost-system=y
+# CONFIG_PACKAGE_boost-thread is not set
+# CONFIG_PACKAGE_boost-timer is not set
+# CONFIG_PACKAGE_boost-type_erasure is not set
+# CONFIG_PACKAGE_boost-wave is not set
 # CONFIG_PACKAGE_ccid is not set
 # CONFIG_PACKAGE_check is not set
 # CONFIG_PACKAGE_classpath is not set
 # CONFIG_PACKAGE_classpath-tools is not set
 # CONFIG_PACKAGE_confuse is not set
+# CONFIG_PACKAGE_czmq is not set
 # CONFIG_PACKAGE_dtndht is not set
 # CONFIG_PACKAGE_fcgi is not set
 # CONFIG_PACKAGE_fftw3 is not set
 # CONFIG_PACKAGE_fftw3f is not set
 # CONFIG_PACKAGE_fftw3l is not set
 # CONFIG_PACKAGE_getdns is not set
+# CONFIG_PACKAGE_gflags is not set
 # CONFIG_PACKAGE_giflib is not set
 # CONFIG_PACKAGE_glib2 is not set
 # CONFIG_PACKAGE_glog is not set
+# CONFIG_PACKAGE_google-authenticator-libpam is not set
 # CONFIG_PACKAGE_hidapi is not set
 # CONFIG_PACKAGE_ibrcommon is not set
 # CONFIG_PACKAGE_ibrdtn is not set
@@ -3033,6 +4178,7 @@ CONFIG_PACKAGE_bind-libs=y
 # CONFIG_PACKAGE_icu-data-tools is not set
 # CONFIG_PACKAGE_icu-full-data is not set
 # CONFIG_PACKAGE_jansson is not set
+# CONFIG_PACKAGE_jsoncpp is not set
 # CONFIG_PACKAGE_knot-libs is not set
 # CONFIG_PACKAGE_knot-libzscanner is not set
 # CONFIG_PACKAGE_libaio is not set
@@ -3043,6 +4189,7 @@ CONFIG_PACKAGE_bind-libs=y
 # CONFIG_PACKAGE_libarchive is not set
 # CONFIG_PACKAGE_libarchive-noopenssl is not set
 # CONFIG_PACKAGE_libartnet is not set
+# CONFIG_PACKAGE_libasm is not set
 # CONFIG_PACKAGE_libaudiofile is not set
 # CONFIG_PACKAGE_libavahi-client is not set
 # CONFIG_PACKAGE_libavahi-compat-libdnssd is not set
@@ -3056,18 +4203,20 @@ CONFIG_PACKAGE_libblobmsg-json=y
 # CONFIG_PACKAGE_libcanfestival is not set
 # CONFIG_PACKAGE_libcap is not set
 # CONFIG_PACKAGE_libcares is not set
+# CONFIG_PACKAGE_libcgroup is not set
 # CONFIG_PACKAGE_libcharset is not set
 # CONFIG_PACKAGE_libcoap is not set
 CONFIG_PACKAGE_libcomerr=y
 # CONFIG_PACKAGE_libconfig is not set
+# CONFIG_PACKAGE_libcups is not set
 CONFIG_PACKAGE_libcurl=y
 
 #
 # SSL support
 #
-CONFIG_LIBCURL_MBEDTLS=y
+# CONFIG_LIBCURL_MBEDTLS is not set
 # CONFIG_LIBCURL_WOLFSSL is not set
-# CONFIG_LIBCURL_OPENSSL is not set
+CONFIG_LIBCURL_OPENSSL=y
 # CONFIG_LIBCURL_GNUTLS is not set
 # CONFIG_LIBCURL_NOSSL is not set
 
@@ -3114,9 +4263,10 @@ CONFIG_LIBCURL_PROXY=y
 # CONFIG_PACKAGE_libdnet is not set
 # CONFIG_PACKAGE_libdouble-conversion is not set
 # CONFIG_PACKAGE_libdrm is not set
+# CONFIG_PACKAGE_libdw is not set
 # CONFIG_PACKAGE_libecdsautil is not set
 # CONFIG_PACKAGE_libedit is not set
-# CONFIG_PACKAGE_libelf1 is not set
+CONFIG_PACKAGE_libelf=y
 # CONFIG_PACKAGE_libesmtp is not set
 # CONFIG_PACKAGE_libestr is not set
 # CONFIG_PACKAGE_libev is not set
@@ -3148,6 +4298,7 @@ CONFIG_PACKAGE_libflac=y
 # CONFIG_PACKAGE_libfreetype is not set
 # CONFIG_PACKAGE_libftdi is not set
 # CONFIG_PACKAGE_libftdi1 is not set
+# CONFIG_PACKAGE_libgabe is not set
 # CONFIG_PACKAGE_libgcrypt is not set
 # CONFIG_PACKAGE_libgd is not set
 # CONFIG_PACKAGE_libgdbm is not set
@@ -3164,6 +4315,7 @@ CONFIG_PACKAGE_libgmp=y
 # CONFIG_PACKAGE_libhiredis is not set
 # CONFIG_PACKAGE_libhttp-parser is not set
 # CONFIG_PACKAGE_libhwloc is not set
+# CONFIG_PACKAGE_libi2c is not set
 # CONFIG_PACKAGE_libical is not set
 # CONFIG_PACKAGE_libiconv is not set
 # CONFIG_PACKAGE_libiconv-full is not set
@@ -3192,9 +4344,10 @@ CONFIG_PACKAGE_liblucihttp-lua=y
 # CONFIG_PACKAGE_libmad is not set
 # CONFIG_PACKAGE_libmagic is not set
 # CONFIG_PACKAGE_libmariadb is not set
+# CONFIG_PACKAGE_libmaxminddb is not set
 # CONFIG_PACKAGE_libmcrypt is not set
-# CONFIG_PACKAGE_libmicrohttpd is not set
 # CONFIG_PACKAGE_libmicrohttpd-no-ssl is not set
+# CONFIG_PACKAGE_libmicrohttpd-ssl is not set
 # CONFIG_PACKAGE_libmicroxml is not set
 # CONFIG_PACKAGE_libmilter-sendmail is not set
 CONFIG_PACKAGE_libminiupnpc=y
@@ -3207,7 +4360,7 @@ CONFIG_PACKAGE_libmount=y
 # CONFIG_PACKAGE_libmpdclient is not set
 # CONFIG_PACKAGE_libmpeg2 is not set
 # CONFIG_PACKAGE_libmpg123 is not set
-# CONFIG_PACKAGE_libmraa is not set
+# CONFIG_PACKAGE_libmstch is not set
 CONFIG_PACKAGE_libnatpmp=y
 CONFIG_PACKAGE_libncurses=y
 # CONFIG_PACKAGE_libndpi is not set
@@ -3242,18 +4395,19 @@ CONFIG_PACKAGE_libogg=y
 # CONFIG_PACKAGE_liboil is not set
 # CONFIG_PACKAGE_libopcodes is not set
 # CONFIG_PACKAGE_libopendkim is not set
-# CONFIG_PACKAGE_libopenldap is not set
 # CONFIG_PACKAGE_libopenobex is not set
 # CONFIG_PACKAGE_libopensc is not set
 # CONFIG_PACKAGE_libopenzwave is not set
 # CONFIG_PACKAGE_liboping is not set
 # CONFIG_PACKAGE_libopus is not set
+# CONFIG_PACKAGE_libopusenc is not set
+# CONFIG_PACKAGE_libopusfile is not set
 # CONFIG_PACKAGE_libout123 is not set
 # CONFIG_PACKAGE_libowfat is not set
 # CONFIG_PACKAGE_libp11 is not set
 # CONFIG_PACKAGE_libpagekite is not set
 # CONFIG_PACKAGE_libpam is not set
-# CONFIG_PACKAGE_libpam-db is not set
+# CONFIG_PACKAGE_libpbc is not set
 CONFIG_PACKAGE_libpcap=y
 
 #
@@ -3261,6 +4415,7 @@ CONFIG_PACKAGE_libpcap=y
 #
 # CONFIG_PCAP_HAS_USB is not set
 # CONFIG_PCAP_HAS_NETFILTER is not set
+# CONFIG_PACKAGE_libpci is not set
 # CONFIG_PACKAGE_libpcre is not set
 # CONFIG_PACKAGE_libpcre16 is not set
 # CONFIG_PACKAGE_libpcre2 is not set
@@ -3268,6 +4423,7 @@ CONFIG_PACKAGE_libpcap=y
 # CONFIG_PACKAGE_libpcre2-32 is not set
 # CONFIG_PACKAGE_libpcrecpp is not set
 # CONFIG_PACKAGE_libpcsclite is not set
+# CONFIG_PACKAGE_libpfring is not set
 # CONFIG_PACKAGE_libpkcs11-spy is not set
 # CONFIG_PACKAGE_libplist is not set
 # CONFIG_PACKAGE_libplistcxx is not set
@@ -3281,7 +4437,6 @@ CONFIG_PACKAGE_libpopt=y
 # CONFIG_PACKAGE_libreadline is not set
 # CONFIG_PACKAGE_libredblack is not set
 # CONFIG_PACKAGE_libroxml is not set
-# CONFIG_PACKAGE_librpc is not set
 # CONFIG_PACKAGE_librrd1 is not set
 # CONFIG_PACKAGE_librtlsdr is not set
 # CONFIG_PACKAGE_libruby is not set
@@ -3294,6 +4449,7 @@ CONFIG_PACKAGE_libpopt=y
 # CONFIG_PACKAGE_libshout is not set
 # CONFIG_PACKAGE_libshout-full is not set
 # CONFIG_PACKAGE_libshout-nossl is not set
+# CONFIG_PACKAGE_libsigar is not set
 # CONFIG_PACKAGE_libsigcxx is not set
 # CONFIG_PACKAGE_libsispmctl is not set
 CONFIG_PACKAGE_libsmartcols=y
@@ -3365,16 +4521,20 @@ CONFIG_PACKAGE_libvorbis=y
 # CONFIG_PACKAGE_libxslt is not set
 # CONFIG_PACKAGE_libyaml-cpp is not set
 # CONFIG_PACKAGE_libyang is not set
+# CONFIG_PACKAGE_libyubikey is not set
 # CONFIG_PACKAGE_libzdb is not set
 # CONFIG_PACKAGE_libzmq-curve is not set
 # CONFIG_PACKAGE_libzmq-nc is not set
 # CONFIG_PACKAGE_linux-atm is not set
+# CONFIG_PACKAGE_log4cplus is not set
 # CONFIG_PACKAGE_loudmouth is not set
 # CONFIG_PACKAGE_lttng-ust is not set
+# CONFIG_PACKAGE_measurement-kit is not set
 # CONFIG_PACKAGE_mtdev is not set
 # CONFIG_PACKAGE_musl-fts is not set
 # CONFIG_PACKAGE_mxml is not set
 # CONFIG_PACKAGE_nacl is not set
+# CONFIG_PACKAGE_nspr is not set
 # CONFIG_PACKAGE_opencv is not set
 # CONFIG_PACKAGE_p11-kit is not set
 # CONFIG_PACKAGE_pixman is not set
@@ -3382,6 +4542,10 @@ CONFIG_PACKAGE_libvorbis=y
 # CONFIG_PACKAGE_protobuf is not set
 # CONFIG_PACKAGE_protobuf-lite is not set
 # CONFIG_PACKAGE_pthsem is not set
+# CONFIG_PACKAGE_re2 is not set
+CONFIG_RE2_SHARED=y
+# CONFIG_RE2_STATIC is not set
+# CONFIG_PACKAGE_rpcd-mod-rad2-enc is not set
 CONFIG_PACKAGE_rpcd-mod-rrdns=y
 # CONFIG_PACKAGE_rxtx is not set
 # CONFIG_PACKAGE_sbc is not set
@@ -3390,10 +4554,12 @@ CONFIG_PACKAGE_terminfo=y
 # CONFIG_PACKAGE_tinycdb is not set
 # CONFIG_PACKAGE_uclibcxx is not set
 # CONFIG_PACKAGE_uw-imap is not set
+# CONFIG_PACKAGE_websocketpp is not set
 # CONFIG_PACKAGE_xmlrpc-c is not set
 # CONFIG_PACKAGE_xmlrpc-c-client is not set
 # CONFIG_PACKAGE_xmlrpc-c-server is not set
 # CONFIG_PACKAGE_yajl is not set
+# CONFIG_PACKAGE_yubico-pam is not set
 CONFIG_PACKAGE_zlib=y
 
 #
@@ -3419,6 +4585,8 @@ CONFIG_PACKAGE_luci=y
 #
 CONFIG_PACKAGE_luci-base=y
 # CONFIG_LUCI_SRCDIET is not set
+CONFIG_LUCI_JSMIN=y
+CONFIG_LUCI_CSSTIDY=y
 
 #
 # Translations
@@ -3451,19 +4619,21 @@ CONFIG_PACKAGE_luci-base=y
 # CONFIG_LUCI_LANG_zh-tw is not set
 CONFIG_PACKAGE_luci-mod-admin-full=y
 # CONFIG_PACKAGE_luci-mod-failsafe is not set
-# CONFIG_PACKAGE_luci-mod-freifunk is not set
-# CONFIG_PACKAGE_luci-mod-freifunk-community is not set
+CONFIG_PACKAGE_luci-mod-network=y
 # CONFIG_PACKAGE_luci-mod-rpc is not set
+CONFIG_PACKAGE_luci-mod-status=y
+CONFIG_PACKAGE_luci-mod-system=y
 
 #
 # 3. Applications
 #
+# CONFIG_PACKAGE_luci-app-acme is not set
 # CONFIG_PACKAGE_luci-app-adblock is not set
 # CONFIG_PACKAGE_luci-app-advanced-reboot is not set
 # CONFIG_PACKAGE_luci-app-ahcp is not set
 # CONFIG_PACKAGE_luci-app-aria2 is not set
-# CONFIG_PACKAGE_luci-app-asterisk is not set
 # CONFIG_PACKAGE_luci-app-attendedsysupgrade is not set
+# CONFIG_PACKAGE_luci-app-banip is not set
 # CONFIG_PACKAGE_luci-app-bcp38 is not set
 # CONFIG_PACKAGE_luci-app-bird1-ipv4 is not set
 # CONFIG_PACKAGE_luci-app-bird1-ipv6 is not set
@@ -3480,18 +4650,15 @@ CONFIG_PACKAGE_luci-app-ddns=y
 # CONFIG_PACKAGE_luci-app-dynapoint is not set
 # CONFIG_PACKAGE_luci-app-e2guardian is not set
 CONFIG_PACKAGE_luci-app-firewall=y
-# CONFIG_PACKAGE_luci-app-freifunk-diagnostics is not set
-# CONFIG_PACKAGE_luci-app-freifunk-policyrouting is not set
-# CONFIG_PACKAGE_luci-app-freifunk-widgets is not set
 # CONFIG_PACKAGE_luci-app-fwknopd is not set
 # CONFIG_PACKAGE_luci-app-hd-idle is not set
 # CONFIG_PACKAGE_luci-app-hnet is not set
 # CONFIG_PACKAGE_luci-app-https_dns_proxy is not set
 # CONFIG_PACKAGE_luci-app-lxc is not set
-# CONFIG_PACKAGE_luci-app-meshwizard is not set
 CONFIG_PACKAGE_luci-app-minidlna=y
 # CONFIG_PACKAGE_luci-app-mjpg-streamer is not set
 # CONFIG_PACKAGE_luci-app-mwan3 is not set
+# CONFIG_PACKAGE_luci-app-nft-qos is not set
 # CONFIG_PACKAGE_luci-app-nlbwmon is not set
 # CONFIG_PACKAGE_luci-app-noddos is not set
 # CONFIG_PACKAGE_luci-app-ntpc is not set
@@ -3501,12 +4668,15 @@ CONFIG_PACKAGE_luci-app-minidlna=y
 # CONFIG_PACKAGE_luci-app-olsr-services is not set
 # CONFIG_PACKAGE_luci-app-olsr-viz is not set
 # CONFIG_PACKAGE_luci-app-openvpn is not set
+CONFIG_PACKAGE_luci-app-opkg=y
 # CONFIG_PACKAGE_luci-app-p910nd is not set
 # CONFIG_PACKAGE_luci-app-pagekitec is not set
 # CONFIG_PACKAGE_luci-app-polipo is not set
 # CONFIG_PACKAGE_luci-app-privoxy is not set
 # CONFIG_PACKAGE_luci-app-qos is not set
 # CONFIG_PACKAGE_luci-app-radicale is not set
+# CONFIG_PACKAGE_luci-app-radicale2 is not set
+# CONFIG_PACKAGE_luci-app-rosy-file-server is not set
 # CONFIG_PACKAGE_luci-app-rp-pppoe-server is not set
 # CONFIG_PACKAGE_luci-app-samba is not set
 CONFIG_PACKAGE_luci-app-samba4=y
@@ -3514,8 +4684,9 @@ CONFIG_PACKAGE_luci-app-samba4=y
 # CONFIG_PACKAGE_luci-app-shairplay is not set
 # CONFIG_PACKAGE_luci-app-siitwizard is not set
 # CONFIG_PACKAGE_luci-app-simple-adblock is not set
+# CONFIG_PACKAGE_luci-app-snmpd is not set
 # CONFIG_PACKAGE_luci-app-splash is not set
-# CONFIG_PACKAGE_luci-app-sqm is not set
+CONFIG_PACKAGE_luci-app-sqm=y
 # CONFIG_PACKAGE_luci-app-squid is not set
 # CONFIG_PACKAGE_luci-app-statistics is not set
 # CONFIG_PACKAGE_luci-app-tinyproxy is not set
@@ -3536,19 +4707,21 @@ CONFIG_PACKAGE_luci-app-upnp=y
 # 4. Themes
 #
 CONFIG_PACKAGE_luci-theme-bootstrap=y
-# CONFIG_PACKAGE_luci-theme-freifunk-generic is not set
 # CONFIG_PACKAGE_luci-theme-material is not set
 # CONFIG_PACKAGE_luci-theme-openwrt is not set
+# CONFIG_PACKAGE_luci-theme-rosy is not set
 
 #
 # 5. Protocols
 #
 # CONFIG_PACKAGE_luci-proto-3g is not set
+# CONFIG_PACKAGE_luci-proto-hnet is not set
 # CONFIG_PACKAGE_luci-proto-ipip is not set
 CONFIG_PACKAGE_luci-proto-ipv6=y
 # CONFIG_PACKAGE_luci-proto-ncm is not set
 # CONFIG_PACKAGE_luci-proto-openconnect is not set
 CONFIG_PACKAGE_luci-proto-ppp=y
+# CONFIG_PACKAGE_luci-proto-pppossh is not set
 # CONFIG_PACKAGE_luci-proto-qmi is not set
 # CONFIG_PACKAGE_luci-proto-relay is not set
 # CONFIG_PACKAGE_luci-proto-vpnc is not set
@@ -3561,21 +4734,18 @@ CONFIG_PACKAGE_luci-proto-ppp=y
 # CONFIG_PACKAGE_luci-lib-httpclient is not set
 # CONFIG_PACKAGE_luci-lib-httpprotoutils is not set
 CONFIG_PACKAGE_luci-lib-ip=y
+CONFIG_PACKAGE_luci-lib-ipkg=y
+# CONFIG_PACKAGE_luci-lib-iptparser is not set
 # CONFIG_PACKAGE_luci-lib-jquery-1-4 is not set
 # CONFIG_PACKAGE_luci-lib-json is not set
 CONFIG_PACKAGE_luci-lib-jsonc=y
 # CONFIG_PACKAGE_luci-lib-luaneightbl is not set
 CONFIG_PACKAGE_luci-lib-nixio=y
+CONFIG_PACKAGE_luci-lib-nixio_notls=y
+# CONFIG_PACKAGE_luci-lib-nixio_axtls is not set
+# CONFIG_PACKAGE_luci-lib-nixio_cyassl is not set
+# CONFIG_PACKAGE_luci-lib-nixio_openssl is not set
 # CONFIG_PACKAGE_luci-lib-px5g is not set
-
-#
-# 9. Freifunk
-#
-# CONFIG_PACKAGE_freifunk-common is not set
-# CONFIG_PACKAGE_freifunk-firewall is not set
-# CONFIG_PACKAGE_freifunk-policyrouting is not set
-# CONFIG_PACKAGE_freifunk-watchdog is not set
-# CONFIG_PACKAGE_meshwizard is not set
 # CONFIG_PACKAGE_luci-i18n-base-ca is not set
 # CONFIG_PACKAGE_luci-i18n-base-cs is not set
 # CONFIG_PACKAGE_luci-i18n-base-de is not set
@@ -3675,6 +4845,32 @@ CONFIG_PACKAGE_luci-lib-nixio=y
 # CONFIG_PACKAGE_luci-i18n-minidlna-vi is not set
 # CONFIG_PACKAGE_luci-i18n-minidlna-zh-cn is not set
 # CONFIG_PACKAGE_luci-i18n-minidlna-zh-tw is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-ca is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-cs is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-de is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-el is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-en is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-es is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-fr is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-he is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-hu is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-it is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-ja is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-ko is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-ms is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-no is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-pl is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-pt is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-pt-br is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-ro is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-ru is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-sk is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-sv is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-tr is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-uk is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-vi is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-zh-cn is not set
+# CONFIG_PACKAGE_luci-i18n-opkg-zh-tw is not set
 # CONFIG_PACKAGE_luci-i18n-samba4-ca is not set
 # CONFIG_PACKAGE_luci-i18n-samba4-cs is not set
 # CONFIG_PACKAGE_luci-i18n-samba4-de is not set
@@ -3804,6 +5000,7 @@ CONFIG_POSTFIX_PCRE=y
 # CONFIG_PACKAGE_ffserver is not set
 # CONFIG_PACKAGE_fswebcam is not set
 # CONFIG_PACKAGE_gphoto2 is not set
+# CONFIG_PACKAGE_graphicsmagick is not set
 # CONFIG_PACKAGE_grilo is not set
 # CONFIG_PACKAGE_grilo-plugins is not set
 # CONFIG_PACKAGE_gst1-libav is not set
@@ -3823,6 +5020,7 @@ CONFIG_PACKAGE_minidlna=y
 # CONFIG_PACKAGE_vips is not set
 # CONFIG_PACKAGE_xupnpd is not set
 # CONFIG_PACKAGE_youtube-dl is not set
+# CONFIG_PACKAGE_youtube-dl-src is not set
 
 #
 # Network
@@ -3843,6 +5041,7 @@ CONFIG_PACKAGE_transmission-daemon-openssl=y
 # CONFIG_PACKAGE_transmission-remote-mbedtls is not set
 CONFIG_PACKAGE_transmission-remote-openssl=y
 # CONFIG_PACKAGE_transmission-web is not set
+# CONFIG_PACKAGE_transmission-web-control is not set
 
 #
 # Captive Portals
@@ -3873,6 +5072,7 @@ CONFIG_PACKAGE_transmission-remote-openssl=y
 CONFIG_PACKAGE_curl=y
 # CONFIG_PACKAGE_gnurl is not set
 # CONFIG_PACKAGE_lftp is not set
+# CONFIG_PACKAGE_rosy-file-server is not set
 # CONFIG_PACKAGE_rsync is not set
 # CONFIG_PACKAGE_rsyncd is not set
 # CONFIG_PACKAGE_vsftpd is not set
@@ -3901,8 +5101,8 @@ CONFIG_PACKAGE_curl=y
 # CONFIG_PACKAGE_fwknop is not set
 # CONFIG_PACKAGE_fwknopd is not set
 CONFIG_PACKAGE_ip6tables=y
-# CONFIG_PACKAGE_ip6tables-extra is not set
-# CONFIG_PACKAGE_ip6tables-mod-nat is not set
+CONFIG_PACKAGE_ip6tables-extra=y
+CONFIG_PACKAGE_ip6tables-mod-nat=y
 CONFIG_PACKAGE_iptables=y
 # CONFIG_IPTABLES_CONNLABEL is not set
 # CONFIG_IPTABLES_NFTABLES is not set
@@ -3912,7 +5112,7 @@ CONFIG_PACKAGE_iptables=y
 # CONFIG_PACKAGE_iptables-mod-cluster is not set
 # CONFIG_PACKAGE_iptables-mod-clusterip is not set
 # CONFIG_PACKAGE_iptables-mod-condition is not set
-# CONFIG_PACKAGE_iptables-mod-conntrack-extra is not set
+CONFIG_PACKAGE_iptables-mod-conntrack-extra=y
 # CONFIG_PACKAGE_iptables-mod-delude is not set
 # CONFIG_PACKAGE_iptables-mod-dhcpmac is not set
 # CONFIG_PACKAGE_iptables-mod-dnetmap is not set
@@ -3959,6 +5159,7 @@ CONFIG_PACKAGE_miniupnpd=y
 # CONFIG_PACKAGE_shorewall6 is not set
 # CONFIG_PACKAGE_shorewall6-lite is not set
 # CONFIG_PACKAGE_snort is not set
+# CONFIG_PACKAGE_snort3 is not set
 
 #
 # Firewall Tunnel
@@ -4018,6 +5219,7 @@ CONFIG_PACKAGE_ddns-scripts_no-ip_com=y
 # CONFIG_PACKAGE_isc-dhcp-server-ipv4 is not set
 # CONFIG_PACKAGE_isc-dhcp-server-ipv6 is not set
 # CONFIG_PACKAGE_kadnode is not set
+# CONFIG_PACKAGE_kea-admin is not set
 # CONFIG_PACKAGE_knot is not set
 # CONFIG_PACKAGE_knot-dig is not set
 # CONFIG_PACKAGE_knot-host is not set
@@ -4034,6 +5236,7 @@ CONFIG_PACKAGE_ddns-scripts_no-ip_com=y
 # CONFIG_PACKAGE_nsd-nossl is not set
 # CONFIG_PACKAGE_ohybridproxy is not set
 # CONFIG_PACKAGE_stubby is not set
+# CONFIG_PACKAGE_torsocks is not set
 # CONFIG_PACKAGE_unbound is not set
 # CONFIG_PACKAGE_unbound-anchor is not set
 # CONFIG_PACKAGE_unbound-control is not set
@@ -4117,6 +5320,19 @@ CONFIG_PACKAGE_wsdd2=y
 # CONFIG_PACKAGE_openvswitch-ovn-host is not set
 # CONFIG_PACKAGE_openvswitch-ovn-north is not set
 # CONFIG_PACKAGE_openvswitch-python is not set
+# CONFIG_PACKAGE_openvswitch-python3 is not set
+
+#
+# OpenLDAP
+#
+# CONFIG_PACKAGE_libopenldap is not set
+CONFIG_OPENLDAP_DEBUG=y
+# CONFIG_OPENLDAP_CRYPT is not set
+# CONFIG_OPENLDAP_MONITOR is not set
+# CONFIG_OPENLDAP_DB47 is not set
+# CONFIG_OPENLDAP_ICU is not set
+# CONFIG_PACKAGE_openldap-server is not set
+# CONFIG_PACKAGE_openldap-utils is not set
 
 #
 # Printing
@@ -4160,12 +5376,12 @@ CONFIG_PACKAGE_ip-full=y
 # CONFIG_PACKAGE_quagga is not set
 # CONFIG_PACKAGE_rdma is not set
 # CONFIG_PACKAGE_relayd is not set
-# CONFIG_PACKAGE_smcroute is not set
 # CONFIG_PACKAGE_ss is not set
 # CONFIG_PACKAGE_sslh is not set
 CONFIG_PACKAGE_tc=y
 # CONFIG_PACKAGE_tcpproxy is not set
 # CONFIG_PACKAGE_vis is not set
+# CONFIG_PACKAGE_yggdrasil is not set
 
 #
 # SSH
@@ -4242,7 +5458,7 @@ CONFIG_PACKAGE_tc=y
 # Telephony
 #
 # CONFIG_PACKAGE_asterisk13 is not set
-# CONFIG_PACKAGE_asterisk15 is not set
+# CONFIG_PACKAGE_asterisk16 is not set
 # CONFIG_PACKAGE_baresip is not set
 # CONFIG_PACKAGE_freeswitch-stable is not set
 # CONFIG_PACKAGE_kamailio5 is not set
@@ -4276,7 +5492,7 @@ CONFIG_PACKAGE_tc=y
 # CONFIG_PACKAGE_chaosvpn is not set
 # CONFIG_PACKAGE_fastd is not set
 # CONFIG_PACKAGE_ipsec-tools is not set
-# CONFIG_PACKAGE_n2n_v2 is not set
+# CONFIG_PACKAGE_libreswan is not set
 # CONFIG_PACKAGE_ocserv is not set
 # CONFIG_PACKAGE_openconnect is not set
 # CONFIG_PACKAGE_opennhrp is not set
@@ -4285,94 +5501,15 @@ CONFIG_PACKAGE_tc=y
 # CONFIG_PACKAGE_openvpn-nossl is not set
 # CONFIG_PACKAGE_openvpn-openssl is not set
 # CONFIG_PACKAGE_pptpd is not set
-# CONFIG_PACKAGE_softethervpn is not set
+# CONFIG_PACKAGE_softethervpn-base is not set
+# CONFIG_PACKAGE_softethervpn-bridge is not set
+# CONFIG_PACKAGE_softethervpn-client is not set
+# CONFIG_PACKAGE_softethervpn-server is not set
+# CONFIG_PACKAGE_softethervpn5-bridge is not set
+# CONFIG_PACKAGE_softethervpn5-client is not set
+# CONFIG_PACKAGE_softethervpn5-server is not set
 # CONFIG_PACKAGE_sstp-client is not set
 # CONFIG_PACKAGE_strongswan is not set
-# CONFIG_PACKAGE_strongswan-charon is not set
-# CONFIG_PACKAGE_strongswan-charon-cmd is not set
-# CONFIG_PACKAGE_strongswan-default is not set
-# CONFIG_PACKAGE_strongswan-full is not set
-# CONFIG_PACKAGE_strongswan-ipsec is not set
-# CONFIG_PACKAGE_strongswan-isakmp is not set
-# CONFIG_PACKAGE_strongswan-libtls is not set
-# CONFIG_PACKAGE_strongswan-minimal is not set
-# CONFIG_PACKAGE_strongswan-mod-addrblock is not set
-# CONFIG_PACKAGE_strongswan-mod-aes is not set
-# CONFIG_PACKAGE_strongswan-mod-af-alg is not set
-# CONFIG_PACKAGE_strongswan-mod-agent is not set
-# CONFIG_PACKAGE_strongswan-mod-attr is not set
-# CONFIG_PACKAGE_strongswan-mod-attr-sql is not set
-# CONFIG_PACKAGE_strongswan-mod-blowfish is not set
-# CONFIG_PACKAGE_strongswan-mod-ccm is not set
-# CONFIG_PACKAGE_strongswan-mod-cmac is not set
-# CONFIG_PACKAGE_strongswan-mod-connmark is not set
-# CONFIG_PACKAGE_strongswan-mod-constraints is not set
-# CONFIG_PACKAGE_strongswan-mod-coupling is not set
-# CONFIG_PACKAGE_strongswan-mod-ctr is not set
-# CONFIG_PACKAGE_strongswan-mod-curl is not set
-# CONFIG_PACKAGE_strongswan-mod-curve25519 is not set
-# CONFIG_PACKAGE_strongswan-mod-des is not set
-# CONFIG_PACKAGE_strongswan-mod-dhcp is not set
-# CONFIG_PACKAGE_strongswan-mod-dnskey is not set
-# CONFIG_PACKAGE_strongswan-mod-duplicheck is not set
-# CONFIG_PACKAGE_strongswan-mod-eap-identity is not set
-# CONFIG_PACKAGE_strongswan-mod-eap-md5 is not set
-# CONFIG_PACKAGE_strongswan-mod-eap-mschapv2 is not set
-# CONFIG_PACKAGE_strongswan-mod-eap-radius is not set
-# CONFIG_PACKAGE_strongswan-mod-eap-tls is not set
-# CONFIG_PACKAGE_strongswan-mod-farp is not set
-# CONFIG_PACKAGE_strongswan-mod-fips-prf is not set
-# CONFIG_PACKAGE_strongswan-mod-forecast is not set
-# CONFIG_PACKAGE_strongswan-mod-gcm is not set
-# CONFIG_PACKAGE_strongswan-mod-gcrypt is not set
-# CONFIG_PACKAGE_strongswan-mod-gmp is not set
-# CONFIG_PACKAGE_strongswan-mod-gmpdh is not set
-# CONFIG_PACKAGE_strongswan-mod-ha is not set
-# CONFIG_PACKAGE_strongswan-mod-hmac is not set
-# CONFIG_PACKAGE_strongswan-mod-kernel-libipsec is not set
-# CONFIG_PACKAGE_strongswan-mod-kernel-netlink is not set
-# CONFIG_PACKAGE_strongswan-mod-ldap is not set
-# CONFIG_PACKAGE_strongswan-mod-led is not set
-# CONFIG_PACKAGE_strongswan-mod-load-tester is not set
-# CONFIG_PACKAGE_strongswan-mod-md4 is not set
-# CONFIG_PACKAGE_strongswan-mod-md5 is not set
-# CONFIG_PACKAGE_strongswan-mod-mysql is not set
-# CONFIG_PACKAGE_strongswan-mod-nonce is not set
-# CONFIG_PACKAGE_strongswan-mod-openssl is not set
-# CONFIG_PACKAGE_strongswan-mod-pem is not set
-# CONFIG_PACKAGE_strongswan-mod-pgp is not set
-# CONFIG_PACKAGE_strongswan-mod-pkcs1 is not set
-# CONFIG_PACKAGE_strongswan-mod-pkcs11 is not set
-# CONFIG_PACKAGE_strongswan-mod-pkcs12 is not set
-# CONFIG_PACKAGE_strongswan-mod-pkcs7 is not set
-# CONFIG_PACKAGE_strongswan-mod-pkcs8 is not set
-# CONFIG_PACKAGE_strongswan-mod-pubkey is not set
-# CONFIG_PACKAGE_strongswan-mod-random is not set
-# CONFIG_PACKAGE_strongswan-mod-rc2 is not set
-# CONFIG_PACKAGE_strongswan-mod-resolve is not set
-# CONFIG_PACKAGE_strongswan-mod-revocation is not set
-# CONFIG_PACKAGE_strongswan-mod-sha1 is not set
-# CONFIG_PACKAGE_strongswan-mod-sha2 is not set
-# CONFIG_PACKAGE_strongswan-mod-smp is not set
-# CONFIG_PACKAGE_strongswan-mod-socket-default is not set
-# CONFIG_PACKAGE_strongswan-mod-socket-dynamic is not set
-# CONFIG_PACKAGE_strongswan-mod-sql is not set
-# CONFIG_PACKAGE_strongswan-mod-sqlite is not set
-# CONFIG_PACKAGE_strongswan-mod-sshkey is not set
-# CONFIG_PACKAGE_strongswan-mod-stroke is not set
-# CONFIG_PACKAGE_strongswan-mod-test-vectors is not set
-# CONFIG_PACKAGE_strongswan-mod-uci is not set
-# CONFIG_PACKAGE_strongswan-mod-unity is not set
-# CONFIG_PACKAGE_strongswan-mod-updown is not set
-# CONFIG_PACKAGE_strongswan-mod-vici is not set
-# CONFIG_PACKAGE_strongswan-mod-whitelist is not set
-# CONFIG_PACKAGE_strongswan-mod-x509 is not set
-# CONFIG_PACKAGE_strongswan-mod-xauth-eap is not set
-# CONFIG_PACKAGE_strongswan-mod-xauth-generic is not set
-# CONFIG_PACKAGE_strongswan-mod-xcbc is not set
-# CONFIG_PACKAGE_strongswan-pki is not set
-# CONFIG_PACKAGE_strongswan-scepclient is not set
-# CONFIG_PACKAGE_strongswan-swanctl is not set
 # CONFIG_PACKAGE_tinc is not set
 # CONFIG_PACKAGE_uanytun is not set
 # CONFIG_PACKAGE_uanytun-nettle is not set
@@ -4426,7 +5563,9 @@ CONFIG_PACKAGE_pdnsd=y
 # CONFIG_PACKAGE_privoxy is not set
 # CONFIG_PACKAGE_radicale-py2 is not set
 # CONFIG_PACKAGE_radicale-py3 is not set
-# CONFIG_PACKAGE_shadowsocks-client is not set
+# CONFIG_PACKAGE_radicale2 is not set
+# CONFIG_PACKAGE_radicale2-examples is not set
+# CONFIG_PACKAGE_radicale2-src is not set
 # CONFIG_PACKAGE_sockd is not set
 # CONFIG_PACKAGE_socksify is not set
 # CONFIG_PACKAGE_spawn-fcgi is not set
@@ -4475,7 +5614,6 @@ CONFIG_PACKAGE_uhttpd-mod-ubus=y
 # CONFIG_PACKAGE_6in4 is not set
 # CONFIG_PACKAGE_6rd is not set
 # CONFIG_PACKAGE_6to4 is not set
-# CONFIG_PACKAGE_ChinaDNS is not set
 # CONFIG_PACKAGE_Toolkit is not set
 # CONFIG_PACKAGE_acme is not set
 # CONFIG_PACKAGE_acme-dnsapi is not set
@@ -4487,7 +5625,10 @@ CONFIG_PACKAGE_uhttpd-mod-ubus=y
 # CONFIG_PACKAGE_apcupsd-cgi is not set
 # CONFIG_PACKAGE_apinger is not set
 # CONFIG_PACKAGE_arp-scan is not set
-# CONFIG_PACKAGE_batctl is not set
+# CONFIG_PACKAGE_banip is not set
+# CONFIG_PACKAGE_batctl-default is not set
+# CONFIG_PACKAGE_batctl-full is not set
+# CONFIG_PACKAGE_batctl-tiny is not set
 # CONFIG_PACKAGE_beanstalkd is not set
 # CONFIG_PACKAGE_bmon is not set
 # CONFIG_PACKAGE_bwm-ng is not set
@@ -4500,7 +5641,6 @@ CONFIG_PACKAGE_uhttpd-mod-ubus=y
 # CONFIG_PACKAGE_darkstat is not set
 # CONFIG_PACKAGE_dhcpcd is not set
 # CONFIG_PACKAGE_dmapd is not set
-# CONFIG_PACKAGE_dns2socks is not set
 # CONFIG_PACKAGE_ds-lite is not set
 # CONFIG_PACKAGE_eapol-test is not set
 # CONFIG_PACKAGE_eapol-test-openssl is not set
@@ -4511,7 +5651,6 @@ CONFIG_PACKAGE_uhttpd-mod-ubus=y
 # CONFIG_PACKAGE_fakeidentd is not set
 # CONFIG_PACKAGE_foolsm is not set
 # CONFIG_PACKAGE_fping is not set
-# CONFIG_PACKAGE_fuckshadows-libev is not set
 # CONFIG_PACKAGE_geth is not set
 # CONFIG_PACKAGE_gnunet is not set
 # CONFIG_PACKAGE_gre is not set
@@ -4521,6 +5660,7 @@ CONFIG_PACKAGE_uhttpd-mod-ubus=y
 # CONFIG_PACKAGE_hnetd-nossl is not set
 # CONFIG_PACKAGE_hnetd-openssl is not set
 # CONFIG_PACKAGE_hostapd is not set
+# CONFIG_PACKAGE_hostapd-basic is not set
 # CONFIG_PACKAGE_hostapd-common is not set
 # CONFIG_PACKAGE_hostapd-mini is not set
 # CONFIG_PACKAGE_hostapd-openssl is not set
@@ -4558,7 +5698,9 @@ CONFIG_PACKAGE_ipset=y
 # CONFIG_PACKAGE_iputils-tracepath is not set
 # CONFIG_PACKAGE_iputils-tracepath6 is not set
 # CONFIG_PACKAGE_iputils-traceroute6 is not set
+# CONFIG_PACKAGE_ipvsadm is not set
 # CONFIG_PACKAGE_iw is not set
+# CONFIG_PACKAGE_iw-full is not set
 # CONFIG_PACKAGE_jool is not set
 # CONFIG_PACKAGE_jool-tools is not set
 # CONFIG_PACKAGE_keepalived is not set
@@ -4567,15 +5709,16 @@ CONFIG_PACKAGE_ipset=y
 # CONFIG_PACKAGE_krb5-client is not set
 CONFIG_PACKAGE_krb5-libs=y
 # CONFIG_PACKAGE_krb5-server is not set
+# CONFIG_PACKAGE_krb5-server-extras is not set
 CONFIG_PACKAGE_libipset=y
+# CONFIG_PACKAGE_libndp is not set
 # CONFIG_PACKAGE_linknx is not set
-# CONFIG_PACKAGE_lispd is not set
+# CONFIG_PACKAGE_lynx is not set
 # CONFIG_PACKAGE_mac-telnet-client is not set
 # CONFIG_PACKAGE_mac-telnet-discover is not set
 # CONFIG_PACKAGE_mac-telnet-ping is not set
 # CONFIG_PACKAGE_mac-telnet-server is not set
 # CONFIG_PACKAGE_map is not set
-# CONFIG_PACKAGE_map-t is not set
 # CONFIG_PACKAGE_memcached is not set
 # CONFIG_PACKAGE_mii-tool is not set
 # CONFIG_PACKAGE_mikrotik-btest is not set
@@ -4591,14 +5734,18 @@ CONFIG_PACKAGE_libipset=y
 # CONFIG_PACKAGE_nbd-server is not set
 # CONFIG_PACKAGE_ncp is not set
 # CONFIG_PACKAGE_ndppd is not set
+# CONFIG_PACKAGE_ndptool is not set
 # CONFIG_PACKAGE_netcat is not set
 # CONFIG_PACKAGE_netdiscover is not set
+# CONFIG_PACKAGE_netifyd is not set
 # CONFIG_PACKAGE_netperf is not set
 # CONFIG_PACKAGE_nlbwmon is not set
 # CONFIG_PACKAGE_noddos is not set
 # CONFIG_PACKAGE_noping is not set
 # CONFIG_PACKAGE_nut is not set
+# CONFIG_PACKAGE_obfs4proxy is not set
 # CONFIG_PACKAGE_obfsproxy is not set
+# CONFIG_PACKAGE_obfsproxy-src is not set
 CONFIG_PACKAGE_odhcp6c=y
 CONFIG_PACKAGE_odhcp6c_ext_cer_id=0
 # CONFIG_PACKAGE_odhcpd is not set
@@ -4610,7 +5757,7 @@ CONFIG_PACKAGE_odhcpd-ipv6only=y
 CONFIG_PACKAGE_odhcpd_ipv6only_ext_cer_id=0
 # CONFIG_PACKAGE_ola is not set
 # CONFIG_PACKAGE_omcproxy is not set
-# CONFIG_PACKAGE_openldap-server is not set
+# CONFIG_PACKAGE_oor is not set
 # CONFIG_PACKAGE_oping is not set
 # CONFIG_PACKAGE_pagekitec is not set
 CONFIG_PACKAGE_pcap-dnsproxy=y
@@ -4636,12 +5783,15 @@ CONFIG_PACKAGE_ppp-mod-pppoe=y
 # CONFIG_PACKAGE_pppossh is not set
 # CONFIG_PACKAGE_pppstats is not set
 # CONFIG_PACKAGE_proto-bonding is not set
+# CONFIG_PACKAGE_ptunnel-ng is not set
 # CONFIG_PACKAGE_radsecproxy is not set
-CONFIG_PACKAGE_redsocks=y
+# CONFIG_PACKAGE_ratechecker is not set
+# CONFIG_PACKAGE_redsocks is not set
 # CONFIG_PACKAGE_remserial is not set
 # CONFIG_PACKAGE_rpcbind is not set
 # CONFIG_PACKAGE_rssileds is not set
 # CONFIG_PACKAGE_rsyslog is not set
+# CONFIG_PACKAGE_safe-search is not set
 # CONFIG_PACKAGE_samba36-client is not set
 # CONFIG_PACKAGE_samba36-hotplug is not set
 # CONFIG_PACKAGE_samba36-net is not set
@@ -4657,8 +5807,8 @@ CONFIG_SAMBA4_SERVER_VFS=y
 # CONFIG_SAMBA4_SERVER_QUOTAS is not set
 # CONFIG_SAMBA4_SERVER_VFSX is not set
 # CONFIG_SAMBA4_SERVER_NETBIOS is not set
+# CONFIG_SAMBA4_SERVER_WINBIND is not set
 # CONFIG_PACKAGE_samba4-utils is not set
-# CONFIG_PACKAGE_sans is not set
 # CONFIG_PACKAGE_scapy is not set
 # CONFIG_PACKAGE_sctp is not set
 # CONFIG_PACKAGE_sctp-tools is not set
@@ -4678,18 +5828,24 @@ CONFIG_SAMBA4_SERVER_VFS=y
 # CONFIG_PACKAGE_socat is not set
 # CONFIG_PACKAGE_softflowd is not set
 # CONFIG_PACKAGE_soloscli is not set
+# CONFIG_PACKAGE_speedtest-netperf is not set
 # CONFIG_PACKAGE_spoofer is not set
 # CONFIG_PACKAGE_stunnel is not set
 # CONFIG_PACKAGE_tayga is not set
 CONFIG_PACKAGE_tcpdump=y
 # CONFIG_PACKAGE_tcpdump-mini is not set
+# CONFIG_PACKAGE_tgt is not set
 # CONFIG_PACKAGE_tor is not set
+# CONFIG_PACKAGE_tor-fw-helper is not set
 # CONFIG_PACKAGE_tor-gencert is not set
 # CONFIG_PACKAGE_tor-geoip is not set
 # CONFIG_PACKAGE_tor-resolve is not set
+# CONFIG_PACKAGE_trafficshaper is not set
 # CONFIG_PACKAGE_travelmate is not set
+CONFIG_PACKAGE_trojan=y
 # CONFIG_PACKAGE_u2pnpd is not set
 CONFIG_PACKAGE_uclient-fetch=y
+# CONFIG_PACKAGE_udptunnel is not set
 # CONFIG_PACKAGE_udpxy is not set
 # CONFIG_PACKAGE_ulogd is not set
 # CONFIG_PACKAGE_umbim is not set
@@ -4709,17 +5865,18 @@ CONFIG_PACKAGE_v2ray=y
 # CONFIG_DRIVER_11N_SUPPORT is not set
 # CONFIG_DRIVER_11AC_SUPPORT is not set
 # CONFIG_DRIVER_11W_SUPPORT is not set
+# CONFIG_PACKAGE_wpa-supplicant-basic is not set
 # CONFIG_PACKAGE_wpa-supplicant-mini is not set
 # CONFIG_PACKAGE_wpa-supplicant-openssl is not set
 # CONFIG_PACKAGE_wpa-supplicant-wolfssl is not set
 # CONFIG_PACKAGE_wpad is not set
+# CONFIG_PACKAGE_wpad-basic is not set
 # CONFIG_PACKAGE_wpad-mini is not set
 # CONFIG_PACKAGE_wpad-openssl is not set
 # CONFIG_PACKAGE_wpad-wolfssl is not set
 # CONFIG_PACKAGE_wpan-tools is not set
 # CONFIG_PACKAGE_wwan is not set
 # CONFIG_PACKAGE_xinetd is not set
-# CONFIG_PACKAGE_xsocks is not set
 
 #
 # Sound
@@ -4734,7 +5891,12 @@ CONFIG_PACKAGE_v2ray=y
 # CONFIG_PACKAGE_forked-daapd is not set
 # CONFIG_PACKAGE_ices is not set
 # CONFIG_PACKAGE_lame is not set
-# CONFIG_PACKAGE_lame-lib is not set
+CONFIG_PACKAGE_lame-lib=y
+
+#
+# Configuration
+#
+# CONFIG_LAME-LIB_OPTIMIZE_SPEED is not set
 # CONFIG_PACKAGE_liblo-utils is not set
 # CONFIG_PACKAGE_madplay is not set
 # CONFIG_PACKAGE_madplay-alsa is not set
@@ -4768,6 +5930,12 @@ CONFIG_PACKAGE_v2ray=y
 #
 
 #
+# BigClown
+#
+# CONFIG_PACKAGE_bigclown-control-tool is not set
+# CONFIG_PACKAGE_bigclown-mqtt2influxdb is not set
+
+#
 # Boot Loaders
 #
 # CONFIG_PACKAGE_fconfig is not set
@@ -4784,6 +5952,7 @@ CONFIG_PACKAGE_v2ray=y
 # CONFIG_PACKAGE_unzip is not set
 # CONFIG_PACKAGE_xz-utils is not set
 # CONFIG_PACKAGE_zip is not set
+# CONFIG_PACKAGE_zstd is not set
 
 #
 # Disc
@@ -4793,6 +5962,7 @@ CONFIG_PACKAGE_v2ray=y
 # CONFIG_PACKAGE_blockdev is not set
 # CONFIG_PACKAGE_cfdisk is not set
 # CONFIG_PACKAGE_cgdisk is not set
+# CONFIG_PACKAGE_eject is not set
 CONFIG_PACKAGE_fdisk=y
 # CONFIG_PACKAGE_findfs is not set
 # CONFIG_PACKAGE_fio is not set
@@ -4812,6 +5982,7 @@ CONFIG_PACKAGE_partx-utils=y
 # Editors
 #
 # CONFIG_PACKAGE_joe is not set
+# CONFIG_PACKAGE_jupp is not set
 # CONFIG_PACKAGE_nano is not set
 # CONFIG_PACKAGE_vim is not set
 # CONFIG_PACKAGE_vim-full is not set
@@ -4826,10 +5997,10 @@ CONFIG_PACKAGE_partx-utils=y
 # CONFIG_PACKAGE_ccrypt is not set
 # CONFIG_PACKAGE_certtool is not set
 # CONFIG_PACKAGE_cryptsetup is not set
-# CONFIG_PACKAGE_cryptsetup-openssl is not set
 # CONFIG_PACKAGE_gnupg is not set
 # CONFIG_PACKAGE_gnutls-utils is not set
 # CONFIG_PACKAGE_gpgv is not set
+# CONFIG_PACKAGE_keyctl is not set
 # CONFIG_PACKAGE_px5g-mbedtls is not set
 # CONFIG_PACKAGE_px5g-standalone is not set
 # CONFIG_PACKAGE_stoken is not set
@@ -4846,7 +6017,8 @@ CONFIG_PACKAGE_attr=y
 # CONFIG_PACKAGE_dosfstools is not set
 # CONFIG_PACKAGE_dumpe2fs is not set
 # CONFIG_PACKAGE_e2freefrag is not set
-CONFIG_PACKAGE_e2fsprogs=y
+# CONFIG_PACKAGE_e2fsprogs is not set
+# CONFIG_PACKAGE_e4crypt is not set
 # CONFIG_PACKAGE_f2fs-tools is not set
 # CONFIG_PACKAGE_f2fsck is not set
 # CONFIG_PACKAGE_filefrag is not set
@@ -4854,10 +6026,11 @@ CONFIG_PACKAGE_e2fsprogs=y
 # CONFIG_PACKAGE_fuse-utils is not set
 # CONFIG_PACKAGE_hfsfsck is not set
 # CONFIG_PACKAGE_lsattr is not set
-CONFIG_PACKAGE_mkf2fs=y
+# CONFIG_PACKAGE_mkf2fs is not set
 # CONFIG_PACKAGE_mkhfs is not set
 # CONFIG_PACKAGE_ncdu is not set
 # CONFIG_PACKAGE_nfs-utils is not set
+# CONFIG_PACKAGE_nfs-utils-libs is not set
 # CONFIG_PACKAGE_ntfs-3g is not set
 # CONFIG_PACKAGE_ntfs-3g-low is not set
 # CONFIG_PACKAGE_ntfs-3g-utils is not set
@@ -4951,6 +6124,7 @@ CONFIG_PACKAGE_mkf2fs=y
 # Zoneinfo
 #
 # CONFIG_PACKAGE_zoneinfo-africa is not set
+# CONFIG_PACKAGE_zoneinfo-all is not set
 # CONFIG_PACKAGE_zoneinfo-asia is not set
 # CONFIG_PACKAGE_zoneinfo-atlantic is not set
 # CONFIG_PACKAGE_zoneinfo-australia-nz is not set
@@ -4966,8 +6140,7 @@ CONFIG_PACKAGE_mkf2fs=y
 #
 # database
 #
-# CONFIG_PACKAGE_mariadb-client is not set
-# CONFIG_PACKAGE_mariadb-server is not set
+# CONFIG_PACKAGE_mariadb-common is not set
 # CONFIG_PACKAGE_pgsql-cli is not set
 # CONFIG_PACKAGE_pgsql-cli-extra is not set
 # CONFIG_PACKAGE_pgsql-server is not set
@@ -4995,14 +6168,14 @@ CONFIG_PACKAGE_mkf2fs=y
 # CONFIG_PACKAGE_bspatch is not set
 # CONFIG_PACKAGE_cal is not set
 # CONFIG_PACKAGE_canutils is not set
+# CONFIG_PACKAGE_cgroup-tools is not set
 # CONFIG_PACKAGE_cmdpad is not set
 # CONFIG_PACKAGE_coap-client is not set
 # CONFIG_PACKAGE_collectd is not set
 # CONFIG_PACKAGE_coreutils is not set
-# CONFIG_PACKAGE_cpulimit is not set
-# CONFIG_PACKAGE_cpulimit-ng is not set
 # CONFIG_PACKAGE_crconf is not set
 # CONFIG_PACKAGE_crelay is not set
+# CONFIG_PACKAGE_csstidy is not set
 # CONFIG_PACKAGE_ct-bugcheck is not set
 # CONFIG_PACKAGE_db47-util is not set
 # CONFIG_PACKAGE_dbus is not set
@@ -5023,6 +6196,7 @@ CONFIG_PACKAGE_mkf2fs=y
 # CONFIG_PACKAGE_fbtest is not set
 # CONFIG_PACKAGE_fdt-utils is not set
 # CONFIG_PACKAGE_file is not set
+# CONFIG_PACKAGE_findutils is not set
 # CONFIG_PACKAGE_findutils-find is not set
 # CONFIG_PACKAGE_findutils-locate is not set
 # CONFIG_PACKAGE_findutils-xargs is not set
@@ -5038,9 +6212,11 @@ CONFIG_PACKAGE_mkf2fs=y
 # CONFIG_PACKAGE_freesub is not set
 # CONFIG_PACKAGE_fritz-caldata is not set
 # CONFIG_PACKAGE_fritz-tffs is not set
+# CONFIG_PACKAGE_fritz-tffs-nand is not set
 # CONFIG_PACKAGE_ftdi_eeprom is not set
 # CONFIG_PACKAGE_gammu is not set
 # CONFIG_PACKAGE_gawk is not set
+# CONFIG_PACKAGE_gddrescue is not set
 # CONFIG_PACKAGE_getopt is not set
 # CONFIG_PACKAGE_gkermit is not set
 # CONFIG_PACKAGE_gpioctl-sysfs is not set
@@ -5050,7 +6226,10 @@ CONFIG_PACKAGE_mkf2fs=y
 # CONFIG_PACKAGE_grep is not set
 # CONFIG_PACKAGE_hamlib is not set
 # CONFIG_PACKAGE_haserl is not set
+# CONFIG_PACKAGE_hashdeep is not set
 # CONFIG_PACKAGE_haveged is not set
+# CONFIG_PACKAGE_hplip-common is not set
+# CONFIG_PACKAGE_hplip-sane is not set
 # CONFIG_PACKAGE_hub-ctrl is not set
 # CONFIG_PACKAGE_hwclock is not set
 # CONFIG_PACKAGE_hwloc-utils is not set
@@ -5099,6 +6278,7 @@ CONFIG_PACKAGE_libjson-script=y
 # CONFIG_PACKAGE_mbtools is not set
 # CONFIG_PACKAGE_mc is not set
 # CONFIG_PACKAGE_mcookie is not set
+# CONFIG_PACKAGE_micrond is not set
 # CONFIG_PACKAGE_mmc-utils is not set
 # CONFIG_PACKAGE_moreutils is not set
 CONFIG_PACKAGE_mount-utils=y
@@ -5110,10 +6290,11 @@ CONFIG_PACKAGE_mount-utils=y
 # CONFIG_PACKAGE_netopeer2-server is not set
 # CONFIG_PACKAGE_netwhere is not set
 # CONFIG_PACKAGE_nsenter is not set
+# CONFIG_PACKAGE_nss-utils is not set
 # CONFIG_PACKAGE_oath-toolkit is not set
 # CONFIG_PACKAGE_open-plc-utils is not set
+# CONFIG_PACKAGE_open-vm-tools is not set
 # CONFIG_PACKAGE_open2300 is not set
-# CONFIG_PACKAGE_openldap-utils is not set
 # CONFIG_PACKAGE_openobex is not set
 # CONFIG_PACKAGE_openobex-apps is not set
 # CONFIG_PACKAGE_openocd is not set
@@ -5126,11 +6307,14 @@ CONFIG_PACKAGE_mount-utils=y
 # CONFIG_PACKAGE_pcmciautils is not set
 # CONFIG_PACKAGE_pcsc-tools is not set
 # CONFIG_PACKAGE_pcscd is not set
+# CONFIG_PACKAGE_powertop is not set
 # CONFIG_PACKAGE_pps-tools is not set
 # CONFIG_PACKAGE_prlimit is not set
 # CONFIG_PACKAGE_procps-ng is not set
 # CONFIG_PACKAGE_progress is not set
+# CONFIG_PACKAGE_prometheus is not set
 # CONFIG_PACKAGE_prometheus-node-exporter-lua is not set
+# CONFIG_PACKAGE_prometheus-statsd-exporter is not set
 # CONFIG_PACKAGE_pv is not set
 # CONFIG_PACKAGE_qrencode is not set
 # CONFIG_PACKAGE_relayctl is not set
@@ -5144,18 +6328,21 @@ CONFIG_PACKAGE_mount-utils=y
 # CONFIG_PACKAGE_sane-frontends is not set
 # CONFIG_PACKAGE_setserial is not set
 # CONFIG_PACKAGE_shadow-utils is not set
-# CONFIG_PACKAGE_shellsync is not set
 # CONFIG_PACKAGE_shtool is not set
 # CONFIG_PACKAGE_sispmctl is not set
 # CONFIG_PACKAGE_slide-switch is not set
 # CONFIG_PACKAGE_smartd is not set
 # CONFIG_PACKAGE_smartmontools is not set
+# CONFIG_PACKAGE_smartmontools-drivedb is not set
 # CONFIG_PACKAGE_smstools3 is not set
 # CONFIG_PACKAGE_sockread is not set
 # CONFIG_PACKAGE_spi-tools is not set
 # CONFIG_PACKAGE_spidev-test is not set
-# CONFIG_PACKAGE_strace is not set
-# CONFIG_PACKAGE_strace_libunwind is not set
+# CONFIG_PACKAGE_ssdeep is not set
+CONFIG_PACKAGE_strace=y
+CONFIG_STRACE_NONE=y
+# CONFIG_STRACE_LIBDW is not set
+# CONFIG_STRACE_LIBUNWIND is not set
 # CONFIG_PACKAGE_stress is not set
 # CONFIG_PACKAGE_sumo is not set
 # CONFIG_PACKAGE_sysrepo is not set
@@ -5164,6 +6351,8 @@ CONFIG_PACKAGE_mount-utils=y
 # CONFIG_PACKAGE_sysstat is not set
 # CONFIG_PACKAGE_tar is not set
 # CONFIG_PACKAGE_taskwarrior is not set
+# CONFIG_PACKAGE_telldus-core is not set
+# CONFIG_PACKAGE_temperusb is not set
 # CONFIG_PACKAGE_tracertools is not set
 # CONFIG_PACKAGE_tree is not set
 # CONFIG_PACKAGE_triggerhappy is not set
@@ -5190,7 +6379,19 @@ CONFIG_PACKAGE_vlmcsd=y
 # CONFIG_PACKAGE_xxd is not set
 # CONFIG_PACKAGE_yanglint is not set
 # CONFIG_PACKAGE_yara is not set
+# CONFIG_PACKAGE_ykclient is not set
+# CONFIG_PACKAGE_ykpers is not set
 # CONFIG_PACKAGE_yunbridge is not set
+
+#
+# wongsyrone Specific
+#
+# CONFIG_PACKAGE_libevent2-wong is not set
+# CONFIG_PACKAGE_libevent2-wong-core is not set
+# CONFIG_PACKAGE_libevent2-wong-openssl is not set
+# CONFIG_PACKAGE_libevent2-wong-pthreads is not set
+CONFIG_PACKAGE_transocks-wong=y
+CONFIG_PACKAGE_wongsyrone-specific=y
 
 #
 # Xorg
