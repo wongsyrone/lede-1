@@ -1,0 +1,13 @@
+Let libelf.pc emit zlib LDLIBS as it's private
+
+--- a/configure
++++ b/configure
+@@ -233,7 +233,7 @@ check_elf()
+ 	echo "yes"
+ 
+ 	echo 'CFLAGS += -DHAVE_ELF' `${PKG_CONFIG} libelf --cflags` >> $CONFIG
+-	echo 'LDLIBS += ' `${PKG_CONFIG} libelf --libs` >>$CONFIG
++	echo 'LDLIBS += ' `${PKG_CONFIG} libelf --libs --static` >>$CONFIG
+     else
+ 	echo "no"
+     fi
