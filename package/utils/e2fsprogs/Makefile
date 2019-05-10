@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=e2fsprogs
-PKG_VERSION:=1.44.5
+PKG_VERSION:=1.45.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/linux/kernel/people/tytso/e2fsprogs/v$(PKG_VERSION)/
-PKG_HASH:=ba5eb3069d69160d96818bb9700de9ab5a8458d9add1fd85d427c0000d34c5b9
+PKG_HASH:=1fa9d0e13f30f1cae9035fe74ed8ad01bfaae99c2c0b9b970318bdb5d738fcd4
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=NOTICE
@@ -146,6 +146,7 @@ TARGET_CFLAGS += $(FPIC) -ffunction-sections -fdata-sections -flto
 
 TARGET_LDFLAGS += $(if $(CONFIG_USE_GLIBC),-lrt)
 TARGET_LDFLAGS += -flto
+TARGET_LDFLAGS += -luuid
 
 CONFIGURE_ARGS += \
 	--disable-testio-debug \
@@ -156,7 +157,10 @@ CONFIGURE_ARGS += \
 	--disable-tls		\
 	--disable-nls		\
 	--disable-rpath		\
-	--disable-fuse2fs
+	--disable-fuse2fs	\
+	--without-udev-rules-dir \
+	--without-crond-dir \
+	--without-systemd-unit-dir
 
 define Build/Prepare
 	$(call Build/Prepare/Default)
@@ -175,7 +179,7 @@ define Build/Compile
 		LDFLAGS=-Wl,--gc-sections \
 		BUILDCC="$(HOSTCC)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
-		ELF_OTHER_LIBS="$(TARGET_LDFLAGS) -luuid" \
+		ELF_OTHER_LIBS="$(TARGET_LDFLAGS)" \
 		SYSLIBS="$(TARGET_LDFLAGS) -ldl -L$(PKG_BUILD_DIR)/lib/ -l:libcom_err.so.0.0" \
 		V=$(if $(findstring c,$(OPENWRT_VERBOSE)),1,) \
 		all
