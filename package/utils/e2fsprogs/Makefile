@@ -146,7 +146,6 @@ TARGET_CFLAGS += $(FPIC) -ffunction-sections -fdata-sections -flto
 
 TARGET_LDFLAGS += $(if $(CONFIG_USE_GLIBC),-lrt)
 TARGET_LDFLAGS += -flto
-TARGET_LDFLAGS += -luuid
 
 CONFIGURE_ARGS += \
 	--disable-testio-debug \
@@ -179,7 +178,7 @@ define Build/Compile
 		LDFLAGS=-Wl,--gc-sections \
 		BUILDCC="$(HOSTCC)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
-		ELF_OTHER_LIBS="$(TARGET_LDFLAGS)" \
+		ELF_OTHER_LIBS="$(TARGET_LDFLAGS) -luuid" \
 		SYSLIBS="$(TARGET_LDFLAGS) -ldl -L$(PKG_BUILD_DIR)/lib/ -l:libcom_err.so.0.0" \
 		V=$(if $(findstring c,$(OPENWRT_VERBOSE)),1,) \
 		all
