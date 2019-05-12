@@ -47,7 +47,7 @@ at gcc pass3
  libgosrcdir = $(srcdir)/../libgo/go
 --- a/gotools/Makefile.in
 +++ b/gotools/Makefile.in
-@@ -263,6 +263,7 @@ mkinstalldirs = $(SHELL) $(toplevel_srcd
+@@ -337,6 +337,7 @@ mkinstalldirs = $(SHELL) $(toplevel_srcd
  PWD_COMMAND = $${PWDCMD-pwd}
  STAMP = echo timestamp >
  libgodir = ../$(target_noncanonical)/libgo
@@ -55,8 +55,8 @@ at gcc pass3
  LIBGODEP = $(libgodir)/libgo.la
  LIBGOTOOL = $(libgodir)/libgotool.a
  @NATIVE_FALSE@GOCOMPILER = $(GOC)
-@@ -271,7 +272,8 @@ LIBGOTOOL = $(libgodir)/libgotool.a
- @NATIVE_TRUE@GOCOMPILER = $(GOC_FOR_TARGET) $(XGCC_FLAGS_FOR_TARGET)
+@@ -346,7 +347,8 @@ LIBGOTOOL = $(libgodir)/libgotool.a
+ GOCFLAGS = $(CFLAGS_FOR_TARGET)
  GOCOMPILE = $(GOCOMPILER) $(GOCFLAGS)
  AM_GOCFLAGS = -I $(libgodir)
 -AM_LDFLAGS = -L $(libgodir) -L $(libgodir)/.libs

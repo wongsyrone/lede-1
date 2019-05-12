@@ -14,8 +14,18 @@ git-svn-id: svn+ssh://gcc.gnu.org/svn/gcc/branches/gcc-9-branch@270849 138bc75d-
  gcc/tree-ssa-pre.c | 1 +
  2 files changed, 7 insertions(+)
 
-diff --git a/gcc/tree-ssa-pre.c b/gcc/tree-ssa-pre.c
-index 7bb2cf1e2207..e1c75f8e9064 100644
+--- a/gcc/ChangeLog
++++ b/gcc/ChangeLog
+@@ -1,3 +1,9 @@
++2019-05-03  Richard Biener  <rguenther@suse.de>
++
++	PR tree-optimization/90316
++	* tree-ssa-pre.c (pass_pre::execute): Re-compute DOM fast queries
++	before running VN.
++
+ 2019-05-03  Release Manager
+ 
+ 	* GCC 9.1.0 released.
 --- a/gcc/tree-ssa-pre.c
 +++ b/gcc/tree-ssa-pre.c
 @@ -4197,6 +4197,7 @@ pass_pre::execute (function *fun)
@@ -25,5 +35,4 @@ index 7bb2cf1e2207..e1c75f8e9064 100644
 +  calculate_dominance_info (CDI_DOMINATORS);
  
    run_rpo_vn (VN_WALK);
- 
  
