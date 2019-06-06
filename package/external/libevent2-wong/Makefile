@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libevent2-wong
-PKG_VERSION:=2.1.8
+PKG_VERSION:=2.1.10
 PKG_RELEASE:=git
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/libevent/libevent.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=c6becb26cad8dab2668fe3d913e5ee757bade2fd
+PKG_SOURCE_VERSION:=b002f04f03ee924f7cdbe44483a74d66be2982cd
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 
 #PKG_SOURCE:=libevent-$(PKG_VERSION)-stable.tar.gz
