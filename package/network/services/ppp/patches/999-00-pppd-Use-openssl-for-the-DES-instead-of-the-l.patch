@@ -25,8 +25,6 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
  pppd/pppcrypt.c     | 18 +++++++++---------
  2 files changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/pppd/Makefile.linux b/pppd/Makefile.linux
-index 36d2b036..8d5ce99d 100644
 --- a/pppd/Makefile.linux
 +++ b/pppd/Makefile.linux
 @@ -35,10 +35,10 @@ endif
@@ -42,7 +40,7 @@ index 36d2b036..8d5ce99d 100644
  # Don't use MSLANMAN unless you really know what you're doing.
  #MSLANMAN=y
  # Uncomment the next line to include support for MPPE.  CHAPMS (above) must
-@@ -137,7 +137,8 @@ endif
+@@ -140,7 +140,8 @@ endif
  
  ifdef NEEDDES
  ifndef USE_CRYPT
@@ -52,11 +50,9 @@ index 36d2b036..8d5ce99d 100644
  else
  CFLAGS   += -DUSE_CRYPT=1
  endif
-diff --git a/pppd/pppcrypt.c b/pppd/pppcrypt.c
-index 8b85b132..6b35375e 100644
 --- a/pppd/pppcrypt.c
 +++ b/pppd/pppcrypt.c
-@@ -64,7 +64,7 @@ u_char *des_key;	/* OUT 64 bit DES key with parity bits added */
+@@ -64,7 +64,7 @@ u_char *des_key;	/* OUT 64 bit DES key w
  	des_key[7] = Get7Bits(key, 49);
  
  #ifndef USE_CRYPT
@@ -107,5 +103,4 @@ index 8b85b132..6b35375e 100644
 +	    &key_schedule, 0);
  	return (1);
  }
- 
  
