@@ -19,14 +19,14 @@ loadaddr-$(CONFIG_TARGET_ramips_mt7621) := 0x80001000
 
 KERNEL_LOADADDR := $(loadaddr-y)
 
-KERNEL_DTB = kernel-bin | patch-dtb | lzma
+KERNEL_DTB = kernel-bin | append-dtb | lzma
 define Device/Default
-  PROFILES = Default $$(DTS)
-  KERNEL_DEPENDS = $$(wildcard ../dts/$$(DTS).dts)
+  PROFILES = Default
   KERNEL := $(KERNEL_DTB) | uImage lzma
+  MTK_SOC :=
   DEVICE_DTS_DIR := ../dts
+  DEVICE_DTS = $$(MTK_SOC)_$(1)
   IMAGES := sysupgrade.bin
-  IMAGE_SIZE := $(ralink_default_fw_size_8M)
   SUPPORTED_DEVICES := $(subst _,$(comma),$(1))
   sysupgrade_bin := append-kernel | append-rootfs | pad-rootfs
   IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata | check-size $$$$(IMAGE_SIZE)
@@ -52,15 +52,10 @@ define Build/jcg-header
 	mv $@.new $@
 endef
 
-define Build/patch-dtb
-	$(call Image/BuildDTB,../dts/$(DTS).dts,$@.dtb)
-	$(STAGING_DIR_HOST)/bin/patch-dtb $@ $@.dtb
-endef
-
 define Build/trx
 	$(STAGING_DIR_HOST)/bin/trx $(1) \
 		-o $@ \
-		-m $(IMAGE_SIZE) \
+		-m $$(($(subst k, * 1024,$(IMAGE_SIZE)))) \
 		-f $(IMAGE_KERNEL) \
 		-a 4 -f $(IMAGE_ROOTFS)
 endef
@@ -152,10 +147,10 @@ define Build/sercom-footer
 	$(call Build/sercom-seal,-f)
 endef
 
-ralink_default_fw_size_4M=3866624
-ralink_default_fw_size_8M=8060928
-ralink_default_fw_size_16M=16121856
-ralink_default_fw_size_32M=33226752
+define Build/fonfxcimage
+	uimage_padhdr -i $@ -o $@.new
+	mv $@.new $@
+endef
 
 ifeq ($(SUBTARGET),rt288x)
 include rt288x.mk
