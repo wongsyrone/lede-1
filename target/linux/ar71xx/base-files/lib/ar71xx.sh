@@ -1004,7 +1004,8 @@ ar71xx_board_detect() {
 	*"MAC1200R")
 		name="mc-mac1200r"
 		;;
-	"MikroTik"*)
+	"MikroTik"*|\
+	"Mikrotik"*)
 		name=$(mikrotik_board_detect "$machine")
 		;;
 	*"MiniBox V1.0")
