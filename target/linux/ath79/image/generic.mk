@@ -1,5 +1,6 @@
 include ./common-buffalo.mk
 include ./common-netgear.mk
+include ./common-tp-link.mk
 
 DEVICE_VARS += ADDPATTERN_ID ADDPATTERN_VERSION
 DEVICE_VARS += SEAMA_SIGNATURE SEAMA_MTDBLOCK
@@ -556,6 +557,16 @@ define Device/glinet_gl-ar300m-nor
 endef
 TARGET_DEVICES += glinet_gl-ar300m-nor
 
+define Device/glinet_gl-ar750
+  ATH_SOC := qca9531
+  DEVICE_VENDOR := GL.iNet
+  DEVICE_MODEL := GL-AR750
+  DEVICE_PACKAGES := kmod-usb2 kmod-ath10k-ct ath10k-firmware-qca9887-ct
+  IMAGE_SIZE := 16000k
+  SUPPORTED_DEVICES += gl-ar750
+endef
+TARGET_DEVICES += glinet_gl-ar750
+
 define Device/glinet_gl-ar750s
   ATH_SOC := qca9563
   DEVICE_VENDOR := GL.iNet
@@ -816,6 +827,16 @@ define Device/netgear_wndr3700v2
   SUPPORTED_DEVICES += wndr3700v2
 endef
 TARGET_DEVICES += netgear_wndr3700v2
+
+define Device/pisen_ts-d084
+  $(Device/tplink-8mlzma)
+  ATH_SOC := ar9331
+  DEVICE_VENDOR := PISEN
+  DEVICE_MODEL := TS-D084
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-chipidea2
+  TPLINK_HWID := 0x07030101
+endef
+TARGET_DEVICES += pisen_ts-d084
 
 define Device/pisen_wmb001n
   ATH_SOC := ar9341
