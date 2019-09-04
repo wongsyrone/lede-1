@@ -13,14 +13,14 @@ PKG_RELEASE:=1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/wongsyrone/transocks-wong.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=778733be79c54a7af9415c815f01c40694a01d2f
+PKG_SOURCE_VERSION:=848efb9e1eb556568be96afd7c6f02aa81041f32
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 PKG_BUILD_PARALLEL:=0
 
 PKG_LICENSE:=GPL-2.0
 
-PKG_BUILD_DEPENDS := libevent2-wong
+PKG_BUILD_DEPENDS := mimalloc libevent2-wong
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -39,7 +39,9 @@ TARGET_LDFLAGS += -Wl,--gc-sections
 
 TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CXXFLAGS)) -O3
 
-CMAKE_OPTIONS += -DLibevent2_USE_STATIC_LIB=ON
+CMAKE_OPTIONS += \
+	-DLibevent2_USE_STATIC_LIB=ON \
+	-DWITH_MEM_ALLOCATOR=mimalloc
 
 # should be the last block
 # make package/*/compile STRIP=true
