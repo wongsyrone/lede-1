@@ -5,6 +5,8 @@
 # See /LICENSE for more information.
 #
 
+### STATIC lib only
+
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libevent2-wong
@@ -14,7 +16,7 @@ PKG_RELEASE:=git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/libevent/libevent.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=55d1e20e1a5dbd1188f4143968f7cafee33edc0d
+PKG_SOURCE_VERSION:=13b8fc39fd4000de2c836b0acdc52ae5b4c757c7
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 
 #PKG_SOURCE:=libevent-$(PKG_VERSION)-stable.tar.gz
@@ -31,6 +33,7 @@ PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 # do NOT interfere original libevent2
 MY_LIBEVENT_STAGING_DIR := $(BUILD_DIR)/libevent2-wong
@@ -118,17 +121,19 @@ endef
 
 TARGET_CFLAGS += $(FPIC)
 
-CONFIGURE_ARGS += \
-	--disable-shared \
-	--enable-static \
-	--disable-debug-mode \
-	--disable-samples
+CMAKE_OPTIONS += \
+	-DEVENT__LIBRARY_TYPE=STATIC \
+	-DEVENT__DISABLE_DEBUG_MODE=ON \
+	-DEVENT__DISABLE_BENCHMARK=ON \
+	-DEVENT__DISABLE_TESTS=ON \
+	-DEVENT__DISABLE_SAMPLES=ON \
+
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(MY_LIBEVENT_STAGING_DIR)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(MY_LIBEVENT_STAGING_DIR)/usr/include/
 	$(INSTALL_DIR) $(MY_LIBEVENT_STAGING_DIR)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libevent*.{la,a} $(MY_LIBEVENT_STAGING_DIR)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libevent*.a $(MY_LIBEVENT_STAGING_DIR)/usr/lib/
 endef
 
 define Build/Clean
