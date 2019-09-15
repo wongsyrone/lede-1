@@ -40,7 +40,7 @@ mtd_get_mac_ascii() {
 
 mtd_get_mac_text() {
 	local mtdname=$1
-	local offset=$2
+	local offset=$(($2))
 	local part
 	local mac_dirty
 
@@ -79,12 +79,7 @@ mtd_get_mac_binary_ubi() {
 	local ubidev=$(nand_find_ubi $CI_UBIPART)
 	local part=$(nand_find_volume $ubidev $1)
 
-	if [ -z "$part" ]; then
-		echo "mtd_get_mac_binary: ubi volume $mtdname not found!" >&2
-		return
-	fi
-
-	hexdump -v -n 6 -s $offset -e '5/1 "%02x:" 1/1 "%02x"' /dev/$part 2>/dev/null
+	get_mac_binary "/dev/$part" "$offset"
 }
 
 mtd_get_part_size() {
