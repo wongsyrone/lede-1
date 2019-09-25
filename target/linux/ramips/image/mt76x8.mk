@@ -120,6 +120,16 @@ define Device/hiwifi_hc5861b
 endef
 TARGET_DEVICES += hiwifi_hc5861b
 
+define Device/iptime_a3
+  MTK_SOC := mt7628an
+  IMAGE_SIZE := 7936k
+  UIMAGE_NAME := a3
+  DEVICE_VENDOR := ipTIME
+  DEVICE_MODEL := A3
+  DEVICE_PACKAGES := kmod-mt76x2
+endef
+TARGET_DEVICES += iptime_a3
+
 define Device/iptime_a604m
   MTK_SOC := mt7628an
   IMAGE_SIZE := 7936k
@@ -135,7 +145,7 @@ define Device/mediatek_linkit-smart-7688
   IMAGE_SIZE := 32448k
   DEVICE_VENDOR := MediaTek
   DEVICE_MODEL := LinkIt Smart 7688
-  DEVICE_PACKAGES:= kmod-usb2 kmod-usb-ohci uboot-envtools
+  DEVICE_PACKAGES:= kmod-usb2 kmod-usb-ohci uboot-envtools kmod-sdhci-mt7620
   SUPPORTED_DEVICES += linkits7688 linkits7688d
 endef
 TARGET_DEVICES += mediatek_linkit-smart-7688

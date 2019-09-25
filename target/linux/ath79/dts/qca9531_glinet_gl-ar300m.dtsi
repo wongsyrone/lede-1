@@ -11,11 +11,12 @@
 		led-failsafe = &led_status;
 		led-running = &led_status;
 		led-upgrade = &led_status;
+		label-mac-device = &eth0;
 	};
 
 	keys {
-		compatible = "gpio-keys-polled";
-		poll-interval = <20>;
+		compatible = "gpio-keys";
+
 		pinctrl-names = "default";
 		pinctrl-0 = <&jtag_disable_pins>;
 

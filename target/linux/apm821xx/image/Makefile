@@ -58,7 +58,7 @@ define Build/MerakiAdd-dtb
 	$(call Image/BuildDTB,../dts/$(DEVICE_DTS).dts,$@.dtb)
 	( \
 		dd if=$@.dtb bs=$(DTB_SIZE) conv=sync; \
-		dd if=$@ bs=$(BLOCKSIZE) conv=sync; \
+		cat $@ ; \
 	) > $@.new
 	@mv $@.new $@
 endef
@@ -127,7 +127,6 @@ define Device/meraki_mr24
   DEVICE_PACKAGES := kmod-spi-gpio -swconfig
   BOARD_NAME := mr24
   DEVICE_DTS := meraki-mr24
-  BLOCKSIZE := 63k
   IMAGES := sysupgrade.bin
   DTB_SIZE := 64512
   IMAGE_SIZE := 8191k
@@ -238,7 +237,7 @@ define Device/wd_mybooklive
   DTB_SIZE := 16384
   KERNEL := kernel-bin | dtb | gzip | uImage gzip
   KERNEL_INITRAMFS := kernel-bin | gzip | dtb | MuImage-initramfs gzip
-  IMAGES := factory.img.gz kernel.dtb sysupgrade.img.gz
+  IMAGES := factory.img.gz sysupgrade.img.gz
   ARTIFACTS := apollo3g.dtb
   DEVICE_DTB := apollo3g.dtb
   FILESYSTEMS := ext4 squashfs
