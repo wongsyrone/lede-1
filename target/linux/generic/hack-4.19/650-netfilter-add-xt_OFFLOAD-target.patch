@@ -98,7 +98,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  obj-$(CONFIG_NETFILTER_XT_TARGET_LED) += xt_LED.o
 --- /dev/null
 +++ b/net/netfilter/xt_FLOWOFFLOAD.c
-@@ -0,0 +1,383 @@
+@@ -0,0 +1,421 @@
 +/*
 + * Copyright (C) 2018 Felix Fietkau <nbd@nbd.name>
 + *
@@ -307,10 +307,12 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +	switch (xt_family(par)) {
 +	case NFPROTO_IPV4:
 +		fl.u.ip4.daddr = ct->tuplehash[dir].tuple.src.u3.ip;
++		fl.u.ip4.flowi4_oif = ifindex;
 +		break;
 +	case NFPROTO_IPV6:
 +		fl.u.ip6.saddr = ct->tuplehash[dir].tuple.dst.u3.in6;
 +		fl.u.ip6.daddr = ct->tuplehash[dir].tuple.src.u3.in6;
++		fl.u.ip6.flowi6_oif = ifindex;
 +		break;
 +	}
 +
@@ -344,13 +346,13 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +flowoffload_tg(struct sk_buff *skb, const struct xt_action_param *par)
 +{
 +	const struct xt_flowoffload_target_info *info = par->targinfo;
++	struct tcphdr _tcph, *tcph = NULL;
 +	enum ip_conntrack_info ctinfo;
 +	enum ip_conntrack_dir dir;
 +	struct nf_flow_route route;
 +	struct flow_offload *flow;
 +	struct nf_conn *ct;
 +	struct net *net;
-+	bool is_tcp = false;
 +
 +	if (xt_flowoffload_skip(skb, xt_family(par)))
 +		return XT_CONTINUE;
@@ -363,7 +365,11 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +	case IPPROTO_TCP:
 +		if (ct->proto.tcp.state != TCP_CONNTRACK_ESTABLISHED)
 +			return XT_CONTINUE;
-+		is_tcp = true;
++
++		tcph = skb_header_pointer(skb, par->thoff,
++					  sizeof(_tcph), &_tcph);
++		if (unlikely(!tcph || tcph->fin || tcph->rst))
++			return XT_CONTINUE;
 +		break;
 +	case IPPROTO_UDP:
 +		break;
@@ -393,7 +399,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +	if (!flow)
 +		goto err_flow_alloc;
 +
-+	if (is_tcp) {
++	if (tcph) {
 +		ct->proto.tcp.seen[0].flags |= IP_CT_TCP_FLAG_BE_LIBERAL;
 +		ct->proto.tcp.seen[1].flags |= IP_CT_TCP_FLAG_BE_LIBERAL;
 +	}
@@ -456,9 +462,40 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +	nf_flow_table_free(table);
 +}
 +
++static int flow_offload_netdev_event(struct notifier_block *this,
++				     unsigned long event, void *ptr)
++{
++	struct xt_flowoffload_hook *hook = NULL;
++	struct net_device *dev = netdev_notifier_info_to_dev(ptr);
++
++	if (event != NETDEV_UNREGISTER)
++		return NOTIFY_DONE;
++
++	spin_lock_bh(&hooks_lock);
++	hook = flow_offload_lookup_hook(dev);
++	if (hook) {
++		hlist_del(&hook->list);
++	}
++	spin_unlock_bh(&hooks_lock);
++	if (hook) {
++		nf_unregister_net_hook(hook->net, &hook->ops);
++		kfree(hook);
++	}
++
++	nf_flow_table_cleanup(dev_net(dev), dev);
++
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block flow_offload_netdev_notifier = {
++	.notifier_call	= flow_offload_netdev_event,
++};
++
 +static int __init xt_flowoffload_tg_init(void)
 +{
 +	int ret;
++
++	register_netdevice_notifier(&flow_offload_netdev_notifier);
 +
 +	INIT_DELAYED_WORK(&hook_work, xt_flowoffload_hook_work);
 +
@@ -477,6 +514,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
 +{
 +	xt_unregister_target(&offload_tg_reg);
 +	xt_flowoffload_table_cleanup(&nf_flowtable);
++	unregister_netdevice_notifier(&flow_offload_netdev_notifier);
 +}
 +
 +MODULE_LICENSE("GPL");
