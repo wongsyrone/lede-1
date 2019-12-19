@@ -1,6 +1,7 @@
 include ./common-buffalo.mk
 include ./common-netgear.mk
 include ./common-tp-link.mk
+include ./common-yuncore.mk
 
 DEVICE_VARS += ADDPATTERN_ID ADDPATTERN_VERSION
 DEVICE_VARS += SEAMA_SIGNATURE SEAMA_MTDBLOCK
@@ -199,7 +200,7 @@ define Device/buffalo_wzr-hp-ag300h
   ATH_SOC := ar7161
   DEVICE_VENDOR := Buffalo
   DEVICE_MODEL := WZR-HP-AG300H
-  IMAGE_SIZE := 32256k
+  IMAGE_SIZE := 32320k
   IMAGES += factory.bin tftp.bin
   IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE)
   IMAGE/factory.bin := $$(IMAGE/default) | buffalo-enc WZR-HP-AG300H 1.99 | buffalo-tag WZR-HP-AG300H 3
@@ -257,6 +258,16 @@ define Device/comfast_cf-e120a-v3
   IMAGE_SIZE := 8000k
 endef
 TARGET_DEVICES += comfast_cf-e120a-v3
+
+define Device/comfast_cf-e313ac
+  ATH_SOC := qca9531
+  DEVICE_VENDOR := COMFAST
+  DEVICE_MODEL := CF-E313AC
+  DEVICE_PACKAGES := rssileds kmod-leds-gpio kmod-ath10k-ct ath10k-firmware-qca9888-ct \
+	-swconfig -uboot-envtools
+  IMAGE_SIZE := 7936k
+endef
+TARGET_DEVICES += comfast_cf-e313ac
 
 define Device/comfast_cf-e314n-v2
   ATH_SOC := qca9531
@@ -539,6 +550,7 @@ TARGET_DEVICES += glinet_gl-ar150
 
 define Device/glinet_gl-ar300m-common-nor
   ATH_SOC := qca9531
+  DEVICE_VENDOR := GL.iNet
   DEVICE_PACKAGES := kmod-usb2
   IMAGE_SIZE := 16000k
   SUPPORTED_DEVICES += gl-ar300m
@@ -546,17 +558,16 @@ endef
 
 define Device/glinet_gl-ar300m-lite
   $(Device/glinet_gl-ar300m-common-nor)
-  DEVICE_VENDOR := GL.iNet
-  DEVICE_MODEL := GL-AR300M-Lite
+  DEVICE_MODEL := GL-AR300M
+  DEVICE_VARIANT := Lite
 endef
 TARGET_DEVICES += glinet_gl-ar300m-lite
 
-define Device/glinet_gl-ar300m-nor
+define Device/glinet_gl-ar300m16
   $(Device/glinet_gl-ar300m-common-nor)
-  DEVICE_VENDOR := GL.iNet
-  DEVICE_MODEL := GL-AR300M
+  DEVICE_MODEL := GL-AR300M16
 endef
-TARGET_DEVICES += glinet_gl-ar300m-nor
+TARGET_DEVICES += glinet_gl-ar300m16
 
 define Device/glinet_gl-ar750
   ATH_SOC := qca9531
@@ -567,16 +578,6 @@ define Device/glinet_gl-ar750
   SUPPORTED_DEVICES += gl-ar750
 endef
 TARGET_DEVICES += glinet_gl-ar750
-
-define Device/glinet_gl-ar750s
-  ATH_SOC := qca9563
-  DEVICE_VENDOR := GL.iNet
-  DEVICE_MODEL := GL-AR750S
-  DEVICE_PACKAGES := kmod-usb2 kmod-ath10k-ct ath10k-firmware-qca9887-ct block-mount
-  IMAGE_SIZE := 16000k
-  SUPPORTED_DEVICES += gl-ar750s
-endef
-TARGET_DEVICES += glinet_gl-ar750s
 
 define Device/glinet_gl-x750
   ATH_SOC := qca9531
@@ -758,7 +759,7 @@ define Device/netgear_wndr3700v2
   NETGEAR_BOARD_ID := WNDR3700v2
   NETGEAR_HW_ID := 29763654+16+64
   IMAGE_SIZE := 15872k
-  SUPPORTED_DEVICES += wndr3700v2
+  SUPPORTED_DEVICES += wndr3700
 endef
 TARGET_DEVICES += netgear_wndr3700v2
 
@@ -769,7 +770,7 @@ define Device/netgear_wndr3800
   NETGEAR_BOARD_ID := WNDR3800
   NETGEAR_HW_ID := 29763654+16+128
   IMAGE_SIZE := 15872k
-  SUPPORTED_DEVICES += wndr3800
+  SUPPORTED_DEVICES += wndr3700
 endef
 TARGET_DEVICES += netgear_wndr3800
 
@@ -780,9 +781,43 @@ define Device/netgear_wndr3800ch
   NETGEAR_BOARD_ID := WNDR3800CH
   NETGEAR_HW_ID := 29763654+16+128
   IMAGE_SIZE := 15872k
-  SUPPORTED_DEVICES += wndr3800ch
+  SUPPORTED_DEVICES += wndr3700
 endef
 TARGET_DEVICES += netgear_wndr3800ch
+
+define Device/netgear_wnr2200_common
+  ATH_SOC := ar7241
+  DEVICE_MODEL := WNR2200
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport
+  NETGEAR_KERNEL_MAGIC := 0x32323030
+  NETGEAR_BOARD_ID := wnr2200
+  IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | netgear-squashfs | \
+	append-rootfs | pad-rootfs
+  $(Device/netgear_ath79)
+endef
+
+define Device/netgear_wnr2200-8m
+  $(Device/netgear_wnr2200_common)
+  DEVICE_VARIANT := 8M
+  NETGEAR_HW_ID := 29763600+08+64
+  IMAGE_SIZE := 7808k
+  IMAGES += factory-NA.img
+  IMAGE/factory-NA.img := $$(IMAGE/default) | netgear-dni NA | \
+	check-size $$$$(IMAGE_SIZE)
+  SUPPORTED_DEVICES += wnr2200
+endef
+TARGET_DEVICES += netgear_wnr2200-8m
+
+define Device/netgear_wnr2200-16m
+  $(Device/netgear_wnr2200_common)
+  DEVICE_VARIANT := 16M
+  DEVICE_ALT0_VENDOR := NETGEAR
+  DEVICE_ALT0_MODEL := WNR2200
+  DEVICE_ALT0_VARIANT := CN/RU
+  NETGEAR_HW_ID :=
+  IMAGE_SIZE := 16000k
+endef
+TARGET_DEVICES += netgear_wnr2200-16m
 
 define Device/ocedo_koala
   ATH_SOC := qca9558
@@ -921,6 +956,20 @@ define Device/rosinson_wr818
 endef
 TARGET_DEVICES += rosinson_wr818
 
+define Device/sitecom_wlr-7100
+  ATH_SOC := ar1022
+  DEVICE_VENDOR := Sitecom
+  DEVICE_MODEL := WLR-7100
+  DEVICE_VARIANT := v1 002
+  DEVICE_PACKAGES := ath10k-firmware-qca988x kmod-ath10k kmod-usb2
+  IMAGES += factory.dlf
+  IMAGE/factory.dlf := append-kernel | pad-to $$$$(BLOCKSIZE) | \
+	append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | \
+	senao-header -r 0x222 -p 0x53 -t 2
+  IMAGE_SIZE := 7488k
+endef
+TARGET_DEVICES += sitecom_wlr-7100
+
 define Device/trendnet_tew-823dru
   ATH_SOC := qca9558
   DEVICE_VENDOR := Trendnet
@@ -986,8 +1035,32 @@ define Device/yuncore_a770
   DEVICE_MODEL := A770
   DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca9887-ct
   IMAGE_SIZE := 16000k
+  IMAGES += tftp.bin
+  IMAGE/tftp.bin := $$(IMAGE/sysupgrade.bin) | yuncore-tftp-header-16m
 endef
 TARGET_DEVICES += yuncore_a770
+
+define Device/yuncore_a782
+  ATH_SOC := qca9563
+  DEVICE_VENDOR := YunCore
+  DEVICE_MODEL := A782
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca9888-ct
+  IMAGE_SIZE := 16000k
+  IMAGES += tftp.bin
+  IMAGE/tftp.bin := $$(IMAGE/sysupgrade.bin) | yuncore-tftp-header-16m
+endef
+TARGET_DEVICES += yuncore_a782
+
+define Device/yuncore_xd4200
+  ATH_SOC := qca9563
+  DEVICE_VENDOR := YunCore
+  DEVICE_MODEL := XD4200
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca9888-ct
+  IMAGE_SIZE := 16000k
+  IMAGES += tftp.bin
+  IMAGE/tftp.bin := $$(IMAGE/sysupgrade.bin) | yuncore-tftp-header-16m
+endef
+TARGET_DEVICES += yuncore_xd4200
 
 define Device/zbtlink_zbt-wd323
   ATH_SOC := ar9344

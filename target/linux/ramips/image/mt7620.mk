@@ -13,7 +13,7 @@ define Build/elecom-header
 	) | mkhash md5 > $(KDIR)/v_0.0.0.md5
 	$(STAGING_DIR_HOST)/bin/tar -c \
 		$(if $(SOURCE_DATE_EPOCH),--mtime=@$(SOURCE_DATE_EPOCH)) \
-		-f $@ -C $(KDIR) v_0.0.0.bin v_0.0.0.md5
+		--owner=0 --group=0 -f $@ -C $(KDIR) v_0.0.0.bin v_0.0.0.md5
 endef
 
 define Device/aigale_ai-br100
@@ -34,6 +34,15 @@ define Device/alfa-network_ac1200rm
   DEVICE_PACKAGES := kmod-mt76x2 kmod-usb2 kmod-usb-ohci uboot-envtools
 endef
 TARGET_DEVICES += alfa-network_ac1200rm
+
+define Device/alfa-network_r36m-e4g
+  MTK_SOC := mt7620a
+  IMAGE_SIZE := 16064k
+  DEVICE_VENDOR := ALFA Network
+  DEVICE_MODEL := R36M-E4G
+  DEVICE_PACKAGES := kmod-i2c-ralink kmod-usb2 kmod-usb-ohci uboot-envtools uqmi
+endef
+TARGET_DEVICES += alfa-network_r36m-e4g
 
 define Device/alfa-network_tube-e4g
   MTK_SOC := mt7620a
@@ -485,6 +494,16 @@ define Device/iodata_wn-ac733gr3
 endef
 TARGET_DEVICES += iodata_wn-ac733gr3
 
+define Device/iptime_a104ns
+  MTK_SOC := mt7620a
+  IMAGE_SIZE := 8000k
+  UIMAGE_NAME := a104ns
+  DEVICE_VENDOR := ipTIME
+  DEVICE_MODEL := A104ns
+  DEVICE_PACKAGES := kmod-mt76x0e kmod-usb2 kmod-usb-ohci kmod-usb-ledtrig-usbport
+endef
+TARGET_DEVICES += iptime_a104ns
+
 define Device/kimax_u25awf-h1
   MTK_SOC := mt7620a
   IMAGE_SIZE := 16064k
@@ -611,6 +630,19 @@ define Device/netgear_ex3700
   SUPPORTED_DEVICES += ex3700
 endef
 TARGET_DEVICES += netgear_ex3700
+
+define Device/netgear_ex6130
+  MTK_SOC := mt7620a
+  NETGEAR_BOARD_ID := U12H319T50_NETGEAR
+  BLOCKSIZE := 4k
+  IMAGE_SIZE := 7744k
+  IMAGES += factory.chk
+  IMAGE/factory.chk := $$(sysupgrade_bin) | check-size $$$$(IMAGE_SIZE) | netgear-chk
+  DEVICE_PACKAGES := kmod-mt76x2
+  DEVICE_VENDOR := NETGEAR
+  DEVICE_MODEL := EX6130
+endef
+TARGET_DEVICES += netgear_ex6130
 
 define Device/netgear_wn3000rp-v3
   MTK_SOC := mt7620a
@@ -983,6 +1015,17 @@ define Device/zbtlink_zbt-we1026-5g-16m
   SUPPORTED_DEVICES += we1026-5g-16m zbtlink,we1026-5g-16m
 endef
 TARGET_DEVICES += zbtlink_zbt-we1026-5g-16m
+
+define Device/zbtlink_zbt-we1026-h-32m
+  MTK_SOC := mt7620a
+  IMAGE_SIZE := 32448k
+  DEVICE_VENDOR := Zbtlink
+  DEVICE_MODEL := ZBT-WE1026-H
+  DEVICE_VARIANT := 32M
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ohci kmod-sdhci-mt7620 \
+	kmod-ledtrig-netdev
+endef
+TARGET_DEVICES += zbtlink_zbt-we1026-h-32m
 
 define Device/zbtlink_zbt-we2026
   MTK_SOC := mt7620n
