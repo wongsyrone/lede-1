@@ -8,11 +8,9 @@ UBNT_REVISION := $(VERSION_DIST)-$(REVISION)
 # mkubntimage is using the kernel image direct
 # routerboard creates partitions out of the ubnt header
 define Build/mkubntimage
-	-$(STAGING_DIR_HOST)/bin/mkfwimage \
-		-B $(UBNT_BOARD) -v $(UBNT_TYPE).$(UBNT_CHIP).v6.0.0-$(VERSION_DIST)-$(REVISION) \
-		-k $(IMAGE_KERNEL) \
-		-r $@ \
-		-o $@
+	-$(STAGING_DIR_HOST)/bin/mkfwimage -B $(UBNT_BOARD) \
+		-v $(UBNT_TYPE).$(UBNT_CHIP).v6.0.0-$(VERSION_DIST)-$(REVISION) \
+		-k $(IMAGE_KERNEL) -r $@ -o $@
 endef
 
 # all UBNT XM/WA devices expect the kernel image to have 1024k while flash, when
@@ -21,11 +19,9 @@ define Build/mkubntimage-split
 	-[ -f $@ ] && ( \
 	dd if=$@ of=$@.old1 bs=1024k count=1; \
 	dd if=$@ of=$@.old2 bs=1024k skip=1; \
-	$(STAGING_DIR_HOST)/bin/mkfwimage \
-		-B $(UBNT_BOARD) -v $(UBNT_TYPE).$(UBNT_CHIP).v$(UBNT_VERSION)-$(UBNT_REVISION) \
-		-k $@.old1 \
-		-r $@.old2 \
-		-o $@; \
+	$(STAGING_DIR_HOST)/bin/mkfwimage -B $(UBNT_BOARD) \
+		-v $(UBNT_TYPE).$(UBNT_CHIP).v$(UBNT_VERSION)-$(UBNT_REVISION) \
+		-k $@.old1 -r $@.old2 -o $@; \
 	rm $@.old1 $@.old2 )
 endef
 
@@ -43,7 +39,7 @@ endef
 
 define Device/ubnt-bz
   $(Device/ubnt)
-  ATH_SOC := ar7241
+  SOC := ar7241
   IMAGE_SIZE := 7448k
   UBNT_BOARD := XM
   UBNT_CHIP := ar7240
@@ -53,7 +49,7 @@ endef
 
 define Device/ubnt-wa
   $(Device/ubnt)
-  ATH_SOC := ar9342
+  SOC := ar9342
   IMAGE_SIZE := 15744k
   UBNT_BOARD := WA
   UBNT_CHIP := ar934x
@@ -63,7 +59,7 @@ endef
 
 define Device/ubnt-xm
   $(Device/ubnt)
-  ATH_SOC := ar7241
+  SOC := ar7241
   DEVICE_VARIANT := XM
   DEVICE_PACKAGES += kmod-usb-ohci
   IMAGE_SIZE := 7448k
@@ -76,7 +72,7 @@ endef
 
 define Device/ubnt-xw
   $(Device/ubnt)
-  ATH_SOC := ar9342
+  SOC := ar9342
   DEVICE_VARIANT := XW
   IMAGE_SIZE := 7552k
   UBNT_BOARD := XM
@@ -88,7 +84,7 @@ endef
 
 define Device/ubnt_acb-isp
   $(Device/ubnt)
-  ATH_SOC := qca9533
+  SOC := qca9533
   DEVICE_MODEL := airCube ISP
   IMAGE_SIZE := 15744k
   UBNT_BOARD := ACB-ISP
@@ -184,12 +180,14 @@ endef
 TARGET_DEVICES += ubnt_rocket-m
 
 define Device/ubnt_routerstation_common
-  DEVICE_PACKAGES := -kmod-ath9k -wpad-mini -uboot-envtools kmod-usb-ohci kmod-usb2 fconfig
+  DEVICE_PACKAGES := -kmod-ath9k -wpad-mini -uboot-envtools kmod-usb-ohci \
+	kmod-usb2 fconfig
   DEVICE_VENDOR := Ubiquiti
-  ATH_SOC := ar7161
+  SOC := ar7161
   IMAGE_SIZE := 16128k
   IMAGES := factory.bin
-  IMAGE/factory.bin := append-rootfs | pad-rootfs | mkubntimage | check-size $$$$(IMAGE_SIZE)
+  IMAGE/factory.bin := append-rootfs | pad-rootfs | mkubntimage | \
+	check-size $$$$(IMAGE_SIZE)
   KERNEL := kernel-bin | append-dtb | lzma | pad-to $$(BLOCKSIZE)
   KERNEL_INITRAMFS := kernel-bin | append-dtb
 endef
@@ -224,7 +222,7 @@ TARGET_DEVICES += ubnt_unifi
 
 define Device/ubnt_unifiac
   DEVICE_VENDOR := Ubiquiti
-  ATH_SOC := qca9563
+  SOC := qca9563
   IMAGE_SIZE := 7744k
   DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
 endef
