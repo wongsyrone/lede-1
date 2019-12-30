@@ -9,6 +9,7 @@ define Device/Default
 	KERNEL_INITRAMFS_PREFIX := $$(IMG_PREFIX)-$(1)-initramfs
 	KERNEL_PREFIX := $$(IMAGE_PREFIX)
 	KERNEL_LOADADDR := 0x80208000
+	DEVICE_DTS = $$(SOC)-$(lastword $(subst _, ,$(1)))
 	SUPPORTED_DEVICES := $(subst _,$(comma),$(1))
 	IMAGE/sysupgrade.bin = sysupgrade-tar | append-metadata
 	IMAGE/sysupgrade.bin/squashfs :=
@@ -65,13 +66,13 @@ define Device/8dev_jalapeno-common
 	$(call Device/UbiFit)
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
+	SOC := qcom-ipq4018
 endef
 
 define Device/8dev_jalapeno
 	$(call Device/8dev_jalapeno-common)
 	DEVICE_VENDOR := 8devices
 	DEVICE_MODEL := Jalapeno
-	DEVICE_DTS := qcom-ipq4018-jalapeno
 endef
 TARGET_DEVICES += 8dev_jalapeno
 
@@ -80,7 +81,7 @@ define Device/alfa-network_ap120c-ac
 	$(call Device/UbiFit)
 	DEVICE_VENDOR := ALFA Network
 	DEVICE_MODEL := AP120C-AC
-	DEVICE_DTS := qcom-ipq4018-ap120c-ac
+	SOC := qcom-ipq4018
 	DEVICE_PACKAGES := kmod-usb-acm \
 		kmod-tpm-i2c-atmel uboot-envtools
 	BLOCKSIZE := 128k
@@ -91,11 +92,21 @@ define Device/alfa-network_ap120c-ac
 endef
 TARGET_DEVICES += alfa-network_ap120c-ac
 
+define Device/aruba_ap-303
+	$(call Device/FitImageLzma)
+	DEVICE_VENDOR := Aruba
+	DEVICE_MODEL := AP-303
+	SOC := qcom-ipq4029
+	DEVICE_PACKAGES := ipq-wifi-aruba_ap-303
+	IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += aruba_ap-303
+
 define Device/asus_map-ac2200
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := ASUS
 	DEVICE_MODEL := Lyra (MAP-AC2200)
-	DEVICE_DTS := qcom-ipq4019-map-ac2200
+	SOC := qcom-ipq4019
 	IMAGES := sysupgrade.bin
 	DEVICE_PACKAGES := ath10k-firmware-qca9888-ct kmod-ath3k
 endef
@@ -105,7 +116,7 @@ define Device/asus_rt-ac58u
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := ASUS
 	DEVICE_MODEL := RT-AC58U
-	DEVICE_DTS := qcom-ipq4018-rt-ac58u
+	SOC := qcom-ipq4018
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	DTB_SIZE := 65536
@@ -118,7 +129,8 @@ define Device/asus_rt-ac58u
 #	string and call it a day.... Yeah, we do the latter!
 	UIMAGE_NAME:=$(shell echo -e '\03\01\01\01RT-AC58U')
 	IMAGES := sysupgrade.bin
-	DEVICE_PACKAGES := kmod-usb-ledtrig-usbport
+	DEVICE_PACKAGES := -kmod-ath10k-ct kmod-ath10k-ct-smallbuffers \
+		kmod-usb-ledtrig-usbport
 endef
 TARGET_DEVICES += asus_rt-ac58u
 
@@ -126,7 +138,7 @@ define Device/avm_fritzbox-4040
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := AVM
 	DEVICE_MODEL := FRITZ!Box 4040
-	DEVICE_DTS := qcom-ipq4018-fritz4040
+	SOC := qcom-ipq4018
 	BOARD_NAME := fritz4040
 	IMAGE_SIZE := 29056k
 	UBOOT_PATH := $(STAGING_DIR_IMAGE)/uboot-fritz4040.bin
@@ -142,7 +154,7 @@ define Device/avm_fritzbox-7530
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := AVM
 	DEVICE_MODEL := FRITZ!Box 7530
-	DEVICE_DTS := qcom-ipq4019-fritzbox-7530
+	SOC := qcom-ipq4019
 	DEVICE_PACKAGES := fritz-caldata fritz-tffs-nand
 	IMAGES := sysupgrade.bin
 endef
@@ -152,7 +164,7 @@ define Device/avm_fritzrepeater-1200
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := AVM
 	DEVICE_MODEL := FRITZ!Repeater 1200
-	DEVICE_DTS := qcom-ipq4019-fritzrepeater-1200
+	SOC := qcom-ipq4019
 	DEVICE_PACKAGES := fritz-caldata fritz-tffs-nand ipq-wifi-avm_fritzrepeater-1200
 	IMAGES := sysupgrade.bin
 endef
@@ -162,7 +174,7 @@ define Device/avm_fritzrepeater-3000
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := AVM
 	DEVICE_MODEL := FRITZ!Repeater 3000
-	DEVICE_DTS := qcom-ipq4019-fritzrepeater-3000
+	SOC := qcom-ipq4019
 	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct fritz-caldata fritz-tffs-nand
 	IMAGES := sysupgrade.bin
 endef
@@ -170,7 +182,6 @@ TARGET_DEVICES += avm_fritzrepeater-3000
 
 define Device/cilab_meshpoint-one
 	$(call Device/8dev_jalapeno-common)
-	DEVICE_DTS := qcom-ipq4018-meshpoint-one
 	DEVICE_VENDOR := Crisis Innovation Lab
 	DEVICE_MODEL := MeshPoint.One
 	DEVICE_PACKAGES := kmod-i2c-gpio kmod-iio-bmp280-i2c kmod-hwmon-ina2xx kmod-rtc-pcf2127
@@ -182,7 +193,7 @@ define Device/compex_wpj419
 	$(call Device/UbiFit)
 	DEVICE_VENDOR := Compex
 	DEVICE_MODEL := WPJ419
-	DEVICE_DTS := qcom-ipq4019-wpj419
+	SOC := qcom-ipq4019
 	DEVICE_DTS_CONFIG := config@12
 	KERNEL_INSTALL := 1
 	BLOCKSIZE := 128k
@@ -195,7 +206,7 @@ define Device/compex_wpj428
 	$(call Device/FitImage)
 	DEVICE_VENDOR := Compex
 	DEVICE_MODEL := WPJ428
-	DEVICE_DTS := qcom-ipq4028-wpj428
+	SOC := qcom-ipq4028
 	DEVICE_DTS_CONFIG := config@4
 	BLOCKSIZE := 64k
 	IMAGE_SIZE := 31232k
@@ -212,7 +223,7 @@ define Device/engenius_eap1300
 	DEVICE_MODEL := EAP1300
 	DEVICE_DTS_CONFIG := config@4
 	BOARD_NAME := eap1300
-	DEVICE_DTS := qcom-ipq4018-eap1300
+	SOC := qcom-ipq4018
 	KERNEL_SIZE := 5120k
 	IMAGE_SIZE := 25344k
 	IMAGES := sysupgrade.bin
@@ -224,7 +235,7 @@ define Device/engenius_ens620ext
 	$(call Device/FitImage)
 	DEVICE_VENDOR := EnGenius
 	DEVICE_MODEL := ENS620EXT
-	DEVICE_DTS := qcom-ipq4018-ens620ext
+	SOC := qcom-ipq4018
 	DEVICE_DTS_CONFIG := config@4
 	BLOCKSIZE := 64k
 	PAGESIZE := 256
@@ -251,7 +262,7 @@ define Device/glinet_gl-b1300
 	DEVICE_VENDOR := GL.iNet
 	DEVICE_MODEL := GL-B1300
 	BOARD_NAME := gl-b1300
-	DEVICE_DTS := qcom-ipq4029-gl-b1300
+	SOC := qcom-ipq4029
 	KERNEL_SIZE := 4096k
 	IMAGE_SIZE := 26624k
 	IMAGES := sysupgrade.bin
@@ -284,7 +295,7 @@ define Device/linksys_ea6350v3
 	DEVICE_VENDOR := Linksys
 	DEVICE_MODEL := EA6350
 	DEVICE_VARIANT := v3
-	DEVICE_DTS := qcom-ipq4018-ea6350v3
+	SOC := qcom-ipq4018
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	KERNEL_SIZE := 3072k
@@ -300,7 +311,7 @@ define Device/linksys_ea8300
 	$(call Device/FitzImage)
 	DEVICE_VENDOR := Linksys
 	DEVICE_MODEL := EA8300
-	DEVICE_DTS := qcom-ipq4019-linksys_ea8300
+	SOC := qcom-ipq4019
 	KERNEL_SIZE := 3072k
 	IMAGE_SIZE := 87040k
 	BLOCKSIZE := 128k
@@ -316,7 +327,7 @@ define Device/meraki_mr33
 	$(call Device/FitImage)
 	DEVICE_VENDOR := Cisco Meraki
 	DEVICE_MODEL := MR33
-	DEVICE_DTS := qcom-ipq4029-mr33
+	SOC := qcom-ipq4029
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	IMAGES = sysupgrade.bin
@@ -329,6 +340,7 @@ define Device/netgear_ex61x0v2
 	DEVICE_DTS_CONFIG := config@4
 	NETGEAR_BOARD_ID := EX6150v2series
 	NETGEAR_HW_ID := 29765285+16+0+128+2x2
+	SOC := qcom-ipq4018
 endef
 
 define Device/netgear_ex6100v2
@@ -336,7 +348,6 @@ define Device/netgear_ex6100v2
 	DEVICE_VENDOR := Netgear
 	DEVICE_MODEL := EX6100
 	DEVICE_VARIANT := v2
-	DEVICE_DTS := qcom-ipq4018-ex6100v2
 endef
 TARGET_DEVICES += netgear_ex6100v2
 
@@ -345,7 +356,6 @@ define Device/netgear_ex6150v2
 	DEVICE_VENDOR := Netgear
 	DEVICE_MODEL := EX6150
 	DEVICE_VARIANT := v2
-	DEVICE_DTS := qcom-ipq4018-ex6150v2
 endef
 TARGET_DEVICES += netgear_ex6150v2
 
@@ -353,7 +363,7 @@ define Device/openmesh_a42
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := OpenMesh
 	DEVICE_MODEL := A42
-	DEVICE_DTS := qcom-ipq4018-a42
+	SOC := qcom-ipq4018
 	DEVICE_DTS_CONFIG := config@om.a42
 	BLOCKSIZE := 64k
 	KERNEL = kernel-bin | lzma | fit lzma $$(DTS_DIR)/$$(DEVICE_DTS).dtb | pad-to $$(BLOCKSIZE)
@@ -369,7 +379,7 @@ define Device/openmesh_a62
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := OpenMesh
 	DEVICE_MODEL := A62
-	DEVICE_DTS := qcom-ipq4019-a62
+	SOC := qcom-ipq4019
 	DEVICE_DTS_CONFIG := config@om.a62
 	BLOCKSIZE := 64k
 	KERNEL = kernel-bin | lzma | fit lzma $$(DTS_DIR)/$$(DEVICE_DTS).dtb | pad-to $$(BLOCKSIZE)
@@ -387,6 +397,7 @@ define Device/qcom_ap-dk01.1-c1
 	DEVICE_MODEL := AP-DK01.1
 	DEVICE_VARIANT := C1
 	BOARD_NAME := ap-dk01.1-c1
+	SOC := qcom-ipq4019
 	DEVICE_DTS := qcom-ipq4019-ap.dk01.1-c1
 	KERNEL_INSTALL := 1
 	KERNEL_SIZE := 4096k
@@ -403,6 +414,7 @@ define Device/qcom_ap-dk04.1-c1
 	DEVICE_VENDOR := Qualcomm Atheros
 	DEVICE_MODEL := AP-DK04.1
 	DEVICE_VARIANT := C1
+	SOC := qcom-ipq4019
 	DEVICE_DTS := qcom-ipq4019-ap.dk04.1-c1
 	KERNEL_INSTALL := 1
 	KERNEL_SIZE := 4048k
@@ -418,7 +430,7 @@ define Device/qxwlan_e2600ac-c1
 	DEVICE_MODEL := E2600AC
 	DEVICE_VARIANT := C1
 	BOARD_NAME := e2600ac-c1
-	DEVICE_DTS := qcom-ipq4019-qxwlan-e2600ac-c1
+	SOC := qcom-ipq4019
 	KERNEL_SIZE := 4096k
 	IMAGE_SIZE := 31232k
 	IMAGES := sysupgrade.bin
@@ -433,7 +445,7 @@ define Device/qxwlan_e2600ac-c2
 	DEVICE_VENDOR := Qxwlan
 	DEVICE_MODEL := E2600AC
 	DEVICE_VARIANT := C2
-	DEVICE_DTS := qcom-ipq4019-qxwlan-e2600ac-c2
+	SOC := qcom-ipq4019
 	KERNEL_INSTALL := 1
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
@@ -447,7 +459,7 @@ define Device/unielec_u4019-32m
 	DEVICE_MODEL := U4019
 	DEVICE_VARIANT := 32M
 	BOARD_NAME := u4019-32m
-	DEVICE_DTS := qcom-ipq4019-unielec-u4019-32m
+	SOC := qcom-ipq4019
 	KERNEL_SIZE := 4096k
 	IMAGE_SIZE := 31232k
 	IMAGES := sysupgrade.bin
@@ -459,7 +471,7 @@ define Device/zyxel_nbg6617
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := ZyXEL
 	DEVICE_MODEL := NBG6617
-	DEVICE_DTS := qcom-ipq4018-nbg6617
+	SOC := qcom-ipq4018
 	ROOTFS_SIZE := 24960k
 	RAS_BOARD := NBG6617
 	RAS_ROOTFS_SIZE := 19840k
@@ -481,9 +493,10 @@ define Device/zyxel_wre6606
 	DEVICE_VENDOR := ZyXEL
 	DEVICE_MODEL := WRE6606
 	DEVICE_DTS_CONFIG := config@4
-	DEVICE_DTS := qcom-ipq4018-wre6606
+	SOC := qcom-ipq4018
 	IMAGES := sysupgrade.bin
 	IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | append-metadata
+	DEVICE_PACKAGES := -kmod-ath10k-ct kmod-ath10k-ct-smallbuffers
 endef
 TARGET_DEVICES += zyxel_wre6606
 
