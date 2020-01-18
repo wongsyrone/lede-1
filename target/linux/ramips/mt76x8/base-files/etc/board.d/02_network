@@ -40,6 +40,7 @@ ramips_setup_interfaces()
 	hiwifi,hc5861b|\
 	skylab,skw92a|\
 	tplink,archer-c20-v4|\
+	tplink,archer-c20-v5|\
 	tplink,archer-c50-v3|\
 	tplink,archer-c50-v4|\
 	tplink,tl-mr3420-v5|\
@@ -61,8 +62,7 @@ ramips_setup_interfaces()
 	mercury,mac1200r-v2|\
 	totolink,lr1200|\
 	wavlink,wl-wn570ha1|\
-	wavlink,wl-wn575a3|\
-	xiaomi,miwifi-nano)
+	wavlink,wl-wn575a3)
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "2:lan" "3:lan" "4:wan" "6@eth0"
 		;;
@@ -108,6 +108,10 @@ ramips_setup_interfaces()
 	xiaomi,mir4a-100m)
 		ucidef_add_switch "switch0" \
 			"4:lan:1" "2:lan:2" "0:wan" "6@eth0"
+		;;
+	xiaomi,miwifi-nano)
+		ucidef_add_switch "switch0" \
+			"0:lan:2" "2:lan:1" "4:wan" "6@eth0"
 		;;
 	zbtlink,zbt-we1226)
 		ucidef_add_switch "switch0" \
@@ -188,6 +192,7 @@ ramips_setup_macs()
 	tplink,tl-wr842n-v5)
 		wan_mac=$(macaddr_add "$(mtd_get_mac_binary factory 0xf100)" 1)
 		;;
+	tplink,archer-c20-v5|\
 	tplink,archer-c50-v4)
 		wan_mac=$(macaddr_add "$(mtd_get_mac_binary rom 0xf100)" 1)
 		;;

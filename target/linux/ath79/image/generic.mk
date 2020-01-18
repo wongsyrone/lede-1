@@ -373,6 +373,16 @@ define Device/devolo_dvl1750x
 endef
 TARGET_DEVICES += devolo_dvl1750x
 
+define Device/dlink_dir-505
+  SOC := ar9330
+  DEVICE_VENDOR := D-Link
+  DEVICE_MODEL := DIR-505
+  IMAGE_SIZE := 7680k
+  DEVICE_PACKAGES := kmod-usb2
+  SUPPORTED_DEVICES += dir-505-a1
+endef
+TARGET_DEVICES += dlink_dir-505
+
 define Device/dlink_dir-825-b1
   SOC := ar7161
   DEVICE_VENDOR := D-Link
@@ -986,7 +996,7 @@ define Device/sitecom_wlr-7100
   DEVICE_VENDOR := Sitecom
   DEVICE_MODEL := WLR-7100
   DEVICE_VARIANT := v1 002
-  DEVICE_PACKAGES := ath10k-firmware-qca988x kmod-ath10k kmod-usb2
+  DEVICE_PACKAGES := ath10k-firmware-qca988x-ct kmod-ath10k-ct-smallbuffers kmod-usb2
   IMAGES += factory.dlf
   IMAGE/factory.dlf := append-kernel | pad-to $$$$(BLOCKSIZE) | \
 	append-rootfs | pad-rootfs | check-size $$$$(IMAGE_SIZE) | \

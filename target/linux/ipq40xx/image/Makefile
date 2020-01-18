@@ -102,6 +102,16 @@ define Device/aruba_ap-303
 endef
 TARGET_DEVICES += aruba_ap-303
 
+define Device/aruba_ap-303h
+	$(call Device/FitImageLzma)
+	DEVICE_VENDOR := Aruba
+	DEVICE_MODEL := AP-303H
+	SOC := qcom-ipq4029
+	DEVICE_PACKAGES := ipq-wifi-aruba_ap-303
+	IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += aruba_ap-303h
+
 define Device/asus_map-ac2200
 	$(call Device/FitImageLzma)
 	DEVICE_VENDOR := ASUS
@@ -256,6 +266,22 @@ define Device/engenius_ens620ext
 	IMAGE/factory_35.bin := qsdk-ipq-factory-nor | check-size $$$$(IMAGE_SIZE) | SenaoFW $$$$(PRODUCT_ID_NEW) $$$$(FW_VER_NEW)
 endef
 TARGET_DEVICES += engenius_ens620ext
+
+define Device/ezviz_cs-w3-wd1200g-eup
+	$(call Device/FitImage)
+	DEVICE_VENDOR := EZVIZ
+	DEVICE_MODEL := CS-W3-WD1200G
+	DEVICE_VARIANT := EUP
+	DEVICE_DTS_CONFIG := config@4
+	IMAGE_SIZE := 14848k
+	SOC := qcom-ipq4018
+	IMAGES := sysupgrade.bin
+	IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | \
+		append-metadata
+	DEVICE_PACKAGES := -kmod-ath10k-ct kmod-ath10k-ct-smallbuffers \
+		ipq-wifi-ezviz_cs-w3-wd1200g-eup
+endef
+TARGET_DEVICES += ezviz_cs-w3-wd1200g-eup
 
 define Device/glinet_gl-b1300
 	$(call Device/FitImage)

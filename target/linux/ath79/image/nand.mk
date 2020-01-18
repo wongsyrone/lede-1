@@ -82,18 +82,21 @@ define Device/glinet_gl-ar750s-common
   DEVICE_MODEL := GL-AR750S
   DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca9887-ct kmod-usb2 \
 	kmod-usb-storage block-mount
-  KERNEL_SIZE := 4096k
+  KERNEL_SIZE := 2048k
   IMAGE_SIZE := 16000k
   PAGESIZE := 2048
   VID_HDR_OFFSET := 2048
 endef
 
+# NB: The kernel size is intentionally restricted at this time; see commit message
 define Device/glinet_gl-ar750s-nor-nand
   $(Device/glinet_gl-ar750s-common)
   DEVICE_VARIANT := NOR/NAND
   BLOCKSIZE := 128k
+  GL_UBOOT_UBI_OFFSET := 2048k
   IMAGES += factory.img
-  IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi
+  IMAGE/factory.img := append-kernel | pad-to $$$$(GL_UBOOT_UBI_OFFSET) | \
+			append-ubi | check-kernel-size $$$$(GL_UBOOT_UBI_OFFSET)
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   SUPPORTED_DEVICES += glinet,gl-ar750s-nor
 endef
@@ -111,7 +114,7 @@ TARGET_DEVICES += glinet_gl-ar750s-nor
 define Device/netgear_ath79_nand
   DEVICE_VENDOR := NETGEAR
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport
-  KERNEL_SIZE := 2048k
+  KERNEL_SIZE := 4096k
   BLOCKSIZE := 128k
   PAGESIZE := 2048
   IMAGE_SIZE := 25600k
@@ -150,6 +153,28 @@ define Device/netgear_wndr4300
   $(Device/netgear_ath79_nand)
 endef
 TARGET_DEVICES += netgear_wndr4300
+
+define Device/netgear_wndr4300-v2
+  SOC := qca9563
+  DEVICE_MODEL := WNDR4300
+  DEVICE_VARIANT := v2
+  NETGEAR_KERNEL_MAGIC := 0x27051956
+  NETGEAR_BOARD_ID := WNDR4500series
+  NETGEAR_HW_ID := 29764821+2+128+128+3x3+3x3+5508012175
+  $(Device/netgear_ath79_nand)
+endef
+TARGET_DEVICES += netgear_wndr4300-v2
+
+define Device/netgear_wndr4500-v3
+  SOC := qca9563
+  DEVICE_MODEL := WNDR4500
+  DEVICE_VARIANT := v3
+  NETGEAR_KERNEL_MAGIC := 0x27051956
+  NETGEAR_BOARD_ID := WNDR4500series
+  NETGEAR_HW_ID := 29764821+2+128+128+3x3+3x3+5508012173
+  $(Device/netgear_ath79_nand)
+endef
+TARGET_DEVICES += netgear_wndr4500-v3
 
 define Device/zyxel_nbg6716
   SOC := qca9558
