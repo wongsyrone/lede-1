@@ -1,6 +1,6 @@
 --- a/pppd/plugins/rp-pppoe/plugin.c
 +++ b/pppd/plugins/rp-pppoe/plugin.c
-@@ -375,9 +375,6 @@ void
+@@ -392,9 +392,6 @@ void
  plugin_init(void)
  {
      add_options(Options);
