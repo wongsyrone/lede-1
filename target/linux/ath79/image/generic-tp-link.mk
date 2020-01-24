@@ -10,7 +10,6 @@ define Device/tplink_archer-a7-v5
 	ath10k-firmware-qca988x-ct
   TPLINK_BOARD_ID := ARCHER-A7-V5
   BOARDNAME := ARCHER-A7-V5
-  SUPPORTED_DEVICES += archer-a7-v5
 endef
 TARGET_DEVICES += tplink_archer-a7-v5
 
@@ -306,7 +305,6 @@ define Device/tplink_cpe510-v3
   DEVICE_VARIANT := v3
   DEVICE_PACKAGES := rssileds
   TPLINK_BOARD_ID := CPE510V3
-  SUPPORTED_DEVICES += cpe510-v3
 endef
 TARGET_DEVICES += tplink_cpe510-v3
 
@@ -373,6 +371,18 @@ define Device/tplink_re450-v2
   LOADER_TYPE := elf
 endef
 TARGET_DEVICES += tplink_re450-v2
+
+define Device/tplink_tl-mr6400-v1
+  $(Device/tplink-8mlzma)
+  SOC := qca9531
+  DEVICE_MODEL := TL-MR6400
+  DEVICE_VARIANT := v1
+  TPLINK_HWID := 0x64000001
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-net kmod-usb-net-rndis kmod-usb-serial \
+	kmod-usb-serial-option adb-enablemodem
+  SUPPORTED_DEVICES += tl-mr6400
+endef
+TARGET_DEVICES += tplink_tl-mr6400-v1
 
 define Device/tplink_tl-wdr3500-v1
   $(Device/tplink-8mlzma)
@@ -505,7 +515,7 @@ define Device/tplink_tl-wr2543-v1
   IMAGE/sysupgrade.bin := tplink-v1-image sysupgrade -v 3.13.99 | \
 	append-metadata | check-size $$$$(IMAGE_SIZE)
   IMAGE/factory.bin := tplink-v1-image factory -v 3.13.99
-  SUPPORTED_DEVICES += tl-wr2543-v1
+  SUPPORTED_DEVICES += tl-wr2543n
 endef
 TARGET_DEVICES += tplink_tl-wr2543-v1
 
