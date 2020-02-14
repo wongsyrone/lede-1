@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=intel-microcode
-PKG_VERSION:=20190918
-PKG_RELEASE:=1
+PKG_VERSION:=20191115
+PKG_RELEASE:=2
 
 PKG_SOURCE:=intel-microcode_3.$(PKG_VERSION).$(PKG_RELEASE).tar.xz
 PKG_SOURCE_URL:=http://ftp.debian.org/debian/pool/non-free/i/intel-microcode/
-PKG_HASH:=b7ecb5dd30d71e9b3c2ab184693a876171392e0d80d138c3560c662e5f2a2247
+PKG_HASH:=d86bbd3d3a49f392c7a0fa13611d4ffd17843f0f851c88921ac2003fe59712d8
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-3.$(PKG_VERSION).$(PKG_RELEASE)
 
 PKG_BUILD_DEPENDS:=iucode-tool/host
