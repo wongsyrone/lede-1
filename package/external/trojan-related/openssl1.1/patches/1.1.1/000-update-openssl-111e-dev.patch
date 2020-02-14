@@ -1,12 +1,24 @@
 diff --git a/CHANGES b/CHANGES
-index c6ca343948..e4d57bb6b5 100644
+index c6ca343948..9fb89d675c 100644
 --- a/CHANGES
 +++ b/CHANGES
-@@ -7,6 +7,42 @@
+@@ -7,6 +7,54 @@
   https://github.com/openssl/openssl/commits/ and pick the appropriate
   release branch.
  
 + Changes between 1.1.1d and 1.1.1e [xx XXX xxxx]
++
++  *) X509 certificates signed using SHA1 are no longer allowed at security
++     level 1 and above.
++     In TLS/SSL the default security level is 1. It can be set either
++     using the cipher string with @SECLEVEL, or calling
++     SSL_CTX_set_security_level(). If the leaf certificate is signed with SHA-1,
++     a call to SSL_CTX_use_certificate() will fail if the security level is not
++     lowered first.
++     Outside TLS/SSL, the default security level is -1 (effectively 0). It can
++     be set using X509_VERIFY_PARAM_set_auth_level() or using the -auth_level
++     options of the apps.
++     [Kurt Roeckx]
 +
 +  *) Corrected the documentation of the return values from the EVP_DigestSign*
 +     set of functions.  The documentation mentioned negative values for some
@@ -45,6 +57,89 @@ index c6ca343948..e4d57bb6b5 100644
   Changes between 1.1.1c and 1.1.1d [10 Sep 2019]
  
    *) Fixed a fork protection issue. OpenSSL 1.1.1 introduced a rewritten random
+@@ -633,9 +681,9 @@
+      bytes long. In theory it is permissible in SSLv3 - TLSv1.2 to fragment such
+      alerts across multiple records (some of which could be empty). In practice
+      it make no sense to send an empty alert record, or to fragment one. TLSv1.3
+-     prohibts this altogether and other libraries (BoringSSL, NSS) do not
++     prohibits this altogether and other libraries (BoringSSL, NSS) do not
+      support this at all. Supporting it adds significant complexity to the
+-     record layer, and its removal is unlikely to cause inter-operability
++     record layer, and its removal is unlikely to cause interoperability
+      issues.
+      [Matt Caswell]
+ 
+@@ -3652,7 +3700,7 @@
+      implementations).
+      [Emilia Käsper, Adam Langley, Bodo Moeller (Google)]
+ 
+-  *) Use type ossl_ssize_t instad of ssize_t which isn't available on
++  *) Use type ossl_ssize_t instead of ssize_t which isn't available on
+      all platforms. Move ssize_t definition from e_os.h to the public
+      header file e_os2.h as it now appears in public header file cms.h
+      [Steve Henson]
+@@ -8373,7 +8421,7 @@ des-cbc           3624.96k     5258.21k     5530.91k     5624.30k     5628.26k
+ 
+   *) New OCSP utility. Allows OCSP requests to be generated or
+      read. The request can be sent to a responder and the output
+-     parsed, outputed or printed in text form. Not complete yet:
++     parsed, outputted or printed in text form. Not complete yet:
+      still needs to check the OCSP response validity.
+      [Steve Henson]
+ 
+@@ -9368,7 +9416,7 @@ des-cbc           3624.96k     5258.21k     5530.91k     5624.30k     5628.26k
+      [Andy Polyakov]
+ 
+   *) Modified SSL library such that the verify_callback that has been set
+-     specificly for an SSL object with SSL_set_verify() is actually being
++     specifically for an SSL object with SSL_set_verify() is actually being
+      used. Before the change, a verify_callback set with this function was
+      ignored and the verify_callback() set in the SSL_CTX at the time of
+      the call was used. New function X509_STORE_CTX_set_verify_cb() introduced
+@@ -10485,10 +10533,10 @@ des-cbc           3624.96k     5258.21k     5530.91k     5624.30k     5628.26k
+      as other interfaces in OpenSSL, like the BIO interface.
+      NCONF_dump_* dump the internal storage of the configuration file,
+      which is useful for debugging.  All other functions take the same
+-     arguments as the old CONF_* functions wth the exception of the
++     arguments as the old CONF_* functions with the exception of the
+      first that must be a `CONF *' instead of a `LHASH *'.
+ 
+-     To make it easer to use the new classes with the old CONF_* functions,
++     To make it easier to use the new classes with the old CONF_* functions,
+      the function CONF_set_default_method is provided.
+      [Richard Levitte]
+ 
+@@ -12331,7 +12379,7 @@ des-cbc           3624.96k     5258.21k     5530.91k     5624.30k     5628.26k
+      than the old method: it now uses a modified version of Ulf's parser to
+      read the ANSI prototypes in all header files (thus the old K&R definitions
+      aren't needed for error creation any more) and do a better job of
+-     translating function codes into names. The old 'ASN1 error code imbedded
++     translating function codes into names. The old 'ASN1 error code embedded
+      in a comment' is no longer necessary and it doesn't use .err files which
+      have now been deleted. Also the error code call doesn't have to appear all
+      on one line (which resulted in some large lines...).
+@@ -12632,7 +12680,7 @@ des-cbc           3624.96k     5258.21k     5530.91k     5624.30k     5628.26k
+ 
+   *) Add a useful kludge to allow package maintainers to specify compiler and
+      other platforms details on the command line without having to patch the
+-     Configure script everytime: One now can use ``perl Configure
++     Configure script every time: One now can use ``perl Configure
+      <id>:<details>'', i.e. platform ids are allowed to have details appended
+      to them (separated by colons). This is treated as there would be a static
+      pre-configured entry in Configure's %table under key <id> with value
+diff --git a/CONTRIBUTING b/CONTRIBUTING
+index 5d717763d5..57be75ce2b 100644
+--- a/CONTRIBUTING
++++ b/CONTRIBUTING
+@@ -58,7 +58,7 @@ guidelines:
+     consider adding a note in CHANGES.  This could be a summarising
+     description of the change, and could explain the grander details.
+     Have a look through existing entries for inspiration.
+-    Please note that this is NOT simply a copy of git-log oneliners.
++    Please note that this is NOT simply a copy of git-log one-liners.
+     Also note that security fixes get an entry in CHANGES.
+     This file helps users get more in depth information of what comes
+     with a specific release without having to sift through the higher
 diff --git a/Configurations/10-main.conf b/Configurations/10-main.conf
 index 3c4299d264..df1cc00529 100644
 --- a/Configurations/10-main.conf
@@ -75,6 +170,32 @@ index 3c4299d264..df1cc00529 100644
          AS               => sub { vc_win32_info()->{AS} },
          ASFLAGS          => sub { vc_win32_info()->{ASFLAGS} },
          asoutflag        => sub { vc_win32_info()->{asoutflag} },
+diff --git a/Configurations/15-android.conf b/Configurations/15-android.conf
+index 7b496a4529..4616394f8c 100644
+--- a/Configurations/15-android.conf
++++ b/Configurations/15-android.conf
+@@ -241,7 +241,7 @@ my %targets = (
+     },
+ 
+     ####################################################################
+-    # Backward compatible targets, (might) requre $CROSS_SYSROOT
++    # Backward compatible targets, (might) require $CROSS_SYSROOT
+     #
+     "android-armeabi" => {
+         inherit_from     => [ "android-arm" ],
+diff --git a/Configurations/50-win-onecore.conf b/Configurations/50-win-onecore.conf
+index d478f42b0f..c595279119 100644
+--- a/Configurations/50-win-onecore.conf
++++ b/Configurations/50-win-onecore.conf
+@@ -4,7 +4,7 @@
+ # Mobile[?] Windows editions. It's a set up "umbrella" libraries that
+ # export subset of Win32 API that are common to all Windows 10 devices.
+ #
+-# OneCore Configuration temporarly dedicated for console applications
++# OneCore Configuration temporarily dedicated for console applications
+ # due to disabled event logging, which is incompatible with one core.
+ # Error messages are provided via standard error only.
+ # TODO: extend error handling to use ETW based eventing
 diff --git a/Configurations/unix-Makefile.tmpl b/Configurations/unix-Makefile.tmpl
 index 7db7578a4b..9bf54f2127 100644
 --- a/Configurations/unix-Makefile.tmpl
@@ -423,16 +544,19 @@ index 2119cbae9e..328ad2baf4 100644
                  Note: the value of this variable is added to the same scripts
                  on all platforms, but it's only relevant on Unix-like platforms.
 diff --git a/NEWS b/NEWS
-index 1c88dee353..4af390505d 100644
+index 1c88dee353..11840cf05b 100644
 --- a/NEWS
 +++ b/NEWS
-@@ -5,6 +5,10 @@
+@@ -5,6 +5,13 @@
    This file gives a brief overview of the major changes between each OpenSSL
    release. For more details please read the CHANGES file.
  
 +  Major changes between OpenSSL 1.1.1d and OpenSSL 1.1.1e [under development]
 +
-+      o
++      o X509 certificates signed using SHA1 are no longer allowed at security
++        level 1 or higher. The default security level for TLS is 1, so
++        certificates signed using SHA1 are by default no longer trusted to
++        authenticate servers or clients.
 +
    Major changes between OpenSSL 1.1.1c and OpenSSL 1.1.1d [10 Sep 2019]
  
@@ -1016,6 +1140,18 @@ index f9d6fba109..a603907cd5 100644
      }
      if (template != default_config_file && !app_load_modules(req_conf))
          goto end;
+diff --git a/apps/s_cb.c b/apps/s_cb.c
+index 5dc1d03f28..6750c33279 100644
+--- a/apps/s_cb.c
++++ b/apps/s_cb.c
+@@ -188,6 +188,7 @@ static STRINT_PAIR cert_type_list[] = {
+     {"RSA fixed ECDH", TLS_CT_RSA_FIXED_ECDH},
+     {"ECDSA fixed ECDH", TLS_CT_ECDSA_FIXED_ECDH},
+     {"GOST01 Sign", TLS_CT_GOST01_SIGN},
++    {"GOST12 Sign", TLS_CT_GOST12_SIGN},
+     {NULL}
+ };
+ 
 diff --git a/apps/s_server.c b/apps/s_server.c
 index 929a08bd85..2248a432e2 100644
 --- a/apps/s_server.c
@@ -1071,6 +1207,108 @@ index 929a08bd85..2248a432e2 100644
                  BIO_puts(io, text);
                  BIO_printf(io, "'%s' is an invalid path\r\n", p);
                  break;
+diff --git a/apps/server.pem b/apps/server.pem
+index d0fc265f04..b380759199 100644
+--- a/apps/server.pem
++++ b/apps/server.pem
+@@ -1,52 +1,47 @@
+-subject= C = UK, O = OpenSSL Group, OU = FOR TESTING PURPOSES ONLY, CN = Test Server Cert
+-issuer= C = UK, O = OpenSSL Group, OU = FOR TESTING PURPOSES ONLY, CN = OpenSSL Test Intermediate CA
+ -----BEGIN CERTIFICATE-----
+-MIID5zCCAs+gAwIBAgIJALnu1NlVpZ6zMA0GCSqGSIb3DQEBBQUAMHAxCzAJBgNV
+-BAYTAlVLMRYwFAYDVQQKDA1PcGVuU1NMIEdyb3VwMSIwIAYDVQQLDBlGT1IgVEVT
+-VElORyBQVVJQT1NFUyBPTkxZMSUwIwYDVQQDDBxPcGVuU1NMIFRlc3QgSW50ZXJt
+-ZWRpYXRlIENBMB4XDTExMTIwODE0MDE0OFoXDTIxMTAxNjE0MDE0OFowZDELMAkG
+-A1UEBhMCVUsxFjAUBgNVBAoMDU9wZW5TU0wgR3JvdXAxIjAgBgNVBAsMGUZPUiBU
+-RVNUSU5HIFBVUlBPU0VTIE9OTFkxGTAXBgNVBAMMEFRlc3QgU2VydmVyIENlcnQw
+-ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDzhPOSNtyyRspmeuUpxfNJ
+-KCLTuf7g3uQ4zu4iHOmRO5TQci+HhVlLZrHF9XqFXcIP0y4pWDbMSGuiorUmzmfi
+-R7bfSdI/+qIQt8KXRH6HNG1t8ou0VSvWId5TS5Dq/er5ODUr9OaaDva7EquHIcMv
+-vPQGuI+OEAcnleVCy9HVEIySrO4P3CNIicnGkwwiAud05yUAq/gPXBC1hTtmlPD7
+-TVcGVSEiJdvzqqlgv02qedGrkki6GY4S7GjZxrrf7Foc2EP+51LJzwLQx3/JfrCU
+-41NEWAsu/Sl0tQabXESN+zJ1pDqoZ3uHMgpQjeGiE0olr+YcsSW/tJmiU9OiAr8R
+-AgMBAAGjgY8wgYwwDAYDVR0TAQH/BAIwADAOBgNVHQ8BAf8EBAMCBeAwLAYJYIZI
+-AYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENlcnRpZmljYXRlMB0GA1UdDgQW
+-BBSCvM8AABPR9zklmifnr9LvIBturDAfBgNVHSMEGDAWgBQ2w2yI55X+sL3szj49
+-hqshgYfa2jANBgkqhkiG9w0BAQUFAAOCAQEAqb1NV0B0/pbpK9Z4/bNjzPQLTRLK
+-WnSNm/Jh5v0GEUOE/Beg7GNjNrmeNmqxAlpqWz9qoeoFZax+QBpIZYjROU3TS3fp
+-yLsrnlr0CDQ5R7kCCDGa8dkXxemmpZZLbUCpW2Uoy8sAA4JjN9OtsZY7dvUXFgJ7
+-vVNTRnI01ghknbtD+2SxSQd3CWF6QhcRMAzZJ1z1cbbwGDDzfvGFPzJ+Sq+zEPds
+-xoVLLSetCiBc+40ZcDS5dV98h9XD7JMTQfxzA7mNGv73JoZJA6nFgj+ADSlJsY/t
+-JBv+z1iQRueoh9Qeee+ZbRifPouCB8FDx+AltvHTANdAq0t/K3o+pplMVA==
++MIIDJTCCAg2gAwIBAgIBAjANBgkqhkiG9w0BAQsFADASMRAwDgYDVQQDDAdSb290
++IENBMCAXDTE2MDExNDIyMjk0NloYDzIxMTYwMTE1MjIyOTQ2WjAZMRcwFQYDVQQD
++DA5zZXJ2ZXIuZXhhbXBsZTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
++ANVdYGrf/GHuSKqMEUhDpW22Ul2qmEmxYZI1sfw6BCUMbXn/tNXJ6VwcO+Crs7h9
++o95tveDd11q/FEcRQl6mgtBhwX/dE0bmCYUHDvLU/Bpk0gqtIKsga5bwrczEGVNV
++3AEdpLPvirRJU12KBRzx3OFEv8XX4ncZV1yXC3XuiENxD8pswbSyUKd3RmxYDxG/
++8XYkWq45QrdRZynh0FUwbxfkkeqt+CjCQ2+iZKn7nZiSYkg+6w1PgkqK/z9y7pa1
++rqHBmLrvfZB1bf9aUp6r9cB+0IdD24UHBw99OHr90dPuZR3T6jlqhzfuStPgDW71
++cKzCvfFu85KVXqnwoWWVk40CAwEAAaN9MHswHQYDVR0OBBYEFMDnhL/oWSczELBS
++T1FSLwbWwHrNMB8GA1UdIwQYMBaAFHB/Lq6DaFmYBCMqzes+F80k3QFJMAkGA1Ud
++EwQCMAAwEwYDVR0lBAwwCgYIKwYBBQUHAwEwGQYDVR0RBBIwEIIOc2VydmVyLmV4
++YW1wbGUwDQYJKoZIhvcNAQELBQADggEBAHvTBEN1ig8RrsT716Ginv4gGNX0LzGI
++RrZ1jO7lm5emuaPNYJpGw0iX5Zdo91qGNXPZaZ75X3S55pQTActq3OPEBOll2pyk
++iyjz+Zp/v5cfRZLlBbFW5gv2R94eibYr4U3fSn4B0yPcl4xH/l/HzJhGDsSDW8qK
++8VIJvmvsPwmL0JMCv+FR59F+NFYZdND/KCXet59WUpF9ICmFCoBEX3EyJXEPwhbi
++X2sdPzJbCjx0HLli8e0HUKNttLQxCsBTRGo6iISLLamwN47mGDa9miBADwGSiz2q
++YeeuLO02zToHhnQ6KbPXOrQAqcL1kngO4g+j/ru+4AZThFkdkGnltvk=
+ -----END CERTIFICATE-----
+------BEGIN RSA PRIVATE KEY-----
+-MIIEpAIBAAKCAQEA84TzkjbcskbKZnrlKcXzSSgi07n+4N7kOM7uIhzpkTuU0HIv
+-h4VZS2axxfV6hV3CD9MuKVg2zEhroqK1Js5n4ke230nSP/qiELfCl0R+hzRtbfKL
+-tFUr1iHeU0uQ6v3q+Tg1K/Tmmg72uxKrhyHDL7z0BriPjhAHJ5XlQsvR1RCMkqzu
+-D9wjSInJxpMMIgLndOclAKv4D1wQtYU7ZpTw+01XBlUhIiXb86qpYL9NqnnRq5JI
+-uhmOEuxo2ca63+xaHNhD/udSyc8C0Md/yX6wlONTRFgLLv0pdLUGm1xEjfsydaQ6
+-qGd7hzIKUI3hohNKJa/mHLElv7SZolPTogK/EQIDAQABAoIBAADq9FwNtuE5IRQn
+-zGtO4q7Y5uCzZ8GDNYr9RKp+P2cbuWDbvVAecYq2NV9QoIiWJOAYZKklOvekIju3
+-r0UZLA0PRiIrTg6NrESx3JrjWDK8QNlUO7CPTZ39/K+FrmMkV9lem9yxjJjyC34D
+-AQB+YRTx+l14HppjdxNwHjAVQpIx/uO2F5xAMuk32+3K+pq9CZUtrofe1q4Agj9R
+-5s8mSy9pbRo9kW9wl5xdEotz1LivFOEiqPUJTUq5J5PeMKao3vdK726XI4Z455Nm
+-W2/MA0YV0ug2FYinHcZdvKM6dimH8GLfa3X8xKRfzjGjTiMSwsdjgMa4awY3tEHH
+-674jhAECgYEA/zqMrc0zsbNk83sjgaYIug5kzEpN4ic020rSZsmQxSCerJTgNhmg
+-utKSCt0Re09Jt3LqG48msahX8ycqDsHNvlEGPQSbMu9IYeO3Wr3fAm75GEtFWePY
+-BhM73I7gkRt4s8bUiUepMG/wY45c5tRF23xi8foReHFFe9MDzh8fJFECgYEA9EFX
+-4qAik1pOJGNei9BMwmx0I0gfVEIgu0tzeVqT45vcxbxr7RkTEaDoAG6PlbWP6D9a
+-WQNLp4gsgRM90ZXOJ4up5DsAWDluvaF4/omabMA+MJJ5kGZ0gCj5rbZbKqUws7x8
+-bp+6iBfUPJUbcqNqFmi/08Yt7vrDnMnyMw2A/sECgYEAiiuRMxnuzVm34hQcsbhH
+-6ymVqf7j0PW2qK0F4H1ocT9qhzWFd+RB3kHWrCjnqODQoI6GbGr/4JepHUpre1ex
+-4UEN5oSS3G0ru0rC3U4C59dZ5KwDHFm7ffZ1pr52ljfQDUsrjjIMRtuiwNK2OoRa
+-WSsqiaL+SDzSB+nBmpnAizECgYBdt/y6rerWUx4MhDwwtTnel7JwHyo2MDFS6/5g
+-n8qC2Lj6/fMDRE22w+CA2esp7EJNQJGv+b27iFpbJEDh+/Lf5YzIT4MwVskQ5bYB
+-JFcmRxUVmf4e09D7o705U/DjCgMH09iCsbLmqQ38ONIRSHZaJtMDtNTHD1yi+jF+
+-OT43gQKBgQC/2OHZoko6iRlNOAQ/tMVFNq7fL81GivoQ9F1U0Qr+DH3ZfaH8eIkX
+-xT0ToMPJUzWAn8pZv0snA0um6SIgvkCuxO84OkANCVbttzXImIsL7pFzfcwV/ERK
+-UM6j0ZuSMFOCr/lGPAoOQU0fskidGEHi1/kW+suSr28TqsyYZpwBDQ==
+------END RSA PRIVATE KEY-----
++-----BEGIN PRIVATE KEY-----
++MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDVXWBq3/xh7kiq
++jBFIQ6VttlJdqphJsWGSNbH8OgQlDG15/7TVyelcHDvgq7O4faPebb3g3ddavxRH
++EUJepoLQYcF/3RNG5gmFBw7y1PwaZNIKrSCrIGuW8K3MxBlTVdwBHaSz74q0SVNd
++igUc8dzhRL/F1+J3GVdclwt17ohDcQ/KbMG0slCnd0ZsWA8Rv/F2JFquOUK3UWcp
++4dBVMG8X5JHqrfgowkNvomSp+52YkmJIPusNT4JKiv8/cu6Wta6hwZi6732QdW3/
++WlKeq/XAftCHQ9uFBwcPfTh6/dHT7mUd0+o5aoc37krT4A1u9XCswr3xbvOSlV6p
++8KFllZONAgMBAAECggEADLTt7A+A2Vg2jamf0dztejY0e42QWjstI2b9PZc67fXq
++gyx+WYkX07t+uWegYWliG/oPJ9guXiIpE/5sJHToL37S5kmFP2CtynVcJ4wVo4DD
++nY0n9+kLX0bgIuS+2V6wpoRcbbbjXM9NHrH8kfe5ftT4UtEDlLI2qLX6IcDd7p4u
++OYjILChR8GSGTw96yIy2Ws/1Uq9PMw64JoT4RcK5QqnkcPMDFRH1SeLOL+zXP2c4
++nEl9yOy3HauZKxwl/Ry/XK1s3DdjopIAU29ut+hAuMiTb06kzZnumL9NoplKoZtU
++otw/gVcCKhT+Ep+p6i8InLF0XEME8A0qUR0niWebgQKBgQD6vkxR49B8ZZQrzjw4
++XKs1lI9cP7cgPiuWlDHMNjYou3WbOaGrMeScvbB1Ldh9A8pjAhxlw8AaV/xs4qcA
++trmVmSISVMVyc1wSGlJXWi2nUzTNs9OE3vj22SyStihf8UUZtWwX2b5Y4JrYhA/V
+++ThGGqHR03oLNLShNLtJc2c7YQKBgQDZ1nkibEyrepexw/fnwkw61IJKq9wRIh1G
++PREakhbe9wU5ie0knuf9razt7awzQiwFmlixmWqsM7UEtLuXNnNPciwdrKhhbvrd
++vD/rkbIEHEPllIhFlDtOzn3hRBWTzWmXFjpou/2LvHTSbVis4IYVZymTp2jb1ZLs
++7VbiG9JTrQKBgQDc6n75g1szzpdehQT/r33U5j/syeJBUSU8NPMu9fB/sLHsgjlT
++SNEf2+y1QSBE/Or6kmiMrIv7advn30W+Vj9qc5HWTsPrk4HiHTjA553jl2alebN5
++lK4LZspjtIQcC8mS3goPdXPEgJdM/gWpwzr2YQ6DfOxBJT2j7n64NyoT4QKBgH7/
++yx+GhCx1DHtXBPDZFhg2TL+78lEK0oZgk9gp06up2CHzh44SFq6O0oLkTcCUk5Ww
++poTkLIy4mJBlzfgahp+KsK2cO46SZS9g0ONFzcMXt33hWpE2Gl2XhUwPpYTF/QlY
++rDTjZK5S8Mi9dzVSsNlJi7PJphiEK2R1+nFYRwcBAoGBANWoIG85jpXAOnq/Kcgx
++Rl3YivR0Ke6r1tFlP58rT7X3EkiboXyQl5vLIFCAwUte6RGrLl1dy3Qyh80B9ySL
++Jx6vj42CK7vgv6A96TuVYhnXTnEI6ZvwAQ2VGaw4BizhjALs/kdSE/og9aSCs3ws
++KQypwAFz0tbHxaNag/bSAN0J
++-----END PRIVATE KEY-----
 diff --git a/apps/speed.c b/apps/speed.c
 index 20149506cc..d0720841e7 100644
 --- a/apps/speed.c
@@ -1307,16 +1545,35 @@ index 81291a9a4f..f81741f4e7 100644
              break;
          case OPT_CAFORM:
 diff --git a/appveyor.yml b/appveyor.yml
-index 24966c0faa..84099e1f13 100644
+index 24966c0faa..242d6a9ffe 100644
 --- a/appveyor.yml
 +++ b/appveyor.yml
-@@ -10,12 +10,13 @@ environment:
+@@ -1,3 +1,6 @@
++image:
++  - Visual Studio 2017
++
+ platform:
+     - x64
+     - x86
+@@ -5,17 +8,24 @@ platform:
+ environment:
+     fast_finish: true
+     matrix:
+-        - VSVER: 14
++        - VSVER: 15
+ 
  configuration:
      - shared
      - plain
 +    - minimal
  
  before_build:
++    - ps: >-
++        Install-Module VSSetup -Scope CurrentUser
++    - ps: >-
++        Get-VSSetupInstance -All
++    - ps: >-
++        gci env:* | sort-object name
      - ps: >-
          If ($env:Platform -Match "x86") {
              $env:VCVARS_PLATFORM="x86"
@@ -1325,15 +1582,21 @@ index 24966c0faa..84099e1f13 100644
          } Else {
              $env:VCVARS_PLATFORM="amd64"
              $env:TARGET="VC-WIN64A-masm"
-@@ -23,6 +24,8 @@ before_build:
+@@ -23,11 +33,12 @@ before_build:
      - ps: >-
          If ($env:Configuration -Match "shared") {
              $env:SHARED="no-makedepend"
 +        } ElseIf ($env:Configuration -Match "minimal") {
-+            $env:SHARED="no-shared no-dso no-makedepend no-autoload-config no-engine no-comp no-cms no-dh no-dsa no-ec2m no-srp no-des no-mdc2 no-md4 no-rc2 no-rc4 no-bf no-camellia no-cast no-idea no-seed no-whirlpool no-ocsp no-sm2 no-sm3 no-sm4 no-ssl3 no-ssl3-method no-psk no-heartbeats no-nextprotoneg no-sctp no-srtp no-asm -DOPENSSL_SMALL_FOOTPRINT"
++            $env:SHARED="no-shared no-dso no-makedepend no-aria no-async no-autoload-config no-blake2 no-bf no-camellia no-cast no-chacha no-cmac no-cms no-comp no-ct no-des no-dgram no-dh no-dsa no-dtls no-ec2m no-engine no-filenames no-gost no-idea no-mdc2 no-md4 no-multiblock no-nextprotoneg no-ocsp no-ocb no-poly1305 no-psk no-rc2 no-rc4 no-rmd160 no-seed no-siphash no-sm2 no-sm3 no-sm4 no-srp no-srtp no-ssl3 no-ssl3-method no-ts no-ui-console no-whirlpool no-asm -DOPENSSL_SMALL_FOOTPRINT"
          } Else {
              $env:SHARED="no-shared no-makedepend"
          }
+-    - ps: $env:VSCOMNTOOLS=(Get-Content ("env:VS" + "$env:VSVER" + "0COMNTOOLS"))
+-    - call "%VSCOMNTOOLS%\..\..\VC\vcvarsall.bat" %VCVARS_PLATFORM%
++    - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" %VCVARS_PLATFORM%
+     - mkdir _build
+     - cd _build
+     - perl ..\Configure %TARGET% %SHARED%
 diff --git a/build.info b/build.info
 index 3dda4e89bf..05c9bdd19c 100644
 --- a/build.info
@@ -1366,6 +1629,35 @@ index 3dda4e89bf..05c9bdd19c 100644
  
  IF[{- defined $target{shared_defflag} -}]
    IF[{- $config{target} =~ /^mingw/ -}]
+diff --git a/config b/config
+index c1a94d4e42..deb7b8f0b0 100755
+--- a/config
++++ b/config
+@@ -908,8 +908,12 @@ fi
+ 
+ OUT="$OUT"
+ 
+-$PERL $THERE/Configure LIST | grep "$OUT" > /dev/null
+-if [ $? = "0" ]; then
++if [ "$OUT" = "darwin64-x86_64-cc" ]; then
++    echo "WARNING! If you wish to build 32-bit libraries, then you have to"
++    echo "         invoke 'KERNEL_BITS=32 $THERE/config $options'."
++fi
++
++if $PERL $THERE/Configure LIST | grep "$OUT" > /dev/null; then
+   if [ "$VERBOSE" = "true" ]; then
+     echo /usr/bin/env \
+ 	 __CNF_CPPDEFINES="'$__CNF_CPPDEFINES'" \
+@@ -939,8 +943,5 @@ else
+   exit 1
+ fi
+ 
+-if [ "$OUT" = "darwin64-x86_64-cc" ]; then
+-    echo "WARNING! If you wish to build 32-bit libraries, then you have to"
+-    echo "         invoke 'KERNEL_BITS=32 $THERE/config $options'."
+-fi
++# Do not add anothing from here on, so we don't lose the Configure exit code
+ )
 diff --git a/crypto/LPdir_unix.c b/crypto/LPdir_unix.c
 index b1022895c8..bbbec0aee1 100644
 --- a/crypto/LPdir_unix.c
@@ -1676,7 +1968,7 @@ index ef46023710..c361f339ea 100644
  ___
  }
 diff --git a/crypto/aes/asm/aesni-x86_64.pl b/crypto/aes/asm/aesni-x86_64.pl
-index b68c14da60..71f5d94b1d 100644
+index b68c14da60..5807f4eff7 100644
 --- a/crypto/aes/asm/aesni-x86_64.pl
 +++ b/crypto/aes/asm/aesni-x86_64.pl
 @@ -59,7 +59,7 @@
@@ -1720,6 +2012,15 @@ index b68c14da60..71f5d94b1d 100644
  .size	aesni_ccm64_decrypt_blocks,.-aesni_ccm64_decrypt_blocks
  ___
  }
+@@ -2339,7 +2343,7 @@ $code.=<<___;
+ 	movdqu	`16*0`($inp),$inout0		# load input
+ 	movdqa	$rndkey0,$twmask
+ 	movdqu	`16*1`($inp),$inout1
+-	pxor	@tweak[0],$inout0		# intput^=tweak^round[0]
++	pxor	@tweak[0],$inout0		# input^=tweak^round[0]
+ 	movdqu	`16*2`($inp),$inout2
+ 	pxor	@tweak[1],$inout1
+ 	 aesdec		$rndkey1,$inout0
 @@ -3031,6 +3035,7 @@ $code.=<<___;
  .type	__ocb_encrypt6,\@abi-omnipotent
  .align	32
@@ -1824,6 +2125,24 @@ index b68c14da60..71f5d94b1d 100644
  .size	${PREFIX}_set_encrypt_key,.-${PREFIX}_set_encrypt_key
  .size	__aesni_set_encrypt_key,.-__aesni_set_encrypt_key
  ___
+@@ -4812,7 +4828,7 @@ ctr_xts_se_handler:
+ 	mov	56($disp),%r11		# disp->HandlerData
+ 
+ 	mov	0(%r11),%r10d		# HandlerData[0]
+-	lea	(%rsi,%r10),%r10	# prologue lable
++	lea	(%rsi,%r10),%r10	# prologue label
+ 	cmp	%r10,%rbx		# context->Rip<prologue label
+ 	jb	.Lcommon_seh_tail
+ 
+@@ -4856,7 +4872,7 @@ ocb_se_handler:
+ 	mov	56($disp),%r11		# disp->HandlerData
+ 
+ 	mov	0(%r11),%r10d		# HandlerData[0]
+-	lea	(%rsi,%r10),%r10	# prologue lable
++	lea	(%rsi,%r10),%r10	# prologue label
+ 	cmp	%r10,%rbx		# context->Rip<prologue label
+ 	jb	.Lcommon_seh_tail
+ 
 diff --git a/crypto/aria/aria.c b/crypto/aria/aria.c
 index 293bcc72bd..ce55d52664 100644
 --- a/crypto/aria/aria.c
@@ -2165,7 +2484,7 @@ index 4b60c615de..5abab9ab71 100644
      return ret;
  }
 diff --git a/crypto/asn1/asn_mime.c b/crypto/asn1/asn_mime.c
-index dfd5be6347..b8ea51136a 100644
+index dfd5be6347..89e3140541 100644
 --- a/crypto/asn1/asn_mime.c
 +++ b/crypto/asn1/asn_mime.c
 @@ -8,15 +8,15 @@
@@ -2187,6 +2506,21 @@ index dfd5be6347..b8ea51136a 100644
  
  /*
   * Generalised MIME like utilities for streaming ASN1. Although many have a
+@@ -198,6 +198,14 @@ static int asn1_write_micalg(BIO *out, STACK_OF(X509_ALGOR) *mdalgs)
+             BIO_puts(out, "gostr3411-94");
+             goto err;
+ 
++        case NID_id_GostR3411_2012_256:
++            BIO_puts(out, "gostr3411-2012-256");
++            goto err;
++
++        case NID_id_GostR3411_2012_512:
++            BIO_puts(out, "gostr3411-2012-512");
++            goto err;
++
+         default:
+             if (have_unknown)
+                 write_comma = 0;
 diff --git a/crypto/asn1/asn_moid.c b/crypto/asn1/asn_moid.c
 index 68a01f3117..732ce972aa 100644
 --- a/crypto/asn1/asn_moid.c
@@ -3114,6 +3448,32 @@ index 706a140342..5d5c4fa99f 100644
  
  mul(B<r>, B<a>, B<w>, B<c>) computes B<w>*B<a>+B<c> and places the
  low word of the result in B<r> and the high word in B<c>.
+diff --git a/crypto/bn/asm/co-586.pl b/crypto/bn/asm/co-586.pl
+index 97f5e3a19f..64648c9192 100644
+--- a/crypto/bn/asm/co-586.pl
++++ b/crypto/bn/asm/co-586.pl
+@@ -39,17 +39,17 @@ sub mul_add_c
+ 
+ 	&mul("edx");
+ 	&add($c0,"eax");
+-	 &mov("eax",&DWP(($na)*4,$a,"",0)) if $pos == 0;	# laod next a
++	 &mov("eax",&DWP(($na)*4,$a,"",0)) if $pos == 0;	# load next a
+ 	 &mov("eax",&wparam(0)) if $pos > 0;			# load r[]
+ 	 ###
+ 	&adc($c1,"edx");
+-	 &mov("edx",&DWP(($nb)*4,$b,"",0)) if $pos == 0;	# laod next b
+-	 &mov("edx",&DWP(($nb)*4,$b,"",0)) if $pos == 1;	# laod next b
++	 &mov("edx",&DWP(($nb)*4,$b,"",0)) if $pos == 0;	# load next b
++	 &mov("edx",&DWP(($nb)*4,$b,"",0)) if $pos == 1;	# load next b
+ 	 ###
+ 	&adc($c2,0);
+ 	 # is pos > 1, it means it is the last loop
+ 	 &mov(&DWP($i*4,"eax","",0),$c0) if $pos > 0;		# save r[];
+-	&mov("eax",&DWP(($na)*4,$a,"",0)) if $pos == 1;		# laod next a
++	&mov("eax",&DWP(($na)*4,$a,"",0)) if $pos == 1;		# load next a
+ 	}
+ 
+ sub sqr_add_c
 diff --git a/crypto/bn/asm/rsaz-avx2.pl b/crypto/bn/asm/rsaz-avx2.pl
 index 85cd73c668..ec66e2565c 100755
 --- a/crypto/bn/asm/rsaz-avx2.pl
@@ -6158,7 +6518,7 @@ index d13d8206ce..4ac169e75c 100644
  # define DH_NUMBER_ITERATIONS_FOR_PRIME 64
  
 diff --git a/crypto/dh/dh_gen.c b/crypto/dh/dh_gen.c
-index d293835eb2..1350f78e4e 100644
+index d293835eb2..848af78166 100644
 --- a/crypto/dh/dh_gen.c
 +++ b/crypto/dh/dh_gen.c
 @@ -15,7 +15,7 @@
@@ -6170,6 +6530,15 @@ index d293835eb2..1350f78e4e 100644
  
  static int dh_builtin_genparams(DH *ret, int prime_len, int generator,
                                  BN_GENCB *cb);
+@@ -54,7 +54,7 @@ int DH_generate_parameters_ex(DH *ret, int prime_len, int generator,
+  * for 3, p mod 12 == 11
+  * for 5, p mod 60 == 59
+  *
+- * However for compatibilty with previous versions we use:
++ * However for compatibility with previous versions we use:
+  * for 2, p mod 24 == 11
+  * for 5, p mod 60 == 23
+  */
 diff --git a/crypto/dh/dh_key.c b/crypto/dh/dh_key.c
 index 718aa422d9..daffdf74dd 100644
 --- a/crypto/dh/dh_key.c
@@ -8664,7 +9033,7 @@ index 3e092eae0a..5976d1501f 100644
  # SSL/TLS alerts
  R SSL_R_SSLV3_ALERT_UNEXPECTED_MESSAGE          1010
 diff --git a/crypto/err/openssl.txt b/crypto/err/openssl.txt
-index a433b03240..e4b8ebf228 100644
+index a433b03240..e4cda9735e 100644
 --- a/crypto/err/openssl.txt
 +++ b/crypto/err/openssl.txt
 @@ -1027,6 +1027,7 @@ RAND_F_RAND_POOL_ATTACH:124:rand_pool_attach
@@ -8675,6 +9044,14 @@ index a433b03240..e4b8ebf228 100644
  RAND_F_RAND_WRITE_FILE:112:RAND_write_file
  RSA_F_CHECK_PADDING_MD:140:check_padding_md
  RSA_F_ENCODE_PKCS1:146:encode_pkcs1
+@@ -2254,6 +2255,7 @@ EVP_R_INITIALIZATION_ERROR:134:initialization error
+ EVP_R_INPUT_NOT_INITIALIZED:111:input not initialized
+ EVP_R_INVALID_DIGEST:152:invalid digest
+ EVP_R_INVALID_FIPS_MODE:168:invalid fips mode
++EVP_R_INVALID_IV_LENGTH:194:invalid iv length
+ EVP_R_INVALID_KEY:163:invalid key
+ EVP_R_INVALID_KEY_LENGTH:130:invalid key length
+ EVP_R_INVALID_OPERATION:148:invalid operation
 diff --git a/crypto/evp/bio_md.c b/crypto/evp/bio_md.c
 index 288dee01b2..fed4cf1eb1 100644
 --- a/crypto/evp/bio_md.c
@@ -8760,7 +9137,7 @@ index 6693f270b6..d1bfa274ca 100644
  /* This call frees resources associated with the context */
  int EVP_MD_CTX_reset(EVP_MD_CTX *ctx)
 diff --git a/crypto/evp/e_aes.c b/crypto/evp/e_aes.c
-index 1db346fc86..f25f7cfb9e 100644
+index 1db346fc86..0afa895548 100644
 --- a/crypto/evp/e_aes.c
 +++ b/crypto/evp/e_aes.c
 @@ -14,10 +14,10 @@
@@ -8795,6 +9172,15 @@ index 1db346fc86..f25f7cfb9e 100644
  
              union {
                  unsigned long long g[2];
+@@ -1414,7 +1414,7 @@ static int s390x_aes_ctr_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
+                                     (OPENSSL_s390xcap_P.kma[0] &	\
+                                      S390X_CAPBIT(S390X_AES_256)))
+ 
+-/* iv + padding length for iv lenghts != 12 */
++/* iv + padding length for iv lengths != 12 */
+ # define S390X_gcm_ivpadlen(i)	((((i) + 15) >> 4 << 4) + 16)
+ 
+ /*-
 diff --git a/crypto/evp/e_aes_cbc_hmac_sha1.c b/crypto/evp/e_aes_cbc_hmac_sha1.c
 index 09d24dc3d0..27c36b46e7 100644
 --- a/crypto/evp/e_aes_cbc_hmac_sha1.c
@@ -9201,6 +9587,18 @@ index 05dd791b6c..b9b6490fe0 100644
      if (ctx->flags & EVP_CIPH_NO_PADDING)
          return evp_EncryptDecryptUpdate(ctx, out, outl, in, inl);
  
+diff --git a/crypto/evp/evp_err.c b/crypto/evp/evp_err.c
+index 84bd3c2dab..42e70e931a 100644
+--- a/crypto/evp/evp_err.c
++++ b/crypto/evp/evp_err.c
+@@ -213,6 +213,7 @@ static const ERR_STRING_DATA EVP_str_reasons[] = {
+     "input not initialized"},
+     {ERR_PACK(ERR_LIB_EVP, 0, EVP_R_INVALID_DIGEST), "invalid digest"},
+     {ERR_PACK(ERR_LIB_EVP, 0, EVP_R_INVALID_FIPS_MODE), "invalid fips mode"},
++    {ERR_PACK(ERR_LIB_EVP, 0, EVP_R_INVALID_IV_LENGTH), "invalid iv length"},
+     {ERR_PACK(ERR_LIB_EVP, 0, EVP_R_INVALID_KEY), "invalid key"},
+     {ERR_PACK(ERR_LIB_EVP, 0, EVP_R_INVALID_KEY_LENGTH), "invalid key length"},
+     {ERR_PACK(ERR_LIB_EVP, 0, EVP_R_INVALID_OPERATION), "invalid operation"},
 diff --git a/crypto/evp/evp_lib.c b/crypto/evp/evp_lib.c
 index 4935c2a94a..45cde0da8b 100644
 --- a/crypto/evp/evp_lib.c
@@ -9415,6 +9813,69 @@ index 077c2a6c4b..90c7b73b7a 100644
  
  int EVP_add_cipher(const EVP_CIPHER *c)
  {
+diff --git a/crypto/evp/p5_crpt.c b/crypto/evp/p5_crpt.c
+index 7e55d0bfb8..95e2d9c5dc 100644
+--- a/crypto/evp/p5_crpt.c
++++ b/crypto/evp/p5_crpt.c
+@@ -28,7 +28,7 @@ int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX *cctx, const char *pass, int passlen,
+     EVP_MD_CTX *ctx;
+     unsigned char md_tmp[EVP_MAX_MD_SIZE];
+     unsigned char key[EVP_MAX_KEY_LENGTH], iv[EVP_MAX_IV_LENGTH];
+-    int i;
++    int i, ivl, kl;
+     PBEPARAM *pbe;
+     int saltlen, iter;
+     unsigned char *salt;
+@@ -48,6 +48,19 @@ int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX *cctx, const char *pass, int passlen,
+         return 0;
+     }
+ 
++    ivl = EVP_CIPHER_iv_length(cipher);
++    if (ivl < 0 || ivl > 16) {
++        EVPerr(EVP_F_PKCS5_PBE_KEYIVGEN, EVP_R_INVALID_IV_LENGTH);
++        PBEPARAM_free(pbe);
++        return 0;
++    }
++    kl = EVP_CIPHER_key_length(cipher);
++    if (kl < 0 || kl > (int)sizeof(md_tmp)) {
++        EVPerr(EVP_F_PKCS5_PBE_KEYIVGEN, EVP_R_INVALID_KEY_LENGTH);
++        PBEPARAM_free(pbe);
++        return 0;
++    }
++
+     if (!pbe->iter)
+         iter = 1;
+     else
+@@ -73,6 +86,7 @@ int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX *cctx, const char *pass, int passlen,
+     if (!EVP_DigestUpdate(ctx, salt, saltlen))
+         goto err;
+     PBEPARAM_free(pbe);
++    pbe = NULL;
+     if (!EVP_DigestFinal_ex(ctx, md_tmp, NULL))
+         goto err;
+     mdsize = EVP_MD_size(md);
+@@ -86,11 +100,8 @@ int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX *cctx, const char *pass, int passlen,
+         if (!EVP_DigestFinal_ex(ctx, md_tmp, NULL))
+             goto err;
+     }
+-    OPENSSL_assert(EVP_CIPHER_key_length(cipher) <= (int)sizeof(md_tmp));
+-    memcpy(key, md_tmp, EVP_CIPHER_key_length(cipher));
+-    OPENSSL_assert(EVP_CIPHER_iv_length(cipher) <= 16);
+-    memcpy(iv, md_tmp + (16 - EVP_CIPHER_iv_length(cipher)),
+-           EVP_CIPHER_iv_length(cipher));
++    memcpy(key, md_tmp, kl);
++    memcpy(iv, md_tmp + (16 - ivl), ivl);
+     if (!EVP_CipherInit_ex(cctx, cipher, NULL, key, iv, en_de))
+         goto err;
+     OPENSSL_cleanse(md_tmp, EVP_MAX_MD_SIZE);
+@@ -98,6 +109,7 @@ int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX *cctx, const char *pass, int passlen,
+     OPENSSL_cleanse(iv, EVP_MAX_IV_LENGTH);
+     rv = 1;
+  err:
++    PBEPARAM_free(pbe);
+     EVP_MD_CTX_free(ctx);
+     return rv;
+ }
 diff --git a/crypto/evp/p5_crpt2.c b/crypto/evp/p5_crpt2.c
 index e819eb9b47..7f625b3d57 100644
 --- a/crypto/evp/p5_crpt2.c
@@ -10579,6 +11040,19 @@ index 2bbee4a306..1fc19c17f9 100644
              goto error;
      }
  
+diff --git a/crypto/perlasm/README b/crypto/perlasm/README
+index 3177c37165..59f2c95515 100644
+--- a/crypto/perlasm/README
++++ b/crypto/perlasm/README
+@@ -35,7 +35,7 @@ Functions of interest are:
+ &function_begin_B(name,extra)	Same as normal function_begin but no pushing.
+ &function_end(name)		Call at end of function.
+ &function_end_A(name)		Standard pop and ret, for use inside functions
+-&function_end_B(name)		Call at end but with poping or 'ret'.
++&function_end_B(name)		Call at end but with pop or ret.
+ &swtmp(num)			Address on stack temp word.
+ &wparam(num)			Parameter number num, that was push
+ 				in C convention.  This all works over pushes
 diff --git a/crypto/pkcs12/p12_add.c b/crypto/pkcs12/p12_add.c
 index 193ed8097d..af184c86af 100644
 --- a/crypto/pkcs12/p12_add.c
@@ -11027,7 +11501,7 @@ index a243361b56..93b82f34ce 100644
   * Implementation of NIST SP 800-90A CTR DRBG.
   */
 diff --git a/crypto/rand/drbg_lib.c b/crypto/rand/drbg_lib.c
-index 12bb627a04..3af1d557c1 100644
+index 12bb627a04..e618c50bec 100644
 --- a/crypto/rand/drbg_lib.c
 +++ b/crypto/rand/drbg_lib.c
 @@ -11,10 +11,10 @@
@@ -11044,6 +11518,15 @@ index 12bb627a04..3af1d557c1 100644
  
  /*
   * Support framework for NIST SP 800-90A DRBG
+@@ -1044,7 +1044,7 @@ static int drbg_add(const void *buf, int num, double randomness)
+         return ret;
+ #else
+         /*
+-         * If an os entropy source is avaible then we declare the buffer content
++         * If an os entropy source is available then we declare the buffer content
+          * as additional data by setting randomness to zero and trigger a regular
+          * reseeding.
+          */
 diff --git a/crypto/rand/rand_err.c b/crypto/rand/rand_err.c
 index ae4d8559fb..071376a173 100644
 --- a/crypto/rand/rand_err.c
@@ -11057,7 +11540,7 @@ index ae4d8559fb..071376a173 100644
      {0, NULL}
  };
 diff --git a/crypto/rand/rand_lib.c b/crypto/rand/rand_lib.c
-index 91b2652311..0dc086fdaa 100644
+index 91b2652311..7f6d93865c 100644
 --- a/crypto/rand/rand_lib.c
 +++ b/crypto/rand/rand_lib.c
 @@ -11,10 +11,10 @@
@@ -11083,6 +11566,15 @@ index 91b2652311..0dc086fdaa 100644
      if (meth == RAND_OpenSSL()) {
          /* fill random pool and seed the master DRBG */
          RAND_DRBG *drbg = RAND_DRBG_get0_master();
+@@ -765,7 +768,7 @@ int rand_pool_add(RAND_POOL *pool,
+  * is returned without producing an error message.
+  *
+  * After updating the buffer, rand_pool_add_end() needs to be called
+- * to finish the udpate operation (see next comment).
++ * to finish the update operation (see next comment).
+  */
+ unsigned char *rand_pool_add_begin(RAND_POOL *pool, size_t len)
+ {
 @@ -896,7 +899,7 @@ void RAND_seed(const void *buf, int num)
  {
      const RAND_METHOD *meth = RAND_get_rand_method();
@@ -11152,10 +11644,10 @@ index 91b2652311..0dc086fdaa 100644
      return 0;
  }
 diff --git a/crypto/rand/rand_lcl.h b/crypto/rand/rand_local.h
-similarity index 99%
+similarity index 98%
 rename from crypto/rand/rand_lcl.h
 rename to crypto/rand/rand_local.h
-index 306c59f6ef..96fa3cabce 100644
+index 306c59f6ef..f1abbcd7ff 100644
 --- a/crypto/rand/rand_lcl.h
 +++ b/crypto/rand/rand_local.h
 @@ -7,8 +7,8 @@
@@ -11169,6 +11661,15 @@ index 306c59f6ef..96fa3cabce 100644
  
  # include <openssl/aes.h>
  # include <openssl/evp.h>
+@@ -82,7 +82,7 @@
+  * Typically, the DRBGs will set a minimum larger than this so optimal
+  * allocation ought to take place (for full quality seed material).
+  *
+- * The normal value has been chosed by noticing that the rand_drbg_get_nonce
++ * The normal value has been chosen by noticing that the rand_drbg_get_nonce
+  * function is usually the largest of the built in allocation (twenty four
+  * bytes and then appending another sixteen bytes).  This means the buffer ends
+  * with 40 bytes.  The value of forty eight is comfortably above this which
 diff --git a/crypto/rand/rand_unix.c b/crypto/rand/rand_unix.c
 index 69efcdeed7..58d47367ac 100644
 --- a/crypto/rand/rand_unix.c
@@ -11775,7 +12276,7 @@ index f1ae4323ca..f3604e3490 100644
  /*
   * Transformed F2 and F4 are courtesy of Wei Dai
 diff --git a/crypto/rsa/rsa_ameth.c b/crypto/rsa/rsa_ameth.c
-index 9dcb85d837..6692a51ed8 100644
+index 9dcb85d837..d45d6b5ba3 100644
 --- a/crypto/rsa/rsa_ameth.c
 +++ b/crypto/rsa/rsa_ameth.c
 @@ -13,9 +13,9 @@
@@ -11791,6 +12292,40 @@ index 9dcb85d837..6692a51ed8 100644
  
  #ifndef OPENSSL_NO_CMS
  static int rsa_cms_sign(CMS_SignerInfo *si);
+@@ -855,6 +855,7 @@ static int rsa_sig_info_set(X509_SIG_INFO *siginf, const X509_ALGOR *sigalg,
+     uint32_t flags;
+     const EVP_MD *mgf1md = NULL, *md = NULL;
+     RSA_PSS_PARAMS *pss;
++    int secbits;
+ 
+     /* Sanity check: make sure it is PSS */
+     if (OBJ_obj2nid(sigalg->algorithm) != EVP_PKEY_RSA_PSS)
+@@ -874,7 +875,24 @@ static int rsa_sig_info_set(X509_SIG_INFO *siginf, const X509_ALGOR *sigalg,
+     else
+         flags = 0;
+     /* Note: security bits half number of digest bits */
+-    X509_SIG_INFO_set(siginf, mdnid, EVP_PKEY_RSA_PSS, EVP_MD_size(md) * 4,
++    secbits = EVP_MD_size(md) * 4;
++    /*
++     * SHA1 and MD5 are known to be broken. Reduce security bits so that
++     * they're no longer accepted at security level 1. The real values don't
++     * really matter as long as they're lower than 80, which is our security
++     * level 1.
++     * https://eprint.iacr.org/2020/014 puts a chosen-prefix attack for SHA1 at
++     * 2^63.4
++     * https://documents.epfl.ch/users/l/le/lenstra/public/papers/lat.pdf
++     * puts a chosen-prefix attack for MD5 at 2^39.
++     */
++    if (mdnid == NID_sha1)
++        secbits = 64;
++    else if (mdnid == NID_md5_sha1)
++        secbits = 68;
++    else if (mdnid == NID_md5)
++        secbits = 39;
++    X509_SIG_INFO_set(siginf, mdnid, EVP_PKEY_RSA_PSS, secbits,
+                       flags);
+     rv = 1;
+     err:
 diff --git a/crypto/rsa/rsa_asn1.c b/crypto/rsa/rsa_asn1.c
 index 9fe62c82eb..e8df8d762e 100644
 --- a/crypto/rsa/rsa_asn1.c
@@ -12202,10 +12737,32 @@ index ac2950d97c..e3681f8bd4 100644
  
 -#endif                          /* HEADER_SEED_LOCL_H */
 +#endif                          /* OSSL_CRYPTO_SEED_LOCAL_H */
+diff --git a/crypto/sha/asm/keccak1600-mmx.pl b/crypto/sha/asm/keccak1600-mmx.pl
+index c7685add79..be24394d35 100755
+--- a/crypto/sha/asm/keccak1600-mmx.pl
++++ b/crypto/sha/asm/keccak1600-mmx.pl
+@@ -30,7 +30,7 @@
+ # produce worse code. On the other hand one can wonder why not 128-bit
+ # SSE2? Well, SSE2 won't provide double improvement, rather far from
+ # that, if any at all on some processors, because it will take extra
+-# permutations and inter-bank data trasfers. Besides, contemporary
++# permutations and inter-bank data transfers. Besides, contemporary
+ # CPUs are better off executing 64-bit code, and it makes lesser sense
+ # to invest into fancy 32-bit code. And the decision doesn't seem to
+ # be inadequate, if one compares below results to "64-bit platforms in
 diff --git a/crypto/sha/asm/keccak1600-x86_64.pl b/crypto/sha/asm/keccak1600-x86_64.pl
-index 42de5bf123..82ccdd1679 100755
+index 42de5bf123..34457034bf 100755
 --- a/crypto/sha/asm/keccak1600-x86_64.pl
 +++ b/crypto/sha/asm/keccak1600-x86_64.pl
+@@ -44,7 +44,7 @@
+ # Ryzen			8.8
+ #
+ # (*)	Corresponds to SHA3-256. Improvement over compiler-generate
+-#	varies a lot, most commont coefficient is 15% in comparison to
++#	varies a lot, most common coefficient is 15% in comparison to
+ #	gcc-5.x, 50% for gcc-4.x, 90% for gcc-3.x.
+ # (**)	Sandy Bridge has broken rotate instruction. Performance can be
+ #	improved by 14% by replacing rotates with double-precision
 @@ -84,6 +84,7 @@ $code.=<<___;
  .type	__KeccakF1600,\@abi-omnipotent
  .align	32
@@ -12717,6 +13274,19 @@ index 99eafb3313..c74063be2f 100644
  
 -#endif                          /* __SPARC_ARCH_H__ */
 +#endif                          /* OSSL_CRYPTO_SPARC_ARCH_H */
+diff --git a/crypto/sparcv9cap.c b/crypto/sparcv9cap.c
+index c8c567536b..57f0babd58 100644
+--- a/crypto/sparcv9cap.c
++++ b/crypto/sparcv9cap.c
+@@ -268,7 +268,7 @@ void OPENSSL_cpuid_setup(void)
+ 
+     /*
+      * In wait for better solution _sparcv9_rdcfr is masked by
+-     * VIS3 flag, because it goes to uninterruptable endless
++     * VIS3 flag, because it goes to uninterruptible endless
+      * loop on UltraSPARC II running Solaris. Things might be
+      * different on Linux...
+      */
 diff --git a/crypto/srp/srp_lib.c b/crypto/srp/srp_lib.c
 index ca20f6d097..4f417de0c9 100644
 --- a/crypto/srp/srp_lib.c
@@ -13055,6 +13625,33 @@ index b379324f9b..32a3c4e38d 100644
  
      return ui_method;
  }
+diff --git a/crypto/whrlpool/asm/wp-mmx.pl b/crypto/whrlpool/asm/wp-mmx.pl
+index 2241c6f0f2..f5a1ac0273 100644
+--- a/crypto/whrlpool/asm/wp-mmx.pl
++++ b/crypto/whrlpool/asm/wp-mmx.pl
+@@ -69,19 +69,19 @@ sub LL()
+ 					unshift(@_,pop(@_));
+ 				  }
+ 				}
+-	else			{ die "unvalid SCALE value"; }
++	else			{ die "invalid SCALE value"; }
+ }
+ 
+ sub scale()
+ {	if	($SCALE==2)	{ &lea(@_[0],&DWP(0,@_[1],@_[1])); }
+ 	elsif	($SCALE==8)	{ &lea(@_[0],&DWP(0,"",@_[1],8));  }
+-	else			{ die "unvalid SCALE value";       }
++	else			{ die "invalid SCALE value";       }
+ }
+ 
+ sub row()
+ {	if	($SCALE==2)	{ ((8-shift)&7); }
+ 	elsif	($SCALE==8)	{ (8*shift);     }
+-	else			{ die "unvalid SCALE value"; }
++	else			{ die "invalid SCALE value"; }
+ }
+ 
+ $tbl="ebp";
 diff --git a/crypto/whrlpool/wp_block.c b/crypto/whrlpool/wp_block.c
 index 2ae5c38aba..c21c04dbc1 100644
 --- a/crypto/whrlpool/wp_block.c
@@ -13238,7 +13835,7 @@ index 0bdbb81db8..7ba0f26495 100644
  #include <openssl/buffer.h>
  #include <openssl/pem.h>
 diff --git a/crypto/x509/x509_set.c b/crypto/x509/x509_set.c
-index 3ab6bf3511..164b4e2be1 100644
+index 3ab6bf3511..deb7722c18 100644
 --- a/crypto/x509/x509_set.c
 +++ b/crypto/x509/x509_set.c
 @@ -15,9 +15,9 @@
@@ -13254,6 +13851,27 @@ index 3ab6bf3511..164b4e2be1 100644
  
  int X509_set_version(X509 *x, long version)
  {
+@@ -222,6 +222,20 @@ static void x509_sig_info_init(X509_SIG_INFO *siginf, const X509_ALGOR *alg,
+         return;
+     /* Security bits: half number of bits in digest */
+     siginf->secbits = EVP_MD_size(md) * 4;
++    /*
++     * SHA1 and MD5 are known to be broken. Reduce security bits so that
++     * they're no longer accepted at security level 1. The real values don't
++     * really matter as long as they're lower than 80, which is our security
++     * level 1.
++     * https://eprint.iacr.org/2020/014 puts a chosen-prefix attack for SHA1 at
++     * 2^63.4
++     * https://documents.epfl.ch/users/l/le/lenstra/public/papers/lat.pdf
++     * puts a chosen-prefix attack for MD5 at 2^39.
++     */
++    if (mdnid == NID_sha1)
++        siginf->secbits = 63;
++    else if (mdnid == NID_md5)
++        siginf->secbits = 39;
+     switch (mdnid) {
+         case NID_sha1:
+         case NID_sha256:
 diff --git a/crypto/x509/x509_trs.c b/crypto/x509/x509_trs.c
 index d749af4d59..9e199d63e4 100644
 --- a/crypto/x509/x509_trs.c
@@ -14399,6 +15017,32 @@ index a9b5b1690a..730c59079d 100644
  
  Licensed under the OpenSSL license (the "License").  You may not use
  this file except in compliance with the License.  You can obtain a copy
+diff --git a/doc/man1/s_client.pod b/doc/man1/s_client.pod
+index e2475ea067..580ab49881 100644
+--- a/doc/man1/s_client.pod
++++ b/doc/man1/s_client.pod
+@@ -335,7 +335,7 @@ at a positive depth or else "matched EE certificate" at depth 0.
+ 
+ Use one or more times to specify the RRDATA fields of the DANE TLSA
+ RRset associated with the target service.  The B<rrdata> value is
+-specied in "presentation form", that is four whitespace separated
++specified in "presentation form", that is four whitespace separated
+ fields that specify the usage, selector, matching type and associated
+ data, with the last of these encoded in hexadecimal.  Optional
+ whitespace is ignored in the associated data field.  For example:
+diff --git a/doc/man1/sess_id.pod b/doc/man1/sess_id.pod
+index 1f7a1e8670..610c85249e 100644
+--- a/doc/man1/sess_id.pod
++++ b/doc/man1/sess_id.pod
+@@ -93,7 +93,7 @@ Typical output:
+      Timeout   : 300 (sec)
+      Verify return code 0 (ok)
+ 
+-Theses are described below in more detail.
++These are described below in more detail.
+ 
+ =over 4
+ 
 diff --git a/doc/man1/x509.pod b/doc/man1/x509.pod
 index 7878753414..a6cea337d2 100644
 --- a/doc/man1/x509.pod
@@ -14449,6 +15093,19 @@ index 9b73290742..ac6a5799df 100644
   int ASN1_ENUMERATED_set(ASN1_ENUMERATED *a, long v);
  
   ASN1_ENUMERATED *BN_to_ASN1_ENUMERATED(BIGNUM *bn, ASN1_ENUMERATED *ai);
+diff --git a/doc/man3/ASN1_TYPE_get.pod b/doc/man3/ASN1_TYPE_get.pod
+index 70c56878b8..17c6406c9e 100644
+--- a/doc/man3/ASN1_TYPE_get.pod
++++ b/doc/man3/ASN1_TYPE_get.pod
+@@ -69,7 +69,7 @@ If either or both of the parameters passed to ASN1_TYPE_cmp() is NULL the
+ return value is non-zero. Technically if both parameters are NULL the two
+ types could be absent OPTIONAL fields and so should match, however passing
+ NULL values could also indicate a programming error (for example an
+-unparseable type which returns NULL) for types which do B<not> match. So
++unparsable type which returns NULL) for types which do B<not> match. So
+ applications should handle the case of two absent values separately.
+ 
+ =head1 RETURN VALUES
 diff --git a/doc/man3/DTLSv1_listen.pod b/doc/man3/DTLSv1_listen.pod
 index 76be40b68f..98511a475f 100644
 --- a/doc/man3/DTLSv1_listen.pod
@@ -15020,7 +15677,7 @@ index 3e3e342297..434e22030f 100644
  L<evp(7)>
  
 diff --git a/doc/man3/EVP_DigestSignInit.pod b/doc/man3/EVP_DigestSignInit.pod
-index 0bbc3d0ff8..cd159815de 100644
+index 0bbc3d0ff8..5bd25f8be9 100644
 --- a/doc/man3/EVP_DigestSignInit.pod
 +++ b/doc/man3/EVP_DigestSignInit.pod
 @@ -36,7 +36,7 @@ EVP_MD_CTX is freed).
@@ -15032,13 +15689,15 @@ index 0bbc3d0ff8..cd159815de 100644
  
  Only EVP_PKEY types that support signing can be used with these functions. This
  includes MAC algorithms where the MAC generation is considered as a form of
-@@ -103,9 +103,7 @@ EVP_DigestSignFinal().
+@@ -102,10 +102,8 @@ EVP_DigestSignFinal().
+ 
  =head1 RETURN VALUES
  
- EVP_DigestSignInit(), EVP_DigestSignUpdate(), EVP_DigestSignaFinal() and
+-EVP_DigestSignInit(), EVP_DigestSignUpdate(), EVP_DigestSignaFinal() and
 -EVP_DigestSign() return 1 for success and 0 or a negative value for failure. In
 -particular, a return value of -2 indicates the operation is not supported by the
 -public key algorithm.
++EVP_DigestSignInit(), EVP_DigestSignUpdate(), EVP_DigestSignFinal() and
 +EVP_DigestSign() return 1 for success and 0 for failure.
  
  The error codes can be obtained from L<ERR_get_error(3)>.
@@ -15243,6 +15902,32 @@ index 8a167ce0d6..106873d9ac 100644
   void EVP_PKEY_meth_get_check(const EVP_PKEY_METHOD *pmeth,
                                int (**pcheck) (EVP_PKEY *pkey));
   void EVP_PKEY_meth_get_public_check(const EVP_PKEY_METHOD *pmeth,
+diff --git a/doc/man3/OCSP_request_add1_nonce.pod b/doc/man3/OCSP_request_add1_nonce.pod
+index 66e4c7b8fb..18ba125cc8 100644
+--- a/doc/man3/OCSP_request_add1_nonce.pod
++++ b/doc/man3/OCSP_request_add1_nonce.pod
+@@ -24,7 +24,7 @@ it adds a nonce to OCSP basic response B<resp>.
+ 
+ OCSP_check_nonce() compares the nonce value in B<req> and B<resp>.
+ 
+-OCSP_copy_nonce() copys any nonce value present in B<req> to B<resp>.
++OCSP_copy_nonce() copies any nonce value present in B<req> to B<resp>.
+ 
+ =head1 RETURN VALUES
+ 
+diff --git a/doc/man3/OCSP_response_status.pod b/doc/man3/OCSP_response_status.pod
+index 82f95b3af1..305e4340f5 100644
+--- a/doc/man3/OCSP_response_status.pod
++++ b/doc/man3/OCSP_response_status.pod
+@@ -58,7 +58,7 @@ with the X509 certificate B<cert>.
+ 
+ OCSP_basic_sign() signs OCSP response B<brsp> using certificate B<signer>, private key
+ B<key>, digest B<dgst> and additional certificates B<certs>. If the B<flags> option
+-B<OCSP_NOCERTS> is set then no certificates will be included in the request. If the
++B<OCSP_NOCERTS> is set then no certificates will be included in the response. If the
+ B<flags> option B<OCSP_RESPID_KEY> is set then the responder is identified by key ID
+ rather than by name. OCSP_basic_sign_ctx() also signs OCSP response B<brsp> but
+ uses the parameters contained in digest context B<ctx>.
 diff --git a/doc/man3/OCSP_sendreq_new.pod b/doc/man3/OCSP_sendreq_new.pod
 index 65ba235c10..7421698332 100644
 --- a/doc/man3/OCSP_sendreq_new.pod
@@ -15267,6 +15952,19 @@ index 65ba235c10..7421698332 100644
 +length 4k. It waits indefinitely on a response.
  
  =head1 RETURN VALUES
+ 
+diff --git a/doc/man3/OPENSSL_malloc.pod b/doc/man3/OPENSSL_malloc.pod
+index 2d678c951f..f4ebc77767 100644
+--- a/doc/man3/OPENSSL_malloc.pod
++++ b/doc/man3/OPENSSL_malloc.pod
+@@ -160,7 +160,7 @@ about what is being done.
+ For example, identifying the field names when parsing a complicated
+ data structure.
+ OPENSSL_mem_debug_push() (which calls CRYPTO_mem_debug_push())
+-attachs an identifying string to the allocation stack.
++attaches an identifying string to the allocation stack.
+ This must be a global or other static string; it is not copied.
+ OPENSSL_mem_debug_pop() removes identifying state from the stack.
  
 diff --git a/doc/man3/OPENSSL_secure_malloc.pod b/doc/man3/OPENSSL_secure_malloc.pod
 index 6c39538351..86c2522afe 100644
@@ -15546,6 +16244,158 @@ index f29153ed25..aa167f6332 100644
  
  =head1 COPYRIGHT
  
+diff --git a/doc/man3/SSL_CTX_set_tlsext_servername_callback.pod b/doc/man3/SSL_CTX_set_tlsext_servername_callback.pod
+index b1fb5ab7d9..d6af097ae3 100644
+--- a/doc/man3/SSL_CTX_set_tlsext_servername_callback.pod
++++ b/doc/man3/SSL_CTX_set_tlsext_servername_callback.pod
+@@ -11,7 +11,7 @@ SSL_set_tlsext_host_name - handle server name indication (SNI)
+  #include <openssl/ssl.h>
+ 
+  long SSL_CTX_set_tlsext_servername_callback(SSL_CTX *ctx,
+-                                   int (*cb)(SSL *, int *, void *));
++                                   int (*cb)(SSL *s, int *al, void *arg));
+  long SSL_CTX_set_tlsext_servername_arg(SSL_CTX *ctx, void *arg);
+ 
+  const char *SSL_get_servername(const SSL *s, const int type);
+@@ -21,21 +21,106 @@ SSL_set_tlsext_host_name - handle server name indication (SNI)
+ 
+ =head1 DESCRIPTION
+ 
+-The functionality provided by the servername callback is superseded by the
+-ClientHello callback, which can be set using SSL_CTX_set_client_hello_cb().
+-The servername callback is retained for historical compatibility.
++The functionality provided by the servername callback is mostly superseded by
++the ClientHello callback, which can be set using SSL_CTX_set_client_hello_cb().
++However, even where the ClientHello callback is used, the servername callback is
++still necessary in order to acknowledge the servername requested by the client.
+ 
+ SSL_CTX_set_tlsext_servername_callback() sets the application callback B<cb>
+ used by a server to perform any actions or configuration required based on
+ the servername extension received in the incoming connection. When B<cb>
+-is NULL, SNI is not used. The B<arg> value is a pointer which is passed to
+-the application callback.
++is NULL, SNI is not used.
++
++The servername callback should return one of the following values:
++
++=over 4
++
++=item SSL_TLSEXT_ERR_OK
++
++This is used to indicate that the servername requested by the client has been
++accepted. Typically a server will call SSL_set_SSL_CTX() in the callback to set
++up a different configuration for the selected servername in this case.
++
++=item SSL_TLSEXT_ERR_ALERT_FATAL
++
++In this case the servername requested by the client is not accepted and the
++handshake will be aborted. The value of the alert to be used should be stored in
++the location pointed to by the B<al> parameter to the callback. By default this
++value is initialised to SSL_AD_UNRECOGNIZED_NAME.
++
++=item SSL_TLSEXT_ERR_ALERT_WARNING
++
++If this value is returned then the servername is not accepted by the server.
++However the handshake will continue and send a warning alert instead. The value
++of the alert should be stored in the location pointed to by the B<al> parameter
++as for SSL_TLSEXT_ERR_ALERT_FATAL above. Note that TLSv1.3 does not support
++warning alerts, so if TLSv1.3 has been negotiated then this return value is
++treated the same way as SSL_TLSEXT_ERR_NOACK.
++
++=item SSL_TLSEXT_ERR_NOACK
++
++This return value indicates that the servername is not accepted by the server.
++No alerts are sent and the server will not acknowledge the requested servername.
++
++=back
+ 
+ SSL_CTX_set_tlsext_servername_arg() sets a context-specific argument to be
+-passed into the callback for this B<SSL_CTX>.
++passed into the callback (via the B<arg> parameter) for this B<SSL_CTX>.
++
++The behaviour of SSL_get_servername() depends on a number of different factors.
++In particular note that in TLSv1.3 the servername is negotiated in every
++handshake. In TLSv1.2 the servername is only negotiated on initial handshakes
++and not on resumption handshakes.
++
++=over 4
++
++=item On the client, before the handshake
++
++If a servername has been set via a call to SSL_set_tlsext_host_name() then it
++will return that servername.
++
++If one has not been set, but a TLSv1.2 resumption is being attempted and the
++session from the original handshake had a servername accepted by the server then
++it will return that servername.
++
++Otherwise it returns NULL.
+ 
+-SSL_get_servername() returns a servername extension value of the specified
+-type if provided in the Client Hello or NULL.
++=item On the client, during or after the handshake and a TLSv1.2 (or below)
++resumption occurred
++
++If the session from the orignal handshake had a servername accepted by the
++server then it will return that servername.
++
++Otherwise it returns the servername set via SSL_set_tlsext_host_name() or NULL
++if it was not called.
++
++=item On the client, during or after the handshake and a TLSv1.2 (or below)
++resumption did not occur
++
++It will return the servername set via SSL_set_tlsext_host_name() or NULL if it
++was not called.
++
++=item On the server, before the handshake
++
++The function will always return NULL before the handshake
++
++=item On the server, after the servername extension has been processed and a
++TLSv1.2 (or below) resumption occurred
++
++If a servername was accepted by the server in the original handshake then it
++will return that servername, or NULL otherwise.
++
++=item On the server, after the servername extension has been processed and a
++TLSv1.2 (or below) resumption did not occur
++
++The function will return the servername requested by the client in this
++handshake or NULL if none was requested.
++
++=back
++
++Note that the ClientHello callback occurs before a servername extension from the
++client is processed. The servername, certificate and ALPN callbacks occur after
++a servername extension from the client is processed.
+ 
+ SSL_get_servername_type() returns the servername type or -1 if no servername
+ is present. Currently the only supported type (defined in RFC3546) is
+@@ -65,6 +150,23 @@ SSL_set_tlsext_host_name() returns 1 on success, 0 in case of error.
+ L<ssl(7)>, L<SSL_CTX_set_alpn_select_cb(3)>,
+ L<SSL_get0_alpn_selected(3)>, L<SSL_CTX_set_client_hello_cb(3)>
+ 
++=head1 HISTORY
++
++SSL_get_servername() historically provided some unexpected results in certain
++corner cases. This has been fixed from OpenSSL 1.1.1e.
++
++Prior to 1.1.1e, when the client requested a servername in an initial TLSv1.2
++handshake, the server accepted it, and then the client successfully resumed but
++set a different explict servername in the second handshake then when called by
++the client it returned the servername from the second handshake. This has now
++been changed to return the servername requested in the original handshake.
++
++Also prior to 1.1.1e, if the client sent a servername in the first handshake but
++the server did not accept it, and then a second handshake occured where TLSv1.2
++resumption was successful then when called by the server it returned the
++servername requested in the original handshake. This has now been changed to
++NULL.
++
+ =head1 COPYRIGHT
+ 
+ Copyright 2017 The OpenSSL Project Authors. All Rights Reserved.
 diff --git a/doc/man3/SSL_CTX_use_psk_identity_hint.pod b/doc/man3/SSL_CTX_use_psk_identity_hint.pod
 index c8f7526610..0957ade5e1 100644
 --- a/doc/man3/SSL_CTX_use_psk_identity_hint.pod
@@ -15563,6 +16413,22 @@ index c8f7526610..0957ade5e1 100644
  
  The callback function is given a pointer to the SSL connection in B<ssl> and
  an identity in B<identity> of length B<identity_len>. The callback function
+diff --git a/doc/man3/SSL_SESSION_get0_hostname.pod b/doc/man3/SSL_SESSION_get0_hostname.pod
+index 475f700a88..acf1b152bc 100644
+--- a/doc/man3/SSL_SESSION_get0_hostname.pod
++++ b/doc/man3/SSL_SESSION_get0_hostname.pod
+@@ -24,7 +24,10 @@ SSL_SESSION_set1_alpn_selected
+ =head1 DESCRIPTION
+ 
+ SSL_SESSION_get0_hostname() retrieves the SNI value that was sent by the
+-client when the session was created, or NULL if no value was sent.
++client when the session was created if it was accepted by the server and TLSv1.2
++or below was negotiated. Otherwise NULL is returned. Note that in TLSv1.3 the
++SNI hostname is negotiated with each handshake including resumption handshakes
++and is therefore never associated with the session.
+ 
+ The value returned is a pointer to memory maintained within B<s> and
+ should not be free'd.
 diff --git a/doc/man3/SSL_load_client_CA_file.pod b/doc/man3/SSL_load_client_CA_file.pod
 index a6cfb308d3..f354ef4177 100644
 --- a/doc/man3/SSL_load_client_CA_file.pod
@@ -15618,7 +16484,7 @@ index 472db508bc..c5042858be 100644
   void X509_STORE_CTX_set0_crls(X509_STORE_CTX *ctx, STACK_OF(X509_CRL) *sk);
  
 diff --git a/doc/man3/d2i_X509.pod b/doc/man3/d2i_X509.pod
-index e36270f739..075f87295a 100644
+index e36270f739..bd93b584b7 100644
 --- a/doc/man3/d2i_X509.pod
 +++ b/doc/man3/d2i_X509.pod
 @@ -307,7 +307,6 @@ i2d_POLICYQUALINFO,
@@ -15629,6 +16495,55 @@ index e36270f739..075f87295a 100644
  i2d_RSAPrivateKey,
  i2d_RSAPrivateKey_bio,
  i2d_RSAPrivateKey_fp,
+@@ -461,7 +460,7 @@ Represents an ASN1 OBJECT IDENTIFIER.
+ 
+ Represents a PKCS#3 DH parameters structure.
+ 
+-=item B<DHparamx>
++=item B<DHxparams>
+ 
+ Represents an ANSI X9.42 DH parameters structure.
+ 
+diff --git a/doc/man5/config.pod b/doc/man5/config.pod
+index 992fdfccf9..732998e8f4 100644
+--- a/doc/man5/config.pod
++++ b/doc/man5/config.pod
+@@ -355,6 +355,22 @@ Simple OpenSSL library configuration example to enter FIPS mode:
+ Note: in the above example you will get an error in non FIPS capable versions
+ of OpenSSL.
+ 
++Simple OpenSSL library configuration to make TLS 1.3 the system-default
++minimum TLS version:
++
++ # Toplevel section for openssl (including libssl)
++ openssl_conf = default_conf_section
++
++ [default_conf_section]
++ # We only specify configuration for the "ssl module"
++ ssl_conf = ssl_section
++
++ [ssl_section]
++ system_default = system_default_section
++
++ [system_default_section]
++ MinProtocol = TLSv1.3
++
+ More complex OpenSSL library configuration. Add OID and don't enter FIPS mode:
+ 
+  # Default appname: should match "appname" parameter (if any)
+diff --git a/doc/man7/passphrase-encoding.pod b/doc/man7/passphrase-encoding.pod
+index 6810844526..8a9067c9c1 100644
+--- a/doc/man7/passphrase-encoding.pod
++++ b/doc/man7/passphrase-encoding.pod
+@@ -65,7 +65,7 @@ A pass phrase encoded in ISO-8859-2 could very well have a sequence such as
+ 0xC3 0xAF (which is the two characters "LATIN CAPITAL LETTER A WITH BREVE"
+ and "LATIN CAPITAL LETTER Z WITH DOT ABOVE" in ISO-8859-2 encoding), but would
+ be misinterpreted as the perfectly valid UTF-8 encoded code point U+00EF (LATIN
+-SMALL LETTER I WITH DIARESIS) I<if the pass phrase doesn't contain anything that
++SMALL LETTER I WITH DIAERESIS) I<if the pass phrase doesn't contain anything that
+ would be invalid UTF-8>.
+ A pass phrase that contains this kind of byte sequence will give a different
+ outcome in OpenSSL 1.1.0 and newer than in OpenSSL older than 1.1.0.
 diff --git a/doc/man7/proxy-certificates.pod b/doc/man7/proxy-certificates.pod
 new file mode 100644
 index 0000000000..df5ee1b4b5
@@ -16022,6 +16937,19 @@ index 858bc40cb1..f607045e14 100644
   * from /dev/random.
   */
  #   ifndef DEVRANDM_WAIT_USE_SELECT
+diff --git a/engines/e_afalg.c b/engines/e_afalg.c
+index 7f62d77e5b..8cc1379f3f 100644
+--- a/engines/e_afalg.c
++++ b/engines/e_afalg.c
+@@ -456,7 +456,7 @@ static int afalg_start_cipher_sk(afalg_ctx *actx, const unsigned char *in,
+ 
+     /*
+      * vmsplice and splice are used to pin the user space input buffer for
+-     * kernel space processing avoiding copys from user to kernel space
++     * kernel space processing avoiding copies from user to kernel space
+      */
+     ret = vmsplice(actx->zc_pipe[1], &iov, 1, SPLICE_F_GIFT);
+     if (ret < 0) {
 diff --git a/engines/e_afalg.h b/engines/e_afalg.h
 index 2c03c448d6..3323c898c6 100644
 --- a/engines/e_afalg.h
@@ -16786,6 +17714,34 @@ index 545654a98b..a411f3f2f9 100644
  void EVP_PKEY_meth_get_check(const EVP_PKEY_METHOD *pmeth,
                               int (**pcheck) (EVP_PKEY *pkey));
  
+diff --git a/include/openssl/evperr.h b/include/openssl/evperr.h
+index 6a651f5563..52413d181b 100644
+--- a/include/openssl/evperr.h
++++ b/include/openssl/evperr.h
+@@ -160,6 +160,7 @@ int ERR_load_EVP_strings(void);
+ # define EVP_R_INPUT_NOT_INITIALIZED                      111
+ # define EVP_R_INVALID_DIGEST                             152
+ # define EVP_R_INVALID_FIPS_MODE                          168
++# define EVP_R_INVALID_IV_LENGTH                          194
+ # define EVP_R_INVALID_KEY                                163
+ # define EVP_R_INVALID_KEY_LENGTH                         130
+ # define EVP_R_INVALID_OPERATION                          148
+diff --git a/include/openssl/lhash.h b/include/openssl/lhash.h
+index 47b99d17fb..1ffb56b527 100644
+--- a/include/openssl/lhash.h
++++ b/include/openssl/lhash.h
+@@ -120,9 +120,8 @@ void OPENSSL_LH_node_usage_stats_bio(const OPENSSL_LHASH *lh, BIO *out);
+ 
+ # define DEFINE_LHASH_OF(type) \
+     LHASH_OF(type) { union lh_##type##_dummy { void* d1; unsigned long d2; int d3; } dummy; }; \
+-    static ossl_inline LHASH_OF(type) * \
+-        lh_##type##_new(unsigned long (*hfn)(const type *), \
+-                        int (*cfn)(const type *, const type *)) \
++    static ossl_unused ossl_inline LHASH_OF(type) *lh_##type##_new(unsigned long (*hfn)(const type *), \
++                                                                   int (*cfn)(const type *, const type *)) \
+     { \
+         return (LHASH_OF(type) *) \
+             OPENSSL_LH_new((OPENSSL_LH_HASHFUNC)hfn, (OPENSSL_LH_COMPFUNC)cfn); \
 diff --git a/include/openssl/obj_mac.h b/include/openssl/obj_mac.h
 index 47dafe48d0..483fc0509e 100644
 --- a/include/openssl/obj_mac.h
@@ -16838,7 +17794,7 @@ index c28e632c44..032fb78c1c 100644
 -# define OPENSSL_VERSION_NUMBER  0x1010104fL
 -# define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1d  10 Sep 2019"
 +# define OPENSSL_VERSION_NUMBER  0x10101050L
-+# define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1e-dev gf50f2725c0 xx XXX xxxx"
++# define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1e-dev g52346fb007 xx XXX xxxx"
  
  /*-
   * The macros below are to be used for shared library (.so, .dll, ...)
@@ -17374,7 +18330,7 @@ index f0969fa9b1..d083d95970 100644
  
  static int stopped;
 diff --git a/ssl/ssl_lib.c b/ssl/ssl_lib.c
-index ac820cf9fe..0d0c0dbd6a 100644
+index ac820cf9fe..e7268f5c2d 100644
 --- a/ssl/ssl_lib.c
 +++ b/ssl/ssl_lib.c
 @@ -10,7 +10,7 @@
@@ -17386,11 +18342,111 @@ index ac820cf9fe..0d0c0dbd6a 100644
  #include <openssl/objects.h>
  #include <openssl/x509v3.h>
  #include <openssl/rand.h>
+@@ -2623,31 +2623,85 @@ char *SSL_get_shared_ciphers(const SSL *s, char *buf, int size)
+     return buf;
+ }
+ 
+-/** return a servername extension value if provided in Client Hello, or NULL.
+- * So far, only host_name types are defined (RFC 3546).
++/**
++ * Return the requested servername (SNI) value. Note that the behaviour varies
++ * depending on:
++ * - whether this is called by the client or the server,
++ * - if we are before or during/after the handshake,
++ * - if a resumption or normal handshake is being attempted/has occurred
++ * - whether we have negotiated TLSv1.2 (or below) or TLSv1.3
++ * 
++ * Note that only the host_name type is defined (RFC 3546).
+  */
+-
+ const char *SSL_get_servername(const SSL *s, const int type)
+ {
++    /*
++     * If we don't know if we are the client or the server yet then we assume
++     * client.
++     */
++    int server = s->handshake_func == NULL ? 0 : s->server;
+     if (type != TLSEXT_NAMETYPE_host_name)
+         return NULL;
+ 
+-    /*
+-     * SNI is not negotiated in pre-TLS-1.3 resumption flows, so fake up an
+-     * SNI value to return if we are resuming/resumed.  N.B. that we still
+-     * call the relevant callbacks for such resumption flows, and callbacks
+-     * might error out if there is not a SNI value available.
+-     */
+-    if (s->hit)
+-        return s->session->ext.hostname;
++    if (server) {
++        /**
++         * Server side
++         * In TLSv1.3 on the server SNI is not associated with the session
++         * but in TLSv1.2 or below it is.
++         *
++         * Before the handshake:
++         *  - return NULL
++         *
++         * During/after the handshake (TLSv1.2 or below resumption occurred):
++         * - If a servername was accepted by the server in the original
++         *   handshake then it will return that servername, or NULL otherwise.
++         *
++         * During/after the handshake (TLSv1.2 or below resumption did not occur):
++         * - The function will return the servername requested by the client in
++         *   this handshake or NULL if none was requested.
++         */
++         if (s->hit && !SSL_IS_TLS13(s))
++            return s->session->ext.hostname;
++    } else {
++        /**
++         * Client side
++         *
++         * Before the handshake:
++         *  - If a servername has been set via a call to
++         *    SSL_set_tlsext_host_name() then it will return that servername
++         *  - If one has not been set, but a TLSv1.2 resumption is being
++         *    attempted and the session from the original handshake had a
++         *    servername accepted by the server then it will return that
++         *    servername
++         *  - Otherwise it returns NULL
++         *
++         * During/after the handshake (TLSv1.2 or below resumption occurred):
++         * - If the session from the orignal handshake had a servername accepted
++         *   by the server then it will return that servername.
++         * - Otherwise it returns the servername set via
++         *   SSL_set_tlsext_host_name() (or NULL if it was not called).
++         *
++         * During/after the handshake (TLSv1.2 or below resumption did not occur):
++         * - It will return the servername set via SSL_set_tlsext_host_name()
++         *   (or NULL if it was not called).
++         */
++        if (SSL_in_before(s)) {
++            if (s->ext.hostname == NULL
++                    && s->session != NULL
++                    && s->session->ssl_version != TLS1_3_VERSION)
++                return s->session->ext.hostname;
++        } else {
++            if (!SSL_IS_TLS13(s) && s->hit && s->session->ext.hostname != NULL)
++                return s->session->ext.hostname;
++        }
++    }
++
+     return s->ext.hostname;
+ }
+ 
+ int SSL_get_servername_type(const SSL *s)
+ {
+-    if (s->session
+-        && (!s->ext.hostname ? s->session->
+-            ext.hostname : s->ext.hostname))
++    if (SSL_get_servername(s, TLSEXT_NAMETYPE_host_name) != NULL)
+         return TLSEXT_NAMETYPE_host_name;
+     return -1;
+ }
 diff --git a/ssl/ssl_locl.h b/ssl/ssl_local.h
 similarity index 99%
 rename from ssl/ssl_locl.h
 rename to ssl/ssl_local.h
-index 25875c9f6d..d335df252e 100644
+index 25875c9f6d..9a04fdd5b4 100644
 --- a/ssl/ssl_locl.h
 +++ b/ssl/ssl_local.h
 @@ -9,8 +9,8 @@
@@ -17413,6 +18469,15 @@ index 25875c9f6d..d335df252e 100644
  # include "internal/dane.h"
  # include "internal/refcount.h"
  # include "internal/tsan_assist.h"
+@@ -2581,7 +2581,7 @@ __owur int tls_check_sigalg_curve(const SSL *s, int curve);
+ #  endif
+ __owur int tls12_check_peer_sigalg(SSL *s, uint16_t, EVP_PKEY *pkey);
+ __owur int ssl_set_client_disabled(SSL *s);
+-__owur int ssl_cipher_disabled(SSL *s, const SSL_CIPHER *c, int op, int echde);
++__owur int ssl_cipher_disabled(const SSL *s, const SSL_CIPHER *c, int op, int echde);
+ 
+ __owur int ssl_handshake_hash(SSL *s, unsigned char *out, size_t outlen,
+                                  size_t *hashlen);
 diff --git a/ssl/ssl_mcnf.c b/ssl/ssl_mcnf.c
 index a0e2657714..583df41669 100644
 --- a/ssl/ssl_mcnf.c
@@ -17509,7 +18574,7 @@ index 145c69db8d..86cc066372 100644
                  |                            |
     _____________|____________   _____________|____________
 diff --git a/ssl/statem/extensions.c b/ssl/statem/extensions.c
-index 24410991b2..86a737a6a0 100644
+index 24410991b2..44d8a2591a 100644
 --- a/ssl/statem/extensions.c
 +++ b/ssl/statem/extensions.c
 @@ -10,8 +10,8 @@
@@ -17532,15 +18597,24 @@ index 24410991b2..86a737a6a0 100644
   * Each extension has an initialiser, a client and
   * server side parser and a finaliser. The initialiser is called (if the
   * extension is relevant to the given context) even if we did not see the
-@@ -950,7 +950,7 @@ static int final_server_name(SSL *s, unsigned int context, int sent)
+@@ -949,8 +949,7 @@ static int final_server_name(SSL *s, unsigned int context, int sent)
+      * was successful.
       */
      if (s->server) {
-         /* TODO(OpenSSL1.2) revisit !sent case */
+-        /* TODO(OpenSSL1.2) revisit !sent case */
 -        if (sent && ret == SSL_TLSEXT_ERR_OK && (!s->hit || SSL_IS_TLS13(s))) {
 +        if (sent && ret == SSL_TLSEXT_ERR_OK && !s->hit) {
              /* Only store the hostname in the session if we accepted it. */
              OPENSSL_free(s->session->ext.hostname);
              s->session->ext.hostname = OPENSSL_strdup(s->ext.hostname);
+@@ -1011,6 +1010,7 @@ static int final_server_name(SSL *s, unsigned int context, int sent)
+         /* TLSv1.3 doesn't have warning alerts so we suppress this */
+         if (!SSL_IS_TLS13(s))
+             ssl3_send_alert(s, SSL3_AL_WARNING, altmp);
++        s->servername_done = 0;
+         return 1;
+ 
+     case SSL_TLSEXT_ERR_NOACK:
 @@ -1449,7 +1449,7 @@ int tls_psk_do_binder(SSL *s, const EVP_MD *md, const unsigned char *msgstart,
      unsigned char finishedkey[EVP_MAX_MD_SIZE], tmpbinder[EVP_MAX_MD_SIZE];
      unsigned char *early_secret;
@@ -17583,7 +18657,7 @@ index a4cdc81d68..a0ba18efa7 100644
  typedef struct {
      void *add_arg;
 diff --git a/ssl/statem/extensions_srvr.c b/ssl/statem/extensions_srvr.c
-index ab5453f63e..de273a3b96 100644
+index ab5453f63e..a775e74686 100644
 --- a/ssl/statem/extensions_srvr.c
 +++ b/ssl/statem/extensions_srvr.c
 @@ -8,8 +8,8 @@
@@ -17597,6 +18671,59 @@ index ab5453f63e..de273a3b96 100644
  #include "internal/cryptlib.h"
  
  #define COOKIE_STATE_FORMAT_VERSION     0
+@@ -127,6 +127,10 @@ int tls_parse_ctos_server_name(SSL *s, PACKET *pkt, unsigned int context,
+         return 0;
+     }
+ 
++    /*
++     * In TLSv1.2 and below the SNI is associated with the session. In TLSv1.3
++     * we always use the SNI value from the handshake.
++     */
+     if (!s->hit || SSL_IS_TLS13(s)) {
+         if (PACKET_remaining(&hostname) > TLSEXT_MAXLEN_host_name) {
+             SSLfatal(s, SSL_AD_UNRECOGNIZED_NAME,
+@@ -155,8 +159,12 @@ int tls_parse_ctos_server_name(SSL *s, PACKET *pkt, unsigned int context,
+         }
+ 
+         s->servername_done = 1;
+-    }
+-    if (s->hit) {
++    } else {
++        /*
++         * In TLSv1.2 and below we should check if the SNI is consistent between
++         * the initial handshake and the resumption. In TLSv1.3 SNI is not
++         * associated with the session.
++         */
+         /*
+          * TODO(openssl-team): if the SNI doesn't match, we MUST
+          * fall back to a full handshake.
+@@ -164,9 +172,6 @@ int tls_parse_ctos_server_name(SSL *s, PACKET *pkt, unsigned int context,
+         s->servername_done = (s->session->ext.hostname != NULL)
+             && PACKET_equal(&hostname, s->session->ext.hostname,
+                             strlen(s->session->ext.hostname));
+-
+-        if (!s->servername_done && s->session->ext.hostname != NULL)
+-            s->ext.early_data_ok = 0;
+     }
+ 
+     return 1;
+@@ -1330,8 +1335,14 @@ EXT_RETURN tls_construct_stoc_server_name(SSL *s, WPACKET *pkt,
+                                           unsigned int context, X509 *x,
+                                           size_t chainidx)
+ {
+-    if (s->hit || s->servername_done != 1
+-            || s->ext.hostname == NULL)
++    if (s->servername_done != 1)
++        return EXT_RETURN_NOT_SENT;
++
++    /*
++     * Prior to TLSv1.3 we ignore any SNI in the current handshake if resuming.
++     * We just use the servername from the initial handshake.
++     */
++    if (s->hit && !SSL_IS_TLS13(s))
+         return EXT_RETURN_NOT_SENT;
+ 
+     if (!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_server_name)
 diff --git a/ssl/statem/statem.c b/ssl/statem/statem.c
 index e3c5ec0038..20f5bd584e 100644
 --- a/ssl/statem/statem.c
@@ -17859,10 +18986,10 @@ index 57fb17a660..c85c0b0310 100644
           * point (after client key exchange and before certificate verify)
           */
 diff --git a/ssl/t1_lib.c b/ssl/t1_lib.c
-index b482019c4c..8498528b71 100644
+index b482019c4c..d7ce6541d3 100644
 --- a/ssl/t1_lib.c
 +++ b/ssl/t1_lib.c
-@@ -18,7 +18,7 @@
+@@ -18,10 +18,11 @@
  #include <openssl/dh.h>
  #include <openssl/bn.h>
  #include "internal/nelem.h"
@@ -17871,7 +18998,56 @@ index b482019c4c..8498528b71 100644
  #include <openssl/ct.h>
  
  static const SIGALG_LOOKUP *find_sig_alg(SSL *s, X509 *x, EVP_PKEY *pkey);
-@@ -2774,6 +2774,26 @@ int tls_choose_sigalg(SSL *s, int fatalerrs)
++static int tls12_sigalg_allowed(const SSL *s, int op, const SIGALG_LOOKUP *lu);
+ 
+ SSL3_ENC_METHOD const TLSv1_enc_data = {
+     tls1_enc,
+@@ -849,8 +850,11 @@ static int rsa_pss_check_min_key_size(const RSA *rsa, const SIGALG_LOOKUP *lu)
+ }
+ 
+ /*
+- * Return a signature algorithm for TLS < 1.2 where the signature type
+- * is fixed by the certificate type.
++ * Returns a signature algorithm when the peer did not send a list of supported
++ * signature algorithms. The signature algorithm is fixed for the certificate
++ * type. |idx| is a certificate type index (SSL_PKEY_*). When |idx| is -1 the
++ * certificate type from |s| will be used.
++ * Returns the signature algorithm to use, or NULL on error.
+  */
+ static const SIGALG_LOOKUP *tls1_get_legacy_sigalg(const SSL *s, int idx)
+ {
+@@ -893,8 +897,12 @@ static const SIGALG_LOOKUP *tls1_get_legacy_sigalg(const SSL *s, int idx)
+ 
+         if (!tls1_lookup_md(lu, NULL))
+             return NULL;
++        if (!tls12_sigalg_allowed(s, SSL_SECOP_SIGALG_SUPPORTED, lu))
++            return NULL;
+         return lu;
+     }
++    if (!tls12_sigalg_allowed(s, SSL_SECOP_SIGALG_SUPPORTED, &legacy_rsa_sigalg))
++        return NULL;
+     return &legacy_rsa_sigalg;
+ }
+ /* Set peer sigalg based key type */
+@@ -1176,7 +1184,7 @@ int ssl_set_client_disabled(SSL *s)
+  *
+  * Returns 1 when it's disabled, 0 when enabled.
+  */
+-int ssl_cipher_disabled(SSL *s, const SSL_CIPHER *c, int op, int ecdhe)
++int ssl_cipher_disabled(const SSL *s, const SSL_CIPHER *c, int op, int ecdhe)
+ {
+     if (c->algorithm_mkey & s->s3->tmp.mask_k
+         || c->algorithm_auth & s->s3->tmp.mask_a)
+@@ -1556,7 +1564,7 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL *s, const unsigned char *etick,
+ }
+ 
+ /* Check to see if a signature algorithm is allowed */
+-static int tls12_sigalg_allowed(SSL *s, int op, const SIGALG_LOOKUP *lu)
++static int tls12_sigalg_allowed(const SSL *s, int op, const SIGALG_LOOKUP *lu)
+ {
+     unsigned char sigalgstr[2];
+     int secbits;
+@@ -2774,6 +2782,26 @@ int tls_choose_sigalg(SSL *s, int fatalerrs)
  #endif
                          break;
                  }
@@ -18479,6 +19655,246 @@ index 1727f28626..200fb8c141 100644
  {-
     use File::Spec::Functions;
     use File::Basename;
+diff --git a/test/certs/ct-server-key-public.pem b/test/certs/ct-server-key-public.pem
+new file mode 100644
+index 0000000000..c35ce3f483
+--- /dev/null
++++ b/test/certs/ct-server-key-public.pem
+@@ -0,0 +1,4 @@
++-----BEGIN PUBLIC KEY-----
++MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEmXg8sUUzwBYaWrRb+V0IopzQ6o3U
++yEJ04r5ZrRXGdpYM8K+hB0pXrGRLI0eeWz+3skXrS0IO83AhA3GpRL6s6w==
++-----END PUBLIC KEY-----
+diff --git a/test/certs/ct-server-key.pem b/test/certs/ct-server-key.pem
+new file mode 100644
+index 0000000000..ab6a5575bb
+--- /dev/null
++++ b/test/certs/ct-server-key.pem
+@@ -0,0 +1,5 @@
++-----BEGIN EC PRIVATE KEY-----
++MHcCAQEEIFLw4uhuCruGKjrS9MoNeXFbypqZe+Sgh+EL1gnRn1d4oAoGCCqGSM49
++AwEHoUQDQgAEmXg8sUUzwBYaWrRb+V0IopzQ6o3UyEJ04r5ZrRXGdpYM8K+hB0pX
++rGRLI0eeWz+3skXrS0IO83AhA3GpRL6s6w==
++-----END EC PRIVATE KEY-----
+diff --git a/test/certs/embeddedSCTs1-key.pem b/test/certs/embeddedSCTs1-key.pem
+index e3e66d55c5..28dd206dbe 100644
+--- a/test/certs/embeddedSCTs1-key.pem
++++ b/test/certs/embeddedSCTs1-key.pem
+@@ -1,15 +1,27 @@
+ -----BEGIN RSA PRIVATE KEY-----
+-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
+ -----END RSA PRIVATE KEY-----
+diff --git a/test/certs/embeddedSCTs1.pem b/test/certs/embeddedSCTs1.pem
+index d1e85120a0..d2a111fb82 100644
+--- a/test/certs/embeddedSCTs1.pem
++++ b/test/certs/embeddedSCTs1.pem
+@@ -1,20 +1,21 @@
+ -----BEGIN CERTIFICATE-----
+-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
+ -----END CERTIFICATE-----
+diff --git a/test/certs/embeddedSCTs1.sct b/test/certs/embeddedSCTs1.sct
+index 59362dcee1..9e413e3dc7 100644
+--- a/test/certs/embeddedSCTs1.sct
++++ b/test/certs/embeddedSCTs1.sct
+@@ -2,11 +2,11 @@ Signed Certificate Timestamp:
+     Version   : v1 (0x0)
+     Log ID    : DF:1C:2E:C1:15:00:94:52:47:A9:61:68:32:5D:DC:5C:
+                 79:59:E8:F7:C6:D3:88:FC:00:2E:0B:BD:3F:74:D7:64
+-    Timestamp : Apr  5 17:04:16.275 2013 GMT
++    Timestamp : Jan  1 00:00:00.000 2020 GMT
+     Extensions: none
+     Signature : ecdsa-with-SHA256
+-                30:45:02:20:48:2F:67:51:AF:35:DB:A6:54:36:BE:1F:
+-                D6:64:0F:3D:BF:9A:41:42:94:95:92:45:30:28:8F:A3:
+-                E5:E2:3E:06:02:21:00:E4:ED:C0:DB:3A:C5:72:B1:E2:
+-                F5:E8:AB:6A:68:06:53:98:7D:CF:41:02:7D:FE:FF:A1:
+-                05:51:9D:89:ED:BF:08
+\ No newline at end of file
++                30:45:02:20:7C:33:E8:F1:10:2B:9B:FB:DC:48:46:7A:
++                D3:C4:35:BB:E5:D0:E7:94:01:BB:AE:D2:64:4B:99:C4:
++                BA:5B:50:CD:02:21:00:D1:B2:07:13:B9:DE:0F:0F:2F:
++                02:82:0F:A5:1D:E0:12:ED:4C:60:48:A0:5B:58:0C:E7:
++                60:EB:A8:AF:03:5E:C3
+diff --git a/test/certs/embeddedSCTs1.tlssct b/test/certs/embeddedSCTs1.tlssct
+new file mode 100644
+index 0000000000..0586c94ab0
+Binary files /dev/null and b/test/certs/embeddedSCTs1.tlssct differ
+diff --git a/test/certs/embeddedSCTs1_issuer-key.pem b/test/certs/embeddedSCTs1_issuer-key.pem
+new file mode 100644
+index 0000000000..9326e38b1e
+--- /dev/null
++++ b/test/certs/embeddedSCTs1_issuer-key.pem
+@@ -0,0 +1,15 @@
++-----BEGIN RSA PRIVATE KEY-----
++MIICXAIBAAKBgQDVimhTYhCicRmTbneDIRgcKkATxtB7jHbrkVfT0PtLO1FuzsvR
++yY2RxS90P6tjXVUJnNE6uvMa5UFEJFGnTHgW8iQ8+EjPKDHM5nugSlojgZ88ujfm
++JNnDvbKZuDnd/iYx0ss6hPx7srXFL8/BT/9Ab1zURmnLsvfP34b7arnRsQIDAQAB
++AoGAJLR6xEJp+5IXRFlLn7WTkFvO0ddtxJ7bXhiIkTctyruyfqp7LF9Jv1G2m3PK
++QPUtBc73w/GYkfnwIwdfJbOmPHL7XyEGHZYmEXgIgEtw6LXvAv0G5JpUnNwsSBfL
++GfSQqI5Z5ytyzlJXkMcTGA2kTgNAYc73h4EnU+pwUnDPdAECQQD2aj+4LtYk1XPq
++r3gjgI6MoGvgYJfPmAtZhxxVbhXQKciFUCAcBiwlQdHIdLWE9j65ctmZRWidKifr
++4O4nz+TBAkEA3djNW/rTQq5fKZy+mCF1WYnIU/3yhJaptzRqLm7AHqe7+hdrGXJw
+++mCtU8T3L/Ms8bH1yFBZhmkp1PbR8gl48QJAQo70YyWThiN5yfxXcQ96cZWrTdIJ
++b3NcLXSHPLQdhDqlBQ1dfvRT3ERpC8IqfZ2d162kBPhwh3MpkVcSPQK0gQJAC/dY
++xGBYKt2a9nSk9zG+0bCT5Kvq++ngh6hFHfINXNnxUsEWns3EeEzkrIMQTj7QqszN
++lBt5aL2dawZRNrv6EQJBAOo4STF9KEwQG0HLC/ryh1FeB0OBA5yIepXze+eJVKei
++T0cCECOQJKfWHEzYJYDJhyEFF/sYp9TXwKSDjOifrsU=
++-----END RSA PRIVATE KEY-----
+diff --git a/test/certs/embeddedSCTs3.sct b/test/certs/embeddedSCTs3.sct
+index ad1ccf0ffc..579a890a9a 100644
+--- a/test/certs/embeddedSCTs3.sct
++++ b/test/certs/embeddedSCTs3.sct
+@@ -33,4 +33,4 @@ Signed Certificate Timestamp:
+                 55:83:D2:9D:E5:A1:8D:B6:3D:A6:73:89:42:32:9C:91:
+                 0F:3B:6A:74:02:21:00:86:EE:10:F9:10:E6:7B:17:65:
+                 D9:2D:37:53:4A:3B:F0:AE:03:E4:21:76:37:EF:AF:B4:
+-                44:2E:2B:F5:5C:C6:91
+\ No newline at end of file
++                44:2E:2B:F5:5C:C6:91
+diff --git a/test/certs/mkcert.sh b/test/certs/mkcert.sh
+index ebb71c1778..790d20f8c1 100755
+--- a/test/certs/mkcert.sh
++++ b/test/certs/mkcert.sh
+@@ -288,4 +288,56 @@ gennocn() {
+ 	cert "$cert" "" -signkey "${key}.pem" -set_serial 1 -days -1 "$@"
+ }
+ 
++genct() {
++    local OPTIND=1
++    local purpose=serverAuth
++
++    while getopts p: o
++    do
++        case $o in
++        p) purpose="$OPTARG";;
++        *) echo "Usage: $0 genct [-p EKU] cn keyname certname cakeyname cacertname ctlogkey" >&2
++           return 1;;
++        esac
++    done
++
++    shift $((OPTIND - 1))
++    local cn=$1; shift
++    local key=$1; shift
++    local cert=$1; shift
++    local cakey=$1; shift
++    local ca=$1; shift
++    local logkey=$1; shift
++
++    exts=$(printf "%s\n%s\n%s\n%s\n%s\n%s\n[alts]\n%s\n" \
++	    "subjectKeyIdentifier = hash" \
++	    "authorityKeyIdentifier = keyid, issuer" \
++	    "basicConstraints = CA:false" \
++	    "extendedKeyUsage = $purpose" \
++            "1.3.6.1.4.1.11129.2.4.3 = critical,ASN1:NULL"\
++	    "subjectAltName = @alts" "DNS=${cn}")
++    csr=$(req "$key" "CN = $cn") || return 1
++    echo "$csr" |
++	cert "$cert" "$exts" -CA "${ca}.pem" -CAkey "${cakey}.pem" \
++	    -set_serial 2 -days "${DAYS}" "$@"
++    cat ${cert}.pem ${ca}.pem > ${cert}-chain.pem
++    go run github.com/google/certificate-transparency-go/ctutil/sctgen \
++       --log_private_key ${logkey}.pem \
++       --timestamp="2020-01-01T00:00:00Z" \
++       --cert_chain ${cert}-chain.pem \
++       --tls_out ${cert}.tlssct
++    rm ${cert}-chain.pem
++    filesize=$(wc -c <${cert}.tlssct)
++    exts=$(printf "%s\n%s\n%s\n%s\n%s%04X%04X%s\n%s\n[alts]\n%s\n" \
++	    "subjectKeyIdentifier = hash" \
++	    "authorityKeyIdentifier = keyid, issuer" \
++	    "basicConstraints = CA:false" \
++	    "extendedKeyUsage = $purpose" \
++	    "1.3.6.1.4.1.11129.2.4.2 = ASN1:FORMAT:HEX,OCT:" $((filesize+2)) $filesize `xxd -p ${cert}.tlssct | tr -d '\n'` \
++	    "subjectAltName = @alts" "DNS=${cn}")
++    echo "$csr" |
++	cert "$cert" "$exts" -CA "${ca}.pem" -CAkey "${cakey}.pem" \
++	    -set_serial 2 -days "${DAYS}" "$@"
++}
++
+ "$@"
+diff --git a/test/certs/setup.sh b/test/certs/setup.sh
+index 26b2f1ddfe..bd0b663944 100755
+--- a/test/certs/setup.sh
++++ b/test/certs/setup.sh
+@@ -375,3 +375,6 @@ openssl req -new -nodes -subj "/CN=localhost" \
+     -pkeyopt rsa_pss_keygen_md:sha256 -pkeyopt rsa_pss_keygen_saltlen:32 | \
+     ./mkcert.sh geneenocsr "Server RSA-PSS restricted cert" \
+     server-pss-restrict-cert rootkey rootcert
++
++# CT entry
++./mkcert.sh genct server.example embeddedSCTs1-key embeddedSCTs1 embeddedSCTs1_issuer-key embeddedSCTs1_issuer ct-server-key
 diff --git a/test/chacha_internal_test.c b/test/chacha_internal_test.c
 index be44012187..dcb3c23728 100644
 --- a/test/chacha_internal_test.c
@@ -18531,6 +19947,30 @@ index e5e3e497c0..25f5392801 100644
  #include "testutil.h"
  #include "internal/numbers.h"
  
+diff --git a/test/ct_test.c b/test/ct_test.c
+index 78d11ca98c..4dd6a67a7c 100644
+--- a/test/ct_test.c
++++ b/test/ct_test.c
+@@ -63,7 +63,7 @@ static CT_TEST_FIXTURE *set_up(const char *const test_case_name)
+     if (!TEST_ptr(fixture = OPENSSL_zalloc(sizeof(*fixture))))
+         goto end;
+     fixture->test_case_name = test_case_name;
+-    fixture->epoch_time_in_ms = 1473269626000ULL; /* Sep 7 17:33:46 2016 GMT */
++    fixture->epoch_time_in_ms = 1580335307000ULL; /* Wed 29 Jan 2020 10:01:47 PM UTC */
+     if (!TEST_ptr(fixture->ctlog_store = CTLOG_STORE_new())
+             || !TEST_int_eq(
+                     CTLOG_STORE_load_default_file(fixture->ctlog_store), 1))
+@@ -160,6 +160,10 @@ static int compare_extension_printout(X509_EXTENSION *extension,
+                                            X509V3_EXT_DEFAULT, 0)))
+         goto end;
+ 
++    /* Append \n because it's easier to create files that end with one. */
++    if (!TEST_true(BIO_write(text_buffer, "\n", 1)))
++        goto end;
++
+     /* Append \0 because we're about to use the buffer contents as a string. */
+     if (!TEST_true(BIO_write(text_buffer, "\0", 1)))
+         goto end;
 diff --git a/test/ctype_internal_test.c b/test/ctype_internal_test.c
 index a4613031fe..1bb61ab1fc 100644
 --- a/test/ctype_internal_test.c
@@ -18613,6 +20053,19 @@ index 3aa519f156..f20edf02d2 100644
  
  static int debug = 0;
  
+diff --git a/test/dtlstest.c b/test/dtlstest.c
+index ab4d4c15c0..0bba08856a 100644
+--- a/test/dtlstest.c
++++ b/test/dtlstest.c
+@@ -122,7 +122,7 @@ static int test_dtls_unprocessed(int testidx)
+ #define CLI_TO_SRV_EPOCH_0_RECS 3
+ #define CLI_TO_SRV_EPOCH_1_RECS 1
+ #if !defined(OPENSSL_NO_EC) || !defined(OPENSSL_NO_DH)
+-# define SRV_TO_CLI_EPOCH_0_RECS 12
++# define SRV_TO_CLI_EPOCH_0_RECS 10
+ #else
+ /*
+  * In this case we have no ServerKeyExchange message, because we don't have
 diff --git a/test/ec_internal_test.c b/test/ec_internal_test.c
 index 8d3a4fdd67..4b849312be 100644
 --- a/test/ec_internal_test.c
@@ -36435,6 +37888,29 @@ index 17a98dc9d1..cb30061fca 100644
 +        done_testing();
      };
  }
+diff --git a/test/recipes/25-test_verify.t b/test/recipes/25-test_verify.t
+index b80a1cde3e..5e5bc9ef1e 100644
+--- a/test/recipes/25-test_verify.t
++++ b/test/recipes/25-test_verify.t
+@@ -336,14 +336,14 @@ ok(!verify("badalt9-cert", "sslserver", ["root-cert"], ["ncca1-cert", "ncca3-cer
+ ok(!verify("badalt10-cert", "sslserver", ["root-cert"], ["ncca1-cert", "ncca3-cert"], ),
+    "Name constraints nested DNS name excluded");
+ 
+-ok(verify("ee-pss-sha1-cert", "sslserver", ["root-cert"], ["ca-cert"], ),
+-    "Certificate PSS signature using SHA1");
++ok(verify("ee-pss-sha1-cert", "sslserver", ["root-cert"], ["ca-cert"], "-auth_level", "0"),
++    "Accept PSS signature using SHA1 at auth level 0");
+ 
+ ok(verify("ee-pss-sha256-cert", "sslserver", ["root-cert"], ["ca-cert"], ),
+     "CA with PSS signature using SHA256");
+ 
+-ok(!verify("ee-pss-sha1-cert", "sslserver", ["root-cert"], ["ca-cert"], "-auth_level", "2"),
+-    "Reject PSS signature using SHA1 and auth level 2");
++ok(!verify("ee-pss-sha1-cert", "sslserver", ["root-cert"], ["ca-cert"], "-auth_level", "1"),
++    "Reject PSS signature using SHA1 and auth level 1");
+ 
+ ok(verify("ee-pss-sha256-cert", "sslserver", ["root-cert"], ["ca-cert"], "-auth_level", "2"),
+     "PSS signature using SHA256 and auth level 2");
 diff --git a/test/recipes/30-test_evp_data/evpciph.txt b/test/recipes/30-test_evp_data/evpciph.txt
 index 29c317a158..1c02ea1e9c 100644
 --- a/test/recipes/30-test_evp_data/evpciph.txt
@@ -36455,6 +37931,176 @@ index 29c317a158..1c02ea1e9c 100644
 +
  
  Title = SEED test vectors from RFC4269
+ 
+diff --git a/test/recipes/70-test_sslsigalgs.t b/test/recipes/70-test_sslsigalgs.t
+index f805dcf221..3b15c465a9 100644
+--- a/test/recipes/70-test_sslsigalgs.t
++++ b/test/recipes/70-test_sslsigalgs.t
+@@ -53,7 +53,7 @@ use constant {
+ 
+ #Test 1: Default sig algs should succeed
+ $proxy->start() or plan skip_all => "Unable to start up Proxy for tests";
+-plan tests => 22;
++plan tests => 24;
+ ok(TLSProxy::Message->success, "Default sigalgs");
+ my $testtype;
+ 
+@@ -132,19 +132,40 @@ SKIP: {
+ }
+ 
+ SKIP: {
+-    skip "EC or TLSv1.2 disabled", 8 if disabled("tls1_2") || disabled("ec");
++    skip "EC or TLSv1.2 disabled", 10 if disabled("tls1_2") || disabled("ec");
+ 
+     $proxy->filter(\&sigalgs_filter);
+ 
+-    #Test 10: Sending no sig algs extension in TLSv1.2 should succeed
++    #Test 10: Sending no sig algs extension in TLSv1.2 should succeed at
++    #         security level 1
+     $proxy->clear();
+     $testtype = NO_SIG_ALGS_EXT;
+-    $proxy->clientflags("-no_tls1_3");
+-    $proxy->ciphers("ECDHE-RSA-AES128-SHA");
++    $proxy->clientflags("-no_tls1_3 -cipher DEFAULT\@SECLEVEL=1");
++    $proxy->ciphers("ECDHE-RSA-AES128-SHA\@SECLEVEL=1");
++    $proxy->start();
++    ok(TLSProxy::Message->success, "No TLSv1.2 sigalgs seclevel 1");
++
++    #Test 11: Sending no sig algs extension in TLSv1.2 should fail at security
++    #         level 2 since it will try to use SHA1. Testing client at level 1,
++    #         server level 2.
++    $proxy->clear();
++    $testtype = NO_SIG_ALGS_EXT;
++    $proxy->clientflags("-tls1_2 -cipher DEFAULT\@SECLEVEL=1");
++    $proxy->ciphers("DEFAULT\@SECLEVEL=2");
++    $proxy->start();
++    ok(TLSProxy::Message->fail, "No TLSv1.2 sigalgs server seclevel 2");
++
++    #Test 12: Sending no sig algs extension in TLSv1.2 should fail at security
++    #         level 2 since it will try to use SHA1. Testing client at level 2,
++    #         server level 1.
++    $proxy->clear();
++    $testtype = NO_SIG_ALGS_EXT;
++    $proxy->clientflags("-tls1_2 -cipher DEFAULT\@SECLEVEL=2");
++    $proxy->ciphers("DEFAULT\@SECLEVEL=1");
+     $proxy->start();
+-    ok(TLSProxy::Message->success, "No TLSv1.2 sigalgs");
++    ok(TLSProxy::Message->fail, "No TLSv1.2 sigalgs client seclevel 2");
+ 
+-    #Test 11: Sending an empty sig algs extension in TLSv1.2 should fail
++    #Test 13: Sending an empty sig algs extension in TLSv1.2 should fail
+     $proxy->clear();
+     $testtype = EMPTY_SIG_ALGS_EXT;
+     $proxy->clientflags("-no_tls1_3");
+@@ -152,7 +173,7 @@ SKIP: {
+     $proxy->start();
+     ok(TLSProxy::Message->fail, "Empty TLSv1.2 sigalgs");
+ 
+-    #Test 12: Sending a list with no recognised sig algs in TLSv1.2 should fail
++    #Test 14: Sending a list with no recognised sig algs in TLSv1.2 should fail
+     $proxy->clear();
+     $testtype = NO_KNOWN_SIG_ALGS;
+     $proxy->clientflags("-no_tls1_3");
+@@ -160,7 +181,7 @@ SKIP: {
+     $proxy->start();
+     ok(TLSProxy::Message->fail, "No known TLSv1.3 sigalgs");
+ 
+-    #Test 13: Sending a sig algs list without pss for an RSA cert in TLSv1.2
++    #Test 15: Sending a sig algs list without pss for an RSA cert in TLSv1.2
+     #         should succeed
+     $proxy->clear();
+     $testtype = NO_PSS_SIG_ALGS;
+@@ -169,7 +190,7 @@ SKIP: {
+     $proxy->start();
+     ok(TLSProxy::Message->success, "No PSS TLSv1.2 sigalgs");
+ 
+-    #Test 14: Sending only TLSv1.3 PSS sig algs in TLSv1.2 should succeed
++    #Test 16: Sending only TLSv1.3 PSS sig algs in TLSv1.2 should succeed
+     $proxy->clear();
+     $testtype = PSS_ONLY_SIG_ALGS;
+     $proxy->serverflags("-no_tls1_3");
+@@ -177,7 +198,7 @@ SKIP: {
+     $proxy->start();
+     ok(TLSProxy::Message->success, "PSS only sigalgs in TLSv1.2");
+ 
+-    #Test 15: Responding with a sig alg we did not send in TLSv1.2 should fail
++    #Test 17: Responding with a sig alg we did not send in TLSv1.2 should fail
+     #         We send rsa_pkcs1_sha256 and respond with rsa_pss_rsae_sha256
+     #         TODO(TLS1.3): Add a similar test to the TLSv1.3 section above
+     #         when we have an API capable of configuring the TLSv1.3 sig algs
+@@ -188,7 +209,7 @@ SKIP: {
+     $proxy->start();
+     ok(TLSProxy::Message->fail, "Sigalg we did not send in TLSv1.2");
+ 
+-    #Test 16: Sending a valid sig algs list but not including a sig type that
++    #Test 18: Sending a valid sig algs list but not including a sig type that
+     #         matches the certificate should fail in TLSv1.2
+     $proxy->clear();
+     $proxy->clientflags("-no_tls1_3 -sigalgs ECDSA+SHA256");
+@@ -198,7 +219,7 @@ SKIP: {
+     ok(TLSProxy::Message->fail, "No matching TLSv1.2 sigalgs");
+     $proxy->filter(\&sigalgs_filter);
+ 
+-    #Test 17: No sig algs extension, ECDSA cert, TLSv1.2 should succeed
++    #Test 19: No sig algs extension, ECDSA cert, TLSv1.2 should succeed
+     $proxy->clear();
+     $testtype = NO_SIG_ALGS_EXT;
+     $proxy->clientflags("-no_tls1_3");
+@@ -214,7 +235,7 @@ SKIP: {
+ my ($dsa_status, $sha1_status, $sha224_status);
+ SKIP: {
+     skip "TLSv1.3 disabled", 2 if disabled("tls1_3") || disabled("dsa");
+-    #Test 18: signature_algorithms with 1.3-only ClientHello
++    #Test 20: signature_algorithms with 1.3-only ClientHello
+     $testtype = PURE_SIGALGS;
+     $dsa_status = $sha1_status = $sha224_status = 0;
+     $proxy->clear();
+@@ -224,7 +245,7 @@ SKIP: {
+     ok($dsa_status && $sha1_status && $sha224_status,
+        "DSA/SHA2 sigalg sent for 1.3-only ClientHello");
+ 
+-    #Test 19: signature_algorithms with backwards compatible ClientHello
++    #Test 21: signature_algorithms with backwards compatible ClientHello
+     SKIP: {
+         skip "TLSv1.2 disabled", 1 if disabled("tls1_2");
+         $testtype = COMPAT_SIGALGS;
+@@ -239,21 +260,21 @@ SKIP: {
+ 
+ SKIP: {
+     skip "TLSv1.3 disabled", 3 if disabled("tls1_3");
+-    #Test 20: Insert signature_algorithms_cert that match normal sigalgs
++    #Test 22: Insert signature_algorithms_cert that match normal sigalgs
+     $testtype = SIGALGS_CERT_ALL;
+     $proxy->clear();
+     $proxy->filter(\&modify_sigalgs_cert_filter);
+     $proxy->start();
+     ok(TLSProxy::Message->success, "sigalgs_cert in TLSv1.3");
+ 
+-    #Test 21: Insert signature_algorithms_cert that forces PKCS#1 cert
++    #Test 23: Insert signature_algorithms_cert that forces PKCS#1 cert
+     $testtype = SIGALGS_CERT_PKCS;
+     $proxy->clear();
+     $proxy->filter(\&modify_sigalgs_cert_filter);
+     $proxy->start();
+     ok(TLSProxy::Message->success, "sigalgs_cert in TLSv1.3 with PKCS#1 cert");
+ 
+-    #Test 22: Insert signature_algorithms_cert that fails
++    #Test 24: Insert signature_algorithms_cert that fails
+     $testtype = SIGALGS_CERT_INVALID;
+     $proxy->clear();
+     $proxy->filter(\&modify_sigalgs_cert_filter);
+diff --git a/test/run_tests.pl b/test/run_tests.pl
+index 881feaec71..6a70fabe11 100644
+--- a/test/run_tests.pl
++++ b/test/run_tests.pl
+@@ -90,7 +90,7 @@ my $ret = $harness->runtests(map { abs2rel($_, rel2abs(curdir())); }
+ # $ret->has_errors may be any number, not just 0 or 1.  On VMS, numbers
+ # from 2 and on are used as is as VMS statuses, which has severity encoded
+ # in the lower 3 bits.  0 and 1, on the other hand, generate SUCCESS and
+-# FAILURE, so for currect reporting on all platforms, we make sure the only
++# FAILURE, so for correct reporting on all platforms, we make sure the only
+ # exit codes are 0 and 1.  Double-bang is the trick to do so.
+ exit !!$ret->has_errors if (ref($ret) eq "TAP::Parser::Aggregator");
  
 diff --git a/test/servername_test.c b/test/servername_test.c
 index d246918d66..39f6b2002f 100644
@@ -36638,7 +38284,7 @@ index 36d73f752c..7e670c9468 100644
 -#endif  /* HEADER_SSL_TEST_CTX_H */
 +#endif  /* OSSL_TEST_SSL_TEST_CTX_H */
 diff --git a/test/sslapitest.c b/test/sslapitest.c
-index 7a142268fa..76a8ca23da 100644
+index 7a142268fa..94a3d5f5fd 100644
 --- a/test/sslapitest.c
 +++ b/test/sslapitest.c
 @@ -22,7 +22,7 @@
@@ -36649,6 +38295,231 @@ index 7a142268fa..76a8ca23da 100644
 +#include "../ssl/ssl_local.h"
  
  #ifndef OPENSSL_NO_TLS1_3
+ 
+@@ -98,6 +98,17 @@ static unsigned char serverinfov2[] = {
+     0xff        /* Dummy extension data */
+ };
+ 
++static int hostname_cb(SSL *s, int *al, void *arg)
++{
++    const char *hostname = SSL_get_servername(s, TLSEXT_NAMETYPE_host_name);
++
++    if (hostname != NULL && (strcmp(hostname, "goodhost") == 0
++                             || strcmp(hostname, "altgoodhost") == 0))
++        return  SSL_TLSEXT_ERR_OK;
++
++    return SSL_TLSEXT_ERR_NOACK;
++}
++
+ static void client_keylog_callback(const SSL *ssl, const char *line)
+ {
+     int line_length = strlen(line);
+@@ -2737,16 +2748,6 @@ static int test_early_data_not_sent(int idx)
+     return testresult;
+ }
+ 
+-static int hostname_cb(SSL *s, int *al, void *arg)
+-{
+-    const char *hostname = SSL_get_servername(s, TLSEXT_NAMETYPE_host_name);
+-
+-    if (hostname != NULL && strcmp(hostname, "goodhost") == 0)
+-        return  SSL_TLSEXT_ERR_OK;
+-
+-    return SSL_TLSEXT_ERR_NOACK;
+-}
+-
+ static const char *servalpn;
+ 
+ static int alpn_select_cb(SSL *ssl, const unsigned char **out,
+@@ -2839,16 +2840,16 @@ static int test_early_data_psk(int idx)
+ 
+     case 3:
+         /*
+-         * Set inconsistent SNI (server detected). In this case the connection
+-         * will succeed but reject early_data.
++         * Set inconsistent SNI (server side). In this case the connection
++         * will succeed and accept early_data. In TLSv1.3 on the server side SNI
++         * is associated with each handshake - not the session. Therefore it
++         * should not matter that we used a different server name last time.
+          */
+         SSL_SESSION_free(serverpsk);
+         serverpsk = SSL_SESSION_dup(clientpsk);
+         if (!TEST_ptr(serverpsk)
+                 || !TEST_true(SSL_SESSION_set1_hostname(serverpsk, "badhost")))
+             goto end;
+-        edstatus = SSL_EARLY_DATA_REJECTED;
+-        readearlyres = SSL_READ_EARLY_DATA_FINISH;
+         /* Fall through */
+     case 4:
+         /* Set consistent SNI */
+@@ -6205,6 +6206,160 @@ static int test_ca_names(int tst)
+     return testresult;
+ }
+ 
++/*
++ * Test 0: Client sets servername and server acknowledges it (TLSv1.2)
++ * Test 1: Client sets servername and server does not acknowledge it (TLSv1.2)
++ * Test 2: Client sets inconsistent servername on resumption (TLSv1.2)
++ * Test 3: Client does not set servername on initial handshake (TLSv1.2)
++ * Test 4: Client does not set servername on resumption handshake (TLSv1.2)
++ * Test 5: Client sets servername and server acknowledges it (TLSv1.3)
++ * Test 6: Client sets servername and server does not acknowledge it (TLSv1.3)
++ * Test 7: Client sets inconsistent servername on resumption (TLSv1.3)
++ * Test 8: Client does not set servername on initial handshake(TLSv1.3)
++ * Test 9: Client does not set servername on resumption handshake (TLSv1.3)
++ */
++static int test_servername(int tst)
++{
++    SSL_CTX *cctx = NULL, *sctx = NULL;
++    SSL *clientssl = NULL, *serverssl = NULL;
++    int testresult = 0;
++    SSL_SESSION *sess = NULL;
++    const char *sexpectedhost = NULL, *cexpectedhost = NULL;
++
++#ifdef OPENSSL_NO_TLS1_2
++    if (tst <= 4)
++        return 1;
++#endif
++#ifdef OPENSSL_NO_TLS1_3
++    if (tst >= 5)
++        return 1;
++#endif
++
++    if (!TEST_true(create_ssl_ctx_pair(TLS_server_method(),
++                                       TLS_client_method(),
++                                       TLS1_VERSION,
++                                       (tst <= 4) ? TLS1_2_VERSION
++                                                  : TLS1_3_VERSION,
++                                       &sctx, &cctx, cert, privkey))
++            || !TEST_true(create_ssl_objects(sctx, cctx, &serverssl, &clientssl,
++                                             NULL, NULL)))
++        goto end;
++
++    if (tst != 1 && tst != 6) {
++        if (!TEST_true(SSL_CTX_set_tlsext_servername_callback(sctx,
++                                                              hostname_cb)))
++            goto end;
++    }
++
++    if (tst != 3 && tst != 8) {
++        if (!TEST_true(SSL_set_tlsext_host_name(clientssl, "goodhost")))
++            goto end;
++        sexpectedhost = cexpectedhost = "goodhost";
++    }
++
++    if (!TEST_true(create_ssl_connection(serverssl, clientssl, SSL_ERROR_NONE)))
++        goto end;
++
++    if (!TEST_str_eq(SSL_get_servername(clientssl, TLSEXT_NAMETYPE_host_name),
++                     cexpectedhost)
++            || !TEST_str_eq(SSL_get_servername(serverssl,
++                                               TLSEXT_NAMETYPE_host_name),
++                            sexpectedhost))
++        goto end;
++
++    /* Now repeat with a resumption handshake */
++
++    if (!TEST_int_eq(SSL_shutdown(clientssl), 0)
++            || !TEST_ptr_ne(sess = SSL_get1_session(clientssl), NULL)
++            || !TEST_true(SSL_SESSION_is_resumable(sess))
++            || !TEST_int_eq(SSL_shutdown(serverssl), 0))
++        goto end;
++
++    SSL_free(clientssl);
++    SSL_free(serverssl);
++    clientssl = serverssl = NULL;
++
++    if (!TEST_true(create_ssl_objects(sctx, cctx, &serverssl, &clientssl, NULL,
++                                      NULL)))
++        goto end;
++
++    if (!TEST_true(SSL_set_session(clientssl, sess)))
++        goto end;
++
++    sexpectedhost = cexpectedhost = "goodhost";
++    if (tst == 2 || tst == 7) {
++        /* Set an inconsistent hostname */
++        if (!TEST_true(SSL_set_tlsext_host_name(clientssl, "altgoodhost")))
++            goto end;
++        /*
++         * In TLSv1.2 we expect the hostname from the original handshake, in
++         * TLSv1.3 we expect the hostname from this handshake
++         */
++        if (tst == 7)
++            sexpectedhost = cexpectedhost = "altgoodhost";
++
++        if (!TEST_str_eq(SSL_get_servername(clientssl,
++                                            TLSEXT_NAMETYPE_host_name),
++                         "altgoodhost"))
++            goto end;
++    } else if (tst == 4 || tst == 9) {
++        /*
++         * A TLSv1.3 session does not associate a session with a servername,
++         * but a TLSv1.2 session does.
++         */
++        if (tst == 9)
++            sexpectedhost = cexpectedhost = NULL;
++
++        if (!TEST_str_eq(SSL_get_servername(clientssl,
++                                            TLSEXT_NAMETYPE_host_name),
++                         cexpectedhost))
++            goto end;
++    } else {
++        if (!TEST_true(SSL_set_tlsext_host_name(clientssl, "goodhost")))
++            goto end;
++        /*
++         * In a TLSv1.2 resumption where the hostname was not acknowledged
++         * we expect the hostname on the server to be empty. On the client we
++         * return what was requested in this case.
++         *
++         * Similarly if the client didn't set a hostname on an original TLSv1.2
++         * session but is now, the server hostname will be empty, but the client
++         * is as we set it.
++         */
++        if (tst == 1 || tst == 3)
++            sexpectedhost = NULL;
++
++        if (!TEST_str_eq(SSL_get_servername(clientssl,
++                                            TLSEXT_NAMETYPE_host_name),
++                         "goodhost"))
++            goto end;
++    }
++
++    if (!TEST_true(create_ssl_connection(serverssl, clientssl, SSL_ERROR_NONE)))
++        goto end;
++
++    if (!TEST_true(SSL_session_reused(clientssl))
++            || !TEST_true(SSL_session_reused(serverssl))
++            || !TEST_str_eq(SSL_get_servername(clientssl,
++                                               TLSEXT_NAMETYPE_host_name),
++                            cexpectedhost)
++            || !TEST_str_eq(SSL_get_servername(serverssl,
++                                               TLSEXT_NAMETYPE_host_name),
++                            sexpectedhost))
++        goto end;
++
++    testresult = 1;
++
++ end:
++    SSL_SESSION_free(sess);
++    SSL_free(serverssl);
++    SSL_free(clientssl);
++    SSL_CTX_free(sctx);
++    SSL_CTX_free(cctx);
++
++    return testresult;
++}
++
+ int setup_tests(void)
+ {
+     if (!TEST_ptr(certsdir = test_get_argument(0))
+@@ -6322,6 +6477,7 @@ int setup_tests(void)
+     ADD_ALL_TESTS(test_cert_cb, 6);
+     ADD_ALL_TESTS(test_client_cert_cb, 2);
+     ADD_ALL_TESTS(test_ca_names, 3);
++    ADD_ALL_TESTS(test_servername, 10);
+     return 1;
+ }
  
 diff --git a/test/sslbuffertest.c b/test/sslbuffertest.c
 index b8b1f52dde..b5f815f7db 100644
@@ -36903,6 +38774,50 @@ index bf8b803c4c..876b7ca710 100644
 +EVP_PKEY_meth_get_digestverify          4541	1_1_1e	EXIST::FUNCTION:
 +EVP_PKEY_meth_get_digestsign            4542	1_1_1e	EXIST::FUNCTION:
 +RSA_get0_pss_params                     4543	1_1_1e	EXIST::FUNCTION:RSA
+diff --git a/util/perl/OpenSSL/Test.pm b/util/perl/OpenSSL/Test.pm
+index 49fb88feb7..a331796c5d 100644
+--- a/util/perl/OpenSSL/Test.pm
++++ b/util/perl/OpenSSL/Test.pm
+@@ -65,7 +65,7 @@ use File::Spec::Functions qw/file_name_is_absolute curdir canonpath splitdir
+                              rel2abs/;
+ use File::Path 2.00 qw/rmtree mkpath/;
+ use File::Basename;
+-use Cwd qw/abs_path/;
++use Cwd qw/getcwd abs_path/;
+ 
+ my $level = 0;
+ 
+@@ -904,26 +904,26 @@ sub __srctop_file {
+     BAIL_OUT("Must run setup() first") if (! $test_name);
+ 
+     my $f = pop;
+-    return catfile($directories{SRCTOP},@_,$f);
++    return abs2rel(catfile($directories{SRCTOP},@_,$f),getcwd);
+ }
+ 
+ sub __srctop_dir {
+     BAIL_OUT("Must run setup() first") if (! $test_name);
+ 
+-    return catdir($directories{SRCTOP},@_);
++    return abs2rel(catdir($directories{SRCTOP},@_), getcwd);
+ }
+ 
+ sub __bldtop_file {
+     BAIL_OUT("Must run setup() first") if (! $test_name);
+ 
+     my $f = pop;
+-    return catfile($directories{BLDTOP},@_,$f);
++    return abs2rel(catfile($directories{BLDTOP},@_,$f), getcwd);
+ }
+ 
+ sub __bldtop_dir {
+     BAIL_OUT("Must run setup() first") if (! $test_name);
+ 
+-    return catdir($directories{BLDTOP},@_);
++    return abs2rel(catdir($directories{BLDTOP},@_), getcwd);
+ }
+ 
+ # __exeext is a function that returns the platform dependent file extension
 diff --git a/util/perl/TLSProxy/Proxy.pm b/util/perl/TLSProxy/Proxy.pm
 index 71acaff9b4..6f983b3281 100644
 --- a/util/perl/TLSProxy/Proxy.pm
