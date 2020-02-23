@@ -84,7 +84,7 @@ endef
 $(eval $(call KernelPackage,ath3k))
 
 
-define KernelPackage/bluetooth_6lowpan
+define KernelPackage/bluetooth-6lowpan
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Bluetooth 6LoWPAN support
   DEPENDS:=+kmod-6lowpan +kmod-bluetooth
@@ -93,11 +93,11 @@ define KernelPackage/bluetooth_6lowpan
   AUTOLOAD:=$(call AutoProbe,bluetooth_6lowpan)
 endef
 
-define KernelPackage/bluetooth_6lowpan/description
+define KernelPackage/bluetooth-6lowpan/description
  Kernel support for 6LoWPAN over Bluetooth Low Energy devices
 endef
 
-$(eval $(call KernelPackage,bluetooth_6lowpan))
+$(eval $(call KernelPackage,bluetooth-6lowpan))
 
 
 define KernelPackage/btmrvl
@@ -418,7 +418,7 @@ $(eval $(call KernelPackage,softdog))
 define KernelPackage/ssb
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Silicon Sonics Backplane glue code
-  DEPENDS:=@PCI_SUPPORT @!TARGET_brcm47xx @!TARGET_brcm63xx
+  DEPENDS:=@PCI_SUPPORT @!TARGET_bcm47xx @!TARGET_bcm63xx
   KCONFIG:=\
 	CONFIG_SSB \
 	CONFIG_SSB_B43_PCI_BRIDGE=y \
@@ -444,7 +444,7 @@ $(eval $(call KernelPackage,ssb))
 define KernelPackage/bcma
   SUBMENU:=$(OTHER_MENU)
   TITLE:=BCMA support
-  DEPENDS:=@PCI_SUPPORT @!TARGET_brcm47xx @!TARGET_bcm53xx
+  DEPENDS:=@PCI_SUPPORT @!TARGET_bcm47xx @!TARGET_bcm53xx
   KCONFIG:=\
 	CONFIG_BCMA \
 	CONFIG_BCMA_POSSIBLE=y \
