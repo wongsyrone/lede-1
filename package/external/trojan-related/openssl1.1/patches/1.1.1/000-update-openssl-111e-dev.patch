@@ -196,6 +196,43 @@ index d478f42b0f..c595279119 100644
  # due to disabled event logging, which is incompatible with one core.
  # Error messages are provided via standard error only.
  # TODO: extend error handling to use ETW based eventing
+diff --git a/Configurations/descrip.mms.tmpl b/Configurations/descrip.mms.tmpl
+index 0ccd5f0751..399f34b3ee 100644
+--- a/Configurations/descrip.mms.tmpl
++++ b/Configurations/descrip.mms.tmpl
+@@ -343,6 +343,7 @@ CPPFLAGS_Q={- (my $c = $lib_cppflags.$cppflags2.$cppflags1) =~ s|"|""|g;
+ #
+ #    #include <openssl/foo.h>
+ #    #include "internal/bar.h"
++#    #include "crypto/something.h"
+ #
+ # will use the logical names to find the files.  Expecting
+ # DECompHP C to find files in subdirectories of whatever was
+@@ -351,11 +352,13 @@ NODEBUG=@
+ .FIRST :
+         $(NODEBUG) openssl_inc1 = F$PARSE("[.include.openssl]","A.;",,,"syntax_only") - "A.;"
+         $(NODEBUG) openssl_inc2 = F$PARSE("{- catdir($config{sourcedir},"[.include.openssl]") -}","A.;",,,"SYNTAX_ONLY") - "A.;"
+-        $(NODEBUG) internal_inc1 = F$PARSE("[.crypto.include.internal]","A.;",,,"SYNTAX_ONLY") - "A.;"
++        $(NODEBUG) internal_inc1 = F$PARSE("[.include.internal]","A.;",,,"SYNTAX_ONLY") - "A.;"
+         $(NODEBUG) internal_inc2 = F$PARSE("{- catdir($config{sourcedir},"[.include.internal]") -}","A.;",,,"SYNTAX_ONLY") - "A.;"
+-        $(NODEBUG) internal_inc3 = F$PARSE("{- catdir($config{sourcedir},"[.crypto.include.internal]") -}","A.;",,,"SYNTAX_ONLY") - "A.;"
++        $(NODEBUG) crypto_inc1 = F$PARSE("[.include.crypto]","A.;",,,"SYNTAX_ONLY") - "A.;"
++        $(NODEBUG) crypto_inc2 = F$PARSE("{- catdir($config{sourcedir},"[.include.crypto]") -}","A.;",,,"SYNTAX_ONLY") - "A.;"
+         $(NODEBUG) DEFINE openssl 'openssl_inc1','openssl_inc2'
+-        $(NODEBUG) DEFINE internal 'internal_inc1','internal_inc2','internal_inc3'
++        $(NODEBUG) DEFINE internal 'internal_inc1','internal_inc2'
++        $(NODEBUG) DEFINE crypto 'crypto_inc1','crypto_inc2'
+         $(NODEBUG) staging_dir = "$(DESTDIR)"
+         $(NODEBUG) staging_instdir = ""
+         $(NODEBUG) staging_datadir = ""
+@@ -392,6 +395,7 @@ NODEBUG=@
+         $(NODEBUG) {- join("\n\t\$(NODEBUG) ", map { "DEASSIGN ".uc($_) } @shlibs) || "!" -}
+         $(NODEBUG) DEASSIGN ossl_dataroot
+         $(NODEBUG) DEASSIGN ossl_installroot
++        $(NODEBUG) DEASSIGN crypto
+         $(NODEBUG) DEASSIGN internal
+         $(NODEBUG) DEASSIGN openssl
+ .DEFAULT :
 diff --git a/Configurations/unix-Makefile.tmpl b/Configurations/unix-Makefile.tmpl
 index 7db7578a4b..9bf54f2127 100644
 --- a/Configurations/unix-Makefile.tmpl
@@ -1763,8 +1800,88 @@ index 1b660d716d..50b53abc12 100644
  
  /*
   * These two parameters control which table, 256-byte or 2KB, is
+diff --git a/crypto/aes/asm/aes-armv4.pl b/crypto/aes/asm/aes-armv4.pl
+index 998158998e..0a9d45a31b 100644
+--- a/crypto/aes/asm/aes-armv4.pl
++++ b/crypto/aes/asm/aes-armv4.pl
+@@ -1242,4 +1242,4 @@ while(<SELF>) {
+ close SELF;
+ 
+ print $code;
+-close STDOUT;	# enforce flush
++close STDOUT or die "error closing STDOUT: $!";	# enforce flush
+diff --git a/crypto/aes/asm/aes-c64xplus.pl b/crypto/aes/asm/aes-c64xplus.pl
+index 19d2cc176f..a4a863fb1e 100644
+--- a/crypto/aes/asm/aes-c64xplus.pl
++++ b/crypto/aes/asm/aes-c64xplus.pl
+@@ -1379,4 +1379,4 @@ AES_Td4:
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/aes-mips.pl b/crypto/aes/asm/aes-mips.pl
+index 716c3356ea..54c70ed1ee 100644
+--- a/crypto/aes/asm/aes-mips.pl
++++ b/crypto/aes/asm/aes-mips.pl
+@@ -2167,4 +2167,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/aes-parisc.pl b/crypto/aes/asm/aes-parisc.pl
+index e817c757f8..1229ec6a2f 100644
+--- a/crypto/aes/asm/aes-parisc.pl
++++ b/crypto/aes/asm/aes-parisc.pl
+@@ -1035,4 +1035,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/aes-ppc.pl b/crypto/aes/asm/aes-ppc.pl
+index ca69df4c3e..d017b5064d 100644
+--- a/crypto/aes/asm/aes-ppc.pl
++++ b/crypto/aes/asm/aes-ppc.pl
+@@ -1456,4 +1456,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/aes-s390x.pl b/crypto/aes/asm/aes-s390x.pl
+index 815fde8fcd..cf748f102a 100644
+--- a/crypto/aes/asm/aes-s390x.pl
++++ b/crypto/aes/asm/aes-s390x.pl
+@@ -2279,4 +2279,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;	# force flush
++close STDOUT or die "error closing STDOUT: $!";	# force flush
+diff --git a/crypto/aes/asm/aes-sparcv9.pl b/crypto/aes/asm/aes-sparcv9.pl
+index 40d1f94ccd..7e2e1e4216 100755
+--- a/crypto/aes/asm/aes-sparcv9.pl
++++ b/crypto/aes/asm/aes-sparcv9.pl
+@@ -1189,4 +1189,4 @@ ___
+ $code =~ s/fmovs.*$//gm;
+ 
+ print $code;
+-close STDOUT;	# ensure flush
++close STDOUT or die "error closing STDOUT: $!";	# ensure flush
+diff --git a/crypto/aes/asm/aesfx-sparcv9.pl b/crypto/aes/asm/aesfx-sparcv9.pl
+index 9ddf0b4b00..422bb54ba8 100644
+--- a/crypto/aes/asm/aesfx-sparcv9.pl
++++ b/crypto/aes/asm/aesfx-sparcv9.pl
+@@ -1267,4 +1267,4 @@ foreach (split("\n",$code)) {
+     print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/aes/asm/aesni-mb-x86_64.pl b/crypto/aes/asm/aesni-mb-x86_64.pl
-index 1f356d2d3f..243ece462f 100644
+index 1f356d2d3f..66630311e2 100644
 --- a/crypto/aes/asm/aesni-mb-x86_64.pl
 +++ b/crypto/aes/asm/aesni-mb-x86_64.pl
 @@ -70,7 +70,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -1776,8 +1893,14 @@ index 1f356d2d3f..243ece462f 100644
  	$avx = ($2>=3.0) + ($2>3.0);
  }
  
+@@ -1471,4 +1471,4 @@ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ $code =~ s/\b(aes.*%xmm[0-9]+).*$/aesni($1)/gem;
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/aes/asm/aesni-sha1-x86_64.pl b/crypto/aes/asm/aesni-sha1-x86_64.pl
-index b01a4c55c8..50e6ed637e 100644
+index b01a4c55c8..c90429d8e4 100644
 --- a/crypto/aes/asm/aesni-sha1-x86_64.pl
 +++ b/crypto/aes/asm/aesni-sha1-x86_64.pl
 @@ -108,7 +108,7 @@ $avx=1 if (!$avx && $win64 && ($flavour =~ /nasm/ || $ENV{ASM} =~ /nasm/) &&
@@ -1837,8 +1960,14 @@ index b01a4c55c8..50e6ed637e 100644
  .size	aesni_cbc_sha1_enc_shaext,.-aesni_cbc_sha1_enc_shaext
  ___
  						}}}
+@@ -2137,4 +2143,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/aes/asm/aesni-sha256-x86_64.pl b/crypto/aes/asm/aesni-sha256-x86_64.pl
-index ef46023710..c361f339ea 100644
+index ef46023710..a811bbc821 100644
 --- a/crypto/aes/asm/aesni-sha256-x86_64.pl
 +++ b/crypto/aes/asm/aesni-sha256-x86_64.pl
 @@ -70,7 +70,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -1967,8 +2096,24 @@ index ef46023710..c361f339ea 100644
  .size	${func}_shaext,.-${func}_shaext
  ___
  }
+@@ -1767,4 +1799,4 @@ sub rex {
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ $code =~ s/\b(sha256[^\s]*)\s+(.*)/sha256op38($1,$2)/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/aesni-x86.pl b/crypto/aes/asm/aesni-x86.pl
+index b351fca28e..4240b9445b 100644
+--- a/crypto/aes/asm/aesni-x86.pl
++++ b/crypto/aes/asm/aesni-x86.pl
+@@ -3412,4 +3412,4 @@ my ($l_,$block,$i1,$i3,$i5) = ($rounds_,$key_,$rounds,$len,$out);
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/aes/asm/aesni-x86_64.pl b/crypto/aes/asm/aesni-x86_64.pl
-index b68c14da60..5807f4eff7 100644
+index b68c14da60..dfedf6d758 100644
 --- a/crypto/aes/asm/aesni-x86_64.pl
 +++ b/crypto/aes/asm/aesni-x86_64.pl
 @@ -59,7 +59,7 @@
@@ -2143,6 +2288,102 @@ index b68c14da60..5807f4eff7 100644
  	cmp	%r10,%rbx		# context->Rip<prologue label
  	jb	.Lcommon_seh_tail
  
+@@ -5138,4 +5154,4 @@ $code =~ s/\bmovbe\s+%eax,\s*([0-9]+)\(%rsp\)/movbe($1)/gem;
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/aesp8-ppc.pl b/crypto/aes/asm/aesp8-ppc.pl
+index c0da1b84aa..d8a46253e5 100755
+--- a/crypto/aes/asm/aesp8-ppc.pl
++++ b/crypto/aes/asm/aesp8-ppc.pl
+@@ -3804,4 +3804,4 @@ foreach(split("\n",$code)) {
+         print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/aest4-sparcv9.pl b/crypto/aes/asm/aest4-sparcv9.pl
+index 54d0c58821..5260a34671 100644
+--- a/crypto/aes/asm/aest4-sparcv9.pl
++++ b/crypto/aes/asm/aest4-sparcv9.pl
+@@ -926,4 +926,4 @@ ___
+ 
+ &emit_assembler();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/aesv8-armx.pl b/crypto/aes/asm/aesv8-armx.pl
+index eec0ed230a..d515a5fc1d 100755
+--- a/crypto/aes/asm/aesv8-armx.pl
++++ b/crypto/aes/asm/aesv8-armx.pl
+@@ -1008,4 +1008,4 @@ if ($flavour =~ /64/) {			######## 64-bit code
+     }
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/bsaes-armv7.pl b/crypto/aes/asm/bsaes-armv7.pl
+index bfe825af0d..6f4aeb2e5c 100644
+--- a/crypto/aes/asm/bsaes-armv7.pl
++++ b/crypto/aes/asm/bsaes-armv7.pl
+@@ -2488,4 +2488,4 @@ close SELF;
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/vpaes-armv8.pl b/crypto/aes/asm/vpaes-armv8.pl
+index e38288af55..84b7ba046d 100755
+--- a/crypto/aes/asm/vpaes-armv8.pl
++++ b/crypto/aes/asm/vpaes-armv8.pl
+@@ -1274,4 +1274,4 @@ ___
+ }	}
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/vpaes-ppc.pl b/crypto/aes/asm/vpaes-ppc.pl
+index 3c771a7e98..4469eaba3d 100644
+--- a/crypto/aes/asm/vpaes-ppc.pl
++++ b/crypto/aes/asm/vpaes-ppc.pl
+@@ -1591,4 +1591,4 @@ foreach  (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/vpaes-x86.pl b/crypto/aes/asm/vpaes-x86.pl
+index 7d57edc0eb..bdebe6628f 100644
+--- a/crypto/aes/asm/vpaes-x86.pl
++++ b/crypto/aes/asm/vpaes-x86.pl
+@@ -913,4 +913,4 @@ $k_dsbo=0x2c0;		# decryption sbox final output
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/aes/asm/vpaes-x86_64.pl b/crypto/aes/asm/vpaes-x86_64.pl
+index 33d293e623..2b469b55a1 100644
+--- a/crypto/aes/asm/vpaes-x86_64.pl
++++ b/crypto/aes/asm/vpaes-x86_64.pl
+@@ -1238,4 +1238,4 @@ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/alphacpuid.pl b/crypto/alphacpuid.pl
+index 6c7fd4c9dd..8144555e0e 100644
+--- a/crypto/alphacpuid.pl
++++ b/crypto/alphacpuid.pl
+@@ -254,4 +254,4 @@ OPENSSL_instrument_bus2:
+ ___
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/aria/aria.c b/crypto/aria/aria.c
 index 293bcc72bd..ce55d52664 100644
 --- a/crypto/aria/aria.c
@@ -2156,6 +2397,16 @@ index 293bcc72bd..ce55d52664 100644
  
  #include <assert.h>
  #include <string.h>
+diff --git a/crypto/arm64cpuid.pl b/crypto/arm64cpuid.pl
+index 06c8add7a0..397b00f873 100755
+--- a/crypto/arm64cpuid.pl
++++ b/crypto/arm64cpuid.pl
+@@ -144,4 +144,4 @@ CRYPTO_memcmp:
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/arm_arch.h b/crypto/arm_arch.h
 index f11b543df6..8b7105571d 100644
 --- a/crypto/arm_arch.h
@@ -2171,6 +2422,16 @@ index f11b543df6..8b7105571d 100644
  
  # if !defined(__ARM_ARCH__)
  #  if defined(__CC_ARM)
+diff --git a/crypto/armv4cpuid.pl b/crypto/armv4cpuid.pl
+index ab007c19c3..9619a4f4b0 100644
+--- a/crypto/armv4cpuid.pl
++++ b/crypto/armv4cpuid.pl
+@@ -293,4 +293,4 @@ atomic_add_spinlock:
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/asn1/a_bitstr.c b/crypto/asn1/a_bitstr.c
 index bffbd160a2..f462dd1073 100644
 --- a/crypto/asn1/a_bitstr.c
@@ -2921,6 +3182,19 @@ index b23e43e8c8..7723f949a6 100644
  
  #include <openssl/err.h>
  
+diff --git a/crypto/bf/asm/bf-586.pl b/crypto/bf/asm/bf-586.pl
+index 4e913aecf4..982d2780b5 100644
+--- a/crypto/bf/asm/bf-586.pl
++++ b/crypto/bf/asm/bf-586.pl
+@@ -32,7 +32,7 @@ $tmp4="edx";
+ &cbc("BF_cbc_encrypt","BF_encrypt","BF_decrypt",1,4,5,3,-1,-1);
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub BF_encrypt
+ 	{
 diff --git a/crypto/bf/bf_cfb64.c b/crypto/bf/bf_cfb64.c
 index ce6e13b5a4..12332c540d 100644
 --- a/crypto/bf/bf_cfb64.c
@@ -3216,7 +3490,7 @@ index 493ff63a90..da11646192 100644
  
  CRYPTO_RWLOCK *bio_type_lock = NULL;
 diff --git a/crypto/bio/bss_acpt.c b/crypto/bio/bss_acpt.c
-index 993e5903a0..c6a2c38891 100644
+index 993e5903a0..c9acf62dea 100644
 --- a/crypto/bio/bss_acpt.c
 +++ b/crypto/bio/bss_acpt.c
 @@ -9,7 +9,7 @@
@@ -3228,6 +3502,20 @@ index 993e5903a0..c6a2c38891 100644
  
  #ifndef OPENSSL_NO_SOCK
  
+@@ -527,7 +527,12 @@ static long acpt_ctrl(BIO *b, int cmd, long num, void *ptr)
+         break;
+     case BIO_CTRL_DUP:
+         break;
+-
++    case BIO_CTRL_EOF:
++        if (b->next_bio == NULL)
++            ret = 0;
++        else
++            ret = BIO_ctrl(b->next_bio, cmd, num, ptr);
++        break;
+     default:
+         ret = 0;
+         break;
 diff --git a/crypto/bio/bss_bio.c b/crypto/bio/bss_bio.c
 index e34382c557..c97349e432 100644
 --- a/crypto/bio/bss_bio.c
@@ -3242,7 +3530,7 @@ index e34382c557..c97349e432 100644
  #include <openssl/crypto.h>
  
 diff --git a/crypto/bio/bss_conn.c b/crypto/bio/bss_conn.c
-index e9673fe783..ad299ac716 100644
+index e9673fe783..bb5049fb59 100644
 --- a/crypto/bio/bss_conn.c
 +++ b/crypto/bio/bss_conn.c
 @@ -10,7 +10,7 @@
@@ -3284,6 +3572,25 @@ index e9673fe783..ad299ac716 100644
          case BIO_CONN_S_OK:
              ret = 1;
              goto exit_loop;
+@@ -309,6 +316,8 @@ static int conn_read(BIO *b, char *out, int outl)
+         if (ret <= 0) {
+             if (BIO_sock_should_retry(ret))
+                 BIO_set_retry_read(b);
++            else if (ret == 0)
++                b->flags |= BIO_FLAGS_IN_EOF;
+         }
+     }
+     return ret;
+@@ -488,6 +497,9 @@ static long conn_ctrl(BIO *b, int cmd, long num, void *ptr)
+             *fptr = data->info_callback;
+         }
+         break;
++    case BIO_CTRL_EOF:
++        ret = (b->flags & BIO_FLAGS_IN_EOF) != 0 ? 1 : 0;
++        break;
+     default:
+         ret = 0;
+         break;
 diff --git a/crypto/bio/bss_dgram.c b/crypto/bio/bss_dgram.c
 index 551821609f..942fd8b514 100644
 --- a/crypto/bio/bss_dgram.c
@@ -3298,7 +3605,7 @@ index 551821609f..942fd8b514 100644
  
  # ifndef OPENSSL_NO_SCTP
 diff --git a/crypto/bio/bss_fd.c b/crypto/bio/bss_fd.c
-index 5bc539c90b..894b3ff9e7 100644
+index 5bc539c90b..76ca0bd887 100644
 --- a/crypto/bio/bss_fd.c
 +++ b/crypto/bio/bss_fd.c
 @@ -10,7 +10,7 @@
@@ -3310,6 +3617,25 @@ index 5bc539c90b..894b3ff9e7 100644
  
  #if defined(OPENSSL_NO_POSIX_IO)
  /*
+@@ -123,6 +123,8 @@ static int fd_read(BIO *b, char *out, int outl)
+         if (ret <= 0) {
+             if (BIO_fd_should_retry(ret))
+                 BIO_set_retry_read(b);
++            else if (ret == 0)
++                b->flags |= BIO_FLAGS_IN_EOF;
+         }
+     }
+     return ret;
+@@ -186,6 +188,9 @@ static long fd_ctrl(BIO *b, int cmd, long num, void *ptr)
+     case BIO_CTRL_FLUSH:
+         ret = 1;
+         break;
++    case BIO_CTRL_EOF:
++        ret = (b->flags & BIO_FLAGS_IN_EOF) != 0 ? 1 : 0;
++        break;
+     default:
+         ret = 0;
+         break;
 diff --git a/crypto/bio/bss_file.c b/crypto/bio/bss_file.c
 index a210205597..1a70ce7994 100644
 --- a/crypto/bio/bss_file.c
@@ -3363,7 +3689,7 @@ index 08f1d2bc98..e73ce7841d 100644
  
  static int null_write(BIO *h, const char *buf, int num);
 diff --git a/crypto/bio/bss_sock.c b/crypto/bio/bss_sock.c
-index ad38453201..da818ca90e 100644
+index ad38453201..3ad989adf2 100644
 --- a/crypto/bio/bss_sock.c
 +++ b/crypto/bio/bss_sock.c
 @@ -9,7 +9,7 @@
@@ -3375,6 +3701,25 @@ index ad38453201..da818ca90e 100644
  #include "internal/cryptlib.h"
  
  #ifndef OPENSSL_NO_SOCK
+@@ -101,6 +101,8 @@ static int sock_read(BIO *b, char *out, int outl)
+         if (ret <= 0) {
+             if (BIO_sock_should_retry(ret))
+                 BIO_set_retry_read(b);
++            else if (ret == 0)
++                b->flags |= BIO_FLAGS_IN_EOF;
+         }
+     }
+     return ret;
+@@ -151,6 +153,9 @@ static long sock_ctrl(BIO *b, int cmd, long num, void *ptr)
+     case BIO_CTRL_FLUSH:
+         ret = 1;
+         break;
++    case BIO_CTRL_EOF:
++        ret = (b->flags & BIO_FLAGS_IN_EOF) != 0 ? 1 : 0;
++        break;
+     default:
+         ret = 0;
+         break;
 diff --git a/crypto/blake2/blake2_locl.h b/crypto/blake2/blake2_local.h
 similarity index 100%
 rename from crypto/blake2/blake2_locl.h
@@ -3448,10 +3793,82 @@ index 706a140342..5d5c4fa99f 100644
  
  mul(B<r>, B<a>, B<w>, B<c>) computes B<w>*B<a>+B<c> and places the
  low word of the result in B<r> and the high word in B<c>.
+diff --git a/crypto/bn/asm/alpha-mont.pl b/crypto/bn/asm/alpha-mont.pl
+index c9b962a150..efd724ce97 100644
+--- a/crypto/bn/asm/alpha-mont.pl
++++ b/crypto/bn/asm/alpha-mont.pl
+@@ -325,4 +325,4 @@ bn_mul_mont:
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/armv4-gf2m.pl b/crypto/bn/asm/armv4-gf2m.pl
+index 7a0cdb2e8a..62450617b1 100644
+--- a/crypto/bn/asm/armv4-gf2m.pl
++++ b/crypto/bn/asm/armv4-gf2m.pl
+@@ -329,4 +329,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;   # enforce flush
++close STDOUT or die "error closing STDOUT: $!";   # enforce flush
+diff --git a/crypto/bn/asm/armv4-mont.pl b/crypto/bn/asm/armv4-mont.pl
+index 6bedc62ba6..c74967511c 100644
+--- a/crypto/bn/asm/armv4-mont.pl
++++ b/crypto/bn/asm/armv4-mont.pl
+@@ -754,4 +754,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/armv8-mont.pl b/crypto/bn/asm/armv8-mont.pl
+index d8347bf932..333c5ea9c2 100755
+--- a/crypto/bn/asm/armv8-mont.pl
++++ b/crypto/bn/asm/armv8-mont.pl
+@@ -1511,4 +1511,4 @@ ___
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/bn-586.pl b/crypto/bn/asm/bn-586.pl
+index 58effc8808..41974738bf 100644
+--- a/crypto/bn/asm/bn-586.pl
++++ b/crypto/bn/asm/bn-586.pl
+@@ -31,7 +31,7 @@ for (@ARGV) { $sse2=1 if (/-DOPENSSL_IA32_SSE2/); }
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub bn_mul_add_words
+ 	{
+diff --git a/crypto/bn/asm/c64xplus-gf2m.pl b/crypto/bn/asm/c64xplus-gf2m.pl
+index 9c46da3af8..f077b39777 100644
+--- a/crypto/bn/asm/c64xplus-gf2m.pl
++++ b/crypto/bn/asm/c64xplus-gf2m.pl
+@@ -157,4 +157,4 @@ $code.=<<___;
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/asm/co-586.pl b/crypto/bn/asm/co-586.pl
-index 97f5e3a19f..64648c9192 100644
+index 97f5e3a19f..5a0a1533a3 100644
 --- a/crypto/bn/asm/co-586.pl
 +++ b/crypto/bn/asm/co-586.pl
+@@ -22,7 +22,7 @@ open STDOUT,">$output";
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub mul_add_c
+ 	{
 @@ -39,17 +39,17 @@ sub mul_add_c
  
  	&mul("edx");
@@ -3474,8 +3891,78 @@ index 97f5e3a19f..64648c9192 100644
  	}
  
  sub sqr_add_c
+diff --git a/crypto/bn/asm/ia64-mont.pl b/crypto/bn/asm/ia64-mont.pl
+index ec486f7779..3071a675f6 100644
+--- a/crypto/bn/asm/ia64-mont.pl
++++ b/crypto/bn/asm/ia64-mont.pl
+@@ -857,4 +857,4 @@ ___
+ 
+ open STDOUT,">$output" if $output;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/mips-mont.pl b/crypto/bn/asm/mips-mont.pl
+index fbe5d04f71..3998ef81fb 100644
+--- a/crypto/bn/asm/mips-mont.pl
++++ b/crypto/bn/asm/mips-mont.pl
+@@ -430,4 +430,4 @@ ___
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/mips.pl b/crypto/bn/asm/mips.pl
+index a205189eb6..12a293c43b 100644
+--- a/crypto/bn/asm/mips.pl
++++ b/crypto/bn/asm/mips.pl
+@@ -2260,4 +2260,4 @@ $code.=<<___;
+ .end	bn_sqr_comba4
+ ___
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/parisc-mont.pl b/crypto/bn/asm/parisc-mont.pl
+index aa9f626ed2..002ec96dbc 100644
+--- a/crypto/bn/asm/parisc-mont.pl
++++ b/crypto/bn/asm/parisc-mont.pl
+@@ -1003,4 +1003,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/ppc-mont.pl b/crypto/bn/asm/ppc-mont.pl
+index ec7e019a43..a997472e84 100644
+--- a/crypto/bn/asm/ppc-mont.pl
++++ b/crypto/bn/asm/ppc-mont.pl
+@@ -1987,4 +1987,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/ppc.pl b/crypto/bn/asm/ppc.pl
+index d6d4e66f92..03481c28c8 100644
+--- a/crypto/bn/asm/ppc.pl
++++ b/crypto/bn/asm/ppc.pl
+@@ -2009,4 +2009,4 @@ Lppcasm_maw_adios:
+ EOF
+ $data =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $data;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/ppc64-mont.pl b/crypto/bn/asm/ppc64-mont.pl
+index c41b620bc2..e2b62f4dac 100644
+--- a/crypto/bn/asm/ppc64-mont.pl
++++ b/crypto/bn/asm/ppc64-mont.pl
+@@ -1649,4 +1649,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/asm/rsaz-avx2.pl b/crypto/bn/asm/rsaz-avx2.pl
-index 85cd73c668..ec66e2565c 100755
+index 85cd73c668..fca4cd110b 100755
 --- a/crypto/bn/asm/rsaz-avx2.pl
 +++ b/crypto/bn/asm/rsaz-avx2.pl
 @@ -66,7 +66,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -3487,8 +3974,14 @@ index 85cd73c668..ec66e2565c 100755
  	my $ver = $2 + $3/100.0;	# 3.1->3.01, 3.10->3.10
  	$avx = ($ver>=3.0) + ($ver>=3.01);
  	$addx = ($ver>=3.03);
+@@ -1979,4 +1979,4 @@ rsaz_1024_gather5_avx2:
+ ___
+ }}}
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/asm/rsaz-x86_64.pl b/crypto/bn/asm/rsaz-x86_64.pl
-index b1797b649f..ac21676d8d 100755
+index b1797b649f..3b92a423aa 100755
 --- a/crypto/bn/asm/rsaz-x86_64.pl
 +++ b/crypto/bn/asm/rsaz-x86_64.pl
 @@ -81,7 +81,7 @@ if (!$addx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -4339,8 +4832,24 @@ index b1797b649f..ac21676d8d 100755
  .size	rsaz_512_gather4,.-rsaz_512_gather4
  
  .align	64
+@@ -2401,4 +2428,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/s390x-gf2m.pl b/crypto/bn/asm/s390x-gf2m.pl
+index 06181bf9b9..75bf91817b 100644
+--- a/crypto/bn/asm/s390x-gf2m.pl
++++ b/crypto/bn/asm/s390x-gf2m.pl
+@@ -225,4 +225,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/asm/s390x-mont.pl b/crypto/bn/asm/s390x-mont.pl
-index c2fc5adffe..21b935a962 100644
+index c2fc5adffe..689d249cca 100644
 --- a/crypto/bn/asm/s390x-mont.pl
 +++ b/crypto/bn/asm/s390x-mont.pl
 @@ -145,7 +145,7 @@ $code.=<<___;
@@ -4379,6 +4888,12 @@ index c2fc5adffe..21b935a962 100644
  	lgr	$count,$num
  .Lcopy:	lg	$ahi,$stdframe($j,$sp)	# conditional copy
  	lg	$alo,0($j,$rp)
+@@ -281,4 +281,4 @@ foreach (split("\n",$code)) {
+ 	s/_dswap\s+(%r[0-9]+)/sprintf("rllg\t%s,%s,32",$1,$1) if($SIZE_T==4)/e;
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/asm/s390x.S b/crypto/bn/asm/s390x.S
 index 292a7a9998..b666c41a88 100644
 --- a/crypto/bn/asm/s390x.S
@@ -4392,6 +4907,86 @@ index 292a7a9998..b666c41a88 100644
  	lghi	c1,0
  
  	mul_add_c(0,1,c2,c3,c1);
+diff --git a/crypto/bn/asm/sparct4-mont.pl b/crypto/bn/asm/sparct4-mont.pl
+index fcae9cfc5b..b3cf02a515 100755
+--- a/crypto/bn/asm/sparct4-mont.pl
++++ b/crypto/bn/asm/sparct4-mont.pl
+@@ -1225,4 +1225,4 @@ ___
+ 
+ &emit_assembler();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/sparcv9-gf2m.pl b/crypto/bn/asm/sparcv9-gf2m.pl
+index dcf11a87a1..09471d4f60 100644
+--- a/crypto/bn/asm/sparcv9-gf2m.pl
++++ b/crypto/bn/asm/sparcv9-gf2m.pl
+@@ -197,4 +197,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/sparcv9-mont.pl b/crypto/bn/asm/sparcv9-mont.pl
+index b41903af98..598839b6e3 100644
+--- a/crypto/bn/asm/sparcv9-mont.pl
++++ b/crypto/bn/asm/sparcv9-mont.pl
+@@ -617,4 +617,4 @@ $code.=<<___;
+ ___
+ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/sparcv9a-mont.pl b/crypto/bn/asm/sparcv9a-mont.pl
+index c8f759df9f..72df364764 100755
+--- a/crypto/bn/asm/sparcv9a-mont.pl
++++ b/crypto/bn/asm/sparcv9a-mont.pl
+@@ -884,4 +884,4 @@ $code =~ s/fzeros\s+%f([0-9]+)/
+ 
+ print $code;
+ # flush
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/via-mont.pl b/crypto/bn/asm/via-mont.pl
+index 9cf717e841..c836019c5f 100644
+--- a/crypto/bn/asm/via-mont.pl
++++ b/crypto/bn/asm/via-mont.pl
+@@ -248,4 +248,4 @@ $sp=&DWP(28,"esp");
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/vis3-mont.pl b/crypto/bn/asm/vis3-mont.pl
+index 04833a0c87..826bb941f4 100644
+--- a/crypto/bn/asm/vis3-mont.pl
++++ b/crypto/bn/asm/vis3-mont.pl
+@@ -381,4 +381,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/x86-gf2m.pl b/crypto/bn/asm/x86-gf2m.pl
+index d03efcc750..907062c618 100644
+--- a/crypto/bn/asm/x86-gf2m.pl
++++ b/crypto/bn/asm/x86-gf2m.pl
+@@ -322,4 +322,4 @@ if ($sse2) {
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/bn/asm/x86-mont.pl b/crypto/bn/asm/x86-mont.pl
+index 7ba2133ac9..a09c5368f2 100755
+--- a/crypto/bn/asm/x86-mont.pl
++++ b/crypto/bn/asm/x86-mont.pl
+@@ -628,4 +628,4 @@ $sbit=$num;
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/asm/x86_64-gcc.c b/crypto/bn/asm/x86_64-gcc.c
 index 31839ba060..e6fdaadf0e 100644
 --- a/crypto/bn/asm/x86_64-gcc.c
@@ -4405,8 +5000,18 @@ index 31839ba060..e6fdaadf0e 100644
  #if !(defined(__GNUC__) && __GNUC__>=2)
  # include "../bn_asm.c"         /* kind of dirty hack for Sun Studio */
  #else
+diff --git a/crypto/bn/asm/x86_64-gf2m.pl b/crypto/bn/asm/x86_64-gf2m.pl
+index 0fd6e985d7..84ca2f1b93 100644
+--- a/crypto/bn/asm/x86_64-gf2m.pl
++++ b/crypto/bn/asm/x86_64-gf2m.pl
+@@ -421,4 +421,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/asm/x86_64-mont.pl b/crypto/bn/asm/x86_64-mont.pl
-index c051135e30..01d6bbd64d 100755
+index c051135e30..f793008225 100755
 --- a/crypto/bn/asm/x86_64-mont.pl
 +++ b/crypto/bn/asm/x86_64-mont.pl
 @@ -75,7 +75,7 @@ if (!$addx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -4418,8 +5023,14 @@ index c051135e30..01d6bbd64d 100755
  	my $ver = $2 + $3/100.0;	# 3.1->3.01, 3.10->3.10
  	$addx = ($ver>=3.03);
  }
+@@ -1589,4 +1589,4 @@ ___
+ }
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/asm/x86_64-mont5.pl b/crypto/bn/asm/x86_64-mont5.pl
-index f43e13d116..f5bd0fc6e5 100755
+index f43e13d116..36a30ee336 100755
 --- a/crypto/bn/asm/x86_64-mont5.pl
 +++ b/crypto/bn/asm/x86_64-mont5.pl
 @@ -60,7 +60,7 @@ if (!$addx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -4571,6 +5182,12 @@ index f43e13d116..f5bd0fc6e5 100755
  .size	bn_gather5,.-bn_gather5
  ___
  }
+@@ -3942,4 +3960,4 @@ ___
+ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/bn/bn_add.c b/crypto/bn/bn_add.c
 index f2736b8f6d..8ffe49618a 100644
 --- a/crypto/bn/bn_add.c
@@ -5382,8 +5999,28 @@ index c5864f8aaa..88f65a4bae 100644
  
  # undef RSAZ_ENABLED
  # if defined(OPENSSL_BN_ASM_MONT) && \
+diff --git a/crypto/c64xpluscpuid.pl b/crypto/c64xpluscpuid.pl
+index b7b11d5031..496ae3f05a 100644
+--- a/crypto/c64xpluscpuid.pl
++++ b/crypto/c64xpluscpuid.pl
+@@ -284,4 +284,4 @@ bus_loop2_done?:
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/camellia/asm/cmll-x86.pl b/crypto/camellia/asm/cmll-x86.pl
+index 55af9b4e3d..6d6fe9bc8a 100644
+--- a/crypto/camellia/asm/cmll-x86.pl
++++ b/crypto/camellia/asm/cmll-x86.pl
+@@ -1147,4 +1147,4 @@ my ($s0,$s1,$s2,$s3) = @T;
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/camellia/asm/cmll-x86_64.pl b/crypto/camellia/asm/cmll-x86_64.pl
-index 02c52c3efe..ff7bf12f3b 100644
+index 02c52c3efe..36fd7cbfd4 100644
 --- a/crypto/camellia/asm/cmll-x86_64.pl
 +++ b/crypto/camellia/asm/cmll-x86_64.pl
 @@ -125,11 +125,13 @@ $code=<<___;
@@ -5446,6 +6083,22 @@ index 02c52c3efe..ff7bf12f3b 100644
  .size	_x86_64_Camellia_decrypt,.-_x86_64_Camellia_decrypt
  ___
  
+@@ -1142,4 +1150,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/camellia/asm/cmllt4-sparcv9.pl b/crypto/camellia/asm/cmllt4-sparcv9.pl
+index 6396679a5a..30c5f95df3 100644
+--- a/crypto/camellia/asm/cmllt4-sparcv9.pl
++++ b/crypto/camellia/asm/cmllt4-sparcv9.pl
+@@ -936,4 +936,4 @@ ___
+ 
+ &emit_assembler();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/camellia/camellia.c b/crypto/camellia/camellia.c
 index c200b82304..f623864bc4 100644
 --- a/crypto/camellia/camellia.c
@@ -5509,6 +6162,19 @@ index e5f014b79c..d8fc3738c4 100644
  
  int Camellia_set_key(const unsigned char *userKey, const int bits,
                       CAMELLIA_KEY *key)
+diff --git a/crypto/cast/asm/cast-586.pl b/crypto/cast/asm/cast-586.pl
+index d5d38965cf..038f36e57d 100644
+--- a/crypto/cast/asm/cast-586.pl
++++ b/crypto/cast/asm/cast-586.pl
+@@ -46,7 +46,7 @@ $S4="CAST_S_table3";
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub CAST_encrypt {
+     local($name,$enc)=@_;
 diff --git a/crypto/cast/c_cfb64.c b/crypto/cast/c_cfb64.c
 index bd7cb2f468..7222159538 100644
 --- a/crypto/cast/c_cfb64.c
@@ -5578,8 +6244,58 @@ diff --git a/crypto/cast/cast_lcl.h b/crypto/cast/cast_local.h
 similarity index 100%
 rename from crypto/cast/cast_lcl.h
 rename to crypto/cast/cast_local.h
+diff --git a/crypto/chacha/asm/chacha-armv4.pl b/crypto/chacha/asm/chacha-armv4.pl
+index d3fadcc63d..736b1d0b0c 100755
+--- a/crypto/chacha/asm/chacha-armv4.pl
++++ b/crypto/chacha/asm/chacha-armv4.pl
+@@ -1157,4 +1157,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/chacha/asm/chacha-armv8.pl b/crypto/chacha/asm/chacha-armv8.pl
+index e90be6d0e5..f8174055b3 100755
+--- a/crypto/chacha/asm/chacha-armv8.pl
++++ b/crypto/chacha/asm/chacha-armv8.pl
+@@ -1141,4 +1141,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;	# flush
++close STDOUT or die "error closing STDOUT: $!";	# flush
+diff --git a/crypto/chacha/asm/chacha-c64xplus.pl b/crypto/chacha/asm/chacha-c64xplus.pl
+index 266401eb16..6b37618d9a 100755
+--- a/crypto/chacha/asm/chacha-c64xplus.pl
++++ b/crypto/chacha/asm/chacha-c64xplus.pl
+@@ -923,4 +923,4 @@ $code.=<<___;
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/chacha/asm/chacha-ppc.pl b/crypto/chacha/asm/chacha-ppc.pl
+index f4f8610bf3..04d00b5eaf 100755
+--- a/crypto/chacha/asm/chacha-ppc.pl
++++ b/crypto/chacha/asm/chacha-ppc.pl
+@@ -1345,4 +1345,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/chacha/asm/chacha-s390x.pl b/crypto/chacha/asm/chacha-s390x.pl
+index c31526473d..f8deecf262 100755
+--- a/crypto/chacha/asm/chacha-s390x.pl
++++ b/crypto/chacha/asm/chacha-s390x.pl
+@@ -323,4 +323,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/chacha/asm/chacha-x86.pl b/crypto/chacha/asm/chacha-x86.pl
-index 13c217dcf1..b68d07fcb7 100755
+index 13c217dcf1..bdf53c877d 100755
 --- a/crypto/chacha/asm/chacha-x86.pl
 +++ b/crypto/chacha/asm/chacha-x86.pl
 @@ -62,7 +62,7 @@ $ymm=1 if ($xmm && !$ymm && $ARGV[0] eq "win32" &&
@@ -5591,8 +6307,14 @@ index 13c217dcf1..b68d07fcb7 100755
  		$2>=3.0);	# first version supporting AVX
  
  $a="eax";
+@@ -1152,4 +1152,4 @@ sub XOPROUND {
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/chacha/asm/chacha-x86_64.pl b/crypto/chacha/asm/chacha-x86_64.pl
-index b54f3b1525..afb3fbf4a2 100755
+index b54f3b1525..d80ab13776 100755
 --- a/crypto/chacha/asm/chacha-x86_64.pl
 +++ b/crypto/chacha/asm/chacha-x86_64.pl
 @@ -85,7 +85,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -5604,6 +6326,12 @@ index b54f3b1525..afb3fbf4a2 100755
  	$avx = ($2>=3.0) + ($2>3.0);
  }
  
+@@ -4002,4 +4002,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/chacha/chacha_enc.c b/crypto/chacha/chacha_enc.c
 index 239f68ab82..18251eac08 100644
 --- a/crypto/chacha/chacha_enc.c
@@ -6181,6 +6909,32 @@ index e05f84cd40..b7f1183f9c 100644
  #include "openssl/ebcdic.h"
  
  /*
+diff --git a/crypto/des/asm/crypt586.pl b/crypto/des/asm/crypt586.pl
+index a02d180631..3bd6b8a7f8 100644
+--- a/crypto/des/asm/crypt586.pl
++++ b/crypto/des/asm/crypt586.pl
+@@ -25,7 +25,7 @@ $R="esi";
+ &fcrypt_body("fcrypt_body");
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub fcrypt_body
+ 	{
+diff --git a/crypto/des/asm/des-586.pl b/crypto/des/asm/des-586.pl
+index 2bcc54ef2f..49cf6bd173 100644
+--- a/crypto/des/asm/des-586.pl
++++ b/crypto/des/asm/des-586.pl
+@@ -47,7 +47,7 @@ $small_footprint=1 if (grep(/\-DOPENSSL_SMALL_FOOTPRINT/,@ARGV));
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub DES_encrypt_internal()
+ 	{
 diff --git a/crypto/des/asm/des_enc.m4 b/crypto/des/asm/des_enc.m4
 index 4ada97b175..ebb5e7cd1d 100644
 --- a/crypto/des/asm/des_enc.m4
@@ -6213,6 +6967,16 @@ index 4ada97b175..ebb5e7cd1d 100644
  	! Errors caught by destest? Yes. Still? *NO*
  
  	!sethi	%hi(DES_SPtrans), global1 ! address sbox 1
+diff --git a/crypto/des/asm/dest4-sparcv9.pl b/crypto/des/asm/dest4-sparcv9.pl
+index fe1fdc7025..a67af1def6 100644
+--- a/crypto/des/asm/dest4-sparcv9.pl
++++ b/crypto/des/asm/dest4-sparcv9.pl
+@@ -624,4 +624,4 @@ ___
+ 
+ &emit_assembler();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/des/cbc_cksm.c b/crypto/des/cbc_cksm.c
 index 5a1f72f82d..c5e2e017b8 100644
 --- a/crypto/des/cbc_cksm.c
@@ -6911,7 +7675,7 @@ index 6631d517f4..37892170c0 100644
  #if defined(DSO_WIN32)
  
 diff --git a/crypto/ec/asm/ecp_nistz256-armv4.pl b/crypto/ec/asm/ecp_nistz256-armv4.pl
-index 83abbdd895..f5e7a88163 100755
+index 83abbdd895..ce2269ae67 100755
 --- a/crypto/ec/asm/ecp_nistz256-armv4.pl
 +++ b/crypto/ec/asm/ecp_nistz256-armv4.pl
 @@ -1394,7 +1394,7 @@ my ($Z1sqr, $Z2sqr) = ($Hsqr, $Rsqr);
@@ -7085,8 +7849,14 @@ index 83abbdd895..f5e7a88163 100755
  	and	r9,r9,r12
  	orr	r4,r4,r6
  	orr	r5,r5,r7
+@@ -1862,4 +1849,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;	# enforce flush
++close STDOUT or die "error closing STDOUT: $!";	# enforce flush
 diff --git a/crypto/ec/asm/ecp_nistz256-armv8.pl b/crypto/ec/asm/ecp_nistz256-armv8.pl
-index 887ddfb1ea..e32d0d9344 100644
+index 887ddfb1ea..66da3b6395 100644
 --- a/crypto/ec/asm/ecp_nistz256-armv8.pl
 +++ b/crypto/ec/asm/ecp_nistz256-armv8.pl
 @@ -722,7 +722,7 @@ $code.=<<___;
@@ -7293,8 +8063,14 @@ index 887ddfb1ea..e32d0d9344 100644
  	csel	$acc0,$t0,$acc0,ne
  	csel	$acc1,$t1,$acc1,ne
  	csel	$acc2,$t2,$acc2,ne
+@@ -1880,4 +1871,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;	# enforce flush
++close STDOUT or die "error closing STDOUT: $!";	# enforce flush
 diff --git a/crypto/ec/asm/ecp_nistz256-avx2.pl b/crypto/ec/asm/ecp_nistz256-avx2.pl
-index 794e56a082..a8cce34bbe 100755
+index 794e56a082..f0ff88ac0d 100755
 --- a/crypto/ec/asm/ecp_nistz256-avx2.pl
 +++ b/crypto/ec/asm/ecp_nistz256-avx2.pl
 @@ -47,7 +47,7 @@ if (!$addx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -7306,8 +8082,34 @@ index 794e56a082..a8cce34bbe 100755
  	my $ver = $2 + $3/100.0;	# 3.1->3.01, 3.10->3.10
  	$avx = ($ver>=3.0) + ($ver>=3.01);
  	$addx = ($ver>=3.03);
+@@ -2077,4 +2077,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/ec/asm/ecp_nistz256-ppc64.pl b/crypto/ec/asm/ecp_nistz256-ppc64.pl
+index 984c7f2050..bc21df6f44 100755
+--- a/crypto/ec/asm/ecp_nistz256-ppc64.pl
++++ b/crypto/ec/asm/ecp_nistz256-ppc64.pl
+@@ -2379,4 +2379,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;	# enforce flush
++close STDOUT or die "error closing STDOUT: $!";	# enforce flush
+diff --git a/crypto/ec/asm/ecp_nistz256-sparcv9.pl b/crypto/ec/asm/ecp_nistz256-sparcv9.pl
+index 4383bea4a7..f345623b9a 100755
+--- a/crypto/ec/asm/ecp_nistz256-sparcv9.pl
++++ b/crypto/ec/asm/ecp_nistz256-sparcv9.pl
+@@ -3057,4 +3057,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/ec/asm/ecp_nistz256-x86.pl b/crypto/ec/asm/ecp_nistz256-x86.pl
-index 0c6fc665bf..1a44c639d7 100755
+index 0c6fc665bf..cc30e74f31 100755
 --- a/crypto/ec/asm/ecp_nistz256-x86.pl
 +++ b/crypto/ec/asm/ecp_nistz256-x86.pl
 @@ -1388,7 +1388,7 @@ for ($i=0;$i<7;$i++) {
@@ -7480,8 +8282,14 @@ index 0c6fc665bf..1a44c639d7 100755
  	&and	("ecx",&DWP($in1_x+$i,"esp"));
  	&or	("eax","ebx");
  	&or	("eax","ecx");
+@@ -1863,4 +1859,4 @@ for ($i=0;$i<7;$i++) {
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/ec/asm/ecp_nistz256-x86_64.pl b/crypto/ec/asm/ecp_nistz256-x86_64.pl
-index 10ccc6414a..94b08165d0 100755
+index 10ccc6414a..a678c6d66e 100755
 --- a/crypto/ec/asm/ecp_nistz256-x86_64.pl
 +++ b/crypto/ec/asm/ecp_nistz256-x86_64.pl
 @@ -72,7 +72,7 @@ if (!$addx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -7590,8 +8398,24 @@ index 10ccc6414a..94b08165d0 100755
  .Ladd_double$x:
  	movq	%xmm1, $a_ptr			# restore $a_ptr
  	movq	%xmm0, $r_ptr			# restore $r_ptr
+@@ -4738,4 +4736,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/ec/asm/x25519-ppc64.pl b/crypto/ec/asm/x25519-ppc64.pl
+index 6e8b36420f..1f2f161f59 100755
+--- a/crypto/ec/asm/x25519-ppc64.pl
++++ b/crypto/ec/asm/x25519-ppc64.pl
+@@ -821,4 +821,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/ec/asm/x25519-x86_64.pl b/crypto/ec/asm/x25519-x86_64.pl
-index 18dc6af9fa..3a4a1483e7 100755
+index 18dc6af9fa..8e625c1147 100755
 --- a/crypto/ec/asm/x25519-x86_64.pl
 +++ b/crypto/ec/asm/x25519-x86_64.pl
 @@ -90,7 +90,7 @@ if (!$addx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -7704,6 +8528,12 @@ index 18dc6af9fa..3a4a1483e7 100755
  .size	x25519_fe64_mul,.-x25519_fe64_mul
  ___
  }
+@@ -1114,4 +1128,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/ec/curve25519.c b/crypto/ec/curve25519.c
 index c5d887ec4c..952da0e653 100644
 --- a/crypto/ec/curve25519.c
@@ -9033,10 +9863,24 @@ index 3e092eae0a..5976d1501f 100644
  # SSL/TLS alerts
  R SSL_R_SSLV3_ALERT_UNEXPECTED_MESSAGE          1010
 diff --git a/crypto/err/openssl.txt b/crypto/err/openssl.txt
-index a433b03240..e4cda9735e 100644
+index a433b03240..10444a17f9 100644
 --- a/crypto/err/openssl.txt
 +++ b/crypto/err/openssl.txt
-@@ -1027,6 +1027,7 @@ RAND_F_RAND_POOL_ATTACH:124:rand_pool_attach
+@@ -1,4 +1,4 @@
+-# Copyright 1999-2019 The OpenSSL Project Authors. All Rights Reserved.
++# Copyright 1999-2020 The OpenSSL Project Authors. All Rights Reserved.
+ #
+ # Licensed under the OpenSSL license (the "License").  You may not use
+ # this file except in compliance with the License.  You can obtain a copy
+@@ -1002,6 +1002,7 @@ PKCS7_F_PKCS7_SIGNER_INFO_SIGN:139:PKCS7_SIGNER_INFO_sign
+ PKCS7_F_PKCS7_SIGN_ADD_SIGNER:137:PKCS7_sign_add_signer
+ PKCS7_F_PKCS7_SIMPLE_SMIMECAP:119:PKCS7_simple_smimecap
+ PKCS7_F_PKCS7_VERIFY:117:PKCS7_verify
++RAND_F_DATA_COLLECT_METHOD:127:data_collect_method
+ RAND_F_DRBG_BYTES:101:drbg_bytes
+ RAND_F_DRBG_GET_ENTROPY:105:drbg_get_entropy
+ RAND_F_DRBG_SETUP:117:drbg_setup
+@@ -1027,6 +1028,7 @@ RAND_F_RAND_POOL_ATTACH:124:rand_pool_attach
  RAND_F_RAND_POOL_BYTES_NEEDED:115:rand_pool_bytes_needed
  RAND_F_RAND_POOL_GROW:125:rand_pool_grow
  RAND_F_RAND_POOL_NEW:116:rand_pool_new
@@ -9044,7 +9888,7 @@ index a433b03240..e4cda9735e 100644
  RAND_F_RAND_WRITE_FILE:112:RAND_write_file
  RSA_F_CHECK_PADDING_MD:140:check_padding_md
  RSA_F_ENCODE_PKCS1:146:encode_pkcs1
-@@ -2254,6 +2255,7 @@ EVP_R_INITIALIZATION_ERROR:134:initialization error
+@@ -2254,6 +2256,7 @@ EVP_R_INITIALIZATION_ERROR:134:initialization error
  EVP_R_INPUT_NOT_INITIALIZED:111:input not initialized
  EVP_R_INVALID_DIGEST:152:invalid digest
  EVP_R_INVALID_FIPS_MODE:168:invalid fips mode
@@ -9052,6 +9896,14 @@ index a433b03240..e4cda9735e 100644
  EVP_R_INVALID_KEY:163:invalid key
  EVP_R_INVALID_KEY_LENGTH:130:invalid key length
  EVP_R_INVALID_OPERATION:148:invalid operation
+@@ -2848,6 +2851,7 @@ SSL_R_UNABLE_TO_LOAD_SSL3_MD5_ROUTINES:242:unable to load ssl3 md5 routines
+ SSL_R_UNABLE_TO_LOAD_SSL3_SHA1_ROUTINES:243:unable to load ssl3 sha1 routines
+ SSL_R_UNEXPECTED_CCS_MESSAGE:262:unexpected ccs message
+ SSL_R_UNEXPECTED_END_OF_EARLY_DATA:178:unexpected end of early data
++SSL_R_UNEXPECTED_EOF_WHILE_READING:294:unexpected eof while reading
+ SSL_R_UNEXPECTED_MESSAGE:244:unexpected message
+ SSL_R_UNEXPECTED_RECORD:245:unexpected record
+ SSL_R_UNINITIALIZED:276:uninitialized
 diff --git a/crypto/evp/bio_md.c b/crypto/evp/bio_md.c
 index 288dee01b2..fed4cf1eb1 100644
 --- a/crypto/evp/bio_md.c
@@ -10471,6 +11323,39 @@ index a6c4003fdb..5f05720e97 100644
  
  #define R2(a,b,c,d,k,s,t) { \
          a+=((k)+(t)+H((b),(c),(d))); \
+diff --git a/crypto/md5/asm/md5-586.pl b/crypto/md5/asm/md5-586.pl
+index 15e14864d1..fe82c2e062 100644
+--- a/crypto/md5/asm/md5-586.pl
++++ b/crypto/md5/asm/md5-586.pl
+@@ -43,7 +43,7 @@ $X="esi";
+ &md5_block("md5_block_asm_data_order");
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub Np
+ 	{
+diff --git a/crypto/md5/asm/md5-sparcv9.pl b/crypto/md5/asm/md5-sparcv9.pl
+index 6a62c62531..2f2c7b0f8e 100644
+--- a/crypto/md5/asm/md5-sparcv9.pl
++++ b/crypto/md5/asm/md5-sparcv9.pl
+@@ -434,4 +434,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/md5/asm/md5-x86_64.pl b/crypto/md5/asm/md5-x86_64.pl
+index 386d8048ec..10b5f2de74 100755
+--- a/crypto/md5/asm/md5-x86_64.pl
++++ b/crypto/md5/asm/md5-x86_64.pl
+@@ -390,4 +390,4 @@ ___
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/md5/md5_dgst.c b/crypto/md5/md5_dgst.c
 index fbede6742a..d84cba37ae 100644
 --- a/crypto/md5/md5_dgst.c
@@ -10547,7 +11432,7 @@ index e18ac07210..4ae1a1a933 100644
  # if (defined(__mips_smartmips) || defined(_MIPS_ARCH_MIPS32R3) || \
        defined(_MIPS_ARCH_MIPS32R5) || defined(_MIPS_ARCH_MIPS32R6)) \
 diff --git a/crypto/modes/asm/aesni-gcm-x86_64.pl b/crypto/modes/asm/aesni-gcm-x86_64.pl
-index b42016101e..80e61faacf 100644
+index b42016101e..a11036c464 100644
 --- a/crypto/modes/asm/aesni-gcm-x86_64.pl
 +++ b/crypto/modes/asm/aesni-gcm-x86_64.pl
 @@ -66,7 +66,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -10611,8 +11496,98 @@ index b42016101e..80e61faacf 100644
  .size	aesni_gcm_decrypt,.-aesni_gcm_decrypt
  ___
  }}}
+@@ -1096,4 +1104,4 @@ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/modes/asm/ghash-alpha.pl b/crypto/modes/asm/ghash-alpha.pl
+index ccf6b2bd6f..654b9c8272 100644
+--- a/crypto/modes/asm/ghash-alpha.pl
++++ b/crypto/modes/asm/ghash-alpha.pl
+@@ -463,5 +463,5 @@ rem_4bit:
+ ___
+ $output=pop and open STDOUT,">$output";
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+diff --git a/crypto/modes/asm/ghash-armv4.pl b/crypto/modes/asm/ghash-armv4.pl
+index dcc23f7d7d..d07a249b1e 100644
+--- a/crypto/modes/asm/ghash-armv4.pl
++++ b/crypto/modes/asm/ghash-armv4.pl
+@@ -548,4 +548,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
+diff --git a/crypto/modes/asm/ghash-c64xplus.pl b/crypto/modes/asm/ghash-c64xplus.pl
+index 3cadda3994..c60f5915e0 100644
+--- a/crypto/modes/asm/ghash-c64xplus.pl
++++ b/crypto/modes/asm/ghash-c64xplus.pl
+@@ -244,4 +244,4 @@ $code.=<<___;
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/modes/asm/ghash-ia64.pl b/crypto/modes/asm/ghash-ia64.pl
+index eb9ded91e5..2586a4e22d 100755
+--- a/crypto/modes/asm/ghash-ia64.pl
++++ b/crypto/modes/asm/ghash-ia64.pl
+@@ -467,4 +467,4 @@ $code =~ s/mux1(\s+)\S+\@rev/nop.i$1 0x0/gm      if ($big_endian);
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/modes/asm/ghash-parisc.pl b/crypto/modes/asm/ghash-parisc.pl
+index a614c99c22..0ed7e3fa8f 100644
+--- a/crypto/modes/asm/ghash-parisc.pl
++++ b/crypto/modes/asm/ghash-parisc.pl
+@@ -745,4 +745,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/modes/asm/ghash-s390x.pl b/crypto/modes/asm/ghash-s390x.pl
+index 17dc375053..fc0181f6c8 100644
+--- a/crypto/modes/asm/ghash-s390x.pl
++++ b/crypto/modes/asm/ghash-s390x.pl
+@@ -259,4 +259,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/modes/asm/ghash-sparcv9.pl b/crypto/modes/asm/ghash-sparcv9.pl
+index c4eb3b1f02..2d835c4103 100644
+--- a/crypto/modes/asm/ghash-sparcv9.pl
++++ b/crypto/modes/asm/ghash-sparcv9.pl
+@@ -578,4 +578,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/modes/asm/ghash-x86.pl b/crypto/modes/asm/ghash-x86.pl
+index bcbe6e399d..8bde220ae5 100644
+--- a/crypto/modes/asm/ghash-x86.pl
++++ b/crypto/modes/asm/ghash-x86.pl
+@@ -1378,7 +1378,7 @@ my ($Xhi,$Xi)=@_;
+ &asciz("GHASH for x86, CRYPTOGAMS by <appro\@openssl.org>");
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ # A question was risen about choice of vanilla MMX. Or rather why wasn't
+ # SSE2 chosen instead? In addition to the fact that MMX runs on legacy
 diff --git a/crypto/modes/asm/ghash-x86_64.pl b/crypto/modes/asm/ghash-x86_64.pl
-index 6b2a51ecd7..1e5221005d 100644
+index 6b2a51ecd7..554c5f5452 100644
 --- a/crypto/modes/asm/ghash-x86_64.pl
 +++ b/crypto/modes/asm/ghash-x86_64.pl
 @@ -116,7 +116,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -10624,6 +11599,32 @@ index 6b2a51ecd7..1e5221005d 100644
  	$avx = ($2>=3.0) + ($2>3.0);
  }
  
+@@ -1815,4 +1815,4 @@ $code =~ s/\`([^\`]*)\`/eval($1)/gem;
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/modes/asm/ghashp8-ppc.pl b/crypto/modes/asm/ghashp8-ppc.pl
+index 6a2ac71295..682c846220 100755
+--- a/crypto/modes/asm/ghashp8-ppc.pl
++++ b/crypto/modes/asm/ghashp8-ppc.pl
+@@ -668,4 +668,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
+diff --git a/crypto/modes/asm/ghashv8-armx.pl b/crypto/modes/asm/ghashv8-armx.pl
+index 47e8820080..bfcd67df35 100644
+--- a/crypto/modes/asm/ghashv8-armx.pl
++++ b/crypto/modes/asm/ghashv8-armx.pl
+@@ -778,4 +778,4 @@ if ($flavour =~ /64/) {			######## 64-bit code
+     }
+ }
+ 
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
 diff --git a/crypto/modes/cbc128.c b/crypto/modes/cbc128.c
 index 4ce5eb2ae3..fc7e0b6051 100644
 --- a/crypto/modes/cbc128.c
@@ -10987,6 +11988,17 @@ index 2d425a8951..a174ce15a6 100644
  # include <openssl/x509v3.h>
  # include "../x509v3/ext_dat.h"
  
+diff --git a/crypto/pariscid.pl b/crypto/pariscid.pl
+index 5a231c49f0..d039bf4a87 100644
+--- a/crypto/pariscid.pl
++++ b/crypto/pariscid.pl
+@@ -272,5 +272,5 @@ foreach(split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
 diff --git a/crypto/pem/pem_lib.c b/crypto/pem/pem_lib.c
 index 4bb86463fa..64baf7108e 100644
 --- a/crypto/pem/pem_lib.c
@@ -11053,6 +12065,39 @@ index 3177c37165..59f2c95515 100644
  &swtmp(num)			Address on stack temp word.
  &wparam(num)			Parameter number num, that was push
  				in C convention.  This all works over pushes
+diff --git a/crypto/perlasm/arm-xlate.pl b/crypto/perlasm/arm-xlate.pl
+index ca2f8b990b..90ec5ce7ef 100755
+--- a/crypto/perlasm/arm-xlate.pl
++++ b/crypto/perlasm/arm-xlate.pl
+@@ -174,4 +174,4 @@ while(my $line=<>) {
+     print "\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/perlasm/ppc-xlate.pl b/crypto/perlasm/ppc-xlate.pl
+index d220c6245b..3bb8f23299 100755
+--- a/crypto/perlasm/ppc-xlate.pl
++++ b/crypto/perlasm/ppc-xlate.pl
+@@ -341,4 +341,4 @@ while($line=<>) {
+     print "\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/perlasm/x86_64-xlate.pl b/crypto/perlasm/x86_64-xlate.pl
+index 29a0eacfd5..ff57e507d7 100755
+--- a/crypto/perlasm/x86_64-xlate.pl
++++ b/crypto/perlasm/x86_64-xlate.pl
+@@ -1216,7 +1216,7 @@ while(defined(my $line=<>)) {
+ print "\n$current_segment\tENDS\n"	if ($current_segment && $masm);
+ print "END\n"				if ($masm);
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ #################################################
+ # Cross-reference x86_64 ABI "card"
 diff --git a/crypto/pkcs12/p12_add.c b/crypto/pkcs12/p12_add.c
 index 193ed8097d..af184c86af 100644
 --- a/crypto/pkcs12/p12_add.c
@@ -11189,8 +12234,79 @@ index 16b76431d1..ec4d9abd58 100644
  
  long PKCS7_ctrl(PKCS7 *p7, int cmd, long larg, char *parg)
  {
+diff --git a/crypto/poly1305/asm/poly1305-armv4.pl b/crypto/poly1305/asm/poly1305-armv4.pl
+index 5cdb6be059..659d77dff0 100755
+--- a/crypto/poly1305/asm/poly1305-armv4.pl
++++ b/crypto/poly1305/asm/poly1305-armv4.pl
+@@ -1250,4 +1250,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
+diff --git a/crypto/poly1305/asm/poly1305-armv8.pl b/crypto/poly1305/asm/poly1305-armv8.pl
+index 6c6c9bb05b..0a3c34cc7d 100755
+--- a/crypto/poly1305/asm/poly1305-armv8.pl
++++ b/crypto/poly1305/asm/poly1305-armv8.pl
+@@ -943,4 +943,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/poly1305/asm/poly1305-mips.pl b/crypto/poly1305/asm/poly1305-mips.pl
+index 28b6772ee5..73a710a16f 100755
+--- a/crypto/poly1305/asm/poly1305-mips.pl
++++ b/crypto/poly1305/asm/poly1305-mips.pl
+@@ -433,5 +433,5 @@ ___
+ 
+ $output=pop and open STDOUT,">$output";
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+diff --git a/crypto/poly1305/asm/poly1305-ppc.pl b/crypto/poly1305/asm/poly1305-ppc.pl
+index 0c6d015d58..c077e0c307 100755
+--- a/crypto/poly1305/asm/poly1305-ppc.pl
++++ b/crypto/poly1305/asm/poly1305-ppc.pl
+@@ -642,4 +642,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/poly1305/asm/poly1305-ppcfp.pl b/crypto/poly1305/asm/poly1305-ppcfp.pl
+index 09f8185848..9dc352171a 100755
+--- a/crypto/poly1305/asm/poly1305-ppcfp.pl
++++ b/crypto/poly1305/asm/poly1305-ppcfp.pl
+@@ -736,4 +736,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/poly1305/asm/poly1305-s390x.pl b/crypto/poly1305/asm/poly1305-s390x.pl
+index 82d757d9a1..31a58fdb69 100755
+--- a/crypto/poly1305/asm/poly1305-s390x.pl
++++ b/crypto/poly1305/asm/poly1305-s390x.pl
+@@ -224,4 +224,4 @@ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ $code =~ s/\b(srlg\s+)(%r[0-9]+\s*,)\s*([0-9]+)/$1$2$2$3/gm;
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/poly1305/asm/poly1305-sparcv9.pl b/crypto/poly1305/asm/poly1305-sparcv9.pl
+index 0bdd048925..db96af645f 100755
+--- a/crypto/poly1305/asm/poly1305-sparcv9.pl
++++ b/crypto/poly1305/asm/poly1305-sparcv9.pl
+@@ -1117,4 +1117,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/poly1305/asm/poly1305-x86.pl b/crypto/poly1305/asm/poly1305-x86.pl
-index 1e09ddcc10..3e0e7883be 100755
+index 1e09ddcc10..a02823361b 100755
 --- a/crypto/poly1305/asm/poly1305-x86.pl
 +++ b/crypto/poly1305/asm/poly1305-x86.pl
 @@ -71,7 +71,7 @@ if ($sse2) {
@@ -11202,8 +12318,14 @@ index 1e09ddcc10..3e0e7883be 100755
  		$avx = ($2>=3.0) + ($2>3.0);
  	}
  }
+@@ -1812,4 +1812,4 @@ sub vlazy_reduction {
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/poly1305/asm/poly1305-x86_64.pl b/crypto/poly1305/asm/poly1305-x86_64.pl
-index 342ad7f18a..c3b7ce3658 100755
+index 342ad7f18a..4aa71783ee 100755
 --- a/crypto/poly1305/asm/poly1305-x86_64.pl
 +++ b/crypto/poly1305/asm/poly1305-x86_64.pl
 @@ -90,7 +90,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -11401,6 +12523,12 @@ index 342ad7f18a..c3b7ce3658 100755
  .size	xor128_decrypt_n_pad,.-xor128_decrypt_n_pad
  ___
  }
+@@ -4156,4 +4180,4 @@ foreach (split('\n',$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/poly1305/poly1305.c b/crypto/poly1305/poly1305.c
 index 1d182364ae..e7f5b92c8f 100644
 --- a/crypto/poly1305/poly1305.c
@@ -11487,6 +12615,16 @@ index a59485207b..b12cd949cc 100644
  
  #include "ppc_arch.h"
  
+diff --git a/crypto/ppccpuid.pl b/crypto/ppccpuid.pl
+index a38445fd3c..4e35978d84 100755
+--- a/crypto/ppccpuid.pl
++++ b/crypto/ppccpuid.pl
+@@ -379,4 +379,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/rand/drbg_ctr.c b/crypto/rand/drbg_ctr.c
 index a243361b56..93b82f34ce 100644
 --- a/crypto/rand/drbg_ctr.c
@@ -11528,10 +12666,27 @@ index 12bb627a04..e618c50bec 100644
           * reseeding.
           */
 diff --git a/crypto/rand/rand_err.c b/crypto/rand/rand_err.c
-index ae4d8559fb..071376a173 100644
+index ae4d8559fb..a3ae5f53c2 100644
 --- a/crypto/rand/rand_err.c
 +++ b/crypto/rand/rand_err.c
-@@ -49,6 +49,7 @@ static const ERR_STRING_DATA RAND_str_functs[] = {
+@@ -1,6 +1,6 @@
+ /*
+  * Generated by util/mkerr.pl DO NOT EDIT
+- * Copyright 1995-2019 The OpenSSL Project Authors. All Rights Reserved.
++ * Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.
+  *
+  * Licensed under the OpenSSL license (the "License").  You may not use
+  * this file except in compliance with the License.  You can obtain a copy
+@@ -14,6 +14,8 @@
+ #ifndef OPENSSL_NO_ERR
+ 
+ static const ERR_STRING_DATA RAND_str_functs[] = {
++    {ERR_PACK(ERR_LIB_RAND, RAND_F_DATA_COLLECT_METHOD, 0),
++     "data_collect_method"},
+     {ERR_PACK(ERR_LIB_RAND, RAND_F_DRBG_BYTES, 0), "drbg_bytes"},
+     {ERR_PACK(ERR_LIB_RAND, RAND_F_DRBG_GET_ENTROPY, 0), "drbg_get_entropy"},
+     {ERR_PACK(ERR_LIB_RAND, RAND_F_DRBG_SETUP, 0), "drbg_setup"},
+@@ -49,6 +51,7 @@ static const ERR_STRING_DATA RAND_str_functs[] = {
       "rand_pool_bytes_needed"},
      {ERR_PACK(ERR_LIB_RAND, RAND_F_RAND_POOL_GROW, 0), "rand_pool_grow"},
      {ERR_PACK(ERR_LIB_RAND, RAND_F_RAND_POOL_NEW, 0), "rand_pool_new"},
@@ -11765,12 +12920,15 @@ index 69efcdeed7..58d47367ac 100644
 +#endif /* (defined(OPENSSL_SYS_UNIX) && !defined(OPENSSL_SYS_VXWORKS))
 +          || defined(__DJGPP__) */
 diff --git a/crypto/rand/rand_vms.c b/crypto/rand/rand_vms.c
-index e1e1c0b9db..ba8386e30e 100644
+index e1e1c0b9db..d09b2380de 100644
 --- a/crypto/rand/rand_vms.c
 +++ b/crypto/rand/rand_vms.c
-@@ -14,8 +14,8 @@
+@@ -13,9 +13,11 @@
+ # define __NEW_STARLET 1         /* New starlet definitions since VMS 7.0 */
  # include <unistd.h>
  # include "internal/cryptlib.h"
++# include <openssl/bio.h>
++# include <openssl/err.h>
  # include <openssl/rand.h>
 -# include "internal/rand_int.h"
 -# include "rand_lcl.h"
@@ -11779,7 +12937,7 @@ index e1e1c0b9db..ba8386e30e 100644
  # include <descrip.h>
  # include <dvidef.h>
  # include <jpidef.h>
-@@ -32,10 +32,21 @@
+@@ -32,10 +34,21 @@
  #  pragma message disable DOLLARID
  # endif
  
@@ -11801,7 +12959,7 @@ index e1e1c0b9db..ba8386e30e 100644
  /* We need to make sure we have the right size pointer in some cases */
  # if __INITIAL_POINTER_SIZE == 64
  #  pragma pointer_size save
-@@ -330,7 +341,7 @@ static void massage_JPI(ILE3 *items)
+@@ -330,7 +343,7 @@ static void massage_JPI(ILE3 *items)
   */
  #define ENTROPY_FACTOR  20
  
@@ -11810,7 +12968,7 @@ index e1e1c0b9db..ba8386e30e 100644
  {
      ILE3 JPI_items_64bit[OSSL_NELEM(JPI_item_data_64bit) + 1];
      ILE3 RMI_items_64bit[OSSL_NELEM(RMI_item_data_64bit) + 1];
-@@ -445,15 +456,9 @@ size_t rand_pool_acquire_entropy(RAND_POOL *pool)
+@@ -445,15 +458,12 @@ size_t rand_pool_acquire_entropy(RAND_POOL *pool)
       * If we can't feed the requirements from the caller, we're in deep trouble.
       */
      if (!ossl_assert(total_length >= bytes_needed)) {
@@ -11823,13 +12981,16 @@ index e1e1c0b9db..ba8386e30e 100644
 -                RAND_R_RANDOM_POOL_UNDERFLOW);
 -        ERR_add_error_data(4, "Needed: ", neededstr, ", Available: ",
 -                           availablestr);
-+        ERR_raise_data(ERR_LIB_RAND, RAND_R_RANDOM_POOL_UNDERFLOW,
-+                       "Needed: %zu, Available: %zu",
-+                       bytes_needed, total_length);
++        char buf[100];           /* That should be enough */
++
++        BIO_snprintf(buf, sizeof(buf), "Needed: %zu, Available: %zu",
++                     bytes_needed, total_length);
++        RANDerr(RAND_F_DATA_COLLECT_METHOD, RAND_R_RANDOM_POOL_UNDERFLOW);
++        ERR_add_error_data(1, buf);
          return 0;
      }
  
-@@ -480,7 +485,7 @@ int rand_pool_add_nonce_data(RAND_POOL *pool)
+@@ -480,7 +490,7 @@ int rand_pool_add_nonce_data(RAND_POOL *pool)
      /*
       * Add process id, thread id, and a high resolution timestamp
       * (where available, which is OpenVMS v8.4 and up) to ensure that
@@ -11838,7 +12999,7 @@ index e1e1c0b9db..ba8386e30e 100644
       * instances.
       */
      data.pid = getpid();
-@@ -494,6 +499,80 @@ int rand_pool_add_nonce_data(RAND_POOL *pool)
+@@ -494,6 +504,80 @@ int rand_pool_add_nonce_data(RAND_POOL *pool)
      return rand_pool_add(pool, (unsigned char *)&data, sizeof(data), 0);
  }
  
@@ -12012,8 +13173,28 @@ index d610278a9b..61b2c56434 100644
  
  /*
   * The input and output encrypted as though 64bit ofb mode is being used.
+diff --git a/crypto/rc4/asm/rc4-586.pl b/crypto/rc4/asm/rc4-586.pl
+index 8c5cf87d05..211f0cd90e 100644
+--- a/crypto/rc4/asm/rc4-586.pl
++++ b/crypto/rc4/asm/rc4-586.pl
+@@ -423,4 +423,4 @@ $idx="edx";
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/rc4/asm/rc4-c64xplus.pl b/crypto/rc4/asm/rc4-c64xplus.pl
+index 1354d18214..c2843aea06 100644
+--- a/crypto/rc4/asm/rc4-c64xplus.pl
++++ b/crypto/rc4/asm/rc4-c64xplus.pl
+@@ -189,4 +189,4 @@ ___
+ $output=pop;
+ open STDOUT,">$output";
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/rc4/asm/rc4-md5-x86_64.pl b/crypto/rc4/asm/rc4-md5-x86_64.pl
-index 74e5191051..7b02f09fed 100644
+index 74e5191051..0679c590d5 100644
 --- a/crypto/rc4/asm/rc4-md5-x86_64.pl
 +++ b/crypto/rc4/asm/rc4-md5-x86_64.pl
 @@ -484,6 +484,7 @@ $code.=<<___;
@@ -12032,8 +13213,24 @@ index 74e5191051..7b02f09fed 100644
  .size	RC4_set_key,.-RC4_set_key
  
  .globl	RC4_options
+@@ -658,4 +660,4 @@ $code =~ s/#rc4#//gm	if ($rc4);
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/rc4/asm/rc4-parisc.pl b/crypto/rc4/asm/rc4-parisc.pl
+index 4111f339da..947dd4903b 100644
+--- a/crypto/rc4/asm/rc4-parisc.pl
++++ b/crypto/rc4/asm/rc4-parisc.pl
+@@ -330,4 +330,4 @@ foreach(split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/rc4/asm/rc4-s390x.pl b/crypto/rc4/asm/rc4-s390x.pl
-index 469f110faf..984afaab5c 100644
+index 469f110faf..b528d3feec 100644
 --- a/crypto/rc4/asm/rc4-s390x.pl
 +++ b/crypto/rc4/asm/rc4-s390x.pl
 @@ -184,7 +184,7 @@ $code.=<<___;
@@ -12065,8 +13262,14 @@ index 469f110faf..984afaab5c 100644
  	j	.L2ndloop
  .Ldone:
  	lm${g}	%r6,%r8,6*$SIZE_T($sp)
+@@ -238,4 +238,4 @@ RC4_options:
+ ___
+ 
+ print $code;
+-close STDOUT;	# force flush
++close STDOUT or die "error closing STDOUT: $!";	# force flush
 diff --git a/crypto/rc4/asm/rc4-x86_64.pl b/crypto/rc4/asm/rc4-x86_64.pl
-index 1a9cc47d72..32d842c59f 100755
+index 1a9cc47d72..7af3df46d0 100755
 --- a/crypto/rc4/asm/rc4-x86_64.pl
 +++ b/crypto/rc4/asm/rc4-x86_64.pl
 @@ -138,11 +138,12 @@ $code=<<___;
@@ -12115,6 +13318,12 @@ index 1a9cc47d72..32d842c59f 100755
  .align	64
  .Lopts:
  .asciz	"rc4(8x,int)"
+@@ -693,4 +698,4 @@ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ 
+ print $code;
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/rc4/rc4_enc.c b/crypto/rc4/rc4_enc.c
 index 638a75bb06..09ef6a896f 100644
 --- a/crypto/rc4/rc4_enc.c
@@ -12159,6 +13368,19 @@ index e9007331eb..100eb79c2a 100644
  #include <openssl/opensslv.h>
  
  const char *RC4_options(void)
+diff --git a/crypto/rc5/asm/rc5-586.pl b/crypto/rc5/asm/rc5-586.pl
+index e58a98bc83..b7d7ae6aee 100644
+--- a/crypto/rc5/asm/rc5-586.pl
++++ b/crypto/rc5/asm/rc5-586.pl
+@@ -32,7 +32,7 @@ $tmp4="edx";
+ &cbc("RC5_32_cbc_encrypt","RC5_32_encrypt","RC5_32_decrypt",0,4,5,3,-1,-1);
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub RC5_32_encrypt
+ 	{
 diff --git a/crypto/rc5/rc5_ecb.c b/crypto/rc5/rc5_ecb.c
 index c32f38e473..94ec646390 100644
 --- a/crypto/rc5/rc5_ecb.c
@@ -12228,6 +13450,19 @@ index 3a41d773cb..224eb96857 100644
  
  /*
   * The input and output encrypted as though 64bit ofb mode is being used.
+diff --git a/crypto/ripemd/asm/rmd-586.pl b/crypto/ripemd/asm/rmd-586.pl
+index 84aa7ced17..b34f7bb2e4 100644
+--- a/crypto/ripemd/asm/rmd-586.pl
++++ b/crypto/ripemd/asm/rmd-586.pl
+@@ -70,7 +70,7 @@ $KR3=0x7A6D76E9;
+ &ripemd160_block("ripemd160_block_asm_data_order");
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+ 
+ sub Xv
+ 	{
 diff --git a/crypto/ripemd/rmd_dgst.c b/crypto/ripemd/rmd_dgst.c
 index a1670c7fbd..e9e440f18c 100644
 --- a/crypto/ripemd/rmd_dgst.c
@@ -12700,6 +13935,16 @@ index 4a775a927d..4d2cc02eb3 100644
  
  # ifndef __ASSEMBLER__
  
+diff --git a/crypto/s390xcpuid.pl b/crypto/s390xcpuid.pl
+index ec700a47d9..a584ca4bc5 100755
+--- a/crypto/s390xcpuid.pl
++++ b/crypto/s390xcpuid.pl
+@@ -418,4 +418,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;	# force flush
++close STDOUT or die "error closing STDOUT: $!";	# force flush
 diff --git a/crypto/seed/seed.c b/crypto/seed/seed.c
 index d62da91ede..c3a1f183a5 100644
 --- a/crypto/seed/seed.c
@@ -12737,8 +13982,68 @@ index ac2950d97c..e3681f8bd4 100644
  
 -#endif                          /* HEADER_SEED_LOCL_H */
 +#endif                          /* OSSL_CRYPTO_SEED_LOCAL_H */
+diff --git a/crypto/sha/asm/keccak1600-armv4.pl b/crypto/sha/asm/keccak1600-armv4.pl
+index cb8ccc90f5..a58c3ffb5c 100755
+--- a/crypto/sha/asm/keccak1600-armv4.pl
++++ b/crypto/sha/asm/keccak1600-armv4.pl
+@@ -1603,4 +1603,4 @@ foreach (split($/,$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
+diff --git a/crypto/sha/asm/keccak1600-armv8.pl b/crypto/sha/asm/keccak1600-armv8.pl
+index 3173c77f53..9bd6776d1f 100755
+--- a/crypto/sha/asm/keccak1600-armv8.pl
++++ b/crypto/sha/asm/keccak1600-armv8.pl
+@@ -877,4 +877,4 @@ foreach(split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/keccak1600-avx2.pl b/crypto/sha/asm/keccak1600-avx2.pl
+index d9fc1c59ec..ce4f5a4b78 100755
+--- a/crypto/sha/asm/keccak1600-avx2.pl
++++ b/crypto/sha/asm/keccak1600-avx2.pl
+@@ -479,4 +479,4 @@ ___
+ $output=pop;
+ open STDOUT,">$output";
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/keccak1600-avx512.pl b/crypto/sha/asm/keccak1600-avx512.pl
+index 9074ff02de..41fd2fb446 100755
+--- a/crypto/sha/asm/keccak1600-avx512.pl
++++ b/crypto/sha/asm/keccak1600-avx512.pl
+@@ -548,4 +548,4 @@ ___
+ $output=pop;
+ open STDOUT,">$output";
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/keccak1600-avx512vl.pl b/crypto/sha/asm/keccak1600-avx512vl.pl
+index a21bb8615a..ee630d685d 100755
+--- a/crypto/sha/asm/keccak1600-avx512vl.pl
++++ b/crypto/sha/asm/keccak1600-avx512vl.pl
+@@ -389,4 +389,4 @@ ___
+ $output=pop;
+ open STDOUT,">$output";
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/keccak1600-c64x.pl b/crypto/sha/asm/keccak1600-c64x.pl
+index b00af9af91..1e49b508d6 100755
+--- a/crypto/sha/asm/keccak1600-c64x.pl
++++ b/crypto/sha/asm/keccak1600-c64x.pl
+@@ -882,4 +882,4 @@ ___
+ $output=pop;
+ open STDOUT,">$output";
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/sha/asm/keccak1600-mmx.pl b/crypto/sha/asm/keccak1600-mmx.pl
-index c7685add79..be24394d35 100755
+index c7685add79..b390309b80 100755
 --- a/crypto/sha/asm/keccak1600-mmx.pl
 +++ b/crypto/sha/asm/keccak1600-mmx.pl
 @@ -30,7 +30,7 @@
@@ -12750,8 +14055,34 @@ index c7685add79..be24394d35 100755
  # CPUs are better off executing 64-bit code, and it makes lesser sense
  # to invest into fancy 32-bit code. And the decision doesn't seem to
  # be inadequate, if one compares below results to "64-bit platforms in
+@@ -437,4 +437,4 @@ sub Rho() {				######### regular Rho step
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/keccak1600-ppc64.pl b/crypto/sha/asm/keccak1600-ppc64.pl
+index 30e70c5d6d..c46c8530ee 100755
+--- a/crypto/sha/asm/keccak1600-ppc64.pl
++++ b/crypto/sha/asm/keccak1600-ppc64.pl
+@@ -755,4 +755,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/keccak1600-s390x.pl b/crypto/sha/asm/keccak1600-s390x.pl
+index 1184cf233e..188231e2b1 100755
+--- a/crypto/sha/asm/keccak1600-s390x.pl
++++ b/crypto/sha/asm/keccak1600-s390x.pl
+@@ -557,4 +557,4 @@ ___
+ $code =~ s/(srlg\s+)(%r[0-9]+),/$1$2,$2,/gm;
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/sha/asm/keccak1600-x86_64.pl b/crypto/sha/asm/keccak1600-x86_64.pl
-index 42de5bf123..34457034bf 100755
+index 42de5bf123..a48d40dbf5 100755
 --- a/crypto/sha/asm/keccak1600-x86_64.pl
 +++ b/crypto/sha/asm/keccak1600-x86_64.pl
 @@ -44,7 +44,7 @@
@@ -12779,8 +14110,24 @@ index 42de5bf123..34457034bf 100755
  .size	__KeccakF1600,.-__KeccakF1600
  
  .type	KeccakF1600,\@abi-omnipotent
+@@ -604,4 +606,4 @@ foreach (split("\n",$code)) {
+ 	print $_, "\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/keccak1600p8-ppc.pl b/crypto/sha/asm/keccak1600p8-ppc.pl
+index de2bcd660a..0dfb962096 100755
+--- a/crypto/sha/asm/keccak1600p8-ppc.pl
++++ b/crypto/sha/asm/keccak1600p8-ppc.pl
+@@ -847,4 +847,4 @@ foreach  (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/sha/asm/sha1-586.pl b/crypto/sha/asm/sha1-586.pl
-index 9d4ff7f39a..38167b9c5c 100644
+index 9d4ff7f39a..c0679a31ce 100644
 --- a/crypto/sha/asm/sha1-586.pl
 +++ b/crypto/sha/asm/sha1-586.pl
 @@ -144,7 +144,7 @@ $ymm=1 if ($xmm && !$ymm && $ARGV[0] eq "win32" &&
@@ -12792,8 +14139,54 @@ index 9d4ff7f39a..38167b9c5c 100644
  		$2>=3.0);	# first version supporting AVX
  
  $shaext=$xmm;	### set to zero if compiling for 1.0.1
+@@ -1488,4 +1488,4 @@ sub Xtail_avx()
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-alpha.pl b/crypto/sha/asm/sha1-alpha.pl
+index c1a0b0c690..241853b347 100644
+--- a/crypto/sha/asm/sha1-alpha.pl
++++ b/crypto/sha/asm/sha1-alpha.pl
+@@ -326,4 +326,4 @@ $code.=<<___;
+ ___
+ $output=pop and open STDOUT,">$output";
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-armv4-large.pl b/crypto/sha/asm/sha1-armv4-large.pl
+index 7ff5bfbba6..61c832808d 100644
+--- a/crypto/sha/asm/sha1-armv4-large.pl
++++ b/crypto/sha/asm/sha1-armv4-large.pl
+@@ -739,4 +739,4 @@ foreach (split($/,$code)) {
+ 	print $_,$/;
+ }
+ 
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
+diff --git a/crypto/sha/asm/sha1-armv8.pl b/crypto/sha/asm/sha1-armv8.pl
+index 3ba871fede..008f6959d4 100644
+--- a/crypto/sha/asm/sha1-armv8.pl
++++ b/crypto/sha/asm/sha1-armv8.pl
+@@ -361,4 +361,4 @@ foreach(split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-c64xplus.pl b/crypto/sha/asm/sha1-c64xplus.pl
+index 4db2bcb06b..a47b663b47 100644
+--- a/crypto/sha/asm/sha1-c64xplus.pl
++++ b/crypto/sha/asm/sha1-c64xplus.pl
+@@ -334,4 +334,4 @@ $code.=<<___;
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/sha/asm/sha1-mb-x86_64.pl b/crypto/sha/asm/sha1-mb-x86_64.pl
-index 443b649830..9ac233abc9 100644
+index 443b649830..6edadeed74 100644
 --- a/crypto/sha/asm/sha1-mb-x86_64.pl
 +++ b/crypto/sha/asm/sha1-mb-x86_64.pl
 @@ -66,7 +66,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -12805,8 +14198,84 @@ index 443b649830..9ac233abc9 100644
  	$avx = ($2>=3.0) + ($2>3.0);
  }
  
+@@ -1625,4 +1625,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-mips.pl b/crypto/sha/asm/sha1-mips.pl
+index 08f84bc3b3..de0a4ee7f2 100644
+--- a/crypto/sha/asm/sha1-mips.pl
++++ b/crypto/sha/asm/sha1-mips.pl
+@@ -458,4 +458,4 @@ $code.=<<___;
+ .asciiz	"SHA1 for MIPS, CRYPTOGAMS by <appro\@openssl.org>"
+ ___
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-parisc.pl b/crypto/sha/asm/sha1-parisc.pl
+index b001be16a2..e5260d5ef8 100644
+--- a/crypto/sha/asm/sha1-parisc.pl
++++ b/crypto/sha/asm/sha1-parisc.pl
+@@ -276,4 +276,4 @@ foreach(split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-ppc.pl b/crypto/sha/asm/sha1-ppc.pl
+index 0cda0a3e15..1518a5e560 100755
+--- a/crypto/sha/asm/sha1-ppc.pl
++++ b/crypto/sha/asm/sha1-ppc.pl
+@@ -348,4 +348,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-s390x.pl b/crypto/sha/asm/sha1-s390x.pl
+index 5729c30898..92de811a02 100644
+--- a/crypto/sha/asm/sha1-s390x.pl
++++ b/crypto/sha/asm/sha1-s390x.pl
+@@ -246,4 +246,4 @@ ___
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-sparcv9.pl b/crypto/sha/asm/sha1-sparcv9.pl
+index 3e612e3d5f..311cfa8adc 100644
+--- a/crypto/sha/asm/sha1-sparcv9.pl
++++ b/crypto/sha/asm/sha1-sparcv9.pl
+@@ -431,4 +431,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-sparcv9a.pl b/crypto/sha/asm/sha1-sparcv9a.pl
+index 50d3e136a1..2ad651f68e 100644
+--- a/crypto/sha/asm/sha1-sparcv9a.pl
++++ b/crypto/sha/asm/sha1-sparcv9a.pl
+@@ -605,4 +605,4 @@ $code =~ s/\b(alignaddr)\s+(%[goli][0-7]),(%[goli][0-7]),(%[goli][0-7])/
+ 		&unalignaddr($1,$2,$3,$4)
+ 	  /gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha1-thumb.pl b/crypto/sha/asm/sha1-thumb.pl
+index ac74a25d6e..b87248e1c7 100644
+--- a/crypto/sha/asm/sha1-thumb.pl
++++ b/crypto/sha/asm/sha1-thumb.pl
+@@ -263,4 +263,4 @@ $code.=<<___;
+ ___
+ 
+ print $code;
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
 diff --git a/crypto/sha/asm/sha1-x86_64.pl b/crypto/sha/asm/sha1-x86_64.pl
-index 60819f6186..ef080f235a 100755
+index 60819f6186..e700133349 100755
 --- a/crypto/sha/asm/sha1-x86_64.pl
 +++ b/crypto/sha/asm/sha1-x86_64.pl
 @@ -119,7 +119,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -12828,8 +14297,14 @@ index 60819f6186..ef080f235a 100755
  .size	sha1_block_data_order_shaext,.-sha1_block_data_order_shaext
  ___
  }}}
+@@ -2129,4 +2129,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/sha/asm/sha256-586.pl b/crypto/sha/asm/sha256-586.pl
-index dccc771ad5..913fca3105 100644
+index dccc771ad5..645d21cc74 100644
 --- a/crypto/sha/asm/sha256-586.pl
 +++ b/crypto/sha/asm/sha256-586.pl
 @@ -96,7 +96,7 @@ if ($xmm && !$avx && $ARGV[0] eq "win32" &&
@@ -12841,8 +14316,34 @@ index dccc771ad5..913fca3105 100644
  	$avx = ($2>=3.0) + ($2>3.0);
  }
  
+@@ -1293,4 +1293,4 @@ sub bodyx_00_15 () {			# +10%
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha256-armv4.pl b/crypto/sha/asm/sha256-armv4.pl
+index edcfc31278..c2e46be79f 100644
+--- a/crypto/sha/asm/sha256-armv4.pl
++++ b/crypto/sha/asm/sha256-armv4.pl
+@@ -729,4 +729,4 @@ foreach (split($/,$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
+diff --git a/crypto/sha/asm/sha256-c64xplus.pl b/crypto/sha/asm/sha256-c64xplus.pl
+index 3ab7d9b689..1ed1313149 100644
+--- a/crypto/sha/asm/sha256-c64xplus.pl
++++ b/crypto/sha/asm/sha256-c64xplus.pl
+@@ -317,4 +317,4 @@ K256:
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/sha/asm/sha256-mb-x86_64.pl b/crypto/sha/asm/sha256-mb-x86_64.pl
-index 73978dbd81..7556b2123b 100644
+index 73978dbd81..e122356017 100644
 --- a/crypto/sha/asm/sha256-mb-x86_64.pl
 +++ b/crypto/sha/asm/sha256-mb-x86_64.pl
 @@ -67,7 +67,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -12854,8 +14355,104 @@ index 73978dbd81..7556b2123b 100644
  	$avx = ($2>=3.0) + ($2>3.0);
  }
  
+@@ -1611,4 +1611,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512-586.pl b/crypto/sha/asm/sha512-586.pl
+index 867ce30b97..4fca59ec0a 100644
+--- a/crypto/sha/asm/sha512-586.pl
++++ b/crypto/sha/asm/sha512-586.pl
+@@ -922,4 +922,4 @@ sub BODY_00_15_ssse3 {		# "phase-less" copy of BODY_00_15_sse2
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512-armv4.pl b/crypto/sha/asm/sha512-armv4.pl
+index 0b4c5674d9..d880d2c422 100644
+--- a/crypto/sha/asm/sha512-armv4.pl
++++ b/crypto/sha/asm/sha512-armv4.pl
+@@ -665,4 +665,4 @@ while(<SELF>) {
+ close SELF;
+ 
+ print $code;
+-close STDOUT; # enforce flush
++close STDOUT or die "error closing STDOUT: $!"; # enforce flush
+diff --git a/crypto/sha/asm/sha512-armv8.pl b/crypto/sha/asm/sha512-armv8.pl
+index 01ffe9f98c..ea0ed5877e 100644
+--- a/crypto/sha/asm/sha512-armv8.pl
++++ b/crypto/sha/asm/sha512-armv8.pl
+@@ -902,4 +902,4 @@ foreach(split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512-c64xplus.pl b/crypto/sha/asm/sha512-c64xplus.pl
+index 9ebfc92e23..b5b9e7cf97 100644
+--- a/crypto/sha/asm/sha512-c64xplus.pl
++++ b/crypto/sha/asm/sha512-c64xplus.pl
+@@ -435,4 +435,4 @@ K512:
+ ___
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512-mips.pl b/crypto/sha/asm/sha512-mips.pl
+index dab684dde5..ffcf4d3bc1 100644
+--- a/crypto/sha/asm/sha512-mips.pl
++++ b/crypto/sha/asm/sha512-mips.pl
+@@ -518,4 +518,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512-parisc.pl b/crypto/sha/asm/sha512-parisc.pl
+index 59eb320ab6..9423fe1093 100755
+--- a/crypto/sha/asm/sha512-parisc.pl
++++ b/crypto/sha/asm/sha512-parisc.pl
+@@ -804,4 +804,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512-ppc.pl b/crypto/sha/asm/sha512-ppc.pl
+index 71699f6637..0f909c80a6 100755
+--- a/crypto/sha/asm/sha512-ppc.pl
++++ b/crypto/sha/asm/sha512-ppc.pl
+@@ -796,4 +796,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512-s390x.pl b/crypto/sha/asm/sha512-s390x.pl
+index 4c0f4e7931..6ca62f2b05 100644
+--- a/crypto/sha/asm/sha512-s390x.pl
++++ b/crypto/sha/asm/sha512-s390x.pl
+@@ -321,4 +321,4 @@ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ $code =~ s/(srlg\s+)(%r[0-9]+),/$1$2,$2,/gm;
+ 
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512-sparcv9.pl b/crypto/sha/asm/sha512-sparcv9.pl
+index c215909633..8824a7889d 100644
+--- a/crypto/sha/asm/sha512-sparcv9.pl
++++ b/crypto/sha/asm/sha512-sparcv9.pl
+@@ -854,4 +854,4 @@ foreach (split("\n",$code)) {
+ 	print $_,"\n";
+ }
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/sha/asm/sha512-x86_64.pl b/crypto/sha/asm/sha512-x86_64.pl
-index f2ebdfdb68..6259dc2469 100755
+index f2ebdfdb68..d2b5f751fa 100755
 --- a/crypto/sha/asm/sha512-x86_64.pl
 +++ b/crypto/sha/asm/sha512-x86_64.pl
 @@ -135,7 +135,7 @@ if (!$avx && $win64 && ($flavour =~ /masm/ || $ENV{ASM} =~ /ml64/) &&
@@ -13013,6 +14610,22 @@ index f2ebdfdb68..6259dc2469 100755
  ___
  $code.=<<___;
  	mov	-48(%rsi),%r15
+@@ -2495,4 +2555,4 @@ foreach (split("\n",$code)) {
+ 
+ 	print $_,"\n";
+ }
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/sha/asm/sha512p8-ppc.pl b/crypto/sha/asm/sha512p8-ppc.pl
+index 0d4fdd292c..cd162ed920 100755
+--- a/crypto/sha/asm/sha512p8-ppc.pl
++++ b/crypto/sha/asm/sha512p8-ppc.pl
+@@ -417,4 +417,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/sha/sha1dgst.c b/crypto/sha/sha1dgst.c
 index 819370e615..7965829e64 100644
 --- a/crypto/sha/sha1dgst.c
@@ -13626,7 +15239,7 @@ index b379324f9b..32a3c4e38d 100644
      return ui_method;
  }
 diff --git a/crypto/whrlpool/asm/wp-mmx.pl b/crypto/whrlpool/asm/wp-mmx.pl
-index 2241c6f0f2..f5a1ac0273 100644
+index 2241c6f0f2..5ce02edde1 100644
 --- a/crypto/whrlpool/asm/wp-mmx.pl
 +++ b/crypto/whrlpool/asm/wp-mmx.pl
 @@ -69,19 +69,19 @@ sub LL()
@@ -13652,6 +15265,22 @@ index 2241c6f0f2..f5a1ac0273 100644
  }
  
  $tbl="ebp";
+@@ -504,4 +504,4 @@ for($i=0;$i<8;$i++) {
+ &function_end_B("whirlpool_block_mmx");
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
+diff --git a/crypto/whrlpool/asm/wp-x86_64.pl b/crypto/whrlpool/asm/wp-x86_64.pl
+index fe23d8cad0..b878daec7c 100644
+--- a/crypto/whrlpool/asm/wp-x86_64.pl
++++ b/crypto/whrlpool/asm/wp-x86_64.pl
+@@ -614,4 +614,4 @@ ___
+ 
+ $code =~ s/\`([^\`]*)\`/eval $1/gem;
+ print $code;
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/crypto/whrlpool/wp_block.c b/crypto/whrlpool/wp_block.c
 index 2ae5c38aba..c21c04dbc1 100644
 --- a/crypto/whrlpool/wp_block.c
@@ -14432,7 +16061,7 @@ index c9b40d2c76..7281a7b917 100644
  #include "ext_dat.h"
  
 diff --git a/crypto/x86_64cpuid.pl b/crypto/x86_64cpuid.pl
-index 6423e803b7..b9d8f73222 100644
+index 6423e803b7..781b297282 100644
 --- a/crypto/x86_64cpuid.pl
 +++ b/crypto/x86_64cpuid.pl
 @@ -39,6 +39,7 @@ print<<___;
@@ -14549,7 +16178,7 @@ index 6423e803b7..b9d8f73222 100644
  	xor	%rax, %rax	# return value
  	cmp	\$0,$arg2
  	je	.Ldone_${rdop}_bytes
-@@ -486,6 +501,7 @@ OPENSSL_ia32_${rdop}_bytes:
+@@ -486,10 +501,11 @@ OPENSSL_ia32_${rdop}_bytes:
  .Ldone_${rdop}_bytes:
  	xor	%r10,%r10	# Clear sensitive data from register
  	ret
@@ -14557,6 +16186,21 @@ index 6423e803b7..b9d8f73222 100644
  .size	OPENSSL_ia32_${rdop}_bytes,.-OPENSSL_ia32_${rdop}_bytes
  ___
  }
+ gen_random("rdrand");
+ gen_random("rdseed");
+ 
+-close STDOUT;	# flush
++close STDOUT or die "error closing STDOUT: $!";	# flush
+diff --git a/crypto/x86cpuid.pl b/crypto/x86cpuid.pl
+index d43dda4d93..4656e038f5 100644
+--- a/crypto/x86cpuid.pl
++++ b/crypto/x86cpuid.pl
+@@ -506,4 +506,4 @@ my $rdop = shift;
+ 
+ &asm_finish();
+ 
+-close STDOUT;
++close STDOUT or die "error closing STDOUT: $!";
 diff --git a/doc/HOWTO/proxy_certificates.txt b/doc/HOWTO/proxy_certificates.txt
 deleted file mode 100644
 index 3c42349261..0000000000
@@ -15106,6 +16750,35 @@ index 70c56878b8..17c6406c9e 100644
  applications should handle the case of two absent values separately.
  
  =head1 RETURN VALUES
+diff --git a/doc/man3/BIO_f_buffer.pod b/doc/man3/BIO_f_buffer.pod
+index 8ceaaa3c03..80733e2be2 100644
+--- a/doc/man3/BIO_f_buffer.pod
++++ b/doc/man3/BIO_f_buffer.pod
+@@ -49,10 +49,20 @@ is expanded.
+ 
+ These functions, other than BIO_f_buffer(), are implemented as macros.
+ 
+-Buffering BIOs implement BIO_gets() by using BIO_read_ex() operations on the
+-next BIO in the chain. By prepending a buffering BIO to a chain it is therefore
+-possible to provide BIO_gets() functionality if the following BIOs do not
+-support it (for example SSL BIOs).
++Buffering BIOs implement BIO_read_ex() and BIO_gets() by using
++BIO_read_ex() operations on the next BIO in the chain and storing the
++result in an internal buffer, from which bytes are given back to the
++caller as appropriate for the call; a BIO_gets() is guaranteed to give
++the caller a whole line, and BIO_read_ex() is guaranteed to give the
++caller the number of bytes it asks for, unless there's an error or end
++of communication is reached in the next BIO.  By prepending a
++buffering BIO to a chain it is therefore possible to provide
++BIO_gets() or exact size BIO_read_ex() functionality if the following
++BIOs do not support it.
++
++Do not add more than one BIO_f_buffer() to a BIO chain.  The result of
++doing so will force a full read of the size of the internal buffer of
++the top BIO_f_buffer(), which is 4 KiB at a minimum.
+ 
+ Data is only written to the next BIO in the chain when the write buffer fills
+ or when BIO_flush() is called. It is therefore important to call BIO_flush()
 diff --git a/doc/man3/DTLSv1_listen.pod b/doc/man3/DTLSv1_listen.pod
 index 76be40b68f..98511a475f 100644
 --- a/doc/man3/DTLSv1_listen.pod
@@ -17616,6 +19289,18 @@ index d538f8614f..92c8941d02 100644
  
  typedef struct ssl_conf_cmd_st SSL_CONF_CMD;
  
+diff --git a/include/openssl/bio.h b/include/openssl/bio.h
+index e1fddfb796..9e2bcddc3e 100644
+--- a/include/openssl/bio.h
++++ b/include/openssl/bio.h
+@@ -169,6 +169,7 @@ extern "C" {
+  */
+ # define BIO_FLAGS_MEM_RDONLY    0x200
+ # define BIO_FLAGS_NONCLEAR_RST  0x400
++# define BIO_FLAGS_IN_EOF        0x800
+ 
+ typedef union bio_addr_st BIO_ADDR;
+ typedef struct bio_addrinfo_st BIO_ADDRINFO;
 diff --git a/include/openssl/ct.h b/include/openssl/ct.h
 index d4262fa048..ebdba34d67 100644
 --- a/include/openssl/ct.h
@@ -17794,7 +19479,7 @@ index c28e632c44..032fb78c1c 100644
 -# define OPENSSL_VERSION_NUMBER  0x1010104fL
 -# define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1d  10 Sep 2019"
 +# define OPENSSL_VERSION_NUMBER  0x10101050L
-+# define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1e-dev g52346fb007 xx XXX xxxx"
++# define OPENSSL_VERSION_TEXT    "OpenSSL 1.1.1e-dev g22623e0cc2 xx XXX xxxx"
  
  /*-
   * The macros below are to be used for shared library (.so, .dll, ...)
@@ -17811,10 +19496,26 @@ index 7993ca28f3..e0edfaaf47 100644
  typedef struct ec_key_st EC_KEY;
  typedef struct ec_key_method_st EC_KEY_METHOD;
 diff --git a/include/openssl/randerr.h b/include/openssl/randerr.h
-index 70d1a17a4c..301830bccc 100644
+index 70d1a17a4c..79d57905e3 100644
 --- a/include/openssl/randerr.h
 +++ b/include/openssl/randerr.h
-@@ -46,6 +46,7 @@ int ERR_load_RAND_strings(void);
+@@ -1,6 +1,6 @@
+ /*
+  * Generated by util/mkerr.pl DO NOT EDIT
+- * Copyright 1995-2019 The OpenSSL Project Authors. All Rights Reserved.
++ * Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.
+  *
+  * Licensed under the OpenSSL license (the "License").  You may not use
+  * this file except in compliance with the License.  You can obtain a copy
+@@ -21,6 +21,7 @@ int ERR_load_RAND_strings(void);
+ /*
+  * RAND function codes.
+  */
++# define RAND_F_DATA_COLLECT_METHOD                       127
+ # define RAND_F_DRBG_BYTES                                101
+ # define RAND_F_DRBG_GET_ENTROPY                          105
+ # define RAND_F_DRBG_SETUP                                117
+@@ -46,6 +47,7 @@ int ERR_load_RAND_strings(void);
  # define RAND_F_RAND_POOL_BYTES_NEEDED                    115
  # define RAND_F_RAND_POOL_GROW                            125
  # define RAND_F_RAND_POOL_NEW                             116
@@ -17851,6 +19552,26 @@ index cdce1264eb..5e76365c0d 100644
  
  DECLARE_ASN1_FUNCTIONS(RSA_PSS_PARAMS)
  
+diff --git a/include/openssl/sslerr.h b/include/openssl/sslerr.h
+index 3d6850dea3..b6cac4f5f5 100644
+--- a/include/openssl/sslerr.h
++++ b/include/openssl/sslerr.h
+@@ -1,6 +1,6 @@
+ /*
+  * Generated by util/mkerr.pl DO NOT EDIT
+- * Copyright 1995-2019 The OpenSSL Project Authors. All Rights Reserved.
++ * Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.
+  *
+  * Licensed under the OpenSSL license (the "License").  You may not use
+  * this file except in compliance with the License.  You can obtain a copy
+@@ -733,6 +733,7 @@ int ERR_load_SSL_strings(void);
+ # define SSL_R_UNABLE_TO_LOAD_SSL3_SHA1_ROUTINES          243
+ # define SSL_R_UNEXPECTED_CCS_MESSAGE                     262
+ # define SSL_R_UNEXPECTED_END_OF_EARLY_DATA               178
++# define SSL_R_UNEXPECTED_EOF_WHILE_READING               294
+ # define SSL_R_UNEXPECTED_MESSAGE                         244
+ # define SSL_R_UNEXPECTED_RECORD                          245
+ # define SSL_R_UNINITIALIZED                              276
 diff --git a/ssl/bio_ssl.c b/ssl/bio_ssl.c
 index d1876d8b8c..ab9e6668cd 100644
 --- a/ssl/bio_ssl.c
@@ -18023,7 +19744,7 @@ index cb5d54ef5a..73ca8a6ee4 100644
  
  int DTLS_RECORD_LAYER_new(RECORD_LAYER *rl)
 diff --git a/ssl/record/rec_layer_s3.c b/ssl/record/rec_layer_s3.c
-index 982a06089c..9e23b4fb3b 100644
+index 982a06089c..d5d511f48a 100644
 --- a/ssl/record/rec_layer_s3.c
 +++ b/ssl/record/rec_layer_s3.c
 @@ -10,15 +10,15 @@
@@ -18046,6 +19767,19 @@ index 982a06089c..9e23b4fb3b 100644
                  defined(__x86_64)       || defined(__x86_64__)  || \
                  defined(_M_AMD64)       || defined(_M_X64)      ) \
          )
+@@ -296,6 +296,12 @@ int ssl3_read_n(SSL *s, size_t n, size_t max, int extend, int clearold,
+             ret = BIO_read(s->rbio, pkt + len + left, max - left);
+             if (ret >= 0)
+                 bioread = ret;
++            if (ret <= 0
++                    && !BIO_should_retry(s->rbio)
++                    && BIO_eof(s->rbio)) {
++                SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL3_READ_N,
++                         SSL_R_UNEXPECTED_EOF_WHILE_READING);
++            }
+         } else {
+             SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_READ_N,
+                      SSL_R_READ_BIO_NOT_SET);
 diff --git a/ssl/record/record_locl.h b/ssl/record/record_local.h
 similarity index 100%
 rename from ssl/record/record_locl.h
@@ -18066,7 +19800,7 @@ index 53bd4cb190..605f8f9b75 100644
  void SSL3_BUFFER_set_data(SSL3_BUFFER *b, const unsigned char *d, size_t n)
  {
 diff --git a/ssl/record/ssl3_record.c b/ssl/record/ssl3_record.c
-index e59ac5a676..8b43805e81 100644
+index e59ac5a676..c4c482e35d 100644
 --- a/ssl/record/ssl3_record.c
 +++ b/ssl/record/ssl3_record.c
 @@ -7,10 +7,10 @@
@@ -18119,7 +19853,15 @@ index e59ac5a676..8b43805e81 100644
  
                  if (padnum > MAX_PADDING) {
                      SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_ENC,
-@@ -1669,7 +1669,7 @@ int dtls1_process_record(SSL *s, DTLS1_BITMAP *bitmap)
+@@ -1610,6 +1610,7 @@ int dtls1_process_record(SSL *s, DTLS1_BITMAP *bitmap)
+     int imac_size;
+     size_t mac_size;
+     unsigned char md[EVP_MAX_MD_SIZE];
++    size_t max_plain_length = SSL3_RT_MAX_PLAIN_LENGTH;
+ 
+     rr = RECORD_LAYER_get_rrec(&s->rlayer);
+     sess = s->session;
+@@ -1669,7 +1670,7 @@ int dtls1_process_record(SSL *s, DTLS1_BITMAP *bitmap)
      enc_err = s->method->ssl3_enc->enc(s, rr, 1, 0);
      /*-
       * enc_err is:
@@ -18128,6 +19870,29 @@ index e59ac5a676..8b43805e81 100644
       *    1: if the padding is valid
       *   -1: if the padding is invalid
       */
+@@ -1782,7 +1783,12 @@ int dtls1_process_record(SSL *s, DTLS1_BITMAP *bitmap)
+         }
+     }
+ 
+-    if (rr->length > SSL3_RT_MAX_PLAIN_LENGTH) {
++    /* use current Max Fragment Length setting if applicable */
++    if (s->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(s->session))
++        max_plain_length = GET_MAX_FRAGMENT_LENGTH(s->session);
++
++    /* send overflow if the plaintext is too long now it has passed MAC */
++    if (rr->length > max_plain_length) {
+         SSLfatal(s, SSL_AD_RECORD_OVERFLOW, SSL_F_DTLS1_PROCESS_RECORD,
+                  SSL_R_DATA_LENGTH_TOO_LONG);
+         return 0;
+@@ -1926,7 +1932,7 @@ int dtls1_get_record(SSL *s)
+ 
+         /* If received packet overflows own-client Max Fragment Length setting */
+         if (s->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(s->session)
+-                && rr->length > GET_MAX_FRAGMENT_LENGTH(s->session)) {
++                && rr->length > GET_MAX_FRAGMENT_LENGTH(s->session) + SSL3_RT_MAX_ENCRYPTED_OVERHEAD) {
+             /* record too long, silently discard it */
+             rr->length = 0;
+             rr->read = 1;
 diff --git a/ssl/record/ssl3_record_tls13.c b/ssl/record/ssl3_record_tls13.c
 index a11ed483e6..ab50e37624 100644
 --- a/ssl/record/ssl3_record_tls13.c
@@ -18316,6 +20081,27 @@ index 9c202708d7..8ef29bb345 100644
  #include <openssl/conf.h>
  #include <openssl/objects.h>
  #include <openssl/dh.h>
+diff --git a/ssl/ssl_err.c b/ssl/ssl_err.c
+index 4b12ed1485..a0c7b79659 100644
+--- a/ssl/ssl_err.c
++++ b/ssl/ssl_err.c
+@@ -1,6 +1,6 @@
+ /*
+  * Generated by util/mkerr.pl DO NOT EDIT
+- * Copyright 1995-2019 The OpenSSL Project Authors. All Rights Reserved.
++ * Copyright 1995-2020 The OpenSSL Project Authors. All Rights Reserved.
+  *
+  * Licensed under the OpenSSL license (the "License").  You may not use
+  * this file except in compliance with the License.  You can obtain a copy
+@@ -1205,6 +1205,8 @@ static const ERR_STRING_DATA SSL_str_reasons[] = {
+     "unexpected ccs message"},
+     {ERR_PACK(ERR_LIB_SSL, 0, SSL_R_UNEXPECTED_END_OF_EARLY_DATA),
+     "unexpected end of early data"},
++    {ERR_PACK(ERR_LIB_SSL, 0, SSL_R_UNEXPECTED_EOF_WHILE_READING),
++    "unexpected eof while reading"},
+     {ERR_PACK(ERR_LIB_SSL, 0, SSL_R_UNEXPECTED_MESSAGE), "unexpected message"},
+     {ERR_PACK(ERR_LIB_SSL, 0, SSL_R_UNEXPECTED_RECORD), "unexpected record"},
+     {ERR_PACK(ERR_LIB_SSL, 0, SSL_R_UNINITIALIZED), "uninitialized"},
 diff --git a/ssl/ssl_init.c b/ssl/ssl_init.c
 index f0969fa9b1..d083d95970 100644
 --- a/ssl/ssl_init.c
@@ -18986,7 +20772,7 @@ index 57fb17a660..c85c0b0310 100644
           * point (after client key exchange and before certificate verify)
           */
 diff --git a/ssl/t1_lib.c b/ssl/t1_lib.c
-index b482019c4c..d7ce6541d3 100644
+index b482019c4c..445ed7fc59 100644
 --- a/ssl/t1_lib.c
 +++ b/ssl/t1_lib.c
 @@ -18,10 +18,11 @@
@@ -19029,7 +20815,82 @@ index b482019c4c..d7ce6541d3 100644
      return &legacy_rsa_sigalg;
  }
  /* Set peer sigalg based key type */
-@@ -1176,7 +1184,7 @@ int ssl_set_client_disabled(SSL *s)
+@@ -983,6 +991,31 @@ int tls_check_sigalg_curve(const SSL *s, int curve)
+ }
+ #endif
+ 
++/*
++ * Return the number of security bits for the signature algorithm, or 0 on
++ * error.
++ */
++static int sigalg_security_bits(const SIGALG_LOOKUP *lu)
++{
++    const EVP_MD *md = NULL;
++    int secbits = 0;
++
++    if (!tls1_lookup_md(lu, &md))
++        return 0;
++    if (md != NULL)
++    {
++        /* Security bits: half digest bits */
++        secbits = EVP_MD_size(md) * 4;
++    } else {
++        /* Values from https://tools.ietf.org/html/rfc8032#section-8.5 */
++        if (lu->sigalg == TLSEXT_SIGALG_ed25519)
++            secbits = 128;
++        else if (lu->sigalg == TLSEXT_SIGALG_ed448)
++            secbits = 224;
++    }
++    return secbits;
++}
++
+ /*
+  * Check signature algorithm is consistent with sent supported signature
+  * algorithms and if so set relevant digest and signature scheme in
+@@ -996,6 +1029,7 @@ int tls12_check_peer_sigalg(SSL *s, uint16_t sig, EVP_PKEY *pkey)
+     size_t sent_sigslen, i, cidx;
+     int pkeyid = EVP_PKEY_id(pkey);
+     const SIGALG_LOOKUP *lu;
++    int secbits = 0;
+ 
+     /* Should never happen */
+     if (pkeyid == -1)
+@@ -1097,20 +1131,20 @@ int tls12_check_peer_sigalg(SSL *s, uint16_t sig, EVP_PKEY *pkey)
+                  SSL_R_UNKNOWN_DIGEST);
+         return 0;
+     }
+-    if (md != NULL) {
+-        /*
+-         * Make sure security callback allows algorithm. For historical
+-         * reasons we have to pass the sigalg as a two byte char array.
+-         */
+-        sigalgstr[0] = (sig >> 8) & 0xff;
+-        sigalgstr[1] = sig & 0xff;
+-        if (!ssl_security(s, SSL_SECOP_SIGALG_CHECK,
+-                    EVP_MD_size(md) * 4, EVP_MD_type(md),
+-                    (void *)sigalgstr)) {
+-            SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS12_CHECK_PEER_SIGALG,
+-                     SSL_R_WRONG_SIGNATURE_TYPE);
+-            return 0;
+-        }
++    /*
++     * Make sure security callback allows algorithm. For historical
++     * reasons we have to pass the sigalg as a two byte char array.
++     */
++    sigalgstr[0] = (sig >> 8) & 0xff;
++    sigalgstr[1] = sig & 0xff;
++    secbits = sigalg_security_bits(lu);
++    if (secbits == 0 ||
++        !ssl_security(s, SSL_SECOP_SIGALG_CHECK, secbits,
++                      md != NULL ? EVP_MD_type(md) : NID_undef,
++                      (void *)sigalgstr)) {
++        SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS12_CHECK_PEER_SIGALG,
++                 SSL_R_WRONG_SIGNATURE_TYPE);
++        return 0;
+     }
+     /* Store the sigalg the peer uses */
+     s->s3->tmp.peer_sigalg = lu;
+@@ -1176,7 +1210,7 @@ int ssl_set_client_disabled(SSL *s)
   *
   * Returns 1 when it's disabled, 0 when enabled.
   */
@@ -19038,7 +20899,7 @@ index b482019c4c..d7ce6541d3 100644
  {
      if (c->algorithm_mkey & s->s3->tmp.mask_k
          || c->algorithm_auth & s->s3->tmp.mask_a)
-@@ -1556,7 +1564,7 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL *s, const unsigned char *etick,
+@@ -1556,7 +1590,7 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL *s, const unsigned char *etick,
  }
  
  /* Check to see if a signature algorithm is allowed */
@@ -19047,7 +20908,20 @@ index b482019c4c..d7ce6541d3 100644
  {
      unsigned char sigalgstr[2];
      int secbits;
-@@ -2774,6 +2782,26 @@ int tls_choose_sigalg(SSL *s, int fatalerrs)
+@@ -1617,11 +1651,8 @@ static int tls12_sigalg_allowed(SSL *s, int op, const SIGALG_LOOKUP *lu)
+         }
+     }
+ 
+-    if (lu->hash == NID_undef)
+-        return 1;
+-    /* Security bits: half digest bits */
+-    secbits = EVP_MD_size(ssl_md(lu->hash_idx)) * 4;
+     /* Finally see if security callback allows it */
++    secbits = sigalg_security_bits(lu);
+     sigalgstr[0] = (lu->sigalg >> 8) & 0xff;
+     sigalgstr[1] = lu->sigalg & 0xff;
+     return ssl_security(s, op, secbits, lu->hash, (void *)sigalgstr);
+@@ -2774,6 +2805,26 @@ int tls_choose_sigalg(SSL *s, int fatalerrs)
  #endif
                          break;
                  }
@@ -19884,17 +21758,76 @@ index ebb71c1778..790d20f8c1 100755
 +}
 +
  "$@"
+diff --git a/test/certs/root-ed448-cert.pem b/test/certs/root-ed448-cert.pem
+new file mode 100644
+index 0000000000..48e293d69d
+--- /dev/null
++++ b/test/certs/root-ed448-cert.pem
+@@ -0,0 +1,10 @@
++-----BEGIN CERTIFICATE-----
++MIIBeDCB+aADAgECAgEBMAUGAytlcTAVMRMwEQYDVQQDDApSb290IEVkNDQ4MCAX
++DTIwMDIwOTEzMjY1NVoYDzIxMjAwMjEwMTMyNjU1WjAVMRMwEQYDVQQDDApSb290
++IEVkNDQ4MEMwBQYDK2VxAzoAbbhuwNA/rdlgdLSyTJ6WaCVNO1gzccKiKW6pCADM
++McMBCNiQqWSt4EIbHpqDc+eWoiKbG6t7tjUAo1MwUTAdBgNVHQ4EFgQUVg2aQ+yh
++VRhOuW1l19jtgxfTgj8wHwYDVR0jBBgwFoAUVg2aQ+yhVRhOuW1l19jtgxfTgj8w
++DwYDVR0TAQH/BAUwAwEB/zAFBgMrZXEDcwCiXlZXyMubWFqLYiLXfKYrurajBMON
++lclLrYr57Syd+nAIlgXiF0rGK2PawoMPXVB3VWWSigEb54AImb6tsW42gC+zC6oq
++nkPC2FTLXPvqqgGXUpK/OfhPUP9bWw6mcJaIozlyzJD4AyebN9LDrBqCMwA=
++-----END CERTIFICATE-----
+diff --git a/test/certs/root-ed448-key.pem b/test/certs/root-ed448-key.pem
+new file mode 100644
+index 0000000000..e0c36ff43a
+--- /dev/null
++++ b/test/certs/root-ed448-key.pem
+@@ -0,0 +1,4 @@
++-----BEGIN PRIVATE KEY-----
++MEcCAQAwBQYDK2VxBDsEOQeryQn6L8gItRarrM0pRHxjNdtaIz3BrWU2mwhLZQaq
++8Cm6w5gP6aitAIde7Td3nQ55bIGC5roxFQ==
++-----END PRIVATE KEY-----
+diff --git a/test/certs/server-ed448-cert.pem b/test/certs/server-ed448-cert.pem
+index 740f275549..ba050077c3 100644
+--- a/test/certs/server-ed448-cert.pem
++++ b/test/certs/server-ed448-cert.pem
+@@ -1,14 +1,11 @@
+ -----BEGIN CERTIFICATE-----
+-MIICHTCCAQWgAwIBAgIBAjANBgkqhkiG9w0BAQsFADASMRAwDgYDVQQDDAdSb290
+-IENBMCAXDTE4MDIyNzE1MDcxM1oYDzIxMTgwMjI4MTUwNzEzWjAQMQ4wDAYDVQQD
+-DAVFZDQ0ODBDMAUGAytlcQM6ABBicYlhG1s3AoG5BFmY3r50lJzjQoER4zwuieEe
+-QTvKxLEV06vGh79UWO6yQ5FxqmxvM1F/Xw7RAKNfMF0wHQYDVR0OBBYEFAwa1L4m
+-3pwA8+IEJ7K/4izrjJIHMB8GA1UdIwQYMBaAFHB/Lq6DaFmYBCMqzes+F80k3QFJ
+-MAkGA1UdEwQCMAAwEAYDVR0RBAkwB4IFRWQ0NDgwDQYJKoZIhvcNAQELBQADggEB
+-AAugH2aE6VvArnOVjKBtalqtHlx+NCC3+S65sdWc9A9sNgI1ZiN7dn76TKn5d0T7
+-NqV8nY1rwQg6WPGrCD6Eh63qhotytqYIxltppb4MOUJcz/Zf0ZwhB5bUfwNB//Ih
+-5aZT86FpXVuyMnwUTWPcISJqpZiBv95yzZFMpniHFvecvV445ly4TFW5y6VURh40
+-Tg4tMgjPTE7ADw+dX4FvnTWY3blxT1GzGxGvqWW4HgP8dOETnjmAwCzN0nUVmH9s
+-7ybHORcSljcpe0XH6L/K7mbI+r8mVLsAoIzUeDwUdKKJZ2uGEtdhQDmJBp4EjOXE
+-3qIn3wEQQ6ax4NIwkZihdLI=
++MIIBlTCCARWgAwIBAgIBAjAFBgMrZXEwFTETMBEGA1UEAwwKUm9vdCBFZDQ0ODAg
++Fw0yMDAyMDkxMzMwMjJaGA8yMTIwMDIxMDEzMzAyMlowEDEOMAwGA1UEAwwFZWQ0
++NDgwQzAFBgMrZXEDOgAQYnGJYRtbNwKBuQRZmN6+dJSc40KBEeM8LonhHkE7ysSx
++FdOrxoe/VFjuskORcapsbzNRf18O0QCjdDByMB0GA1UdDgQWBBQMGtS+Jt6cAPPi
++BCeyv+Is64ySBzAfBgNVHSMEGDAWgBRWDZpD7KFVGE65bWXX2O2DF9OCPzAJBgNV
++HRMEAjAAMBMGA1UdJQQMMAoGCCsGAQUFBwMBMBAGA1UdEQQJMAeCBWVkNDQ4MAUG
++AytlcQNzABLGZiaU6JPKa9eQ/VsE4HN9XjSogZBKIEHEWwyxrtGvjWiZ5MOnNJmQ
++7mX+Y2eJzfZ6MGHc63IlgPdIPFPzInnnAugw297kUNoLTg9SsGYeVGLbI3PNjwFL
++mQ3508f1Jobb8qZnf8YFUZrd85aurgoKAA==
+ -----END CERTIFICATE-----
 diff --git a/test/certs/setup.sh b/test/certs/setup.sh
-index 26b2f1ddfe..bd0b663944 100755
+index 26b2f1ddfe..d58d0d789b 100755
 --- a/test/certs/setup.sh
 +++ b/test/certs/setup.sh
-@@ -375,3 +375,6 @@ openssl req -new -nodes -subj "/CN=localhost" \
+@@ -375,3 +375,11 @@ openssl req -new -nodes -subj "/CN=localhost" \
      -pkeyopt rsa_pss_keygen_md:sha256 -pkeyopt rsa_pss_keygen_saltlen:32 | \
      ./mkcert.sh geneenocsr "Server RSA-PSS restricted cert" \
      server-pss-restrict-cert rootkey rootcert
 +
 +# CT entry
 +./mkcert.sh genct server.example embeddedSCTs1-key embeddedSCTs1 embeddedSCTs1_issuer-key embeddedSCTs1_issuer ct-server-key
++
++OPENSSL_SIGALG=ED448 OPENSSL_KEYALG=ed448 ./mkcert.sh genroot "Root Ed448" \
++    root-ed448-key root-ed448-cert
++OPENSSL_SIGALG=ED448 OPENSSL_KEYALG=ed448 ./mkcert.sh genee ed448 \
++    server-ed448-key server-ed448-cert root-ed448-key root-ed448-cert
 diff --git a/test/chacha_internal_test.c b/test/chacha_internal_test.c
 index be44012187..dcb3c23728 100644
 --- a/test/chacha_internal_test.c
@@ -38167,6 +40100,292 @@ index 2f3eaecbce..ce61b56428 100644
  
  static int test_sm4_ecb(void)
  {
+diff --git a/test/ssl-tests/20-cert-select.conf b/test/ssl-tests/20-cert-select.conf
+index 93f3a1ff68..757b973e57 100644
+--- a/test/ssl-tests/20-cert-select.conf
++++ b/test/ssl-tests/20-cert-select.conf
+@@ -216,9 +216,9 @@ PrivateKey = ${ENV::TEST_CERTS_DIR}/serverkey.pem
+ [4-Ed448 CipherString and Signature Algorithm Selection-client]
+ CipherString = aECDSA
+ MaxProtocol = TLSv1.2
+-RequestCAFile = ${ENV::TEST_CERTS_DIR}/root-cert.pem
++RequestCAFile = ${ENV::TEST_CERTS_DIR}/root-ed448-cert.pem
+ SignatureAlgorithms = ed448:ECDSA+SHA256
+-VerifyCAFile = ${ENV::TEST_CERTS_DIR}/rootcert.pem
++VerifyCAFile = ${ENV::TEST_CERTS_DIR}/root-ed448-cert.pem
+ VerifyMode = Peer
+ 
+ [test-4]
+@@ -421,7 +421,7 @@ CipherString = aECDSA
+ Curves = X448
+ MaxProtocol = TLSv1.2
+ SignatureAlgorithms = ECDSA+SHA256:ed448
+-VerifyCAFile = ${ENV::TEST_CERTS_DIR}/rootcert.pem
++VerifyCAFile = ${ENV::TEST_CERTS_DIR}/root-ed448-cert.pem
+ VerifyMode = Peer
+ 
+ [test-10]
+@@ -1454,7 +1454,7 @@ PrivateKey = ${ENV::TEST_CERTS_DIR}/serverkey.pem
+ [44-TLS 1.3 Ed448 Signature Algorithm Selection-client]
+ CipherString = DEFAULT
+ SignatureAlgorithms = ed448
+-VerifyCAFile = ${ENV::TEST_CERTS_DIR}/rootcert.pem
++VerifyCAFile = ${ENV::TEST_CERTS_DIR}/root-ed448-cert.pem
+ VerifyMode = Peer
+ 
+ [test-44]
+diff --git a/test/ssl-tests/20-cert-select.conf.in b/test/ssl-tests/20-cert-select.conf.in
+index 5e9bfede5d..24093548cd 100644
+--- a/test/ssl-tests/20-cert-select.conf.in
++++ b/test/ssl-tests/20-cert-select.conf.in
+@@ -134,7 +134,8 @@ our @tests = (
+             "CipherString" => "aECDSA",
+             "MaxProtocol" => "TLSv1.2",
+             "SignatureAlgorithms" => "ed448:ECDSA+SHA256",
+-            "RequestCAFile" => test_pem("root-cert.pem"),
++            "RequestCAFile" => test_pem("root-ed448-cert.pem"),
++            "VerifyCAFile" => test_pem("root-ed448-cert.pem"),
+         },
+         test   => {
+             "ExpectedServerCertType" =>, "Ed448",
+@@ -231,6 +232,7 @@ our @tests = (
+             "CipherString" => "aECDSA",
+             "MaxProtocol" => "TLSv1.2",
+             "SignatureAlgorithms" => "ECDSA+SHA256:ed448",
++            "VerifyCAFile" => test_pem("root-ed448-cert.pem"),
+             # Excluding P-256 from the supported curves list means server
+             # certificate should be Ed25519 and not P-256
+             "Curves" => "X448"
+@@ -727,6 +729,7 @@ my @tests_tls_1_3 = (
+         server => $server_tls_1_3,
+         client => {
+             "SignatureAlgorithms" => "ed448",
++            "VerifyCAFile" => test_pem("root-ed448-cert.pem"),
+         },
+         test   => {
+             "ExpectedServerCertType" => "Ed448",
+diff --git a/test/ssl-tests/28-seclevel.conf b/test/ssl-tests/28-seclevel.conf
+index f863f68b08..99fa8109c3 100644
+--- a/test/ssl-tests/28-seclevel.conf
++++ b/test/ssl-tests/28-seclevel.conf
+@@ -1,11 +1,13 @@
+ # Generated with generate_ssl_tests.pl
+ 
+-num_tests = 4
++num_tests = 6
+ 
+ test-0 = 0-SECLEVEL 3 with default key
+-test-1 = 1-SECLEVEL 3 with ED448 key
+-test-2 = 2-SECLEVEL 3 with P-384 key, X25519 ECDHE
+-test-3 = 3-SECLEVEL 3 with ED448 key, TLSv1.2
++test-1 = 1-SECLEVEL 4 with ED448 key
++test-2 = 2-SECLEVEL 5 server with ED448 key
++test-3 = 3-SECLEVEL 5 client with ED448 key
++test-4 = 4-SECLEVEL 3 with P-384 key, X25519 ECDHE
++test-5 = 5-SECLEVEL 3 with ED448 key, TLSv1.2
+ # ===========================================================
+ 
+ [0-SECLEVEL 3 with default key]
+@@ -31,21 +33,21 @@ ExpectedResult = ServerFail
+ 
+ # ===========================================================
+ 
+-[1-SECLEVEL 3 with ED448 key]
+-ssl_conf = 1-SECLEVEL 3 with ED448 key-ssl
++[1-SECLEVEL 4 with ED448 key]
++ssl_conf = 1-SECLEVEL 4 with ED448 key-ssl
+ 
+-[1-SECLEVEL 3 with ED448 key-ssl]
+-server = 1-SECLEVEL 3 with ED448 key-server
+-client = 1-SECLEVEL 3 with ED448 key-client
++[1-SECLEVEL 4 with ED448 key-ssl]
++server = 1-SECLEVEL 4 with ED448 key-server
++client = 1-SECLEVEL 4 with ED448 key-client
+ 
+-[1-SECLEVEL 3 with ED448 key-server]
++[1-SECLEVEL 4 with ED448 key-server]
+ Certificate = ${ENV::TEST_CERTS_DIR}/server-ed448-cert.pem
+-CipherString = DEFAULT:@SECLEVEL=3
++CipherString = DEFAULT:@SECLEVEL=4
+ PrivateKey = ${ENV::TEST_CERTS_DIR}/server-ed448-key.pem
+ 
+-[1-SECLEVEL 3 with ED448 key-client]
+-CipherString = DEFAULT
+-VerifyCAFile = ${ENV::TEST_CERTS_DIR}/rootcert.pem
++[1-SECLEVEL 4 with ED448 key-client]
++CipherString = DEFAULT:@SECLEVEL=4
++VerifyCAFile = ${ENV::TEST_CERTS_DIR}/root-ed448-cert.pem
+ VerifyMode = Peer
+ 
+ [test-1]
+@@ -54,49 +56,95 @@ ExpectedResult = Success
+ 
+ # ===========================================================
+ 
+-[2-SECLEVEL 3 with P-384 key, X25519 ECDHE]
+-ssl_conf = 2-SECLEVEL 3 with P-384 key, X25519 ECDHE-ssl
++[2-SECLEVEL 5 server with ED448 key]
++ssl_conf = 2-SECLEVEL 5 server with ED448 key-ssl
++
++[2-SECLEVEL 5 server with ED448 key-ssl]
++server = 2-SECLEVEL 5 server with ED448 key-server
++client = 2-SECLEVEL 5 server with ED448 key-client
++
++[2-SECLEVEL 5 server with ED448 key-server]
++Certificate = ${ENV::TEST_CERTS_DIR}/server-ed448-cert.pem
++CipherString = DEFAULT:@SECLEVEL=5
++PrivateKey = ${ENV::TEST_CERTS_DIR}/server-ed448-key.pem
++
++[2-SECLEVEL 5 server with ED448 key-client]
++CipherString = DEFAULT:@SECLEVEL=4
++VerifyCAFile = ${ENV::TEST_CERTS_DIR}/root-ed448-cert.pem
++VerifyMode = Peer
++
++[test-2]
++ExpectedResult = ServerFail
++
++
++# ===========================================================
++
++[3-SECLEVEL 5 client with ED448 key]
++ssl_conf = 3-SECLEVEL 5 client with ED448 key-ssl
+ 
+-[2-SECLEVEL 3 with P-384 key, X25519 ECDHE-ssl]
+-server = 2-SECLEVEL 3 with P-384 key, X25519 ECDHE-server
+-client = 2-SECLEVEL 3 with P-384 key, X25519 ECDHE-client
++[3-SECLEVEL 5 client with ED448 key-ssl]
++server = 3-SECLEVEL 5 client with ED448 key-server
++client = 3-SECLEVEL 5 client with ED448 key-client
+ 
+-[2-SECLEVEL 3 with P-384 key, X25519 ECDHE-server]
++[3-SECLEVEL 5 client with ED448 key-server]
++Certificate = ${ENV::TEST_CERTS_DIR}/server-ed448-cert.pem
++CipherString = DEFAULT:@SECLEVEL=4
++PrivateKey = ${ENV::TEST_CERTS_DIR}/server-ed448-key.pem
++
++[3-SECLEVEL 5 client with ED448 key-client]
++CipherString = DEFAULT:@SECLEVEL=5
++VerifyCAFile = ${ENV::TEST_CERTS_DIR}/root-ed448-cert.pem
++VerifyMode = Peer
++
++[test-3]
++ExpectedResult = ServerFail
++
++
++# ===========================================================
++
++[4-SECLEVEL 3 with P-384 key, X25519 ECDHE]
++ssl_conf = 4-SECLEVEL 3 with P-384 key, X25519 ECDHE-ssl
++
++[4-SECLEVEL 3 with P-384 key, X25519 ECDHE-ssl]
++server = 4-SECLEVEL 3 with P-384 key, X25519 ECDHE-server
++client = 4-SECLEVEL 3 with P-384 key, X25519 ECDHE-client
++
++[4-SECLEVEL 3 with P-384 key, X25519 ECDHE-server]
+ Certificate = ${ENV::TEST_CERTS_DIR}/p384-server-cert.pem
+ CipherString = DEFAULT:@SECLEVEL=3
+ Groups = X25519
+ PrivateKey = ${ENV::TEST_CERTS_DIR}/p384-server-key.pem
+ 
+-[2-SECLEVEL 3 with P-384 key, X25519 ECDHE-client]
++[4-SECLEVEL 3 with P-384 key, X25519 ECDHE-client]
+ CipherString = ECDHE:@SECLEVEL=3
+ VerifyCAFile = ${ENV::TEST_CERTS_DIR}/p384-root.pem
+ VerifyMode = Peer
+ 
+-[test-2]
++[test-4]
+ ExpectedResult = Success
+ 
+ 
+ # ===========================================================
+ 
+-[3-SECLEVEL 3 with ED448 key, TLSv1.2]
+-ssl_conf = 3-SECLEVEL 3 with ED448 key, TLSv1.2-ssl
++[5-SECLEVEL 3 with ED448 key, TLSv1.2]
++ssl_conf = 5-SECLEVEL 3 with ED448 key, TLSv1.2-ssl
+ 
+-[3-SECLEVEL 3 with ED448 key, TLSv1.2-ssl]
+-server = 3-SECLEVEL 3 with ED448 key, TLSv1.2-server
+-client = 3-SECLEVEL 3 with ED448 key, TLSv1.2-client
++[5-SECLEVEL 3 with ED448 key, TLSv1.2-ssl]
++server = 5-SECLEVEL 3 with ED448 key, TLSv1.2-server
++client = 5-SECLEVEL 3 with ED448 key, TLSv1.2-client
+ 
+-[3-SECLEVEL 3 with ED448 key, TLSv1.2-server]
++[5-SECLEVEL 3 with ED448 key, TLSv1.2-server]
+ Certificate = ${ENV::TEST_CERTS_DIR}/server-ed448-cert.pem
+ CipherString = DEFAULT:@SECLEVEL=3
+ MaxProtocol = TLSv1.2
+ PrivateKey = ${ENV::TEST_CERTS_DIR}/server-ed448-key.pem
+ 
+-[3-SECLEVEL 3 with ED448 key, TLSv1.2-client]
++[5-SECLEVEL 3 with ED448 key, TLSv1.2-client]
+ CipherString = DEFAULT
+-VerifyCAFile = ${ENV::TEST_CERTS_DIR}/rootcert.pem
++VerifyCAFile = ${ENV::TEST_CERTS_DIR}/root-ed448-cert.pem
+ VerifyMode = Peer
+ 
+-[test-3]
++[test-5]
+ ExpectedResult = Success
+ 
+ 
+diff --git a/test/ssl-tests/28-seclevel.conf.in b/test/ssl-tests/28-seclevel.conf.in
+index 12b9021199..8a1e8ef847 100644
+--- a/test/ssl-tests/28-seclevel.conf.in
++++ b/test/ssl-tests/28-seclevel.conf.in
+@@ -23,13 +23,38 @@ our @tests = (
+ 
+ our @tests_ec = (
+     {
+-        name => "SECLEVEL 3 with ED448 key",
+-        server => { "CipherString" => "DEFAULT:\@SECLEVEL=3",
++        name => "SECLEVEL 4 with ED448 key",
++        server => { "CipherString" => "DEFAULT:\@SECLEVEL=4",
+                     "Certificate" => test_pem("server-ed448-cert.pem"),
+                     "PrivateKey" => test_pem("server-ed448-key.pem") },
+-        client => { },
++        client => { "CipherString" => "DEFAULT:\@SECLEVEL=4",
++                    "VerifyCAFile" => test_pem("root-ed448-cert.pem") },
+         test   => { "ExpectedResult" => "Success" },
+     },
++    {
++        # The Ed488 signature algorithm will not be enabled.
++        # Because of the config order, the certificate is first loaded, and
++        # then the security level is chaged. If you try this with s_server
++        # the order will be reversed and it will instead fail to load the key.
++        name => "SECLEVEL 5 server with ED448 key",
++        server => { "CipherString" => "DEFAULT:\@SECLEVEL=5",
++                    "Certificate" => test_pem("server-ed448-cert.pem"),
++                    "PrivateKey" => test_pem("server-ed448-key.pem") },
++        client => { "CipherString" => "DEFAULT:\@SECLEVEL=4",
++                    "VerifyCAFile" => test_pem("root-ed448-cert.pem") },
++        test   => { "ExpectedResult" => "ServerFail" },
++    },
++    {
++        # The client will not sent the Ed488 signature algorithm, so the server
++        # doesn't have a useable signature algorithm for the certificate.
++        name => "SECLEVEL 5 client with ED448 key",
++        server => { "CipherString" => "DEFAULT:\@SECLEVEL=4",
++                    "Certificate" => test_pem("server-ed448-cert.pem"),
++                    "PrivateKey" => test_pem("server-ed448-key.pem") },
++        client => { "CipherString" => "DEFAULT:\@SECLEVEL=5",
++                    "VerifyCAFile" => test_pem("root-ed448-cert.pem") },
++        test   => { "ExpectedResult" => "ServerFail" },
++    },
+     {
+         name => "SECLEVEL 3 with P-384 key, X25519 ECDHE",
+         server => { "CipherString" => "DEFAULT:\@SECLEVEL=3",
+@@ -49,7 +74,7 @@ our @tests_tls1_2 = (
+                     "Certificate" => test_pem("server-ed448-cert.pem"),
+                     "PrivateKey" => test_pem("server-ed448-key.pem"),
+                     "MaxProtocol" => "TLSv1.2" },
+-        client => { },
++        client => { "VerifyCAFile" => test_pem("root-ed448-cert.pem") },
+         test   => { "ExpectedResult" => "Success" },
+     },
+ );
 diff --git a/test/ssl_cert_table_internal_test.c b/test/ssl_cert_table_internal_test.c
 index 2104e8c516..cb1e076bce 100644
 --- a/test/ssl_cert_table_internal_test.c
