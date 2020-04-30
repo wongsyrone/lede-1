@@ -13,12 +13,6 @@ GRUB_SERIAL_CONFIG =
 GRUB_TERMINAL_CONFIG =
 GRUB_CONSOLE_CMDLINE =
 
-ifneq ($(strip $(foreach subtarget,$(USE_ATKBD),$(CONFIG_TARGET_x86_$(subtarget)))),)
-  GRUB2_VARIANT := generic
-else
-  GRUB2_VARIANT := legacy
-endif
-
 ifneq ($(CONFIG_GRUB_CONSOLE),)
   GRUB_CONSOLE_CMDLINE += console=tty0
   GRUB_TERMINALS += console
@@ -49,6 +43,9 @@ BOOTOPTS:=$(call qstrip,$(CONFIG_GRUB_BOOTOPTS))
 define Build/combined
 	$(CP) $(KDIR)/$(KERNEL_NAME) $@.boot/boot/vmlinuz
 	-$(CP) $(STAGING_DIR_ROOT)/boot/. $@.boot/boot/
+	$(CP) $(STAGING_DIR_IMAGE)/grub2/boot.img $@.boot/boot/grub/
+	$(CP) $(STAGING_DIR_IMAGE)/grub2/$(if $(filter $(1),efi),gpt,$(GRUB2_VARIANT))-core.img \
+		$@.boot/boot/grub/core.img
 	$(if $(filter $(1),efi),
 		$(INSTALL_DIR) $@.boot/efi/boot
 		$(CP) $(STAGING_DIR_IMAGE)/grub2/boot$(if $(CONFIG_x86_64),x64,ia32).efi $@.boot/efi/boot/
@@ -110,15 +107,15 @@ endef
 DEVICE_VARS += GRUB2_VARIANT
 define Device/Default
   ARTIFACT/image.iso := grub-config iso | iso
-  IMAGE/combined.img := grub-config pc | combined | grub-install
-  IMAGE/combined.img.gz := grub-config pc | combined | grub-install | gzip
+  IMAGE/combined.img := grub-config pc | combined | grub-install | append-metadata
+  IMAGE/combined.img.gz := grub-config pc | combined | grub-install | gzip | append-metadata
   IMAGE/combined.vdi := grub-config pc | combined | grub-install | qemu-image vdi
   IMAGE/combined.vmdk := grub-config pc | combined | grub-install | qemu-image vmdk
-  IMAGE/rootfs.img := append-rootfs
-  IMAGE/rootfs.img.gz := append-rootfs | gzip
+  IMAGE/rootfs.img := append-rootfs | pad-to $(ROOTFS_PARTSIZE)
+  IMAGE/rootfs.img.gz := append-rootfs | pad-to $(ROOTFS_PARTSIZE) | gzip
   ARTIFACT/image-efi.iso := grub-config iso | iso efi
-  IMAGE/combined-efi.img := grub-config efi | combined efi | grub-install efi
-  IMAGE/combined-efi.img.gz := grub-config efi | combined efi | grub-install efi | gzip
+  IMAGE/combined-efi.img := grub-config efi | combined efi | grub-install efi | append-metadata
+  IMAGE/combined-efi.img.gz := grub-config efi | combined efi | grub-install efi | gzip | append-metadata
   IMAGE/combined-efi.vdi := grub-config efi | combined efi | grub-install efi | qemu-image vdi
   IMAGE/combined-efi.vmdk := grub-config efi | combined efi | grub-install efi | qemu-image vmdk
   ifeq ($(CONFIG_TARGET_IMAGES_GZIP),y)
@@ -148,8 +145,6 @@ define Device/Default
   IMAGES := $$(IMAGES-y)
   ARTIFACTS := $$(ARTIFACTS-y)
 endef
-
-$(eval $(call Image/gzip-ext4-padded-squashfs))
 
 ifeq ($(SUBTARGET),64)
   include 64.mk

@@ -74,9 +74,6 @@ TAR_OPTIONS += \
 	--exclude=libjava
 
 export libgcc_cv_fixed_point=no
-ifdef CONFIG_USE_UCLIBC
-  export glibcxx_cv_c99_math_tr1=no
-endif
 ifdef CONFIG_INSTALL_GCCGO
   export libgo_cv_c_split_stack_supported=no
 endif
@@ -118,7 +115,8 @@ GCC_CONFIGURE:= \
 		--with-mpfr=$(TOPDIR)/staging_dir/host \
 		--with-mpc=$(TOPDIR)/staging_dir/host \
 		--disable-decimal-float \
-		--with-diagnostics-color=auto-if-env
+		--with-diagnostics-color=auto-if-env \
+		--enable-__cxa_atexit
 ifneq ($(CONFIG_mips)$(CONFIG_mipsel),)
   GCC_CONFIGURE += --with-mips-plt
 endif
@@ -151,14 +149,6 @@ ifdef CONFIG_sparc
   GCC_CONFIGURE+= \
 		--enable-targets=all \
 		--with-long-double-128
-endif
-
-ifeq ($(LIBC),uClibc)
-  GCC_CONFIGURE+= \
-		--disable-__cxa_atexit
-else
-  GCC_CONFIGURE+= \
-		--enable-__cxa_atexit
 endif
 
 ifneq ($(GCC_ARCH),)

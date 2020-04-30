@@ -13,7 +13,9 @@ ath79_setup_interfaces()
 	adtran,bsap1840|\
 	alfa-network,ap121f|\
 	aruba,ap-105|\
+	avm,fritz1750e|\
 	avm,fritz300e|\
+	comfast,cf-wr752ac-v1|\
 	devolo,dvl1200i|\
 	devolo,dvl1750c|\
 	devolo,dvl1750i|\
@@ -51,6 +53,7 @@ ath79_setup_interfaces()
 	ubnt,nanostation-loco-m|\
 	ubnt,nanostation-loco-m-xw|\
 	ubnt,picostation-m|\
+	ubnt,powerbeam-5ac-gen2|\
 	ubnt,rocket-m|\
 	ubnt,unifiac-lite|\
 	ubnt,unifiac-lr|\
@@ -225,7 +228,8 @@ ath79_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan" "2:lan" "3:wan"
 		;;
-	teltonika,rut955)
+	teltonika,rut955|\
+	teltonika,rut955-h7v3c0)
 		ucidef_set_interface_wan "eth1"
 		ucidef_add_switch "switch0" \
 			"0@eth0" "2:lan:3" "3:lan:2" "4:lan:1"
@@ -335,6 +339,10 @@ ath79_setup_macs()
 		;;
 	alfa-network,ap121f)
 		label_mac=$(mtd_get_mac_binary art 0x1002)
+		;;
+	avm,fritz1750e|\
+	avm,fritz450e)
+		label_mac=$(fritz_tffs -n macwlan -i $(find_mtd_part "tffs (1)"))
 		;;
 	avm,fritz300e)
 		lan_mac=$(fritz_tffs -n maca -i $(find_mtd_part "tffs (1)"))
@@ -462,7 +470,8 @@ ath79_setup_macs()
 	ubnt,unifi)
 		label_mac=$(cat /sys/class/ieee80211/phy0/macaddress)
 		;;
-	ubnt,litebeam-ac-gen2)
+	ubnt,litebeam-ac-gen2|\
+	ubnt,powerbeam-5ac-gen2)
 		label_mac=$(mtd_get_mac_binary art 0x5006)
 		;;
 	ubnt,routerstation|\
