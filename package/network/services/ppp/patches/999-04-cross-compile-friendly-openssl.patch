@@ -1,6 +1,6 @@
 --- a/pppd/Makefile.linux
 +++ b/pppd/Makefile.linux
-@@ -140,8 +140,9 @@ endif
+@@ -141,8 +141,9 @@ endif
  
  ifdef NEEDDES
  ifndef USE_CRYPT

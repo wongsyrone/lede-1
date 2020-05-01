@@ -40,7 +40,7 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
  # Don't use MSLANMAN unless you really know what you're doing.
  #MSLANMAN=y
  # Uncomment the next line to include support for MPPE.  CHAPMS (above) must
-@@ -140,7 +140,8 @@ endif
+@@ -141,7 +141,8 @@ endif
  
  ifdef NEEDDES
  ifndef USE_CRYPT
