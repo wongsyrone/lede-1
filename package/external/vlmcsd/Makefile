@@ -28,8 +28,7 @@ endef
 
 # AUXV=1          Use /proc/self/auxv (**requires Linux with glibc >= 2.16 or musl**.)
 MAKE_FLAGS+= \
-	VERBOSE=3 \
-	$(if $(CONFIG_USE_MUSL)$(CONFIG_GLIBC_VERSION_2_21),AUXV=1)
+	VERBOSE=3
 
 TARGET_CFLAGS += -Wall -ffunction-sections -fdata-sections
 TARGET_LDFLAGS += -Wl,--gc-sections
