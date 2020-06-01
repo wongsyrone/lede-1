@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2019 wongsyrone
+# Copyright (C) 2019-2020 wongsyrone
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mimalloc
-PKG_VERSION:=1.6.2
-PKG_RELEASE:=d102882
+PKG_VERSION:=1.6.3
+PKG_RELEASE:=e6c7b77
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/microsoft/mimalloc.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=d102882bdf34ce1fadf224c3d3ef954c6c79cbec
+PKG_SOURCE_VERSION:=e6c7b778fb53663985e0a36016a3a087af71d783
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
