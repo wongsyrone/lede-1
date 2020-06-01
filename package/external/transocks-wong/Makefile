@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018-2019 wongsyrone
+# Copyright (C) 2018-2020 wongsyrone
 #
 # This is free software, licensed under the GNU General Public License v3.
 # See /LICENSE for more information.
@@ -13,7 +13,7 @@ PKG_RELEASE:=1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/wongsyrone/transocks-wong.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=848efb9e1eb556568be96afd7c6f02aa81041f32
+PKG_SOURCE_VERSION:=6ee0f0a821a7a144af6bfdf683aed0b75ea82433
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 PKG_BUILD_PARALLEL:=0
