@@ -34,7 +34,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  	}
  
 +	check_time();
- 	gettimeofday(&start_time, NULL);
+ 	get_time(&start_time);
  	script_unsetenv("CONNECT_TIME");
  	script_unsetenv("BYTES_SENT");
 @@ -1274,6 +1277,36 @@ struct	callout {
@@ -50,11 +50,11 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +	struct timeval t;
 +	struct sysinfo i;
 +    struct callout *p;
-+	
-+	gettimeofday(&t, NULL);
++
++	get_time(&t);
 +	sysinfo(&i);
 +	new_diff = t.tv_sec - i.uptime;
-+	
++
 +	if (!uptime_diff_set) {
 +		uptime_diff = new_diff;
 +		uptime_diff_set = 1;
@@ -65,7 +65,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +		/* system time has changed, update counters and timeouts */
 +		info("System time change detected.");
 +		start_time.tv_sec += new_diff - uptime_diff;
-+		
++
 +    	for (p = callout; p != NULL; p = p->c_next)
 +			p->c_time.tv_sec += new_diff - uptime_diff;
 +	}
@@ -79,16 +79,16 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
      struct callout *p;
  
 +	check_time();
-+	
++
      while (callout != NULL) {
  	p = callout;
  
-@@ -1371,6 +1406,8 @@ timeleft(tvp)
- {
+@@ -1372,6 +1407,8 @@ timeleft(tvp)
      if (callout == NULL)
  	return NULL;
-+	
-+	check_time();
  
-     gettimeofday(&timenow, NULL);
++	check_time();
++
+     get_time(&timenow);
      tvp->tv_sec = callout->c_time.tv_sec - timenow.tv_sec;
+     tvp->tv_usec = callout->c_time.tv_usec - timenow.tv_usec;
