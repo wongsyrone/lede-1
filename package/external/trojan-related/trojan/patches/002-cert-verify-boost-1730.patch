@@ -1,0 +1,49 @@
+From 9d2e3bf4fdab630151c11aa6f5103ec3725fe4f3 Mon Sep 17 00:00:00 2001
+From: Syrone Wong <wong.syrone@gmail.com>
+Date: Fri, 8 May 2020 11:22:45 +0800
+Subject: [PATCH] Fix certificate verification on Boost 1.73.0
+
+Boost 1.73.0 Changelog shows:
+
+Added the ssl::host_name_verification class, which is a
+drop-in replacement for ssl::rfc2818_verification.
+The ssl::rfc2818_verification class has been marked
+as deprecated. As a consequence of this change,
+SSL support now depends on functions that were introduced
+in OpenSSL 1.0.2.
+
+Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
+---
+ src/core/service.cpp | 4 ++++
+ src/core/service.h   | 1 +
+ 2 files changed, 5 insertions(+)
+
+diff --git a/src/core/service.cpp b/src/core/service.cpp
+index 49c88dd..de7f04d 100644
+--- a/src/core/service.cpp
++++ b/src/core/service.cpp
+@@ -206,7 +206,11 @@ Service::Service(Config &config, bool test) :
+                 ssl_context.load_verify_file(config.ssl.cert);
+             }
+             if (config.ssl.verify_hostname) {
++#if BOOST_VERSION >= 107300
++                ssl_context.set_verify_callback(host_name_verification(config.ssl.sni));
++#else
+                 ssl_context.set_verify_callback(rfc2818_verification(config.ssl.sni));
++#endif
+             }
+             X509_VERIFY_PARAM *param = X509_VERIFY_PARAM_new();
+             X509_VERIFY_PARAM_set_flags(param, X509_V_FLAG_PARTIAL_CHAIN);
+diff --git a/src/core/service.h b/src/core/service.h
+index 2297263..8c0de05 100644
+--- a/src/core/service.h
++++ b/src/core/service.h
+@@ -21,6 +21,7 @@
+ #define _SERVICE_H_
+ 
+ #include <list>
++#include <boost/version.hpp>
+ #include <boost/asio/io_context.hpp>
+ #include <boost/asio/ssl.hpp>
+ #include <boost/asio/ip/udp.hpp>
+ 
