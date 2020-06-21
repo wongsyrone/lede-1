@@ -212,6 +212,7 @@ tplink,cpe210-v1|\
 tplink,cpe220-v2|\
 tplink,cpe220-v3|\
 tplink,cpe510-v1|\
+tplink,wbs210-v1|\
 tplink,wbs210-v2|\
 tplink,wbs510-v1|\
 tplink,wbs510-v2)
@@ -242,6 +243,9 @@ tplink,cpe510-v3)
 	ucidef_set_led_rssi "rssihigh" "RSSIHIGH" "tp-link:green:link4" "wlan0" "76" "100" "-75" "13"
 	;;
 tplink,cpe610-v1|\
+tplink,cpe610-v2)
+	ucidef_set_led_netdev "lan" "LAN" "tp-link:green:lan" "eth0"
+	;;
 tplink,tl-wr902ac-v1)
 	ucidef_set_led_netdev "lan" "LAN" "tp-link:green:lan" "eth0"
 	ucidef_set_led_netdev "internet" "Internet" "tp-link:green:internet" "eth0"
