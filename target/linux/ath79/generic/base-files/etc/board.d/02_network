@@ -15,6 +15,7 @@ ath79_setup_interfaces()
 	aruba,ap-105|\
 	avm,fritz1750e|\
 	avm,fritz300e|\
+	avm,fritzdvbc|\
 	comfast,cf-wr752ac-v1|\
 	comfast,cf-e130n-v2|\
 	devolo,dvl1200i|\
@@ -107,6 +108,7 @@ ath79_setup_interfaces()
 	comfast,cf-e110n-v2|\
 	comfast,cf-e120a-v3|\
 	comfast,cf-e314n-v2|\
+	compex,wpj531-16m|\
 	tplink,cpe210-v1|\
 	tplink,cpe220-v2|\
 	tplink,cpe220-v3|\
@@ -128,6 +130,10 @@ ath79_setup_interfaces()
 	comfast,cf-wr650ac-v2)
 		ucidef_add_switch "switch0" \
 			"0@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "5:wan" "6@eth1"
+		;;
+	compex,wpj344-16m)
+		ucidef_add_switch "switch0" \
+			"0@eth0" "3:lan" "2:wan"
 		;;
 	devolo,dvl1200e|\
 	devolo,dvl1750e|\
@@ -352,7 +358,8 @@ ath79_setup_macs()
 		label_mac=$(mtd_get_mac_binary art 0x1002)
 		;;
 	avm,fritz1750e|\
-	avm,fritz450e)
+	avm,fritz450e|\
+	avm,fritzdvbc)
 		label_mac=$(fritz_tffs -n macwlan -i $(find_mtd_part "tffs (1)"))
 		;;
 	avm,fritz300e)
@@ -362,6 +369,9 @@ ath79_setup_macs()
 	avm,fritz4020)
 		lan_mac=$(fritz_tffs -n maca -i $(find_mtd_part "tffs (1)"))
 		wan_mac=$(fritz_tffs -n macb -i $(find_mtd_part "tffs (1)"))
+		;;
+	compex,wpj344-16m)
+		wan_mac=$(mtd_get_mac_binary u-boot 0x2e018)
 		;;
 	devolo,magic-2-wifi)
 		label_mac=$(macaddr_add "$(mtd_get_mac_binary art 0x1002)" 3)

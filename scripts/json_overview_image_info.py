@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
-import json
+from os import getenv, environ
 from pathlib import Path
-from os import getenv
+from subprocess import run
 from sys import argv
+import json
 
 if len(argv) != 2:
     print("JSON info files script requires ouput file as argument")
@@ -30,6 +31,24 @@ for json_file in work_dir.glob("*.json"):
             output["profiles"][device_id]["images"].append(
                 image_info["profiles"][device_id]["images"][0]
             )
+
+
+default_packages, output["arch_packages"] = run(
+    [
+        "make",
+        "--no-print-directory",
+        "-C",
+        f"target/linux/{output['target'].split('/')[0]}",
+        "val.DEFAULT_PACKAGES",
+        "val.ARCH_PACKAGES",
+    ],
+    capture_output=True,
+    check=True,
+    env=environ.copy().update({"TOPDIR": Path().cwd()}),
+    text=True,
+).stdout.splitlines()
+
+output["default_packages"] = default_packages.split()
 
 if output:
     output_path.write_text(json.dumps(output, sort_keys=True, separators=(",", ":")))
