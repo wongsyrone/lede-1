@@ -1,0 +1,11 @@
+{
+	"luci-app-sfe": {
+		"description": "Grant access to LuCI app sfe",
+		"read": {
+			"uci": ["sfe"]
+		},
+		"write": {
+			"uci": ["sfe"]
+		}
+	}
+}
