@@ -16,6 +16,7 @@ shortcut-fe-objs := \
 ifdef SFE_SUPPORT_IPV6
 shortcut-fe-ipv6-objs := \
 	sfe_ipv6.o
+ccflags-y := -DSFE_SUPPORT_IPV6
 endif
 
 shortcut-fe-cm-objs := \
