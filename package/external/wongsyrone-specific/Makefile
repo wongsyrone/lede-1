@@ -18,11 +18,13 @@ define Package/wongsyrone-specific
 	CATEGORY:=wongsyrone Specific
 	TITLE:=wongsyrone specific packages
 	DEPENDS:=+ipset +ip +iptables-mod-extra +iptables-mod-filter +iptables-mod-ipopt +iptables-mod-nat-extra +iptables-mod-tproxy \
-		+IPV6:ip6tables-extra +IPV6:ip6tables-mod-nat +iptables-mod-fullconenat \
+		+IPV6:ip6tables-extra +IPV6:ip6tables-mod-nat \
 		+libsodium \
 		+transocks-wong +ipt2socks \
 		+pdnsd +trojan +v2ray +vlmcsd +pcap-dnsproxy \
-		+iptables-mod-fullconenat +luci-app-sfe
+		+iptables-mod-fullconenat +luci-app-sfe \
+		+ethtool \
+		+kmod-igb-intel-oot +kmod-e1000e-intel-oot
 endef
 
 define Package/wongsyrone-specific/description
