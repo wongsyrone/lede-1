@@ -24,7 +24,7 @@ define Package/wongsyrone-specific
 		+pdnsd +trojan +v2ray +vlmcsd +pcap-dnsproxy \
 		+iptables-mod-fullconenat +luci-app-sfe \
 		+ethtool \
-		+kmod-igb-intel-oot +kmod-e1000e-intel-oot
+		+kmod-igb-intel-oot +kmod-e1000e-intel-oot +kmod-ixgbe-intel-oot
 endef
 
 define Package/wongsyrone-specific/description
