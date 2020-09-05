@@ -1093,6 +1093,15 @@ define Device/unielec_u7621-06-64m
 endef
 TARGET_DEVICES += unielec_u7621-06-64m
 
+define Device/wavlink_wl-wn531a6
+  $(Device/dsa-migration)
+  DEVICE_VENDOR := Wavlink
+  DEVICE_MODEL := WL-WN531A6
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7615-firmware kmod-usb3
+  IMAGE_SIZE := 15040k
+endef
+TARGET_DEVICES += wavlink_wl-wn531a6
+
 define Device/wevo_11acnas
   $(Device/dsa-migration)
   IMAGE_SIZE := 16064k
@@ -1286,6 +1295,7 @@ TARGET_DEVICES += zbtlink_zbt-wg2626
 
 define Device/zbtlink_zbt-wg3526-16m
   $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
   IMAGE_SIZE := 16064k
   DEVICE_VENDOR := Zbtlink
   DEVICE_MODEL := ZBT-WG3526
@@ -1298,6 +1308,7 @@ TARGET_DEVICES += zbtlink_zbt-wg3526-16m
 
 define Device/zbtlink_zbt-wg3526-32m
   $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
   IMAGE_SIZE := 32448k
   DEVICE_VENDOR := Zbtlink
   DEVICE_MODEL := ZBT-WG3526
