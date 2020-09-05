@@ -1,0 +1,12 @@
+--- a/src/procattr.c
++++ b/src/procattr.c
+@@ -34,6 +34,9 @@ static __thread char destructor_initiali
+   #define OVERRIDE_GETTID 0
+ #endif
+ 
++/* musl add support on git commit http://git.musl-libc.org/cgit/musl/commit/?id=d49cf07541bb54a5ac7aec1feec8514db33db8ea */
++#define OVERRIDE_GETTID 0
++
+ #if OVERRIDE_GETTID
+ static pid_t gettid(void)
+ {
