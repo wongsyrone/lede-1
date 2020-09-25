@@ -152,6 +152,7 @@ define Build/wrgg-pad-rootfs
 	$(STAGING_DIR_HOST)/bin/padjffs2 $(IMAGE_ROOTFS) -c 64 >>$@
 endef
 
+
 define Device/seama
   KERNEL := kernel-bin | append-dtb | relocate-kernel | lzma
   KERNEL_INITRAMFS := $$(KERNEL) | seama
@@ -315,17 +316,12 @@ endef
 TARGET_DEVICES += avm_fritzdvbc
 
 define Device/buffalo_bhr-4grv
+  $(Device/buffalo_common)
   SOC := ar7242
-  DEVICE_VENDOR := Buffalo
   DEVICE_MODEL := BHR-4GRV
+  BUFFALO_PRODUCT := BHR-4GRV
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport
   IMAGE_SIZE := 32256k
-  IMAGES += factory.bin tftp.bin
-  IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | \
-	pad-rootfs | check-size
-  IMAGE/factory.bin := $$(IMAGE/default) | buffalo-enc BHR-4GRV 1.99 | \
-	buffalo-tag BHR-4GRV 3
-  IMAGE/tftp.bin := $$(IMAGE/default) | buffalo-tftp-header
   SUPPORTED_DEVICES += wzr-hp-g450h
 endef
 TARGET_DEVICES += buffalo_bhr-4grv
@@ -338,52 +334,48 @@ define Device/buffalo_bhr-4grv2
 endef
 TARGET_DEVICES += buffalo_bhr-4grv2
 
-define Device/buffalo_wzr-hp-ag300h
+define Device/buffalo_wzr_ar7161
+  $(Device/buffalo_common)
   SOC := ar7161
-  DEVICE_VENDOR := Buffalo
-  DEVICE_MODEL := WZR-HP-AG300H
-  IMAGE_SIZE := 32320k
-  IMAGES += factory.bin tftp.bin
-  IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | \
-	pad-rootfs | check-size
-  IMAGE/factory.bin := $$(IMAGE/default) | buffalo-enc WZR-HP-AG300H 1.99 | \
-	buffalo-tag WZR-HP-AG300H 3
-  IMAGE/tftp.bin := $$(IMAGE/default) | buffalo-tftp-header
+  BUFFALO_PRODUCT := WZR-HP-AG300H
   DEVICE_PACKAGES := kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport \
 	kmod-leds-reset kmod-owl-loader
+  IMAGE_SIZE := 32320k
   SUPPORTED_DEVICES += wzr-hp-ag300h
+endef
+
+define Device/buffalo_wzr-600dhp
+  $(Device/buffalo_wzr_ar7161)
+  DEVICE_MODEL := WZR-600DHP
+endef
+TARGET_DEVICES += buffalo_wzr-600dhp
+
+define Device/buffalo_wzr-hp-ag300h
+  $(Device/buffalo_wzr_ar7161)
+  DEVICE_MODEL := WZR-HP-AG300H
 endef
 TARGET_DEVICES += buffalo_wzr-hp-ag300h
 
 define Device/buffalo_wzr-hp-g302h-a1a0
+  $(Device/buffalo_common)
   SOC := ar7242
-  DEVICE_VENDOR := Buffalo
   DEVICE_MODEL := WZR-HP-G302H
   DEVICE_VARIANT := A1A0
+  BUFFALO_PRODUCT := WZR-HP-G302H
+  BUFFALO_HWVER := 4
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport
   IMAGE_SIZE := 32128k
-  IMAGES += factory.bin tftp.bin
-  IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | \
-	pad-rootfs | check-size
-  IMAGE/factory.bin := $$(IMAGE/default) | buffalo-enc WZR-HP-G302H 1.99 | \
-	buffalo-tag WZR-HP-G302H 4
-  IMAGE/tftp.bin := $$(IMAGE/default) | buffalo-tftp-header
   SUPPORTED_DEVICES += wzr-hp-g300nh2
 endef
 TARGET_DEVICES += buffalo_wzr-hp-g302h-a1a0
 
 define Device/buffalo_wzr-hp-g450h
+  $(Device/buffalo_common)
   SOC := ar7242
-  DEVICE_VENDOR := Buffalo
   DEVICE_MODEL := WZR-HP-G450H/WZR-450HP
+  BUFFALO_PRODUCT := WZR-HP-G450H
   DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport
   IMAGE_SIZE := 32256k
-  IMAGES += factory.bin tftp.bin
-  IMAGE/default := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | \
-	pad-rootfs | check-size
-  IMAGE/factory.bin := $$(IMAGE/default) | buffalo-enc WZR-HP-G450H 1.99 | \
-	buffalo-tag WZR-HP-G450H 3
-  IMAGE/tftp.bin := $$(IMAGE/default) | buffalo-tftp-header
   SUPPORTED_DEVICES += wzr-hp-g450h
 endef
 TARGET_DEVICES += buffalo_wzr-hp-g450h
@@ -808,20 +800,6 @@ define Device/embeddedwireless_dorin
 endef
 TARGET_DEVICES += embeddedwireless_dorin
 
-define Device/engenius_ecb1750
-  SOC := qca9558
-  DEVICE_VENDOR := EnGenius
-  DEVICE_MODEL := ECB1750
-  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
-  IMAGE_SIZE := 15680k
-  IMAGE/factory.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | \
-	append-rootfs | pad-rootfs | check-size | \
-	senao-header -r 0x101 -p 0x6d -t 2
-  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | \
-	append-metadata | check-size
-endef
-TARGET_DEVICES += engenius_ecb1750
-
 define Device/engenius_loader_okli
   DEVICE_VENDOR := EnGenius
   KERNEL := kernel-bin | append-dtb | lzma | uImage lzma -M 0x4f4b4c49
@@ -835,6 +813,20 @@ define Device/engenius_loader_okli
 	append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs | \
 	check-size | engenius-tar-gz $$$$(ENGENIUS_IMGNAME)
 endef
+
+define Device/engenius_ecb1750
+  SOC := qca9558
+  DEVICE_VENDOR := EnGenius
+  DEVICE_MODEL := ECB1750
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
+  IMAGE_SIZE := 15680k
+  IMAGE/factory.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | \
+	append-rootfs | pad-rootfs | check-size | \
+	senao-header -r 0x101 -p 0x6d -t 2
+  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | \
+	append-metadata | check-size
+endef
+TARGET_DEVICES += engenius_ecb1750
 
 define Device/engenius_enh202-v1
   $(Device/engenius_loader_okli)

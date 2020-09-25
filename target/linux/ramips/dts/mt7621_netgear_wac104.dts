@@ -1,5 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0 or MIT
-/dts-v1/;
+// SPDX-License-Identifier: GPL-2.0-only or MIT
 
 #include "mt7621.dtsi"
 

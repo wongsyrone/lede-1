@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-2.0 OR MIT
+// SPDX-License-Identifier: GPL-2.0-only OR MIT
 
 #include "qcom-ipq4019.dtsi"
 #include <dt-bindings/gpio/gpio.h>
@@ -223,7 +223,7 @@
 	pinctrl-names = "default";
 	status = "okay";
 
-	spidev1: spi@1 {
+	spidev1: spi@0 {
 		compatible = "siliconlabs,si3210";
 		reg = <0>;
 		spi-max-frequency = <24000000>;

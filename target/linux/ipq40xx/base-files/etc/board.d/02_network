@@ -16,7 +16,8 @@ ipq40xx_setup_interfaces()
 	8dev,jalapeno|\
 	alfa-network,ap120c-ac|\
 	engenius,emr3500|\
-	engenius,ens620ext)
+	engenius,ens620ext|\
+	luma,wrtq-329acn)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		;;
 	aruba,ap-303|\
@@ -38,6 +39,8 @@ ipq40xx_setup_interfaces()
 		;;
 	asus,map-ac2200|\
 	cilab,meshpoint-one|\
+	edgecore,ecw5211|\
+	edgecore,oap100|\
 	openmesh,a42|\
 	openmesh,a62)
 		ucidef_set_interfaces_lan_wan "eth1" "eth0"
@@ -50,7 +53,8 @@ ipq40xx_setup_interfaces()
 		;;
 	avm,fritzbox-4040|\
 	linksys,ea6350v3|\
-	linksys,ea8300)
+	linksys,ea8300|\
+	linksys,mr8300)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_add_switch "switch0" \
 			"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan"
@@ -59,7 +63,10 @@ ipq40xx_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan"
 		;;
-	avm,fritzrepeater-3000|\
+	avm,fritzrepeater-3000)
+		ucidef_add_switch "switch0" \
+			"0u@eth0" "4:lan:1" "5:lan:2"
+		;;
 	compex,wpj419|\
 	compex,wpj428|\
 	engenius,eap2200)
