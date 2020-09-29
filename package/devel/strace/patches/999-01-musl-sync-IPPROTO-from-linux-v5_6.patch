@@ -1,0 +1,25 @@
+http://git.musl-libc.org/cgit/musl/commit/?id=8fca0ea4e9d09b0ada66b135533a74a643de77ef
+--- a/xlat/inet_protocols.h
++++ b/xlat/inet_protocols.h
+@@ -236,10 +236,10 @@ DIAG_POP_IGNORE_TAUTOLOGICAL_COMPARE
+ #endif
+ #if defined(IPPROTO_MAX) || (defined(HAVE_DECL_IPPROTO_MAX) && HAVE_DECL_IPPROTO_MAX)
+ DIAG_PUSH_IGNORE_TAUTOLOGICAL_COMPARE
+-static_assert((IPPROTO_MAX) == (256), "IPPROTO_MAX != 256");
++static_assert((IPPROTO_MAX) == (263), "IPPROTO_MAX != 263");
+ DIAG_POP_IGNORE_TAUTOLOGICAL_COMPARE
+ #else
+-# define IPPROTO_MAX 256
++# define IPPROTO_MAX 263
+ #endif
+ #if defined(IPPROTO_MPTCP) || (defined(HAVE_DECL_IPPROTO_MPTCP) && HAVE_DECL_IPPROTO_MPTCP)
+ DIAG_PUSH_IGNORE_TAUTOLOGICAL_COMPARE
+--- a/xlat/inet_protocols.in
++++ b/xlat/inet_protocols.in
+@@ -32,5 +32,5 @@ IPPROTO_UDPLITE		136
+ IPPROTO_MPLS		137
+ IPPROTO_ETHERNET	143
+ IPPROTO_RAW		255
+-IPPROTO_MAX		256
++IPPROTO_MAX		263
+ IPPROTO_MPTCP		262
