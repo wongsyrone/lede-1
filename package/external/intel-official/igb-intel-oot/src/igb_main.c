@@ -39,7 +39,7 @@
 #define DRV_HW_PERF
 #define VERSION_SUFFIX
 
-#define DRV_VERSION	"5.3.6" VERSION_SUFFIX DRV_DEBUG DRV_HW_PERF
+#define DRV_VERSION	"5.4.6" VERSION_SUFFIX DRV_DEBUG DRV_HW_PERF
 #define DRV_SUMMARY	"Intel(R) Gigabit Ethernet Linux Driver"
 
 char igb_driver_name[] = "igb";
@@ -653,22 +653,28 @@ static int igb_request_msix(struct igb_adapter *adapter)
 	}
 	for (i = 0; i < num_q_vectors; i++) {
 		struct igb_q_vector *q_vector = adapter->q_vector[i];
+		const int name_size = min(sizeof(q_vector->name),
+					  sizeof(netdev->name));
 
 		vector++;
 
 		q_vector->itr_register = adapter->io_addr + E1000_EITR(vector);
 
 		if (q_vector->rx.ring && q_vector->tx.ring)
-			sprintf(q_vector->name, "%s-TxRx-%u", netdev->name,
+			snprintf(q_vector->name, name_size,
+				"%s-TxRx-%u", netdev->name,
 				q_vector->rx.ring->queue_index);
 		else if (q_vector->tx.ring)
-			sprintf(q_vector->name, "%s-tx-%u", netdev->name,
+			snprintf(q_vector->name, name_size,
+				"%s-tx-%u", netdev->name,
 				q_vector->tx.ring->queue_index);
 		else if (q_vector->rx.ring)
-			sprintf(q_vector->name, "%s-rx-%u", netdev->name,
+			snprintf(q_vector->name, name_size,
+				"%s-rx-%u", netdev->name,
 				q_vector->rx.ring->queue_index);
 		else
-			sprintf(q_vector->name, "%s-unused", netdev->name);
+			snprintf(q_vector->name, name_size,
+				"%s-unused", netdev->name);
 
 		err = request_irq(adapter->msix_entries[vector].vector,
 				  igb_msix_ring, 0, q_vector->name,
@@ -10029,7 +10035,7 @@ static void igb_vmm_control(struct igb_adapter *adapter)
  */
 static u32 igb_get_os_driver_version(void)
 {
-	static const char driver_version[] = "5.3.6";
+	static const char driver_version[] = "5.4.6";
 	u8 driver_version_num[] = {0, 0, 0, 0};
 	char const *c = driver_version;
 	uint pos;

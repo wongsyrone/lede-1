@@ -204,8 +204,12 @@ int igb_sysfs_init(struct igb_adapter *adapter)
 	}
 
 	igb_hwmon->device =
+#ifdef HAVE_HWMON_DEVICE_REGISTER_WITH_GROUPS
 		hwmon_device_register_with_groups(&adapter->pdev->dev,
 						  "igb", NULL, NULL);
+#else
+		hwmon_device_register(&adapter->pdev->dev);
+#endif /* HAVE_HWMON_DEVICE_REGISTER_WITH_GROUPS */
 	if (IS_ERR(igb_hwmon->device)) {
 		rc = PTR_ERR(igb_hwmon->device);
 		goto err;
