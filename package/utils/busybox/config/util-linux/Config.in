@@ -685,7 +685,7 @@ config BUSYBOX_CONFIG_NOLOGIN
 
 config BUSYBOX_CONFIG_NOLOGIN_DEPENDENCIES
 	bool "Enable dependencies for nologin"
-	default BUSYBOX_DEFAULT_NOLOGIN_DEPENDENCIES
+	default BUSYBOX_DEFAULT_NOLOGIN_DEPENDENCIES  # Y default makes it harder to select single-applet test
 	depends on BUSYBOX_CONFIG_NOLOGIN
 	select BUSYBOX_CONFIG_CAT
 	select BUSYBOX_CONFIG_ECHO
@@ -900,6 +900,14 @@ config BUSYBOX_CONFIG_FEATURE_TASKSET_FANCY
 	Needed for machines with more than 32-64 CPUs:
 	affinity parameter 0xHHHHHHHHHHHHHHHHHHHH can be arbitrarily long
 	in this case. Otherwise, it is limited to sizeof(long).
+
+config BUSYBOX_CONFIG_FEATURE_TASKSET_CPULIST
+	bool "CPU list support (-c option)"
+	default BUSYBOX_DEFAULT_FEATURE_TASKSET_CPULIST
+	depends on BUSYBOX_CONFIG_FEATURE_TASKSET_FANCY
+	help
+	Add support for taking/printing affinity as CPU list when '-c'
+	option is used. For example, it prints '0-3,7' instead of mask '8f'.
 config BUSYBOX_CONFIG_UEVENT
 	bool "uevent (3.1 kb)"
 	default BUSYBOX_DEFAULT_UEVENT
@@ -994,6 +1002,6 @@ config BUSYBOX_CONFIG_FEATURE_MTAB_SUPPORT
 	About the only reason to use this is if you've removed /proc from
 	your kernel.
 
-source "volume_id/Config.in"
+source volume_id/Config.in
 
 endmenu

@@ -110,10 +110,9 @@ config BUSYBOX_CONFIG_FEATURE_DATE_ISOFMT
 	Enable option (-I) to output an ISO-8601 compliant
 	date/time string.
 
-# defaults to "no": stat's nanosecond field is a bit non-portable
 config BUSYBOX_CONFIG_FEATURE_DATE_NANO
 	bool "Support %[num]N nanosecond format specifier"
-	default BUSYBOX_DEFAULT_FEATURE_DATE_NANO  # syscall(__NR_clock_gettime)
+	default BUSYBOX_DEFAULT_FEATURE_DATE_NANO # stat's nanosecond field is a bit non-portable
 	depends on BUSYBOX_CONFIG_DATE
 	select BUSYBOX_CONFIG_PLATFORM_LINUX
 	help

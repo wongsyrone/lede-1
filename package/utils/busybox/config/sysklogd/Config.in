@@ -116,6 +116,14 @@ config BUSYBOX_CONFIG_FEATURE_SYSLOGD_CFG
 	help
 	Supports restricted syslogd config. See docs/syslog.conf.txt
 
+config BUSYBOX_CONFIG_FEATURE_SYSLOGD_PRECISE_TIMESTAMPS
+	bool "Include milliseconds in timestamps"
+	default BUSYBOX_DEFAULT_FEATURE_SYSLOGD_PRECISE_TIMESTAMPS
+	depends on BUSYBOX_CONFIG_SYSLOGD
+	help
+	Includes milliseconds (HH:MM:SS.mmm) in timestamp when
+	timestamps are added.
+
 config BUSYBOX_CONFIG_FEATURE_SYSLOGD_READ_BUFFER_SIZE
 	int "Read buffer size in bytes"
 	default BUSYBOX_DEFAULT_FEATURE_SYSLOGD_READ_BUFFER_SIZE

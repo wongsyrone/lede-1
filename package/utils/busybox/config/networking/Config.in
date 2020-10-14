@@ -1154,6 +1154,9 @@ config BUSYBOX_CONFIG_FEATURE_WGET_HTTPS
 	patches, but do want to waste bandwidth expaining how wrong
 	it is, you will be ignored.
 
+	FEATURE_WGET_OPENSSL does implement TLS verification
+	using the certificates available to OpenSSL.
+
 config BUSYBOX_CONFIG_FEATURE_WGET_OPENSSL
 	bool "Try to connect to HTTPS using openssl"
 	default BUSYBOX_DEFAULT_FEATURE_WGET_OPENSSL
@@ -1178,6 +1181,9 @@ config BUSYBOX_CONFIG_FEATURE_WGET_OPENSSL
 	If openssl can't be executed, internal TLS code will be used
 	(if you enabled it); if openssl can be executed but fails later,
 	wget can't detect this, and download will fail.
+
+	By default TLS verification is performed, unless
+	--no-check-certificate option is passed.
 config BUSYBOX_CONFIG_WHOIS
 	bool "whois (6.3 kb)"
 	default BUSYBOX_DEFAULT_WHOIS
@@ -1196,7 +1202,7 @@ config BUSYBOX_CONFIG_ZCIP
 	See http://www.zeroconf.org for further details, and "zcip.script"
 	in the busybox examples.
 
-source "udhcp/Config.in"
+source udhcp/Config.in
 
 config BUSYBOX_CONFIG_IFUPDOWN_UDHCPC_CMD_OPTIONS
 	string "ifup udhcpc command line options"

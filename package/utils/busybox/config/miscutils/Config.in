@@ -634,6 +634,13 @@ config BUSYBOX_CONFIG_MICROCOM
 	default BUSYBOX_DEFAULT_MICROCOM
 	help
 	The poor man's minicom utility for chatting with serial port devices.
+config BUSYBOX_CONFIG_MIM
+	bool "mim (0.5 kb)"
+	default BUSYBOX_DEFAULT_MIM
+	depends on BUSYBOX_CONFIG_FEATURE_SH_EMBEDDED_SCRIPTS
+	help
+	Run a script from a Makefile-like specification file.
+	Unlike 'make' dependencies aren't supported.
 config BUSYBOX_CONFIG_MT
 	bool "mt (2.5 kb)"
 	default BUSYBOX_DEFAULT_MT
