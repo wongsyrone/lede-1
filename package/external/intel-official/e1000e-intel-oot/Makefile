@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=e1000e-intel-oot
-PKG_VERSION:=3.8.4
+PKG_VERSION:=3.8.7
 PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
