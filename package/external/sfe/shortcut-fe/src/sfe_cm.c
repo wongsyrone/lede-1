@@ -1075,8 +1075,8 @@ static int __init sfe_cm_init(void)
 	return 0;
 
 #ifdef CONFIG_NF_CONNTRACK_EVENTS
-#ifndef CONFIG_NF_CONNTRACK_CHAIN_EVENTS
 exit4:
+#ifndef CONFIG_NF_CONNTRACK_CHAIN_EVENTS
 	nf_unregister_net_hooks(&init_net, sfe_cm_ops_post_routing, ARRAY_SIZE(sfe_cm_ops_post_routing));
 #endif
 #endif
