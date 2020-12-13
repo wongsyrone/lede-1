@@ -1049,14 +1049,14 @@ static int __init sfe_cm_init(void)
 	 */
 #ifdef CONFIG_NF_CONNTRACK_EVENTS
 #ifdef CONFIG_NF_CONNTRACK_CHAIN_EVENTS
-	result = nf_conntrack_register_chain_notifier(&init_net, &sfe_cm_conntrack_notifier);
+	(void)nf_conntrack_register_chain_notifier(&init_net, &sfe_cm_conntrack_notifier);
 #else
 	result = nf_conntrack_register_notifier(&init_net, &sfe_cm_conntrack_notifier);
-#endif
 	if (result < 0) {
 		DEBUG_ERROR("can't register nf notifier hook: %d\n", result);
 		goto exit4;
 	}
+#endif
 #endif
 
 	spin_lock_init(&sc->lock);
@@ -1075,8 +1075,8 @@ static int __init sfe_cm_init(void)
 	return 0;
 
 #ifdef CONFIG_NF_CONNTRACK_EVENTS
-exit4:
 #ifndef CONFIG_NF_CONNTRACK_CHAIN_EVENTS
+exit4:
 	nf_unregister_net_hooks(&init_net, sfe_cm_ops_post_routing, ARRAY_SIZE(sfe_cm_ops_post_routing));
 #endif
 #endif

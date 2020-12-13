@@ -1814,11 +1814,11 @@ static int __init fast_classifier_init(void)
 	result = nf_conntrack_register_chain_notifier(&init_net, &fast_classifier_conntrack_notifier);
 #else
 	result = nf_conntrack_register_notifier(&init_net, &fast_classifier_conntrack_notifier);
-#endif
 	if (result < 0) {
 		DEBUG_ERROR("can't register nf notifier hook: %d\n", result);
 		goto exit4;
 	}
+#endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0))
 	result = genl_register_family(&fast_classifier_gnl_family);
