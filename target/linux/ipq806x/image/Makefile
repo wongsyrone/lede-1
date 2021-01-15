@@ -103,7 +103,6 @@ define Device/asrock_g10
 	KERNEL_SIZE := 5332k
 	DEVICE_PACKAGES := kmod-i2c-gpio ath10k-firmware-qca99x0-ct
 	IMAGE/nand-factory.bin := append-ubi | edimax-header RN67
-	BROKEN := y
 endef
 TARGET_DEVICES += asrock_g10
 
@@ -334,6 +333,22 @@ define Device/qcom_ipq8064-db149
 endef
 TARGET_DEVICES += qcom_ipq8064-db149
 
+define Device/tplink_ad7200
+	$(call Device/TpSafeImage)
+	DEVICE_VENDOR := TP-Link
+	DEVICE_MODEL := AD7200
+	DEVICE_VARIANT := v1/v2
+	DEVICE_ALT0_VENDOR := TP-Link
+	DEVICE_ALT0_MODEL := Talon AD7200
+	DEVICE_ALT0_VARIANT := v1/v2
+	SOC := qcom-ipq8064
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	TPLINK_BOARD_ID := AD7200
+	DEVICE_PACKAGES := ath10k-firmware-qca99x0-ct kmod-wil6210
+endef
+TARGET_DEVICES += tplink_ad7200
+
 define Device/tplink_c2600
 	$(call Device/TpSafeImage)
 	DEVICE_VENDOR := TP-Link
@@ -366,6 +381,18 @@ define Device/tplink_vr2600v
 	IMAGE/sysupgrade.bin := pad-extra 512 | append-kernel | pad-to $$$$(KERNEL_SIZE) | append-rootfs | pad-rootfs | append-metadata
 endef
 TARGET_DEVICES += tplink_vr2600v
+
+define Device/ubnt_unifi-ac-hd
+	$(call Device/FitImageLzma)
+	DEVICE_VENDOR := Ubiquiti
+	DEVICE_MODEL := UniFi AC HD
+	SOC := qcom-ipq8064
+	BLOCKSIZE := 64k
+	IMAGE_SIZE := 14784k
+	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct
+	IMAGE/sysupgrade.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs | append-metadata | check-size
+endef
+TARGET_DEVICES += ubnt_unifi-ac-hd
 
 define Device/zyxel_nbg6817
 	DEVICE_VENDOR := ZyXEL
