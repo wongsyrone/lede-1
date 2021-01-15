@@ -460,6 +460,33 @@ u32 e1000_hash_mc_addr_generic(struct e1000_hw *hw, u8 *mc_addr)
 }
 
 /**
+ *  e1000_i21x_hw_workaround - workarounds potential HW issue in i21X
+ *  @hw: pointer to the HW structure
+ *
+ *  Checks if multicast array is wrote correctly
+ *  If not then rewrites again to register
+ **/
+static void e1000_i21x_hw_workaround(struct e1000_hw *hw)
+{
+	bool is_failed;
+	int i;
+
+	do {
+		is_failed = false;
+		for (i = hw->mac.mta_reg_count - 1; i >= 0; i--) {
+			if (E1000_READ_REG_ARRAY(hw, E1000_MTA, i) !=
+			    hw->mac.mta_shadow[i]) {
+				is_failed = true;
+				E1000_WRITE_REG_ARRAY(hw, E1000_MTA, i,
+						      hw->mac.mta_shadow[i]);
+				E1000_WRITE_FLUSH(hw);
+				break;
+			}
+		}
+	} while (is_failed);
+}
+
+/**
  *  e1000_update_mc_addr_list_generic - Update Multicast addresses
  *  @hw: pointer to the HW structure
  *  @mc_addr_list: array of multicast addresses to program
@@ -494,6 +521,8 @@ void e1000_update_mc_addr_list_generic(struct e1000_hw *hw,
 	for (i = hw->mac.mta_reg_count - 1; i >= 0; i--)
 		E1000_WRITE_REG_ARRAY(hw, E1000_MTA, i, hw->mac.mta_shadow[i]);
 	E1000_WRITE_FLUSH(hw);
+	if (hw->mac.type == e1000_i210 || hw->mac.type == e1000_i211)
+		e1000_i21x_hw_workaround(hw);
 }
 
 /**

@@ -39,7 +39,7 @@
 #define DRV_HW_PERF
 #define VERSION_SUFFIX
 
-#define DRV_VERSION	"5.4.6" VERSION_SUFFIX DRV_DEBUG DRV_HW_PERF
+#define DRV_VERSION	"5.5.2" VERSION_SUFFIX DRV_DEBUG DRV_HW_PERF
 #define DRV_SUMMARY	"Intel(R) Gigabit Ethernet Linux Driver"
 
 char igb_driver_name[] = "igb";
@@ -7240,7 +7240,7 @@ static void igb_rcv_msg_from_vf(struct igb_adapter *adapter, u32 vf)
 #ifndef IGB_DISABLE_VF_MAC_SET
 		if (!(vf_data->flags & IGB_VF_FLAG_PF_SET_MAC))
 			retval = igb_set_vf_mac_addr(adapter, msgbuf, vf);
-		else
+		else if (hw->mac.type & vf_data->flags)
 			DPRINTK(DRV, INFO,
 				"VF %d attempted to override administratively set MAC address\nReload the VF driver to resume operations\n",
 				vf);
@@ -7523,7 +7523,7 @@ static bool igb_clean_tx_irq(struct igb_q_vector *q_vector)
 			break;
 
 		/* prevent any other reads prior to eop_desc */
-		read_barrier_depends();
+		smp_rmb();
 
 		/* if DD is not set pending work has not been completed */
 		if (!(eop_desc->wb.status & cpu_to_le32(E1000_TXD_STAT_DD)))
@@ -10035,7 +10035,7 @@ static void igb_vmm_control(struct igb_adapter *adapter)
  */
 static u32 igb_get_os_driver_version(void)
 {
-	static const char driver_version[] = "5.4.6";
+	static const char driver_version[] = "5.5.2";
 	u8 driver_version_num[] = {0, 0, 0, 0};
 	char const *c = driver_version;
 	uint pos;
