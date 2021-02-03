@@ -74,7 +74,8 @@ case "$FIRMWARE" in
 	avm,fritz300e)
 		caldata_extract_reverse "urloader" 0x1541 0x440
 		;;
-	buffalo,wzr-hp-g302h-a1a0)
+	buffalo,wzr-hp-g302h-a1a0|\
+	ubnt,unifi-ap-outdoor-plus)
 		caldata_extract "art" 0x1000 0xeb8
 		;;
 	buffalo,wzr-hp-g450h|\
@@ -119,6 +120,10 @@ case "$FIRMWARE" in
 	ubnt,powerbridge-m|\
 	ubnt,rocket-m)
 		caldata_extract "art" 0x1000 0x1000
+		;;
+	openmesh,mr600-v1|\
+	openmesh,mr600-v2)
+		caldata_extract "ART" 0x5000 0x440
 		;;
 	wd,mynet-n750)
 		caldata_extract "art" 0x5000 0x440
