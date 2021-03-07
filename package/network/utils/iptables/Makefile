@@ -658,6 +658,10 @@ define BuildPlugin
   $$(eval $$(call BuildPackage,$(1)))
 endef
 
+$(eval $(call BuildPackage,libxtables))
+$(eval $(call BuildPackage,libxtables-nft))
+$(eval $(call BuildPackage,libip4tc))
+$(eval $(call BuildPackage,libip6tc))
 $(eval $(call BuildPackage,iptables))
 $(eval $(call BuildPackage,iptables-nft))
 $(eval $(call BuildPlugin,iptables-mod-conntrack-extra,$(IPT_CONNTRACK_EXTRA-m)))
@@ -686,7 +690,4 @@ $(eval $(call BuildPackage,ip6tables))
 $(eval $(call BuildPackage,ip6tables-nft))
 $(eval $(call BuildPlugin,ip6tables-extra,$(IPT_IPV6_EXTRA-m)))
 $(eval $(call BuildPlugin,ip6tables-mod-nat,$(IPT_NAT6-m)))
-$(eval $(call BuildPackage,libip4tc))
-$(eval $(call BuildPackage,libip6tc))
-$(eval $(call BuildPackage,libxtables))
-$(eval $(call BuildPackage,libxtables-nft))
+

@@ -499,7 +499,7 @@ endif # hush options
 
 
 comment "Options common to all shells"
-if SHELL_ASH || BUSYBOX_CONFIG_SHELL_HUSH
+if BUSYBOX_CONFIG_SHELL_ASH || BUSYBOX_CONFIG_SHELL_HUSH
 
 config BUSYBOX_CONFIG_FEATURE_SH_MATH
 	bool "POSIX math support"

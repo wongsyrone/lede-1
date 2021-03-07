@@ -1,6 +1,6 @@
 include ./common-buffalo.mk
-include ./common-engenius.mk
 include ./common-netgear.mk
+include ./common-senao.mk
 include ./common-tp-link.mk
 include ./common-yuncore.mk
 
@@ -794,6 +794,18 @@ define Device/dlink_dap-3320-a1
 endef
 TARGET_DEVICES += dlink_dap-3320-a1
 
+define Device/dlink_dap-3662-a1
+  $(Device/dlink_dap-2xxx)
+  SOC := qca9558
+  DEVICE_VENDOR := D-Link
+  DEVICE_MODEL := DAP-3662
+  DEVICE_VARIANT := A1
+  DEVICE_PACKAGES := ath10k-firmware-qca988x-ct kmod-ath10k-ct
+  IMAGE_SIZE := 15296k
+  DAP_SIGNATURE := wapac11_dkbs_dap3662
+endef
+TARGET_DEVICES += dlink_dap-3662-a1
+
 define Device/dlink_dch-g020-a1
   SOC := qca9531
   DEVICE_VENDOR := D-Link
@@ -954,34 +966,37 @@ endef
 TARGET_DEVICES += embeddedwireless_dorin
 
 define Device/engenius_eap1200h
-  $(Device/engenius_loader_okli)
+  $(Device/senao_loader_okli)
   SOC := qca9557
+  DEVICE_VENDOR := EnGenius
   DEVICE_MODEL := EAP1200H
   DEVICE_PACKAGES := ath10k-firmware-qca988x-ct kmod-ath10k-ct
   IMAGE_SIZE := 11520k
   LOADER_FLASH_OFFS := 0x230000
-  ENGENIUS_IMGNAME := ar71xx-generic-eap1200h
+  SENAO_IMGNAME := ar71xx-generic-eap1200h
 endef
 TARGET_DEVICES += engenius_eap1200h
 
 define Device/engenius_eap300-v2
-  $(Device/engenius_loader_okli)
+  $(Device/senao_loader_okli)
   SOC := ar9341
+  DEVICE_VENDOR := EnGenius
   DEVICE_MODEL := EAP300
   DEVICE_VARIANT := v2
   IMAGE_SIZE := 12032k
   LOADER_FLASH_OFFS := 0x230000
-  ENGENIUS_IMGNAME := senao-eap300v2
+  SENAO_IMGNAME := senao-eap300v2
 endef
 TARGET_DEVICES += engenius_eap300-v2
 
 define Device/engenius_eap600
-  $(Device/engenius_loader_okli)
+  $(Device/senao_loader_okli)
   SOC := ar9344
+  DEVICE_VENDOR := EnGenius
   DEVICE_MODEL := EAP600
   IMAGE_SIZE := 12032k
   LOADER_FLASH_OFFS := 0x230000
-  ENGENIUS_IMGNAME := senao-eap600
+  SENAO_IMGNAME := senao-eap600
 endef
 TARGET_DEVICES += engenius_eap600
 
@@ -1012,36 +1027,39 @@ endef
 TARGET_DEVICES += engenius_ecb1750
 
 define Device/engenius_ecb600
-  $(Device/engenius_loader_okli)
+  $(Device/senao_loader_okli)
   SOC := ar9344
+  DEVICE_VENDOR := EnGenius
   DEVICE_MODEL := ECB600
   IMAGE_SIZE := 12032k
   LOADER_FLASH_OFFS := 0x230000
-  ENGENIUS_IMGNAME := senao-ecb600
+  SENAO_IMGNAME := senao-ecb600
 endef
 TARGET_DEVICES += engenius_ecb600
 
 define Device/engenius_ens202ext-v1
-  $(Device/engenius_loader_okli)
+  $(Device/senao_loader_okli)
   SOC := ar9341
+  DEVICE_VENDOR := EnGenius
   DEVICE_MODEL := ENS202EXT
   DEVICE_VARIANT := v1
   DEVICE_PACKAGES := rssileds
   IMAGE_SIZE := 12032k
   LOADER_FLASH_OFFS := 0x230000
-  ENGENIUS_IMGNAME := senao-ens202ext
+  SENAO_IMGNAME := senao-ens202ext
 endef
 TARGET_DEVICES += engenius_ens202ext-v1
 
 define Device/engenius_enstationac-v1
-  $(Device/engenius_loader_okli)
+  $(Device/senao_loader_okli)
   SOC := qca9557
+  DEVICE_VENDOR := EnGenius
   DEVICE_MODEL := EnStationAC
   DEVICE_VARIANT := v1
   DEVICE_PACKAGES := ath10k-firmware-qca988x-ct kmod-ath10k-ct rssileds
   IMAGE_SIZE := 11520k
   LOADER_FLASH_OFFS := 0x230000
-  ENGENIUS_IMGNAME := ar71xx-generic-enstationac
+  SENAO_IMGNAME := ar71xx-generic-enstationac
 endef
 TARGET_DEVICES += engenius_enstationac-v1
 
@@ -1081,7 +1099,7 @@ define Device/etactica_eg200
   DEVICE_VENDOR := eTactica
   DEVICE_MODEL := EG200
   DEVICE_PACKAGES := kmod-usb-chipidea2 kmod-ledtrig-oneshot \
-	kmod-usb-serial kmod-usb-serial-ftdi kmod-usb-storage kmod-fs-ext4
+	kmod-usb-serial-ftdi kmod-usb-storage kmod-fs-ext4
   IMAGE_SIZE := 16000k
   SUPPORTED_DEVICES += rme-eg200
 endef
@@ -1308,6 +1326,23 @@ define Device/librerouter_librerouter-v1
   DEVICE_PACKAGES := kmod-usb2
 endef
 TARGET_DEVICES += librerouter_librerouter-v1
+
+define Device/meraki_mr12
+  SOC := ar7242
+  DEVICE_VENDOR := Meraki
+  DEVICE_MODEL := MR12
+  IMAGE_SIZE := 15616k
+  DEVICE_PACKAGES := kmod-owl-loader rssileds
+  SUPPORTED_DEVICES += mr12
+  DEVICE_COMPAT_VERSION := 2.0
+  DEVICE_COMPAT_MESSAGE := Partitions differ from ar71xx version of MR12. Image format is incompatible. \
+	To use sysupgrade, you must change /lib/update/common.sh::get_image to prepend 128K zeroes to this image, \
+	and change the bootcmd in u-boot to "bootm 0xbf0a0000". After that, you can use "sysupgrade -F -n". \
+	Make sure you do not keep your old config, as ethernet setup is not compatible either. \
+	For more details, see the OpenWrt Wiki: https://openwrt.org/toh/meraki/MR12, \
+	or the commit message of the MR12 ath79 port on git.openwrt.org.
+endef
+TARGET_DEVICES += meraki_mr12
 
 define Device/meraki_mr16
   SOC := ar7161
@@ -2167,7 +2202,7 @@ define Device/zbtlink_zbt-wd323
   DEVICE_MODEL := WD323
   IMAGE_SIZE := 16000k
   DEVICE_PACKAGES := kmod-usb2 kmod-i2c-gpio kmod-rtc-pcf8563 \
-	kmod-usb-serial kmod-usb-serial-cp210x uqmi
+	kmod-usb-serial-cp210x uqmi
 endef
 TARGET_DEVICES += zbtlink_zbt-wd323
 

@@ -19,7 +19,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 
 --- a/Makefile.flags
 +++ b/Makefile.flags
-@@ -152,6 +152,12 @@ endif
+@@ -158,6 +158,12 @@ endif
  # libm may be needed for dc, awk, ntpd
  # librt may be needed for clock_gettime()
  
