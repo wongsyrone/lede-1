@@ -27,9 +27,9 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 
 --- a/pppd/Makefile.linux
 +++ b/pppd/Makefile.linux
-@@ -35,10 +35,10 @@ endif
- COPTS = -O2 -pipe -Wall -g
- LIBS =
+@@ -36,10 +36,10 @@ endif
+ 
+ LIBS = -lrt
  
 -# Uncomment the next 2 lines to include support for Microsoft's
 +# Uncomment the next line to include support for Microsoft's
@@ -40,7 +40,7 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
  # Don't use MSLANMAN unless you really know what you're doing.
  #MSLANMAN=y
  # Uncomment the next line to include support for MPPE.  CHAPMS (above) must
-@@ -141,7 +141,8 @@ endif
+@@ -158,7 +158,8 @@ endif
  
  ifdef NEEDDES
  ifndef USE_CRYPT
@@ -52,7 +52,7 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
  endif
 --- a/pppd/pppcrypt.c
 +++ b/pppd/pppcrypt.c
-@@ -64,7 +64,7 @@ u_char *des_key;	/* OUT 64 bit DES key w
+@@ -62,7 +62,7 @@ MakeKey(u_char *key, u_char *des_key)
  	des_key[7] = Get7Bits(key, 49);
  
  #ifndef USE_CRYPT
@@ -61,7 +61,7 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
  #endif
  }
  
-@@ -158,25 +158,25 @@ u_char *clear;	/* OUT 8 octets */
+@@ -147,30 +147,30 @@ DesDecrypt(u_char *cipher, u_char *clear
  }
  
  #else /* USE_CRYPT */
@@ -69,8 +69,7 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 +static DES_key_schedule	key_schedule;
  
  bool
- DesSetkey(key)
- u_char *key;
+ DesSetkey(u_char *key)
  {
 -	des_cblock des_key;
 +	DES_cblock des_key;
@@ -81,10 +80,7 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
  }
  
  bool
--DesEncrypt(clear, key, cipher)
-+DesEncrypt(clear, cipher)
- u_char *clear;	/* IN  8 octets */
- u_char *cipher;	/* OUT 8 octets */
+ DesEncrypt(u_char *clear, u_char *cipher)
  {
 -	des_ecb_encrypt((des_cblock *)clear, (des_cblock *)cipher,
 -	    key_schedule, 1);
@@ -93,9 +89,8 @@ Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
  	return (1);
  }
  
-@@ -185,8 +185,8 @@ DesDecrypt(cipher, clear)
- u_char *cipher;	/* IN  8 octets */
- u_char *clear;	/* OUT 8 octets */
+ bool
+ DesDecrypt(u_char *cipher, u_char *clear)
  {
 -	des_ecb_encrypt((des_cblock *)cipher, (des_cblock *)clear,
 -	    key_schedule, 0);
