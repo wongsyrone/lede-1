@@ -11,13 +11,15 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libevent2-wong
 PKG_VERSION:=2.1.12
-PKG_RELEASE:=g657e180
+PKG_RELEASE:=g00b92f4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/libevent/libevent.git
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=657e180694a97c6d70d58cd60b82e43dc23ac4b2
+PKG_SOURCE_VERSION:=00b92f42b69af29a820b46049fd00be9cd3fb7d4
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+
+PKG_HASH:=skip
 
 #PKG_SOURCE:=libevent-$(PKG_VERSION)-stable.tar.gz
 #PKG_SOURCE_URL:=https://github.com/libevent/libevent/releases/download/release-$(PKG_VERSION)-stable
@@ -127,6 +129,7 @@ CMAKE_OPTIONS += \
 	-DEVENT__DISABLE_BENCHMARK=ON \
 	-DEVENT__DISABLE_TESTS=ON \
 	-DEVENT__DISABLE_SAMPLES=ON \
+	-DEVENT__DISABLE_MBEDTLS=ON \
 
 
 define Build/InstallDev
