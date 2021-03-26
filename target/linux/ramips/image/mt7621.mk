@@ -460,6 +460,14 @@ define Device/elecom_wrc-1750gs
 endef
 TARGET_DEVICES += elecom_wrc-1750gs
 
+define Device/elecom_wrc-1750gst2
+  $(Device/elecom_wrc-gs)
+  IMAGE_SIZE := 24576k
+  DEVICE_MODEL := WRC-1750GST2
+  ELECOM_HWNAME := WRC-1750GST2
+endef
+TARGET_DEVICES += elecom_wrc-1750gst2
+
 define Device/elecom_wrc-1750gsv
   $(Device/elecom_wrc-gs)
   IMAGE_SIZE := 11264k
@@ -1193,6 +1201,7 @@ define Device/ubnt_unifi-6-lite
   $(Device/dsa-migration)
   DEVICE_VENDOR := Ubiquiti
   DEVICE_MODEL := UniFi 6 Lite
+  DEVICE_DTS_CONFIG := config@1
   DEVICE_PACKAGES += kmod-mt7603 kmod-mt7915e
   KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
   IMAGE_SIZE := 15424k

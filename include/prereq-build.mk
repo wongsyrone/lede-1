@@ -136,26 +136,28 @@ $(eval $(call SetupHostCommand,bzip2,Please install 'bzip2', \
 $(eval $(call SetupHostCommand,wget,Please install GNU 'wget', \
 	wget --version | grep GNU))
 
+$(eval $(call SetupHostCommand,install,Please install GNU 'install', \
+	install --version | grep GNU, \
+	ginstall --version | grep GNU))
+
 $(eval $(call SetupHostCommand,perl,Please install Perl 5.x, \
 	perl --version | grep "perl.*v5"))
 
 $(eval $(call CleanupPython2))
 
-$(eval $(call SetupHostCommand,python,Please install Python >= 3.5, \
+$(eval $(call SetupHostCommand,python,Please install Python >= 3.6, \
 	python3.9 -V 2>&1 | grep 'Python 3', \
 	python3.8 -V 2>&1 | grep 'Python 3', \
 	python3.7 -V 2>&1 | grep 'Python 3', \
 	python3.6 -V 2>&1 | grep 'Python 3', \
-	python3.5 -V 2>&1 | grep 'Python 3', \
-	python3 -V 2>&1 | grep -E 'Python 3\.[5-9]\.?'))
+	python3 -V 2>&1 | grep -E 'Python 3\.[6-9]\.?'))
 
-$(eval $(call SetupHostCommand,python3,Please install Python >= 3.5, \
+$(eval $(call SetupHostCommand,python3,Please install Python >= 3.6, \
 	python3.9 -V 2>&1 | grep 'Python 3', \
 	python3.8 -V 2>&1 | grep 'Python 3', \
 	python3.7 -V 2>&1 | grep 'Python 3', \
 	python3.6 -V 2>&1 | grep 'Python 3', \
-	python3.5 -V 2>&1 | grep 'Python 3', \
-	python3 -V 2>&1 | grep -E 'Python 3\.[5-9]\.?'))
+	python3 -V 2>&1 | grep -E 'Python 3\.[6-9]\.?'))
 
 $(eval $(call SetupHostCommand,git,Please install Git (git-core) >= 1.7.12.2, \
 	git --exec-path | xargs -I % -- grep -q -- --recursive %/git-submodule))
