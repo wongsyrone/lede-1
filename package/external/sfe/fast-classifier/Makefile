@@ -77,8 +77,8 @@ define Build/Compile/kmod
 		$(PKG_MAKE_FLAGS) \
 		M="$(PKG_BUILD_DIR)" \
 		CONFIG_FAST_CLASSIFIER=m \
-		$(if $(HAVE_ECM),EXTRA_CFLAGS+="-DCONFIG_SFE_ECM" CONFIG_SFE_ECM=y,) \
 		EXTRA_CFLAGS="$(EXTRA_CFLAGS)" \
+		$(if $(HAVE_ECM),EXTRA_CFLAGS+="-DCONFIG_SFE_ECM" CONFIG_SFE_ECM=y,) \
 		modules
 endef
 
