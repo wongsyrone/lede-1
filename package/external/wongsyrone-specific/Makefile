@@ -22,7 +22,7 @@ define Package/wongsyrone-specific
 		+libsodium \
 		+transocks-wong +ipt2socks \
 		+pdnsd +trojan +v2ray +vlmcsd +pcap-dnsproxy \
-		+iptables-mod-fullconenat +luci-app-sfe \
+		+iptables-mod-fullconenat +luci-app-turboacc \
 		+ethtool \
 		+kmod-igb-intel-oot +kmod-e1000e-intel-oot +kmod-ixgbe-intel-oot
 endef
