@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 1999 - 2020 Intel Corporation. */
+/* Copyright(c) 1999 - 2021 Intel Corporation. */
 
 /* ethtool support for ixgbe */
 
@@ -10,6 +10,7 @@
 #include <linux/ethtool.h>
 #include <linux/vmalloc.h>
 #include <linux/highmem.h>
+
 
 #ifdef SIOCETHTOOL
 #include <asm/uaccess.h>
@@ -28,6 +29,10 @@
 
 #define IXGBE_ALL_RAR_ENTRIES 16
 
+#ifdef HAVE_XDP_SUPPORT
+#include <linux/bpf_trace.h>
+#endif
+#include "ixgbe_txrx_common.h"
 #ifdef ETHTOOL_OPS_COMPAT
 #include "kcompat_ethtool.c"
 #endif
@@ -180,6 +185,8 @@ static const char ixgbe_priv_flags_strings[][ETH_GSTRING_LEN] = {
 #define IXGBE_PRIV_FLAGS_LEGACY_RX	BIT(1)
 	"legacy-rx",
 #endif
+#define IXGBE_PRIV_FLAGS_AUTO_DISABLE_VF	BIT(2)
+	"mdd-disable-vf",
 };
 
 #define IXGBE_PRIV_FLAGS_STR_LEN ARRAY_SIZE(ixgbe_priv_flags_strings)
@@ -189,6 +196,7 @@ static const char ixgbe_priv_flags_strings[][ETH_GSTRING_LEN] = {
 #define ADVERTISED_MASK_10G (SUPPORTED_10000baseT_Full | SUPPORTED_10000baseKX4_Full | SUPPORTED_10000baseKR_Full)
 
 #define ixgbe_isbackplane(type)  ((type == ixgbe_media_type_backplane)? true : false)
+
 
 #ifdef ETHTOOL_GLINKSETTINGS
 static void ixgbe_set_supported_10gtypes(struct ixgbe_hw *hw,
@@ -957,6 +965,7 @@ static int ixgbe_get_regs_len(struct net_device __always_unused *netdev)
 
 #define IXGBE_GET_STAT(_A_, _R_)	(_A_->stats._R_)
 
+
 static void ixgbe_get_regs(struct net_device *netdev, struct ethtool_regs *regs,
 			   void *p)
 {
@@ -1633,8 +1642,8 @@ static void ixgbe_get_ringparam(struct net_device *netdev,
 {
 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
 
-	ring->rx_max_pending = IXGBE_MAX_RXD;
-	ring->tx_max_pending = IXGBE_MAX_TXD;
+	ring->rx_max_pending = IXGBE_MAX_NUM_DESCRIPTORS;
+	ring->tx_max_pending = IXGBE_MAX_NUM_DESCRIPTORS;
 	ring->rx_mini_max_pending = 0;
 	ring->rx_jumbo_max_pending = 0;
 	ring->rx_pending = adapter->rx_ring_count;
@@ -1654,19 +1663,37 @@ static int ixgbe_set_ringparam(struct net_device *netdev,
 	if ((ring->rx_mini_pending) || (ring->rx_jumbo_pending))
 		return -EINVAL;
 
-	new_tx_count = clamp_t(u32, ring->tx_pending,
-			       IXGBE_MIN_TXD, IXGBE_MAX_TXD);
-	new_tx_count = ALIGN(new_tx_count, IXGBE_REQ_TX_DESCRIPTOR_MULTIPLE);
+	if (ring->tx_pending > IXGBE_MAX_NUM_DESCRIPTORS ||
+	    ring->tx_pending < IXGBE_MIN_NUM_DESCRIPTORS ||
+	    ring->rx_pending > IXGBE_MAX_NUM_DESCRIPTORS ||
+	    ring->rx_pending < IXGBE_MIN_NUM_DESCRIPTORS) {
+		netdev_info(netdev,
+			    "Descriptors requested (Tx: %d / Rx: %d) out of range [%d-%d]\n",
+			    ring->tx_pending, ring->rx_pending,
+			    IXGBE_MIN_NUM_DESCRIPTORS,
+			    IXGBE_MAX_NUM_DESCRIPTORS);
+		return -EINVAL;
+	}
 
-	new_rx_count = clamp_t(u32, ring->rx_pending,
-			       IXGBE_MIN_RXD, IXGBE_MAX_RXD);
-	new_rx_count = ALIGN(new_rx_count, IXGBE_REQ_RX_DESCRIPTOR_MULTIPLE);
+	new_tx_count = ALIGN(ring->tx_pending,
+			     IXGBE_REQ_TX_DESCRIPTOR_MULTIPLE);
+	new_rx_count = ALIGN(ring->rx_pending,
+			     IXGBE_REQ_RX_DESCRIPTOR_MULTIPLE);
 
 	if ((new_tx_count == adapter->tx_ring_count) &&
 	    (new_rx_count == adapter->rx_ring_count)) {
 		/* nothing to do */
 		return 0;
 	}
+
+#ifdef HAVE_AF_XDP_ZC_SUPPORT
+	/* If there is a AF_XDP UMEM attached to any of Rx rings,
+	 * disallow changing the number of descriptors -- regardless
+	 * if the netdev is running or not.
+	 */
+	if (ixgbe_xsk_any_rx_ring_enabled(adapter))
+		return -EBUSY;
+#endif /* HAVE_AF_XDP_ZC_SUPPORT */
 
 	while (test_and_set_bit(__IXGBE_RESETTING, &adapter->state))
 		usleep_range(1000, 2000);
@@ -1823,21 +1850,28 @@ static void ixgbe_get_ethtool_stats(struct net_device *netdev,
 				    struct ethtool_stats __always_unused *stats, u64 *data)
 {
 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
+
+#ifdef HAVE_NDO_GET_STATS64
+	const struct rtnl_link_stats64 *net_stats;
+	struct rtnl_link_stats64 temp;
+	unsigned int start;
+#else
 #ifdef HAVE_NETDEV_STATS_IN_NETDEV
 	struct net_device_stats *net_stats = &netdev->stats;
 #else
 	struct net_device_stats *net_stats = &adapter->net_stats;
 #endif
+#endif
 	u64 *queue_stat;
 	int stat_count, k;
-#ifdef HAVE_NDO_GET_STATS64
-	unsigned int start;
-#endif
 	struct ixgbe_ring *ring;
 	int i, j;
 	char *p;
 
 	ixgbe_update_stats(adapter);
+#ifdef HAVE_NDO_GET_STATS64
+	net_stats = dev_get_stats(netdev, &temp);
+#endif
 
 	for (i = 0; i < IXGBE_NETDEV_STATS_LEN; i++) {
 		p = (char *)net_stats + ixgbe_gstrings_net_stats[i].stat_offset;
@@ -4607,6 +4641,8 @@ static u32 ixgbe_get_priv_flags(struct net_device *netdev)
 	if (adapter->flags2 & IXGBE_FLAG2_RX_LEGACY)
 		priv_flags |= IXGBE_PRIV_FLAGS_LEGACY_RX;
 #endif
+	if (adapter->flags2 & IXGBE_FLAG2_AUTO_DISABLE_VF)
+		priv_flags |= IXGBE_PRIV_FLAGS_AUTO_DISABLE_VF;
 
 	return priv_flags;
 }
@@ -4619,10 +4655,9 @@ static u32 ixgbe_get_priv_flags(struct net_device *netdev)
 static int ixgbe_set_priv_flags(struct net_device *netdev, u32 priv_flags)
 {
 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
-#ifdef HAVE_SWIOTLB_SKIP_CPU_SYNC
 	unsigned int flags2 = adapter->flags2;
-#endif
 	unsigned int flags = adapter->flags;
+	unsigned int i;
 
 	/* allow the user to control the state of the Flow
 	 * Director ATR (Application Targeted Routing) feature
@@ -4651,14 +4686,26 @@ static int ixgbe_set_priv_flags(struct net_device *netdev, u32 priv_flags)
 		flags2 |= IXGBE_FLAG2_RX_LEGACY;
 #endif
 
+	flags2 &= ~IXGBE_FLAG2_AUTO_DISABLE_VF;
+	if (priv_flags & IXGBE_PRIV_FLAGS_AUTO_DISABLE_VF) {
+		if (adapter->hw.mac.type == ixgbe_mac_82599EB) {
+			/* Reset master abort counter */
+			for (i = 0; i < adapter->num_vfs; i++)
+				adapter->vfinfo[i].master_abort_count = 0;
+
+			flags2 |= IXGBE_FLAG2_AUTO_DISABLE_VF;
+		} else {
+			e_info(probe,
+			       "Cannot set private flags: Operation not supported\n");
+			return -EOPNOTSUPP;
+		}
+	}
+
 	if (flags != adapter->flags) {
 		adapter->flags = flags;
 
 		/* ATR state change requires a reset */
 		ixgbe_do_reset(netdev);
-#ifndef HAVE_SWIOTLB_SKIP_CPU_SYNC
-	}
-#else
 	} else if (flags2 != adapter->flags2) {
 		adapter->flags2 = flags2;
 
@@ -4666,7 +4713,6 @@ static int ixgbe_set_priv_flags(struct net_device *netdev, u32 priv_flags)
 		if (netif_running(netdev))
 			ixgbe_reinit_locked(adapter);
 	}
-#endif
 
 	return 0;
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 1999 - 2020 Intel Corporation. */
+/* Copyright(c) 1999 - 2021 Intel Corporation. */
 
 #include "ixgbe_type.h"
 #include "ixgbe_82599.h"
@@ -1489,7 +1489,7 @@ u32 ixgbe_atr_compute_sig_hash_82599(union ixgbe_atr_hash_dword input,
 }
 
 /**
- * ixgbe_atr_add_signature_filter_82599 - Adds a signature hash filter
+ * ixgbe_fdir_add_signature_filter_82599 - Adds a signature hash filter
  * @hw: pointer to hardware structure
  * @input: unique input dword
  * @common: compressed common input dword

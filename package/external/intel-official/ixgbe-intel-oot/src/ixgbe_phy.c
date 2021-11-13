@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 1999 - 2020 Intel Corporation. */
+/* Copyright(c) 1999 - 2021 Intel Corporation. */
 
 #include "ixgbe_api.h"
 #include "ixgbe_common.h"
@@ -556,7 +556,7 @@ void ixgbe_restart_auto_neg(struct ixgbe_hw *hw)
 }
 
 /**
- * ixgbe_read_phy_mdi - Reads a value from a specified PHY register without
+ * ixgbe_read_phy_reg_mdi - Reads a value from a specified PHY register without
  * the SWFW lock
  * @hw: pointer to hardware structure
  * @reg_addr: 32 bit address of PHY register to read

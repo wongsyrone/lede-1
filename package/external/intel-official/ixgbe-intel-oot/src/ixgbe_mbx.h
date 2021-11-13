@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright(c) 1999 - 2020 Intel Corporation. */
+/* Copyright(c) 1999 - 2021 Intel Corporation. */
 
 #ifndef _IXGBE_MBX_H_
 #define _IXGBE_MBX_H_
@@ -121,6 +121,7 @@ enum ixgbe_pfvf_api_rev {
 #define IXGBE_VF_GET_RETA      0x0a    /* VF request for RETA */
 #define IXGBE_VF_GET_RSS_KEY	0x0b    /* get RSS key */
 #define IXGBE_VF_UPDATE_XCAST_MODE	0x0c
+#define IXGBE_VF_GET_LINK_STATE 0x10 /* get vf link state */
 
 /* mode choices for IXGBE_VF_UPDATE_XCAST_MODE */
 enum ixgbevf_xcast_modes {

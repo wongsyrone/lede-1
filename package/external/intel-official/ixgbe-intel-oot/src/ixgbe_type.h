@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright(c) 1999 - 2020 Intel Corporation. */
+/* Copyright(c) 1999 - 2021 Intel Corporation. */
 
 #ifndef _IXGBE_TYPE_H_
 #define _IXGBE_TYPE_H_
@@ -4171,6 +4171,7 @@ struct ixgbe_hw {
 	bool need_crosstalk_fix;
 	/* NVM Update features */
 	struct ixgbe_nvm_features nvmupd_features;
+	u32 fw_rst_cnt;
 };
 
 #define ixgbe_call_func(hw, func, params, error) \

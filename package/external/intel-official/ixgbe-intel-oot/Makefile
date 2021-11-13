@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ixgbe-intel-oot
-PKG_VERSION:=5.10.2
+PKG_VERSION:=5.13.4
 PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk

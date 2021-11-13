@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright(c) 1999 - 2020 Intel Corporation. */
+/* Copyright(c) 1999 - 2021 Intel Corporation. */
 
 #ifndef _IXGBE_H_
 #define _IXGBE_H_
@@ -67,14 +67,14 @@
 /* TX/RX descriptor defines */
 #define IXGBE_DEFAULT_TXD		512
 #define IXGBE_DEFAULT_TX_WORK		256
-#define IXGBE_MAX_TXD			4096
-#define IXGBE_MIN_TXD			64
 
 #define IXGBE_DEFAULT_RXD		512
-#define IXGBE_MAX_RXD			4096
-#define IXGBE_MIN_RXD			64
+
+#define IXGBE_MAX_NUM_DESCRIPTORS	4096
+#define IXGBE_MIN_NUM_DESCRIPTORS	64
 
 #define IXGBE_ETH_P_LLDP		0x88CC
+
 
 /* flow control */
 #define IXGBE_MIN_FCRTL			0x40
@@ -259,6 +259,10 @@ struct vf_data_storage {
 	u16 pf_vlan; /* When set, guest VLAN config not allowed. */
 	u16 pf_qos;
 	u16 tx_rate;
+	int link_enable;
+#ifdef HAVE_NDO_SET_VF_LINK_STATE
+	int link_state;
+#endif
 	u8 spoofchk_enabled;
 #ifdef HAVE_NDO_SET_VF_RSS_QUERY_EN
 	bool rss_query_enabled;
@@ -266,6 +270,7 @@ struct vf_data_storage {
 	u8 trusted;
 	int xcast_mode;
 	unsigned int vf_api;
+	u8 master_abort_count;
 };
 
 struct vf_macvlans {
@@ -312,19 +317,30 @@ struct ixgbe_tx_buffer {
 };
 
 struct ixgbe_rx_buffer {
+#ifndef HAVE_MEM_TYPE_XSK_BUFF_POOL
 	struct sk_buff *skb;
 	dma_addr_t dma;
+#endif
 #ifndef CONFIG_IXGBE_DISABLE_PACKET_SPLIT
 	union {
 		struct {
+#ifdef HAVE_MEM_TYPE_XSK_BUFF_POOL
+			struct sk_buff *skb;
+			dma_addr_t dma;
+#endif
 			struct page *page;
 			__u32 page_offset;
 			__u16 pagecnt_bias;
 		};
 #ifdef HAVE_AF_XDP_ZC_SUPPORT
 		struct {
+#ifndef HAVE_MEM_TYPE_XSK_BUFF_POOL
 			void *addr;
 			u64 handle;
+#else
+			bool discard;
+			struct xdp_buff *xdp;
+#endif
 		};
 #endif
 	};
@@ -440,13 +456,22 @@ struct ixgbe_ring {
 #ifdef CONFIG_IXGBE_DISABLE_PACKET_SPLIT
 		u16 rx_buf_len;
 #else
-		u16 next_to_alloc;
+		union {
+			u16 next_to_alloc;
+			u16 next_rs_idx;
+		};
 #endif
 		struct {
 			u8 atr_sample_rate;
 			u8 atr_count;
 		};
 	};
+
+#ifdef HAVE_XDP_SUPPORT
+#ifdef HAVE_AF_XDP_ZC_SUPPORT
+	u16 xdp_tx_active;
+#endif /* HAVE_AF_XDP_ZC_SUPPORT */
+#endif /* HAVE_XDP_SUPPORT */
 
 	u8 dcb_tc;
 	struct ixgbe_queue_stats stats;
@@ -460,8 +485,14 @@ struct ixgbe_ring {
 #ifdef HAVE_XDP_BUFF_RXQ
 	struct xdp_rxq_info xdp_rxq;
 #ifdef HAVE_AF_XDP_ZC_SUPPORT
-	struct xdp_umem *xsk_umem;
+#ifdef HAVE_NETDEV_BPF_XSK_POOL
+	struct xsk_buff_pool *xsk_pool;
+#else
+	struct xdp_umem *xsk_pool;
+#endif
+#ifndef HAVE_MEM_TYPE_XSK_BUFF_POOL
 	struct zero_copy_allocator zca; /* ZC allocator anchor */
+#endif
 	u16 ring_idx;           /* {rx,tx,xdp}_ring back reference idx */
 	u16 rx_buf_len;
 #endif
@@ -779,12 +810,15 @@ struct ixgbe_therm_proc_data {
 #define MAX_MSIX_Q_VECTORS	IXGBE_MAX_MSIX_Q_VECTORS_82599
 #define MAX_MSIX_COUNT		IXGBE_MAX_MSIX_VECTORS_82599
 
+
 #define MIN_MSIX_Q_VECTORS	1
 #define MIN_MSIX_COUNT		(MIN_MSIX_Q_VECTORS + NON_Q_VECTORS)
 
 /* default to trying for four seconds */
 #define IXGBE_TRY_LINK_TIMEOUT	(4 * HZ)
 #define IXGBE_SFP_POLL_JIFFIES	(2 * HZ)	/* SFP poll every 2 seconds */
+
+#define IXGBE_MASTER_ABORT_LIMIT	5
 
 /* board specific private data structure */
 struct ixgbe_adapter {
@@ -878,6 +912,7 @@ struct ixgbe_adapter {
 #define IXGBE_FLAG2_PHY_INTERRUPT		(u32)(1 << 17)
 #define IXGBE_FLAG2_VLAN_PROMISC		(u32)(1 << 18)
 #define IXGBE_FLAG2_RX_LEGACY			(u32)(1 << 19)
+#define IXGBE_FLAG2_AUTO_DISABLE_VF		BIT(20)
 
 	/* Tx fast path data */
 	int num_tx_queues;
@@ -898,6 +933,7 @@ struct ixgbe_adapter {
 	/* XDP */
 	int num_xdp_queues;
 	struct ixgbe_ring *xdp_ring[MAX_XDP_QUEUES];
+	unsigned long *af_xdp_zc_qps; /* tracks AF_XDP ZC enabled rings */
 
 	/* TX */
 	struct ixgbe_ring *tx_ring[MAX_TX_QUEUES] ____cacheline_aligned_in_smp;
@@ -1080,9 +1116,13 @@ struct ixgbe_adapter {
 #endif
 #ifdef HAVE_AF_XDP_ZC_SUPPORT
 	/* AF_XDP zero-copy */
-	struct xdp_umem **xsk_umems;
-	u16 num_xsk_umems_used;
-	u16 num_xsk_umems;
+#ifdef HAVE_NETDEV_BPF_XSK_POOL
+	struct xsk_buff_pool **xsk_pools;
+#else
+	struct xdp_umem **xsk_pools;
+#endif /* HAVE_NETDEV_BPF_XSK_POOL */
+	u16 num_xsk_pools_used;
+	u16 num_xsk_pools;
 #endif
 };
 
@@ -1145,8 +1185,6 @@ struct ixgbe_cb {
 #endif
 };
 #define IXGBE_CB(skb) ((struct ixgbe_cb *)(skb)->cb)
-
-/* ESX ixgbe CIM IOCTL definition */
 
 #ifdef IXGBE_SYSFS
 void ixgbe_sysfs_exit(struct ixgbe_adapter *adapter);

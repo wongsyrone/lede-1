@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 1999 - 2020 Intel Corporation. */
+/* Copyright(c) 1999 - 2021 Intel Corporation. */
 
 #include "ixgbe_api.h"
 #include "ixgbe_common.h"
@@ -195,8 +195,6 @@ s32 ixgbe_set_mac_type(struct ixgbe_hw *hw)
 		break;
 	}
 
-	hw_dbg(hw, "ixgbe_set_mac_type found mac: %d, returns: %d\n",
-		  hw->mac.type, ret_val);
 	return ret_val;
 }
 
@@ -825,7 +823,7 @@ s32 ixgbe_validate_eeprom_checksum(struct ixgbe_hw *hw, u16 *checksum_val)
 }
 
 /**
- * ixgbe_eeprom_update_checksum - Updates the EEPROM checksum
+ * ixgbe_update_eeprom_checksum - Updates the EEPROM checksum
  * @hw: pointer to hardware structure
  **/
 s32 ixgbe_update_eeprom_checksum(struct ixgbe_hw *hw)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 1999 - 2020 Intel Corporation. */
+/* Copyright(c) 1999 - 2021 Intel Corporation. */
 
 #include <linux/types.h>
 #include <linux/module.h>
@@ -117,6 +117,7 @@ IXGBE_PARAM(DCA, "Disable or enable Direct Cache Access, 0=disabled, "
 
 IXGBE_PARAM(RSS, "Number of Receive-Side Scaling Descriptor Queues, "
 	    "default 0=number of cpus");
+
 
 /* VMDQ - Virtual Machine Device Queues (VMDQ)
  *
@@ -351,7 +352,7 @@ struct ixgbe_option {
 #ifndef IXGBE_NO_LLI
 #ifdef module_param_array
 /**
- * helper function to determine LLI support
+ * ixgbe_lli_supported - helper function to determine LLI support
  * @adapter: board private structure
  * @opt: pointer to option struct
  *
@@ -482,6 +483,7 @@ void ixgbe_check_options(struct ixgbe_adapter *adapter)
 		bd = IXGBE_MAX_NIC;
 #endif
 	}
+
 
 	{ /* Interrupt Mode */
 		unsigned int int_mode;
