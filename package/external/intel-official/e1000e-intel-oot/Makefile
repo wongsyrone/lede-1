@@ -5,6 +5,11 @@ PKG_NAME:=e1000e-intel-oot
 PKG_VERSION:=3.8.7
 PKG_RELEASE:=1
 
+# The e1000e driver is changing to kernel support mode only. There will be no
+# new e1000e drivers on SourceForge.net; the last e1000e driver is 3.8.7.
+
+# Bug fixes and changes are made upstream in the Linux kernel on kernel.org.
+
 include $(INCLUDE_DIR)/package.mk
 
 #define KernelPackage/e1000e
@@ -34,9 +39,9 @@ define KernelPackage/e1000e-intel-oot/description
  Warning: do not select the core package kmod-e1000e as this is an
  updated version of the e1000e driver that shares the same module name
 endef
-
+EXTRA_CFLAGS += -DIGB_PTP -DE1000E_PTP
 define Build/Compile
-	$(KERNEL_MAKE) M="$(PKG_BUILD_DIR)" modules
+	$(KERNEL_MAKE) M="$(PKG_BUILD_DIR)" EXTRA_CFLAGS="$(EXTRA_CFLAGS)" modules
 endef
 
 $(eval $(call KernelPackage,e1000e-intel-oot))
