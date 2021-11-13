@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
-# Copyright(c) 2007 - 2020 Intel Corporation.
+# Copyright(c) 2007 - 2021 Intel Corporation.
 
 ifneq ($(KERNELRELEASE),)
 # kbuild part of makefile
@@ -24,6 +24,7 @@ define igb-y
 	igb_vmdq.o
 	e1000_82575.o
 	e1000_i210.o
+	e1000_base.o
 endef
 igb-y := $(strip ${igb-y})
 

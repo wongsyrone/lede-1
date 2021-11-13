@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 #include "e1000_api.h"
 
@@ -160,6 +160,7 @@ s32 e1000_set_mac_type(struct e1000_hw *hw)
 		break;
 	case E1000_DEV_ID_I210_COPPER_FLASHLESS:
 	case E1000_DEV_ID_I210_SERDES_FLASHLESS:
+	case E1000_DEV_ID_I210_SGMII_FLASHLESS:
 	case E1000_DEV_ID_I210_COPPER:
 	case E1000_DEV_ID_I210_COPPER_OEM1:
 	case E1000_DEV_ID_I210_COPPER_IT:
@@ -171,7 +172,6 @@ s32 e1000_set_mac_type(struct e1000_hw *hw)
 	case E1000_DEV_ID_I211_COPPER:
 		mac->type = e1000_i211;
 		break;
-
 	case E1000_DEV_ID_I354_BACKPLANE_1GBPS:
 	case E1000_DEV_ID_I354_SGMII:
 	case E1000_DEV_ID_I354_BACKPLANE_2_5GBPS:
@@ -372,34 +372,6 @@ s32 e1000_check_for_link(struct e1000_hw *hw)
 		return hw->mac.ops.check_for_link(hw);
 
 	return -E1000_ERR_CONFIG;
-}
-
-/**
- *  e1000_check_mng_mode - Check management mode
- *  @hw: pointer to the HW structure
- *
- *  This checks if the adapter has manageability enabled.
- *  This is a function pointer entry point called by drivers.
- **/
-bool e1000_check_mng_mode(struct e1000_hw *hw)
-{
-	if (hw->mac.ops.check_mng_mode)
-		return hw->mac.ops.check_mng_mode(hw);
-
-	return false;
-}
-
-/**
- *  e1000_mng_write_dhcp_info - Writes DHCP info to host interface
- *  @hw: pointer to the HW structure
- *  @buffer: pointer to the host interface
- *  @length: size of the buffer
- *
- *  Writes the DHCP information to the host interface.
- **/
-s32 e1000_mng_write_dhcp_info(struct e1000_hw *hw, u8 *buffer, u16 length)
-{
-	return e1000_mng_write_dhcp_info_generic(hw, buffer, length);
 }
 
 /**
@@ -650,66 +622,6 @@ s32 e1000_validate_mdi_setting(struct e1000_hw *hw)
 u32 e1000_hash_mc_addr(struct e1000_hw *hw, u8 *mc_addr)
 {
 	return e1000_hash_mc_addr_generic(hw, mc_addr);
-}
-
-/**
- *  e1000_enable_tx_pkt_filtering - Enable packet filtering on TX
- *  @hw: pointer to the HW structure
- *
- *  Enables packet filtering on transmit packets if manageability is enabled
- *  and host interface is enabled.
- *  Currently no func pointer exists and all implementations are handled in the
- *  generic version of this function.
- **/
-bool e1000_enable_tx_pkt_filtering(struct e1000_hw *hw)
-{
-	return e1000_enable_tx_pkt_filtering_generic(hw);
-}
-
-/**
- *  e1000_mng_host_if_write - Writes to the manageability host interface
- *  @hw: pointer to the HW structure
- *  @buffer: pointer to the host interface buffer
- *  @length: size of the buffer
- *  @offset: location in the buffer to write to
- *  @sum: sum of the data (not checksum)
- *
- *  This function writes the buffer content at the offset given on the host if.
- *  It also does alignment considerations to do the writes in most efficient
- *  way.  Also fills up the sum of the buffer in *buffer parameter.
- **/
-s32 e1000_mng_host_if_write(struct e1000_hw *hw, u8 *buffer, u16 length,
-			    u16 offset, u8 *sum)
-{
-	return e1000_mng_host_if_write_generic(hw, buffer, length, offset, sum);
-}
-
-/**
- *  e1000_mng_write_cmd_header - Writes manageability command header
- *  @hw: pointer to the HW structure
- *  @hdr: pointer to the host interface command header
- *
- *  Writes the command header after does the checksum calculation.
- **/
-s32 e1000_mng_write_cmd_header(struct e1000_hw *hw,
-			       struct e1000_host_mng_command_header *hdr)
-{
-	return e1000_mng_write_cmd_header_generic(hw, hdr);
-}
-
-/**
- *  e1000_mng_enable_host_if - Checks host interface is enabled
- *  @hw: pointer to the HW structure
- *
- *  Returns E1000_success upon success, else E1000_ERR_HOST_INTERFACE_COMMAND
- *
- *  This function checks whether the HOST IF is enabled for command operation
- *  and also checks whether the previous command is completed.  It busy waits
- *  in case of previous command is not completed.
- **/
-s32 e1000_mng_enable_host_if(struct e1000_hw *hw)
-{
-	return e1000_mng_enable_host_if_generic(hw);
 }
 
 /**

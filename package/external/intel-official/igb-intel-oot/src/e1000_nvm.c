@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 #include "e1000_api.h"
 
@@ -29,7 +29,7 @@ void e1000_init_nvm_ops_generic(struct e1000_hw *hw)
 }
 
 /**
- *  e1000_null_nvm_read - No-op function, return 0
+ *  e1000_null_read_nvm - No-op function, return 0
  *  @hw: pointer to the HW structure
  *  @a: dummy variable
  *  @b: dummy variable

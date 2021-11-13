@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 #include "e1000_api.h"
 
@@ -116,7 +116,7 @@ void e1000_release_swfw_sync_i210(struct e1000_hw *hw, u16 mask)
 		; /* Empty */
 
 	swfw_sync = E1000_READ_REG(hw, E1000_SW_FW_SYNC);
-	swfw_sync &= ~mask;
+	swfw_sync &= (u32)~mask;
 	E1000_WRITE_REG(hw, E1000_SW_FW_SYNC, swfw_sync);
 
 	e1000_put_hw_semaphore_generic(hw);
@@ -774,8 +774,6 @@ void e1000_init_function_pointers_i210(struct e1000_hw *hw)
 {
 	e1000_init_function_pointers_82575(hw);
 	hw->nvm.ops.init_params = e1000_init_nvm_params_i210;
-
-	return;
 }
 
 /**
@@ -811,77 +809,6 @@ static s32 e1000_valid_led_default_i210(struct e1000_hw *hw, u16 *data)
 	}
 out:
 	return ret_val;
-}
-
-/**
- *  __e1000_access_xmdio_reg - Read/write XMDIO register
- *  @hw: pointer to the HW structure
- *  @address: XMDIO address to program
- *  @dev_addr: device address to program
- *  @data: pointer to value to read/write from/to the XMDIO address
- *  @read: boolean flag to indicate read or write
- **/
-static s32 __e1000_access_xmdio_reg(struct e1000_hw *hw, u16 address,
-				    u8 dev_addr, u16 *data, bool read)
-{
-	s32 ret_val;
-
-	DEBUGFUNC("__e1000_access_xmdio_reg");
-
-	ret_val = hw->phy.ops.write_reg(hw, E1000_MMDAC, dev_addr);
-	if (ret_val)
-		return ret_val;
-
-	ret_val = hw->phy.ops.write_reg(hw, E1000_MMDAAD, address);
-	if (ret_val)
-		return ret_val;
-
-	ret_val = hw->phy.ops.write_reg(hw, E1000_MMDAC, E1000_MMDAC_FUNC_DATA |
-							 dev_addr);
-	if (ret_val)
-		return ret_val;
-
-	if (read)
-		ret_val = hw->phy.ops.read_reg(hw, E1000_MMDAAD, data);
-	else
-		ret_val = hw->phy.ops.write_reg(hw, E1000_MMDAAD, *data);
-	if (ret_val)
-		return ret_val;
-
-	/* Recalibrate the device back to 0 */
-	ret_val = hw->phy.ops.write_reg(hw, E1000_MMDAC, 0);
-	if (ret_val)
-		return ret_val;
-
-	return ret_val;
-}
-
-/**
- *  e1000_read_xmdio_reg - Read XMDIO register
- *  @hw: pointer to the HW structure
- *  @addr: XMDIO address to program
- *  @dev_addr: device address to program
- *  @data: value to be read from the EMI address
- **/
-s32 e1000_read_xmdio_reg(struct e1000_hw *hw, u16 addr, u8 dev_addr, u16 *data)
-{
-	DEBUGFUNC("e1000_read_xmdio_reg");
-
-	return __e1000_access_xmdio_reg(hw, addr, dev_addr, data, true);
-}
-
-/**
- *  e1000_write_xmdio_reg - Write XMDIO register
- *  @hw: pointer to the HW structure
- *  @addr: XMDIO address to program
- *  @dev_addr: device address to program
- *  @data: value to be written to the XMDIO address
- **/
-s32 e1000_write_xmdio_reg(struct e1000_hw *hw, u16 addr, u8 dev_addr, u16 data)
-{
-	DEBUGFUNC("e1000_read_xmdio_reg");
-
-	return __e1000_access_xmdio_reg(hw, addr, dev_addr, &data, false);
 }
 
 /**
@@ -995,6 +922,7 @@ static s32 e1000_get_cfg_done_i210(struct e1000_hw *hw)
 s32 e1000_init_hw_i210(struct e1000_hw *hw)
 {
 	s32 ret_val;
+	struct e1000_mac_info *mac = &hw->mac;
 
 	DEBUGFUNC("e1000_init_hw_i210");
 	if ((hw->mac.type >= e1000_i210) &&
@@ -1004,6 +932,10 @@ s32 e1000_init_hw_i210(struct e1000_hw *hw)
 			return ret_val;
 	}
 	hw->phy.ops.get_cfg_done = e1000_get_cfg_done_i210;
-	ret_val = e1000_init_hw_82575(hw);
+
+	/* Initialize identification LED */
+	ret_val = mac->ops.id_led_init(hw);
+
+	ret_val = e1000_init_hw_base(hw);
 	return ret_val;
 }

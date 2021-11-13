@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 /* glue for the OS independent part of e1000
  * includes register access macros
@@ -120,5 +120,10 @@ u32 e1000_read_reg(struct e1000_hw *hw, u32 reg);
 	readb(READ_ONCE((a)->flash_address) + reg))
 
 #define E1000_REMOVED(h) unlikely(!(h))
+
+/* VF requests to clear all unicast MAC filters */
+#define E1000_VF_MAC_FILTER_CLR	(0x01 << E1000_VT_MSGINFO_SHIFT)
+/* VF requests to add unicast MAC filter */
+#define E1000_VF_MAC_FILTER_ADD	(0x02 << E1000_VT_MSGINFO_SHIFT)
 
 #endif /* _E1000_OSDEP_H_ */

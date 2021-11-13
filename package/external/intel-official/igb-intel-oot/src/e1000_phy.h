@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 #ifndef _E1000_PHY_H_
 #define _E1000_PHY_H_
@@ -57,6 +57,8 @@ enum e1000_phy_type e1000_get_phy_type_from_id(u32 phy_id);
 s32  e1000_determine_phy_address(struct e1000_hw *hw);
 s32  e1000_enable_phy_wakeup_reg_access_bm(struct e1000_hw *hw, u16 *phy_reg);
 s32  e1000_disable_phy_wakeup_reg_access_bm(struct e1000_hw *hw, u16 *phy_reg);
+s32  e1000_access_phy_wakeup_reg_bm(struct e1000_hw *hw, u32 offset,
+				    u16 *data, bool read, bool page_set);
 void e1000_power_up_phy_copper(struct e1000_hw *hw);
 void e1000_power_down_phy_copper(struct e1000_hw *hw);
 s32  e1000_read_phy_reg_mdic(struct e1000_hw *hw, u32 offset, u16 *data);
@@ -76,6 +78,11 @@ s32 e1000_read_phy_reg_mphy(struct e1000_hw *hw, u32 address, u32 *data);
 s32 e1000_write_phy_reg_mphy(struct e1000_hw *hw, u32 address, u32 data,
 			     bool line_override);
 bool e1000_is_mphy_ready(struct e1000_hw *hw);
+
+s32 e1000_read_xmdio_reg(struct e1000_hw *hw, u16 addr, u8 dev_addr,
+			 u16 *data);
+s32 e1000_write_xmdio_reg(struct e1000_hw *hw, u16 addr, u8 dev_addr,
+			  u16 data);
 
 #define E1000_MAX_PHY_ADDR		8
 

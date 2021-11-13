@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 /* Linux PRO/1000 Ethernet Driver main header file */
 
@@ -117,6 +117,7 @@ struct vf_data_storage {
 	u32 uta_table_copy[IGB_MAX_UTA_ENTRIES];
 	u32 flags;
 	unsigned long last_nack;
+	bool trusted;
 #ifdef IFLA_VF_MAX
 	u16 pf_vlan; /* When set, guest VLAN config not allowed. */
 	u16 pf_qos;
@@ -125,6 +126,13 @@ struct vf_data_storage {
 	bool spoofchk_enabled;
 #endif
 #endif
+};
+
+struct vf_mac_filter {
+	struct list_head l;
+	int vf;
+	bool free;
+	u8 vf_mac[ETH_ALEN];
 };
 
 #define IGB_VF_FLAG_CTS            0x00000001 /* VF is clear to send data */
@@ -427,6 +435,8 @@ struct igb_mac_addr {
 #define IGB_MAC_STATE_DEFAULT	0x1
 #define IGB_MAC_STATE_MODIFIED	0x2
 #define IGB_MAC_STATE_IN_USE	0x4
+#define IGB_MAC_STATE_SRC_ADDR  0x8
+#define IGB_MAC_STATE_QUEUE_STEERING 0x10
 
 #define IGB_TXD_DCMD (E1000_ADVTXD_DCMD_EOP | E1000_ADVTXD_DCMD_RS)
 
@@ -484,17 +494,47 @@ struct hwmon_attr {
 	struct e1000_hw *hw;
 	struct e1000_thermal_diode_data *sensor;
 	char name[12];
-	};
+};
 
 struct hwmon_buff {
 	struct device *device;
 	struct hwmon_attr *hwmon_list;
 	unsigned int n_hwmon;
-	};
+};
 #endif /* IGB_HWMON */
 #ifdef ETHTOOL_GRXFHINDIR
 #define IGB_RETA_SIZE	128
 #endif /* ETHTOOL_GRXFHINDIR */
+enum igb_filter_match_flags {
+	IGB_FILTER_FLAG_NONE = 0x0,
+	IGB_FILTER_FLAG_ETHER_TYPE = 0x1,
+	IGB_FILTER_FLAG_VLAN_TCI   = 0x2,
+	IGB_FILTER_FLAG_SRC_MAC_ADDR = 0x4,
+	IGB_FILTER_FLAG_DST_MAC_ADDR = 0x8,
+};
+
+#define IGB_MAX_RXNFC_FILTERS 16
+
+/* RX network flow classification data structure */
+struct igb_nfc_input {
+	/* Byte layout in order, all values with MSB first:
+	 * match_flags - 1 byte
+	 * etype - 2 bytes
+	 * vlan_tci - 2 bytes
+	 */
+	u8 match_flags;
+	__be16 etype;
+	__be16 vlan_tci;
+	u8 src_addr[ETH_ALEN];
+	u8 dst_addr[ETH_ALEN];
+};
+
+struct igb_nfc_filter {
+	struct hlist_node nfc_node;
+	struct igb_nfc_input filter;
+	u16 sw_idx;
+	u16 action;
+};
 
 /* board specific private data structure */
 struct igb_adapter {
@@ -576,6 +616,7 @@ struct igb_adapter {
 
 	int msg_enable;
 
+	struct vf_mac_filter vf_macs;
 	struct igb_q_vector *q_vector[MAX_Q_VECTORS];
 	u32 eims_enable_mask;
 	u32 eims_other;
@@ -650,6 +691,13 @@ struct igb_adapter {
 
 	int copper_tries;
 	u16 eee_advert;
+
+	/* RX network flow classification support */
+	struct hlist_head nfc_filter_list;
+	unsigned int nfc_filter_count;
+	/* lock for RX network flow classification filter */
+	spinlock_t nfc_lock;
+
 #ifdef ETHTOOL_GRXFHINDIR
 	u32 rss_indir_tbl_init;
 	u8 rss_indir_tbl[IGB_RETA_SIZE];
@@ -825,8 +873,6 @@ int igb_ptp_hwtstamp_ioctl(struct net_device *netdev,
 int ethtool_ioctl(struct ifreq *);
 #endif
 int igb_write_mc_addr_list(struct net_device *netdev);
-int igb_add_mac_filter(struct igb_adapter *adapter, u8 *addr, u16 queue);
-int igb_del_mac_filter(struct igb_adapter *adapter, u8 *addr, u16 queue);
 int igb_available_rars(struct igb_adapter *adapter);
 s32 igb_vlvf_set(struct igb_adapter *adapter, u32 vid, bool add, u32 vf);
 void igb_configure_vt_default_pool(struct igb_adapter *adapter);
@@ -851,4 +897,11 @@ void igb_procfs_topdir_exit(void);
 #endif /* IGB_PROCFS */
 #endif /* IGB_HWMON */
 
+int igb_add_filter(struct igb_adapter *adapter, struct igb_nfc_filter *input);
+int igb_del_filter(struct igb_adapter *adapter, struct igb_nfc_filter *input);
+
+int igb_add_mac_steering_filter(struct igb_adapter *adapter,
+				const u8 *addr, u8 queue, u8 flags);
+int igb_del_mac_steering_filter(struct igb_adapter *adapter,
+				const u8 *addr, u8 queue, u8 flags);
 #endif /* _IGB_H_ */

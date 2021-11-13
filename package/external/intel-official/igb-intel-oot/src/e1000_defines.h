@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 #ifndef _E1000_DEFINES_H_
 #define _E1000_DEFINES_H_
@@ -238,6 +238,7 @@
 #define E1000_CTRL_ADVD3WUC	0x00100000 /* D3 WUC */
 #define E1000_CTRL_SWDPIN3	0x00200000 /* SWDPIN 3 value */
 #define E1000_CTRL_SWDPIO0	0x00400000 /* SWDPIN 0 Input or output */
+#define E1000_CTRL_DEV_RST	0x20000000 /* Device reset */
 #define E1000_CTRL_RST		0x04000000 /* Global reset */
 #define E1000_CTRL_RFCE		0x08000000 /* Receive Flow Control enable */
 #define E1000_CTRL_TFCE		0x10000000 /* Transmit flow control enable */
@@ -245,12 +246,12 @@
 #define E1000_CTRL_PHY_RST	0x80000000 /* PHY Reset */
 #define E1000_CTRL_I2C_ENA	0x02000000 /* I2C enable */
 
+#define E1000_CONNSW_AUTOSENSE_EN	0x1
 #define E1000_CONNSW_ENRGSRC		0x4
 #define E1000_CONNSW_PHYSD		0x400
 #define E1000_CONNSW_PHY_PDN		0x800
 #define E1000_CONNSW_SERDESD		0x200
 #define E1000_CONNSW_AUTOSENSE_CONF	0x2
-#define E1000_CONNSW_AUTOSENSE_EN	0x1
 #define E1000_PCS_CFG_PCS_EN		8
 #define E1000_PCS_LCTL_FLV_LINK_UP	1
 #define E1000_PCS_LCTL_FSV_10		0
@@ -288,6 +289,8 @@
 #define E1000_STATUS_GIO_MASTER_ENABLE	0x00080000 /* Master request status */
 #define E1000_STATUS_2P5_SKU		0x00001000 /* Val of 2.5GBE SKU strap */
 #define E1000_STATUS_2P5_SKU_OVER	0x00002000 /* Val of 2.5GBE SKU Over */
+#define E1000_STATUS_PCIM_STATE		0x40000000 /* PCIm function state */
+#define PCIM_DMOFF_EXIT_TIMEOUT 100
 
 #define SPEED_10	10
 #define SPEED_100	100
@@ -302,11 +305,16 @@
 #define ADVERTISE_100_FULL		0x0008
 #define ADVERTISE_1000_HALF		0x0010 /* Not used, just FYI */
 #define ADVERTISE_1000_FULL		0x0020
+#define ADVERTISE_2500_HALF		0x0040 /* NOT used, just FYI */
+#define ADVERTISE_2500_FULL		0x0080
 
 /* 1000/H is not supported, nor spec-compliant. */
 #define E1000_ALL_SPEED_DUPLEX	( \
 	ADVERTISE_10_HALF | ADVERTISE_10_FULL | ADVERTISE_100_HALF | \
 	ADVERTISE_100_FULL | ADVERTISE_1000_FULL)
+#define E1000_ALL_SPEED_DUPLEX_2500 ( \
+	ADVERTISE_10_HALF | ADVERTISE_10_FULL | ADVERTISE_100_HALF | \
+	ADVERTISE_100_FULL | ADVERTISE_1000_FULL | ADVERTISE_2500_FULL)
 #define E1000_ALL_NOT_GIG	( \
 	ADVERTISE_10_HALF | ADVERTISE_10_FULL | ADVERTISE_100_HALF | \
 	ADVERTISE_100_FULL)
@@ -315,6 +323,7 @@
 #define E1000_ALL_HALF_DUPLEX	(ADVERTISE_10_HALF | ADVERTISE_100_HALF)
 
 #define AUTONEG_ADVERTISE_SPEED_DEFAULT		E1000_ALL_SPEED_DUPLEX
+#define AUTONEG_ADVERTISE_SPEED_DEFAULT_2500	E1000_ALL_SPEED_DUPLEX_2500
 
 /* LED Control */
 #define E1000_LEDCTL_LED0_MODE_MASK	0x0000000F
@@ -380,8 +389,8 @@
 #define E1000_RFCTL_LEF			0x00040000
 
 /* Collision related configuration parameters */
-#define E1000_COLLISION_THRESHOLD	15
 #define E1000_CT_SHIFT			4
+#define E1000_COLLISION_THRESHOLD	15
 #define E1000_COLLISION_DISTANCE	63
 #define E1000_COLD_SHIFT		12
 
@@ -464,6 +473,7 @@
 /* SW Semaphore Register */
 #define E1000_SWSM_SMBI		0x00000001 /* Driver Semaphore bit */
 #define E1000_SWSM_SWESMBI	0x00000002 /* FW Semaphore bit */
+#define E1000_SWSM_TIMEOUT	2000       /* Driver Semaphore max timeout counter */
 #define E1000_SWSM_DRV_LOAD	0x00000008 /* Driver Loaded Bit */
 
 #define E1000_SWSM2_LOCK	0x00000002 /* Secondary driver semaphore bit */
@@ -575,9 +585,9 @@
 #define E1000_EICS_OTHER	E1000_EICR_OTHER   /* Interrupt Cause Active */
 
 #define E1000_EITR_ITR_INT_MASK	0x0000FFFF
+#define E1000_EITR_INTERVAL 0x00007FFC
 /* E1000_EITR_CNT_IGNR is only for 82576 and newer */
 #define E1000_EITR_CNT_IGNR	0x80000000 /* Don't reset counters on write */
-#define E1000_EITR_INTERVAL 0x00007FFC
 
 /* Transmit Descriptor Control */
 #define E1000_TXDCTL_PTHRESH	0x0000003F /* TXDCTL Prefetch Threshold */
@@ -701,6 +711,17 @@
 #define E1000_TIMINCA_INCPERIOD_SHIFT	24
 #define E1000_TIMINCA_INCVALUE_MASK	0x00FFFFFF
 
+/* ETQF register bit definitions */
+#define E1000_ETQF_1588			(1 << 30)
+#define E1000_FTQF_VF_BP		0x00008000
+#define E1000_FTQF_1588_TIME_STAMP	0x08000000
+#define E1000_FTQF_MASK			0xF0000000
+#define E1000_FTQF_MASK_PROTO_BP	0x10000000
+/* Immediate Interrupt Rx (A.K.A. Low Latency Interrupt) */
+#define E1000_IMIREXT_CTRL_BP	0x00080000  /* Bypass check of ctrl bits */
+#define E1000_IMIREXT_SIZE_BP	0x00001000  /* Packet size bypass */
+
+#define E1000_RXDADV_STAT_TSIP		0x08000 /* timestamp in packet */
 #define E1000_TSICR_TXTS		0x00000002
 #define E1000_TSIM_TXTS			0x00000002
 /* TUPLE Filtering Configuration */
@@ -744,7 +765,8 @@
 #define E1000_THSTAT_PWR_DOWN		0x00000001 /* Power Down Event */
 #define E1000_THSTAT_LINK_THROTTLE	0x00000002 /* Link Spd Throttle Event */
 
-/* I350 EEE defines */
+/* EEE defines */
+#define E1000_IPCNFG_EEE_2_5G_AN	0x00000010 /* IPCNFG EEE Ena 2.5G AN */
 #define E1000_IPCNFG_EEE_1G_AN		0x00000008 /* IPCNFG EEE Ena 1G AN */
 #define E1000_IPCNFG_EEE_100M_AN	0x00000004 /* IPCNFG EEE Ena 100M AN */
 #define E1000_EEER_TX_LPI_EN		0x00010000 /* EEER Tx LPI Enable */
@@ -1359,6 +1381,33 @@
 #define I210_RXPBSIZE_DEFAULT		0x000000A2 /* RXPBSIZE default */
 #define I210_TXPBSIZE_DEFAULT		0x04000014 /* TXPBSIZE default */
 
+#define E1000_LTRC_EEEMS_EN		0x00000020 /* Enable EEE LTR max send */
+/* Minimum time for 1000BASE-T where no data will be transmit following move out
+ * of EEE LPI Tx state
+ */
+#define E1000_TW_SYSTEM_1000_MASK	0x000000FF
+/* Minimum time for 100BASE-T where no data will be transmit following move out
+ * of EEE LPI Tx state
+ */
+#define E1000_TW_SYSTEM_100_MASK	0x0000FF00
+#define E1000_TW_SYSTEM_100_SHIFT	8
+#define E1000_LTRMINV_LTRV_MASK		0x000003FF /* LTR minimum value */
+#define E1000_LTRMAXV_LTRV_MASK		0x000003FF /* LTR maximum value */
+#define E1000_LTRMINV_SCALE_MASK	0x00001C00 /* LTR minimum scale */
+#define E1000_LTRMINV_SCALE_SHIFT	10
+/* Reg val to set scale to 1024 nsec */
+#define E1000_LTRMINV_SCALE_1024	2
+/* Reg val to set scale to 32768 nsec */
+#define E1000_LTRMINV_SCALE_32768	3
+#define E1000_LTRMINV_LSNP_REQ		0x00008000 /* LTR Snoop Requirement */
+#define E1000_LTRMAXV_SCALE_MASK	0x00001C00 /* LTR maximum scale */
+#define E1000_LTRMAXV_SCALE_SHIFT	10
+/* Reg val to set scale to 1024 nsec */
+#define E1000_LTRMAXV_SCALE_1024	2
+/* Reg val to set scale to 32768 nsec */
+#define E1000_LTRMAXV_SCALE_32768	3
+#define E1000_LTRMAXV_LSNP_REQ		0x00008000 /* LTR Snoop Requirement */
+
 /* Proxy Filter Control */
 #define E1000_PROXYFC_D0		0x00000001 /* Enable offload in D0 */
 #define E1000_PROXYFC_EX		0x00000004 /* Directed exact proxy */
@@ -1368,6 +1417,7 @@
 #define E1000_PROXYFC_IPV4		0x00000040 /* Directed IPv4 Enable */
 #define E1000_PROXYFC_IPV6		0x00000080 /* Directed IPv6 Enable */
 #define E1000_PROXYFC_NS		0x00000200 /* IPv6 Neighbor Solicitation */
+#define E1000_PROXYFC_NS_DIRECTED	0x00000400 /* Directed NS Proxy Ena */
 #define E1000_PROXYFC_ARP		0x00000800 /* ARP Request Proxy Ena */
 /* Proxy Status */
 #define E1000_PROXYS_CLEAR		0xFFFFFFFF /* Clear */

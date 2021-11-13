@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0 */
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 #ifndef _E1000_HW_H_
 #define _E1000_HW_H_
@@ -40,6 +40,7 @@ struct e1000_hw;
 #define E1000_DEV_ID_I210_SGMII			0x1538
 #define E1000_DEV_ID_I210_COPPER_FLASHLESS	0x157B
 #define E1000_DEV_ID_I210_SERDES_FLASHLESS	0x157C
+#define E1000_DEV_ID_I210_SGMII_FLASHLESS	0x15F6
 #define E1000_DEV_ID_I211_COPPER		0x1539
 #define E1000_DEV_ID_I354_BACKPLANE_1GBPS	0x1F40
 #define E1000_DEV_ID_I354_SGMII			0x1F41
@@ -791,6 +792,7 @@ struct e1000_hw {
 
 #include "e1000_82575.h"
 #include "e1000_i210.h"
+#include "e1000_base.h"
 
 /* These functions must be implemented by drivers */
 s32  e1000_read_pcie_cap_reg(struct e1000_hw *hw, u32 reg, u16 *value);

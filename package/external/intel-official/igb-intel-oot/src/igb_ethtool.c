@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0
-/* Copyright(c) 2007 - 2020 Intel Corporation. */
+/* Copyright(c) 2007 - 2021 Intel Corporation. */
 
 /* ethtool support for igb */
 
@@ -72,7 +72,7 @@ static const struct igb_stats igb_gstrings_stats[] = {
 #ifndef IGB_NO_LRO
 	IGB_STAT("lro_aggregated", lro_stats.coal),
 	IGB_STAT("lro_flushed", lro_stats.flushed),
-#endif /* IGB_LRO */
+#endif /* IGB_NO_LRO */
 	IGB_STAT("tx_smbus", stats.mgptc),
 	IGB_STAT("rx_smbus", stats.mgprc),
 	IGB_STAT("dropped_smbus", stats.mgpdc),
@@ -1065,10 +1065,14 @@ static int igb_get_eeprom_len(struct net_device *netdev)
 {
 	struct igb_adapter *adapter = netdev_priv(netdev);
 	struct pci_dev *pdev = adapter->pdev;
+
 	if (adapter->hw.mac.type == e1000_82576)
 		return pci_resource_len(pdev, 0) + pci_resource_len(pdev, 1);
-	else
-		return pci_resource_len(pdev, 0);
+#ifdef CONFIG_SUSE_KERNEL
+	return pci_resource_len(pdev, 0);
+#else
+	return adapter->hw.nvm.word_size * 2;
+#endif
 }
 
 static int igb_get_eeprom(struct net_device *netdev,
@@ -2993,6 +2997,77 @@ static int igb_set_eee(struct net_device *netdev,
 #ifdef ETHTOOL_GRXFH
 #ifdef ETHTOOL_GRXFHINDIR
 
+#define ETHER_TYPE_FULL_MASK ((__force __be16)~0)
+static int igb_get_ethtool_nfc_entry(struct igb_adapter *adapter,
+				     struct ethtool_rxnfc *cmd)
+{
+	struct ethtool_rx_flow_spec *fsp = &cmd->fs;
+	struct igb_nfc_filter *rule = NULL;
+
+	/* report total rule count */
+	cmd->data = IGB_MAX_RXNFC_FILTERS;
+
+	hlist_for_each_entry(rule, &adapter->nfc_filter_list, nfc_node) {
+		if (fsp->location <= rule->sw_idx)
+			break;
+	}
+	if(!rule)
+		return -EINVAL;
+
+	if (rule->filter.match_flags) {
+		fsp->flow_type = ETHER_FLOW;
+		fsp->ring_cookie = rule->action;
+		if (rule->filter.match_flags & IGB_FILTER_FLAG_ETHER_TYPE) {
+			fsp->h_u.ether_spec.h_proto = rule->filter.etype;
+			fsp->m_u.ether_spec.h_proto = ETHER_TYPE_FULL_MASK;
+		}
+		if (rule->filter.match_flags & IGB_FILTER_FLAG_VLAN_TCI) {
+			fsp->flow_type |= FLOW_EXT;
+			fsp->h_ext.vlan_tci = rule->filter.vlan_tci;
+			fsp->m_ext.vlan_tci = htons(VLAN_PRIO_MASK);
+		}
+		if (rule->filter.match_flags & IGB_FILTER_FLAG_DST_MAC_ADDR) {
+			ether_addr_copy(fsp->h_u.ether_spec.h_dest,
+					rule->filter.dst_addr);
+			/* As we only support matching by the full
+			 * mask, return the mask to userspace
+			 */
+			eth_broadcast_addr(fsp->m_u.ether_spec.h_dest);
+		}
+		if (rule->filter.match_flags & IGB_FILTER_FLAG_SRC_MAC_ADDR) {
+			ether_addr_copy(fsp->h_u.ether_spec.h_source,
+					rule->filter.src_addr);
+			/* As we only support matching by the full
+			 * mask, return the mask to userspace
+			 */
+			eth_broadcast_addr(fsp->m_u.ether_spec.h_source);
+		}
+
+		return 0;
+	}
+	return -EINVAL;
+}
+
+static int igb_get_ethtool_nfc_all(struct igb_adapter *adapter,
+				   struct ethtool_rxnfc *cmd,
+				   u32 *rule_locs)
+{
+	struct igb_nfc_filter *rule;
+	int cnt = 0;
+
+	/* report total rule count */
+	cmd->data = IGB_MAX_RXNFC_FILTERS;
+
+	hlist_for_each_entry(rule, &adapter->nfc_filter_list, nfc_node) {
+		if (cnt == cmd->rule_cnt)
+			return -EMSGSIZE;
+		rule_locs[cnt] = rule->sw_idx;
+		cnt++;
+	}
+	cmd->rule_cnt = cnt;
+	return 0;
+}
+
 static int igb_get_rss_hash_opts(struct igb_adapter *adapter,
 				 struct ethtool_rxnfc *cmd)
 {
@@ -3044,19 +3119,31 @@ static int igb_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd,
 #endif
 {
 	struct igb_adapter *adapter = netdev_priv(dev);
-	int ret = -EOPNOTSUPP;
+	int ret;
 
 	switch (cmd->cmd) {
 	case ETHTOOL_GRXRINGS:
 		cmd->data = adapter->num_rx_queues;
 		ret = 0;
 		break;
+	case ETHTOOL_GRXCLSRLCNT:
+		cmd->rule_cnt = adapter->nfc_filter_count;
+		ret = 0;
+		break;
+	case ETHTOOL_GRXCLSRULE:
+		ret = igb_get_ethtool_nfc_entry(adapter, cmd);
+		break;
+	case ETHTOOL_GRXCLSRLALL:
+		ret = igb_get_ethtool_nfc_all(adapter, cmd, rule_locs);
+		break;
+
 #ifdef ETHTOOL_GRXFHINDIR
 	case ETHTOOL_GRXFHINDIR:
 		ret = igb_get_rss_hash_opts(adapter, cmd);
 		break;
 #endif /* ETHTOOL_GRXFHINDIR */
 	default:
+		ret = -EOPNOTSUPP;
 		break;
 	}
 
@@ -3168,6 +3255,179 @@ static int igb_set_rss_hash_opt(struct igb_adapter *adapter,
 	return 0;
 }
 
+int igb_add_filter(struct igb_adapter *adapter, struct igb_nfc_filter *input)
+{
+	struct e1000_hw *hw = &adapter->hw;
+	int err = -EINVAL;
+
+	if (hw->mac.type == e1000_i210 &&
+	    !(input->filter.match_flags & ~IGB_FILTER_FLAG_SRC_MAC_ADDR)) {
+		dev_err(&adapter->pdev->dev,
+			"i210 doesn't support flow classification rules specifying only source addresses.\n");
+		return -EOPNOTSUPP;
+	}
+
+	if (input->filter.match_flags & IGB_FILTER_FLAG_DST_MAC_ADDR) {
+		err = igb_add_mac_steering_filter(adapter,
+						  input->filter.dst_addr,
+						  input->action, 0);
+		err = min_t(int, err, 0);
+		if (err)
+			return err;
+	}
+
+	if (input->filter.match_flags & IGB_FILTER_FLAG_SRC_MAC_ADDR) {
+		err = igb_add_mac_steering_filter(adapter,
+						  input->filter.src_addr,
+						  input->action,
+						  IGB_MAC_STATE_SRC_ADDR);
+		err = min_t(int, err, 0);
+		if (err)
+			return err;
+	}
+
+	return err;
+}
+
+int igb_del_filter(struct igb_adapter *adapter, struct igb_nfc_filter *input)
+{
+	return 0;
+}
+
+static int igb_update_ethtool_nfc_entry(struct igb_adapter *adapter,
+					struct igb_nfc_filter *input,
+					u16 sw_idx)
+{
+	struct igb_nfc_filter *rule, *parent = NULL;
+	int err = -EINVAL;
+
+	hlist_for_each_entry(rule, &adapter->nfc_filter_list, nfc_node) {
+		/* hash found, or no matching entry */
+		if (rule->sw_idx >= sw_idx)
+			break;
+		parent = rule;
+	}
+
+	/* if there is an old rule occupying our place remove it */
+	if (rule && (rule->sw_idx == sw_idx)) {
+		if (!input)
+			err = igb_del_filter(adapter, rule);
+
+		hlist_del(&rule->nfc_node);
+		kfree(rule);
+		adapter->nfc_filter_count--;
+	}
+
+	if (!input)
+		return err;
+
+	/* initialize node */
+	INIT_HLIST_NODE(&input->nfc_node);
+
+	/* add filter to the list */
+	if (parent)
+		hlist_add_behind(&input->nfc_node, &parent->nfc_node);
+	else
+		hlist_add_head(&input->nfc_node, &adapter->nfc_filter_list);
+
+	/* update counts */
+	adapter->nfc_filter_count++;
+
+	return 0;
+}
+
+static int igb_add_ethtool_nfc_entry(struct igb_adapter *adapter,
+				     struct ethtool_rxnfc *cmd)
+{
+	struct net_device *netdev = adapter->netdev;
+	struct ethtool_rx_flow_spec *fsp =
+		(struct ethtool_rx_flow_spec *)&cmd->fs;
+	struct igb_nfc_filter *input, *rule;
+	int err = 0;
+
+	if (!(netdev->hw_features & NETIF_F_NTUPLE))
+		return -ENOTSUPP;
+
+	/* Don't allow programming if the action is a queue greater than
+	 * the number of online Rx queues.
+	 */
+	if ((fsp->ring_cookie == RX_CLS_FLOW_DISC) ||
+	    (fsp->ring_cookie >= adapter->num_rx_queues)) {
+		dev_err(&adapter->pdev->dev,
+			"ethtool -N: The specified action is invalid\n");
+		return -EINVAL;
+	}
+
+	/* Don't allow indexes to exist outside of available space */
+	if (fsp->location >= IGB_MAX_RXNFC_FILTERS) {
+		dev_err(&adapter->pdev->dev, "Location out of range\n");
+		return -EINVAL;
+	}
+
+	if ((fsp->flow_type & ~FLOW_EXT) != ETHER_FLOW)
+		return -EINVAL;
+	input = kzalloc(sizeof(*input), GFP_KERNEL);
+	if (!input)
+		return -ENOMEM;
+
+	/* Only support matching addresses by the full mask */
+	if (is_broadcast_ether_addr(fsp->m_u.ether_spec.h_source)) {
+		input->filter.match_flags |= IGB_FILTER_FLAG_SRC_MAC_ADDR;
+		ether_addr_copy(input->filter.src_addr,
+				fsp->h_u.ether_spec.h_source);
+	}
+
+	/* Only support matching addresses by the full mask */
+	if (is_broadcast_ether_addr(fsp->m_u.ether_spec.h_dest)) {
+		input->filter.match_flags |= IGB_FILTER_FLAG_DST_MAC_ADDR;
+		ether_addr_copy(input->filter.dst_addr,
+				fsp->h_u.ether_spec.h_dest);
+	}
+
+	input->action = fsp->ring_cookie;
+	input->sw_idx = fsp->location;
+
+	spin_lock(&adapter->nfc_lock);
+
+	hlist_for_each_entry(rule, &adapter->nfc_filter_list, nfc_node) {
+		if (memcmp(&input->filter, &rule->filter,
+		    sizeof(input->filter)) != 0) {
+			err = -EEXIST;
+			dev_err(&adapter->pdev->dev,
+				"ethtool: this filter is already set\n");
+			goto err_out_w_lock;
+		}
+	}
+	err = igb_add_filter(adapter, input);
+	if (err)
+		goto err_out_w_lock;
+
+	err = igb_update_ethtool_nfc_entry(adapter, input, input->sw_idx);
+
+	spin_unlock(&adapter->nfc_lock);
+	kfree(input);
+	return err;
+
+err_out_w_lock:
+	spin_unlock(&adapter->nfc_lock);
+	kfree(input);
+	return err;
+}
+
+static int igb_del_ethtool_nfc_entry(struct igb_adapter *adapter,
+				     struct ethtool_rxnfc *cmd)
+{
+	struct ethtool_rx_flow_spec *fsp =
+	       (struct ethtool_rx_flow_spec *)&cmd->fs;
+	int err;
+
+	spin_lock(&adapter->nfc_lock);
+	err = igb_update_ethtool_nfc_entry(adapter, NULL, fsp->location);
+	spin_unlock(&adapter->nfc_lock);
+
+	return err;
+}
+
 static int igb_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd)
 {
 	struct igb_adapter *adapter = netdev_priv(dev);
@@ -3176,6 +3436,12 @@ static int igb_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd)
 	switch (cmd->cmd) {
 	case ETHTOOL_SRXFH:
 		ret = igb_set_rss_hash_opt(adapter, cmd);
+		break;
+	case ETHTOOL_SRXCLSRLINS:
+		ret = igb_add_ethtool_nfc_entry(adapter, cmd);
+		break;
+	case ETHTOOL_SRXCLSRLDEL:
+		ret = igb_del_ethtool_nfc_entry(adapter, cmd);
 		break;
 	default:
 		break;

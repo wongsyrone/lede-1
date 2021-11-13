@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=igb-intel-oot
-PKG_VERSION:=5.5.2
+PKG_VERSION:=5.8.5
 PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -26,6 +26,8 @@ define KernelPackage/igb-intel-oot
     CONFIG_IGB_HWMON=y \
     CONFIG_IGB_DCA=n
   FILES:=$(PKG_BUILD_DIR)/igb.ko
+  MODPARAMS.igb:= \
+    RSS=0
   AUTOLOAD:=$(call AutoLoad,35,igb)
 endef
 
@@ -35,9 +37,9 @@ define KernelPackage/igb-intel-oot/description
  Warning: do not select the core package kmod-igb as this is an
  updated version of the igb driver that shares the same module name
 endef
-
+EXTRA_CFLAGS += -DIGB_PTP
 define Build/Compile
-	$(KERNEL_MAKE) M="$(PKG_BUILD_DIR)" modules
+	$(KERNEL_MAKE) M="$(PKG_BUILD_DIR)" EXTRA_CFLAGS="$(EXTRA_CFLAGS)" modules
 endef
 
 $(eval $(call KernelPackage,igb-intel-oot))
