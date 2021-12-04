@@ -17,6 +17,12 @@ e.optional = true
 e.default = "/etc/zerotier"
 e.rmempty = true
 
+e = t:option(Value, "port", translate("Port"))
+e.optional = true
+e.datatype = "and(uinteger,min(0),max(65535))"
+e.default = "9993"
+e.rmempty = true
+
 e = t:option(Flag, "copy_config_path", translate("Copy Persistent Configuration Folder to RAM?"))
 e.description = translate("copy Persistent Configuration Folder to RAM to prevent writing to flash")
 e.default = 0

@@ -15,8 +15,8 @@ clear_firewall_cfg_ids() {
 }
 
 openwrt_network_auto_nat_enabled() {
-	local nat_enable="$(uci get zerotier.openwrt_network.nat)"
-	[ x"$nat_enable" = x"1" ]
+	nat_enable="$(uci get zerotier.openwrt_network.nat)"
+	[ "$nat_enable" = "1" ]
 }
 
 [ "$ACTION" = "remove" ] && {
@@ -93,13 +93,15 @@ EOF
 
 		ruleid=$(uci add firewall rule)
 		echo "$ruleid" > $FW_ZT_RULE_ID
-	
+
+		port="$(uci get zerotier.openwrt_network.port)"
+		[ -z "$port" ] && port=9993
 		uci -q batch <<-EOF
 set firewall.@rule[-1].name='Allow-ZeroTier-Inbound'
 set firewall.@rule[-1].src='*'
 set firewall.@rule[-1].target='ACCEPT'
 add_list firewall.@rule[-1].proto='all'
-set firewall.@rule[-1].dest_port='9993'
+set firewall.@rule[-1].dest_port='$port'
 commit firewall
 EOF
 		fwdid=$(uci add firewall forwarding)
@@ -127,6 +129,5 @@ set firewall.@forwarding[-1].dest=$INTERFACE
 commit firewall
 EOF
 		fw3 -q reload ;
-	
-	if
+	fi
 } 
