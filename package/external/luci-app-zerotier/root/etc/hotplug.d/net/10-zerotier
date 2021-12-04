@@ -1,0 +1,132 @@
+#!/bin/sh
+. "$IPKG_INSTROOT"/lib/functions.sh
+
+(printf '..%s..' "$INTERFACE" | grep -q zt) || exit 0
+
+# zerotier firewall uci rule id
+FW_ZT_ZONE_ID="/etc/zerotier-fw-zone-cfg-id"
+FW_ZT_RULE_ID="/etc/zerotier-fw-rule-cfg-id"
+FW_ZT_FWD_ID="/etc/zerotier-fw-fwd-cfg-id"
+
+clear_firewall_cfg_ids() {
+	rm -f $FW_ZT_ZONE_ID
+	rm -f $FW_ZT_RULE_ID
+	rm -f $FW_ZT_FWD_ID
+}
+
+openwrt_network_auto_nat_enabled() {
+	local nat_enable="$(uci get zerotier.openwrt_network.nat)"
+	[ x"$nat_enable" = x"1" ]
+}
+
+[ "$ACTION" = "remove" ] && {
+	zoneid=$(cat $FW_ZT_ZONE_ID)
+	ruleid=$(cat $FW_ZT_RULE_ID)
+	fwdid=$(cat $FW_ZT_FWD_ID)
+	
+	uci -q batch <<-EOF >/dev/null
+del network.$INTERFACE
+commit network
+delete firewall.$INTERFACE
+del $(uci -q show firewall | sed -n -e "/\.src='$INTERFACE'$/s///p" | sed -n -e "1p")
+commit firewall
+EOF
+
+	[ -n "$zoneid" ] && uci del firewall.$zoneid
+	[ -n "$ruleid" ] && uci del firewall.$ruleid
+	[ -n "$fwdid" ] && {
+	        for singleFwdid in $fwdid; do
+	                uci del firewall.$singleFwdid
+	        done
+	}
+	if [ -n "$zoneid" ] || [ -n "$ruleid" ] || [ -n "$fwdid" ]; then
+	        uci commit firewall
+	fi
+	
+	clear_firewall_cfg_ids
+	
+	fw3 -q reload
+	ubus call network reload
+}
+
+[ "$ACTION" = "add" ] || exit 0
+[ -d "/sys/class/net/$INTERFACE" ] && {
+	zoneid=$(cat $FW_ZT_ZONE_ID)
+	ruleid=$(cat $FW_ZT_RULE_ID)
+	fwdid=$(cat $FW_ZT_FWD_ID)
+	[ -n "$zoneid" ] && uci del firewall.$zoneid
+	[ -n "$ruleid" ] && uci del firewall.$ruleid
+	[ -n "$fwdid" ] && {
+	        for singleFwdid in $fwdid; do
+	                uci del firewall.$singleFwdid
+	        done
+	}
+	if [ -n "$zoneid" ] || [ -n "$ruleid" ] || [ -n "$fwdid" ]; then
+	        uci commit firewall
+	fi
+	clear_firewall_cfg_ids
+
+	if openwrt_network_auto_nat_enabled; then
+	
+		uci -q batch <<-EOF
+set network.$INTERFACE=interface
+set network.$INTERFACE.ifname=$INTERFACE
+set network.$INTERFACE.proto=none
+set network.$INTERFACE.device=$INTERFACE
+commit network
+EOF
+
+		zoneid=$(uci add firewall zone)
+		echo "$zoneid" > $FW_ZT_ZONE_ID
+
+		uci -q batch <<-EOF
+set firewall.@zone[-1].network=$INTERFACE
+set firewall.@zone[-1].input=ACCEPT
+set firewall.@zone[-1].output=ACCEPT
+set firewall.@zone[-1].forward=ACCEPT
+set firewall.@zone[-1].name=$INTERFACE
+set firewall.@zone[-1].masq=1
+set firewall.@zone[-1].mtu_fix=1
+add_list firewall.@zone[-1].device=$INTERFACE
+commit firewall
+EOF
+
+		ruleid=$(uci add firewall rule)
+		echo "$ruleid" > $FW_ZT_RULE_ID
+	
+		uci -q batch <<-EOF
+set firewall.@rule[-1].name='Allow-ZeroTier-Inbound'
+set firewall.@rule[-1].src='*'
+set firewall.@rule[-1].target='ACCEPT'
+add_list firewall.@rule[-1].proto='all'
+set firewall.@rule[-1].dest_port='9993'
+commit firewall
+EOF
+		fwdid=$(uci add firewall forwarding)
+		echo "$fwdid " > $FW_ZT_FWD_ID
+
+		uci -q batch <<-EOF
+set firewall.@forwarding[-1].src=$INTERFACE
+set firewall.@forwarding[-1].dest=lan
+commit firewall
+EOF
+
+		fwdid="$fwdid $(uci add firewall forwarding)"
+		echo "$fwdid " > $FW_ZT_FWD_ID
+		uci -q batch <<-EOF
+set firewall.@forwarding[-1].src=$INTERFACE
+set firewall.@forwarding[-1].dest=wan
+commit firewall
+EOF
+
+		fwdid="$fwdid $(uci add firewall forwarding)"
+		echo "$fwdid " > $FW_ZT_FWD_ID
+		uci -q batch <<-EOF
+set firewall.@forwarding[-1].src=lan
+set firewall.@forwarding[-1].dest=$INTERFACE
+commit firewall
+EOF
+		fw3 -q reload ;
+	
+	if
+} 
