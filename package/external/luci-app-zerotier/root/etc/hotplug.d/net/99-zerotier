@@ -3,6 +3,14 @@
 #set -x
 
 . "$IPKG_INSTROOT"/lib/functions.sh
+. /etc/init.d/zerotier
+
+# ports are chosen before TAP/TUN device creation
+# port files are written just after being selected
+
+FIRST_PORT_FILE=${GENERATED_CONFIG_PATH}/zerotier-one.port
+SECOND_PORT_FILE=${GENERATED_CONFIG_PATH}/zerotier-one.secondary.port
+THIRD_PORT_FILE=${GENERATED_CONFIG_PATH}/zerotier-one.tertiary.port
 
 function my_log() {
 	logger -t zerotier-hotplug "$@" "ACTION=$ACTION DEVPATH=$DEVPATH SUBSYSTEM=$SUBSYSTEM INTERFACE=$INTERFACE"
@@ -34,38 +42,51 @@ function openwrt_network_auto_nat_enabled() {
 function delete_previous_conf() {
 	my_log "delete firewall config"
 	uci -q batch <<-EOF >/dev/null
-#delete network.$INTERFACE
-#commit network
+delete network.$INTERFACE
+commit network
 delete firewall.zt_zone_$INTERFACE
 delete firewall.zt_rule_allowInbound
 delete firewall.zt_fwd_${INTERFACE}2lan
 delete firewall.zt_fwd_${INTERFACE}2wan
 delete firewall.zt_fwd_lan2${INTERFACE}
+delete firewall.zt_rule_allowSecondPort
+delete firewall.zt_rule_allowThirdPort
 commit firewall
 EOF
 }
 
 if [ "$ACTION" = "remove" ]; then
 	delete_previous_conf
+	rm -f $FIRST_PORT_FILE
+	rm -f $SECOND_PORT_FILE
+	rm -f $THIRD_PORT_FILE
 	/etc/init.d/network reload
 fi
 
 if [ "$ACTION" = "add" ]; then
 		delete_previous_conf
 
-#		uci -q batch <<-EOF
-#set network.$INTERFACE=interface
-#set network.$INTERFACE.ifname=$INTERFACE
-#set network.$INTERFACE.proto=none
-#set network.$INTERFACE.device=$INTERFACE
-#commit network
-#EOF
+		uci -q batch <<-EOF
+set network.$INTERFACE=interface
+set network.$INTERFACE.ifname=$INTERFACE
+set network.$INTERFACE.proto=none
+set network.$INTERFACE.device=$INTERFACE
+commit network
+EOF
+		fw3 -q reload
 
 		if openwrt_network_auto_nat_enabled; then
 			my_log "auto NAT enabled; add firewall config"
+			
 			port="$(uci get zerotier.openwrt_network.port)"
 			[ -z "$port" ] && port=9993
-
+			firstPort=$(cat $FIRST_PORT_FILE)
+			secondPort=$(cat $SECOND_PORT_FILE)
+			thirdPort=$(cat $THIRD_PORT_FILE)
+			[ x"$port" != x"$firstPort" ] && {
+				my_log "logic error, port different $port and $firstPort"
+			}
+			
 			uci -q batch <<-EOF
 add firewall zone
 rename firewall.@zone[-1]=zt_zone_$INTERFACE
@@ -76,9 +97,6 @@ set firewall.@zone[-1].forward=ACCEPT
 set firewall.@zone[-1].name=zerotier
 set firewall.@zone[-1].masq=1
 set firewall.@zone[-1].mtu_fix=0
-set firewall.@zone[-1].fullcone=1
-set firewall.@zone[-1].log='1'
-set firewall.@zone[-1].log_limit='10/second'
 add_list firewall.@zone[-1].device=$INTERFACE
 commit firewall
 add firewall rule
@@ -99,6 +117,32 @@ set firewall.@forwarding[-1].src=lan
 set firewall.@forwarding[-1].dest=zerotier
 commit firewall
 EOF
+			[ -n "$secondPort" ] && {
+			uci -q batch <<-EOF
+add firewall rule
+rename firewall.@rule[-1]=zt_rule_allowSecondPort
+set firewall.@rule[-1].name='Allow-ZeroTier-2ndPort'
+set firewall.@rule[-1].src='*'
+set firewall.@rule[-1].target='ACCEPT'
+add_list firewall.@rule[-1].proto='all'
+set firewall.@rule[-1].dest_port='$secondPort'
+commit firewall
+EOF
+			}
+
+			[ -n "$thirdPort" ] && {
+			uci -q batch <<-EOF
+add firewall rule
+rename firewall.@rule[-1]=zt_rule_allowThirdPort
+set firewall.@rule[-1].name='Allow-ZeroTier-3rdPort'
+set firewall.@rule[-1].src='*'
+set firewall.@rule[-1].target='ACCEPT'
+add_list firewall.@rule[-1].proto='all'
+set firewall.@rule[-1].dest_port='$thirdPort'
+commit firewall
+EOF
+}
 		fi
 		/etc/init.d/network reload
+		/etc/init.d/miniupnpd restart
 fi
