@@ -1,17 +1,41 @@
 #!/bin/sh
+
+#set -x
+
 . "$IPKG_INSTROOT"/lib/functions.sh
 
-(printf '..%s..' "$INTERFACE" | grep -q zt) || exit 0
+function my_log() {
+	logger -t zerotier-hotplug "$@" "ACTION=$ACTION DEVPATH=$DEVPATH SUBSYSTEM=$SUBSYSTEM INTERFACE=$INTERFACE"
+}
 
-openwrt_network_auto_nat_enabled() {
+if [ "$SUBSYSTEM" != "net" ]; then
+	my_log "not net event, ignore"
+	exit 0
+fi
+
+case $INTERFACE in
+	"zt"*)
+	my_log "found zerotier interface: $INTERFACE"
+	;;
+	*)
+	# not found
+	my_log "not zerotier interface: $INTERFACE, ignore"
+	exit 0
+	;;
+esac
+
+
+
+function openwrt_network_auto_nat_enabled() {
 	nat_enable="$(uci get zerotier.openwrt_network.nat)"
 	[ "$nat_enable" = "1" ]
 }
 
-delete_previous_conf() {
+function delete_previous_conf() {
+	my_log "delete firewall config"
 	uci -q batch <<-EOF >/dev/null
-delete network.$INTERFACE
-commit network
+#delete network.$INTERFACE
+#commit network
 delete firewall.zt_zone_$INTERFACE
 delete firewall.zt_rule_allowInbound
 delete firewall.zt_fwd_${INTERFACE}2lan
@@ -21,29 +45,28 @@ commit firewall
 EOF
 }
 
-[ "$ACTION" = "remove" ] && {
+if [ "$ACTION" = "remove" ]; then
 	delete_previous_conf
-	fw3 -q reload
-	ubus call network reload
-}
+	/etc/init.d/network reload
+fi
 
-[ "$ACTION" = "add" ] || exit 0
-[ -d "/sys/class/net/$INTERFACE" ] && {
+if [ "$ACTION" = "add" ]; then
 		delete_previous_conf
 
-		uci -q batch <<-EOF
-set network.$INTERFACE=interface
-set network.$INTERFACE.ifname=$INTERFACE
-set network.$INTERFACE.proto=none
-set network.$INTERFACE.device=$INTERFACE
-commit network
-EOF
+#		uci -q batch <<-EOF
+#set network.$INTERFACE=interface
+#set network.$INTERFACE.ifname=$INTERFACE
+#set network.$INTERFACE.proto=none
+#set network.$INTERFACE.device=$INTERFACE
+#commit network
+#EOF
 
-	if openwrt_network_auto_nat_enabled; then
-		port="$(uci get zerotier.openwrt_network.port)"
-		[ -z "$port" ] && port=9993
+		if openwrt_network_auto_nat_enabled; then
+			my_log "auto NAT enabled; add firewall config"
+			port="$(uci get zerotier.openwrt_network.port)"
+			[ -z "$port" ] && port=9993
 
-		uci -q batch <<-EOF
+			uci -q batch <<-EOF
 add firewall zone
 rename firewall.@zone[-1]=zt_zone_$INTERFACE
 set firewall.@zone[-1].network=$INTERFACE
@@ -52,7 +75,10 @@ set firewall.@zone[-1].output=ACCEPT
 set firewall.@zone[-1].forward=ACCEPT
 set firewall.@zone[-1].name=zerotier
 set firewall.@zone[-1].masq=1
-set firewall.@zone[-1].mtu_fix=1
+set firewall.@zone[-1].mtu_fix=0
+set firewall.@zone[-1].fullcone=1
+set firewall.@zone[-1].log='1'
+set firewall.@zone[-1].log_limit='10/second'
 add_list firewall.@zone[-1].device=$INTERFACE
 commit firewall
 add firewall rule
@@ -68,15 +94,11 @@ rename firewall.@forwarding[-1]=zt_fwd_${INTERFACE}2lan
 set firewall.@forwarding[-1].src=zerotier
 set firewall.@forwarding[-1].dest=lan
 add firewall forwarding
-rename firewall.@forwarding[-1]=zt_fwd_${INTERFACE}2wan
-set firewall.@forwarding[-1].src=zerotier
-set firewall.@forwarding[-1].dest=wan
-add firewall forwarding
 rename firewall.@forwarding[-1]=zt_fwd_lan2${INTERFACE}
 set firewall.@forwarding[-1].src=lan
 set firewall.@forwarding[-1].dest=zerotier
 commit firewall
 EOF
-		fw3 -q reload ;
-	fi
-}
+		fi
+		/etc/init.d/network reload
+fi
