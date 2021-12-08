@@ -12,32 +12,40 @@ e = t:option(Flag, "enabled", translate("Enable"))
 e.default = 0
 e.rmempty=false
 
-e = t:option(Value, "config_path", translate("Persistent Configuration Folder"))
-e.optional = true
-e.default = "/etc/zerotier"
-e.rmempty = true
+e = t:option(Flag, "allowDNS", translate("Let ZeroTier modify the system's DNS settings"))
+e.default = 1
+e.rmempty=false
+
+e = t:option(Flag, "allowDefault", translate("Let ZeroTier modify the system's default route"))
+e.default = 0
+e.rmempty=false
+
+e = t:option(Flag, "allowGlobal", translate("Let ZeroTier manage IP addresses and route assignments that aren't in private ranges (rfc1918)"))
+e.default = 1
+e.rmempty=false
+
+e = t:option(Flag, "allowManaged", translate("Let ZeroTier manage IP addresses and Route assignments"))
+e.default = 1
+e.rmempty=false
 
 e = t:option(Value, "port", translate("Port"))
 e.optional = true
-e.datatype = "and(uinteger,min(0),max(65535))"
+e.datatype = "and(uinteger,max(65535))"
 e.default = "9993"
 e.rmempty = true
-
-e = t:option(Flag, "copy_config_path", translate("Copy Persistent Configuration Folder to RAM?"))
-e.description = translate("copy Persistent Configuration Folder to RAM to prevent writing to flash")
-e.default = 0
-e.rmempty = false
 
 e = t:option(DynamicList, "join", translate('ZeroTier Network ID'))
 e.password = true
 e.rmempty = false
 
 e = t:option(Value, "secret", translate("Secret"))
+e.optional = true
 e.password = true
 e.default = ""
 e.rmempty = false
 
 e = t:option(Value, "public_portion", translate("Public portion"))
+e.optional = true
 e.password = false
 e.default = ""
 e.rmempty = false

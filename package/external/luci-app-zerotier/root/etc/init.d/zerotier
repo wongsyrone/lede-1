@@ -5,7 +5,47 @@ START=90
 USE_PROCD=1
 
 PROG=/usr/bin/zerotier-one
-GENERATED_CONFIG_PATH=/var/lib/zerotier-one
+CONF_DIR=/etc/zerotier
+FIXED_HOME_DIR=/var/lib/zerotier-one
+
+# ports are chosen before TAP/TUN device creation
+# port files are written just after being selected
+
+FIRST_PORT_FILE=${CONF_DIR}/zerotier-one.port
+SECOND_PORT_FILE=${CONF_DIR}/zerotier-one.secondary.port
+THIRD_PORT_FILE=${CONF_DIR}/zerotier-one.tertiary.port
+
+my_log() {
+	logger -t zerotier-init-script "$@"
+}
+
+join_network() {
+	local netId="$1"
+	local net_file="$CONF_DIR/networks.d/$netId.conf"
+	[ -f "$net_file" ] || {
+		mkdir -p "$CONF_DIR/networks.d"
+		# an (empty) config file will cause ZT to join a network
+		touch "$net_file"
+		my_log "join $netId"
+	}
+}
+
+set_network_local_conf() {
+	local netId="$1"
+	local paramName="$2"
+	local paramValue="$3"
+	local ret
+	local local_file="$CONF_DIR/networks.d/$netId.local.conf"
+	if [ -f "$local_file" ]; then
+		# delete exist entry
+		sed -i "/${paramName}/d" "$local_file"
+		my_log "try to delete $paramName from $local_file"
+	else
+		mkdir -p "$CONF_DIR/networks.d"
+		touch $local_file
+	fi
+	echo "${paramName}=${paramValue}" >> $local_file
+}
 
 section_enabled() {
 	config_get_bool enabled "$1" 'enabled' 0
@@ -14,65 +54,45 @@ section_enabled() {
 
 start_instance() {
 	local cfg="$1"
-	local public_portion port secret config_path local_conf copy_config_path generated_cfg_path
+	local public_portion port secret allowDNS allowDefault allowGlobal allowManaged
 	local args=""
 
 	if ! section_enabled "$cfg"; then
 		echo "zerotier init: $cfg: disabled in config"
 		return 1
 	fi
+	
+	[ -d $FIXED_HOME_DIR ] && rm -rf $FIXED_HOME_DIR
+	ln -sf $CONF_DIR $FIXED_HOME_DIR
 
-	config_get config_path $cfg 'config_path'
 	config_get port $cfg 'port'
 	config_get secret $cfg 'secret'
 	config_get public_portion $cfg 'public_portion'
-	config_get local_conf $cfg 'local_conf'
-	config_get_bool copy_config_path $cfg 'copy_config_path' 0
+	config_get_bool allowDNS "$cfg" 'allowDNS' 1
+	config_get_bool allowDefault "$cfg" 'allowDefault' 0
+	config_get_bool allowGlobal "$cfg" 'allowGlobal' 1
+	config_get_bool allowManaged "$cfg" 'allowManaged' 1
 
-	generated_cfg_path=${GENERATED_CONFIG_PATH}_$cfg
+	[ -d $CONF_DIR ] || mkdir -p $CONF_DIR
 
-	# Remove existing link or folder
-	rm -rf $generated_cfg_path
-
-	# Create link or copy files from GENERATED_CONFIG_PATH to config_path
-	if [ -n "$config_path" ] && [ "$config_path" != "$generated_cfg_path" ]; then
-		if [ ! -d "$config_path" ]; then
-			echo "ZeroTier config_path does not exist: $config_path" 1>&2
-			return
-		fi
-
-		# ensure that the target exists
-		mkdir -p $(dirname $generated_cfg_path)
-
-		if [ x"$copy_config_path" = x"1" ]; then
-			cp -r $config_path $generated_cfg_path
-		else
-			ln -s $config_path $generated_cfg_path
-		fi
-	fi
-
-	[ -d $generated_cfg_path/networks.d ] || mkdir -p $generated_cfg_path/networks.d
-	[ -d $generated_cfg_path/peers.d ] || mkdir -p $generated_cfg_path/peers.d
-	[ -d $generated_cfg_path/moons.d ] || mkdir -p $generated_cfg_path/moons.d
-
-	# link latest default config generated_cfg_path to latest config generated_cfg_path
-	rm -f $GENERATED_CONFIG_PATH
-	ln -s $generated_cfg_path $GENERATED_CONFIG_PATH
+	[ -d $CONF_DIR/networks.d ] || mkdir -p $CONF_DIR/networks.d
+	[ -d $CONF_DIR/peers.d ] || mkdir -p $CONF_DIR/peers.d
+	[ -d $CONF_DIR/moons.d ] || mkdir -p $CONF_DIR/moons.d
 
 	if [ -n "$port" ]; then
 		args="$args -p${port}"
 	fi
 
-	old_secret=$(cat $generated_cfg_path/identity.secret)
+	old_secret=$(cat $CONF_DIR/identity.secret)
 	if [ -n "$old_secret" ]; then
-		echo "found old secret on $generated_cfg_path"
+		echo "found old secret on $CONF_DIR"
 		uci set zerotier.$cfg.secret="$old_secret"
 		uci commit zerotier
 		# read secret again
 		config_get secret $cfg 'secret'
 		# extract public from private secret
-		zerotier-idtool getpublic $generated_cfg_path/identity.secret > $generated_cfg_path/identity.public
-		public="$(cat $generated_cfg_path/identity.public)"
+		zerotier-idtool getpublic $CONF_DIR/identity.secret > $CONF_DIR/identity.public
+		public="$(cat $CONF_DIR/identity.public)"
 		uci set zerotier.$cfg.public_portion="$public"
 		uci commit zerotier
 		# read public_portion again
@@ -94,52 +114,52 @@ start_instance() {
 	fi
 
 	if [ -n "$secret" ] && [ x"$old_secret" != x"$secret" ]; then
-		echo "old_secret and uci secret differ, saving to $generated_cfg_path"
-		echo "$secret" > $generated_cfg_path/identity.secret
+		echo "old_secret and uci secret differ, saving to $CONF_DIR"
+		echo "$secret" > $CONF_DIR/identity.secret
 		# make sure there is not previous identity.public
-		rm -f $generated_cfg_path/identity.public
+		rm -f $CONF_DIR/identity.public
 		# extract public from private secret
-		zerotier-idtool getpublic $generated_cfg_path/identity.secret > $generated_cfg_path/identity.public
-		public="$(cat $generated_cfg_path/identity.public)"
+		zerotier-idtool getpublic $CONF_DIR/identity.secret > $CONF_DIR/identity.public
+		public="$(cat $CONF_DIR/identity.public)"
 		uci set zerotier.$cfg.public_portion="$public"
 		uci commit zerotier
 	fi
 
-	if [ -f "$local_conf" ]; then
-		ln -s "$local_conf" $generated_cfg_path/local.conf
-	fi
-
 	add_join() {
-		# an (empty) config file will cause ZT to join a network
-		touch $generated_cfg_path/networks.d/$1.conf
+		join_network "$1"
+		myVal=
+		for pName in allowDNS allowDefault allowGlobal; do
+			config_get_bool myVal $cfg "$pName" 0
+			set_network_local_conf "$1" "$pName" $myVal
+		done
+		
+		config_get_bool myVal $cfg "allowManaged" 1
+		set_network_local_conf "$1" "allowManaged" $myVal
 	}
 
-	config_list_foreach $cfg 'join' add_join
-
 	procd_open_instance
-	procd_set_param command $PROG $args $GENERATED_CONFIG_PATH
+	procd_set_param command $PROG $args $FIXED_HOME_DIR
 	procd_set_param stderr 1
 	procd_set_param respawn
 	procd_close_instance
+	
+	config_list_foreach $cfg 'join' add_join
 }
 
 start_service() {
 	config_load 'zerotier'
-	config_foreach start_instance 'zerotier'
+	start_instance "openwrt_network"
 }
 
 stop_instance() {
 	local cfg="$1"
-	#BUG: zerotier have to write to peers.d/* and should NOT remove these files
-	# Remove existing link or folder
-	#rm -rf ${GENERATED_CONFIG_PATH}_${cfg}
+	rm -f $SECOND_PORT_FILE
+	rm -f $THIRD_PORT_FILE
 }
 
 stop_service() {
 	config_load 'zerotier'
-	config_foreach stop_instance 'zerotier'
-	#BUG: zerotier have to write to peers.d/* and should NOT remove these files
-	#rm -f ${GENERATED_CONFIG_PATH}
+	stop_instance "openwrt_network"
 }
 
 reload_service() {
