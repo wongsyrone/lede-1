@@ -9,6 +9,14 @@ my_log() {
 	logger -t zerotier-hotplug "$@" "ACTION=$ACTION DEVPATH=$DEVPATH SUBSYSTEM=$SUBSYSTEM INTERFACE=$INTERFACE"
 }
 
+# $1: timeout
+delay_run_in_background() {
+	local timeout="$1"
+	shift
+	sleep $timeout;
+	eval "$*" &
+}
+
 if [ "$SUBSYSTEM" != "net" ]; then
 	my_log "not net event, ignore"
 	exit 0
@@ -27,12 +35,12 @@ esac
 
 # adding the unmanaged interface deletes the zerotier entry from the routing table.
 # leave & join fixes it
-rejoin_network_cli() {
+# 'resyncnetwork' works with patched zerotier
+resyncnetwork() {
 	local netId="$1"
 	local ret
-	#ret1=$(zerotier-cli leave $netId)
-	ret2=$(zerotier-cli join "$netId")
-	my_log "join $netId [$ret2]"
+	ret=$(zerotier-cli resyncnetwork "$netId")
+	my_log "sync network managed routes: $netId [$ret]"
 }
 
 set_network_local_conf_cli() {
@@ -110,7 +118,6 @@ EOF
 		
 		netIds="$(uci get zerotier.openwrt_network.join)"
 		for netId in ${netIds}; do
-			rejoin_network_cli "$netId"
 			myVal=
 			for pName in allowDNS allowDefault allowGlobal; do
 				config_get_bool myVal "openwrt_network" "$pName" 0
@@ -119,6 +126,8 @@ EOF
 			
 			config_get_bool myVal "openwrt_network" "allowManaged" 1
 			set_network_local_conf_cli "$netId" "allowManaged" "$myVal"
+
+			delay_run_in_background 15 resyncnetwork "$netId"
 		done
 		
 		if openwrt_network_auto_nat_enabled; then
