@@ -90,6 +90,7 @@ if [ "$ACTION" = "remove" ]; then
 	remove_netif
 	remove_firewall_rules
 	/etc/init.d/network reload
+	delay_run_in_background 15 /etc/init.d/miniupnpd restart
 fi
 
 if [ "$ACTION" = "add" ]; then
@@ -191,4 +192,5 @@ commit firewall
 EOF
 			}
 		fi
+		delay_run_in_background 15 /etc/init.d/miniupnpd restart
 fi
