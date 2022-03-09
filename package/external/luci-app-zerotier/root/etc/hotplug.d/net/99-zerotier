@@ -17,6 +17,20 @@ delay_run_in_background() {
 	eval "$*" &
 }
 
+add_iptables_rule() {
+	local zt_iface="$1"
+	iptables -I FORWARD -i $zt_iface -j ACCEPT -m comment --comment "zt_hotplug: allow inbound forward $zt_iface"
+	iptables -I FORWARD -o $zt_iface -j ACCEPT -m comment --comment "zt_hotplug: allow outbound forward $zt_iface"
+	iptables -t nat -I POSTROUTING -o $zt_iface -j MASQUERADE -m comment --comment "zt_hotplug: allow outbound postrouting masq $zt_iface"
+}
+
+del_iptables_rule() {
+	local zt_iface="$1"
+	iptables -D FORWARD -i $zt_iface -j ACCEPT
+	iptables -D FORWARD -o $zt_iface -j ACCEPT
+	iptables -t nat -D POSTROUTING -o $zt_iface -j MASQUERADE
+}
+
 if [ "$SUBSYSTEM" != "net" ]; then
 	my_log "not net event, ignore"
 	exit 0
@@ -84,6 +98,7 @@ delete firewall.zt_rule_allowSecondPort
 delete firewall.zt_rule_allowThirdPort
 commit firewall
 EOF
+	del_iptables_rule $INTERFACE
 }
 
 if [ "$ACTION" = "remove" ]; then
@@ -191,6 +206,7 @@ set firewall.@rule[-1].dest_port='$thirdPort'
 commit firewall
 EOF
 			}
+			add_iptables_rule $INTERFACE
 		fi
 		delay_run_in_background 15 /etc/init.d/miniupnpd restart
 fi
