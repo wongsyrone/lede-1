@@ -140,6 +140,17 @@ define Device/ctera_c200-v1
 endef
 TARGET_DEVICES += ctera_c200-v1
 
+define Device/endian_4i-edge-200
+  DEVICE_VENDOR := Endian
+  DEVICE_MODEL := 4i Edge 200
+  DEVICE_ALT0_VENDOR := Endian
+  DEVICE_ALT0_MODEL := UTM Mini Firewall
+  DEVICE_PACKAGES := kmod-ath9k kmod-mvsdio wpad-basic-wolfssl
+  KERNEL_SIZE := 4096k
+  IMAGES := sysupgrade.bin
+endef
+TARGET_DEVICES += endian_4i-edge-200
+
 define Device/globalscale_sheevaplug
   DEVICE_VENDOR := Globalscale
   DEVICE_MODEL := Sheevaplug
@@ -172,6 +183,21 @@ define Device/iom_ix2-200
 	check-size
 endef
 TARGET_DEVICES += iom_ix2-200
+
+define Device/iptime_nas1
+  DEVICE_VENDOR := ipTIME
+  DEVICE_MODEL := NAS1
+  DEVICE_PACKAGES := kmod-ata-marvell-sata kmod-fs-ext4 \
+	kmod-gpio-button-hotplug kmod-gpio-pca953x kmod-hwmon-drivetemp \
+	kmod-hwmon-gpiofan kmod-usb-ledtrig-usbport -uboot-envtools
+  KERNEL := $$(KERNEL) | iptime-naspkg nas1
+  BLOCKSIZE := 256k
+  IMAGE_SIZE := 15872k
+  IMAGES := sysupgrade.bin
+  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | \
+	check-size | append-metadata
+endef
+TARGET_DEVICES += iptime_nas1
 
 define Device/linksys
   DEVICE_VENDOR := Linksys
@@ -211,6 +237,18 @@ define Device/linksys_ea4500
   SUPPORTED_DEVICES += linksys,viper linksys-viper
 endef
 TARGET_DEVICES += linksys_ea4500
+
+define Device/netgear_readynas-duo-v2
+  DEVICE_VENDOR := NETGEAR
+  DEVICE_MODEL := ReadyNAS Duo
+  DEVICE_VARIANT := v2
+  DEVICE_DTS := kirkwood-netgear_readynas_duo_v2
+  KERNEL_IN_UBI :=
+  IMAGES := sysupgrade.bin
+  DEVICE_PACKAGES := kmod-ata-marvell-sata kmod-fs-ext4 \
+	kmod-gpio-button-hotplug kmod-hwmon-g762 kmod-rtc-rs5c372a kmod-usb3
+endef
+TARGET_DEVICES += netgear_readynas-duo-v2
 
 define Device/raidsonic_ib-nas62x0
   DEVICE_VENDOR := RaidSonic
