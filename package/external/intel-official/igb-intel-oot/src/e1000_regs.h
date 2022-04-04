@@ -8,10 +8,14 @@
 #define E1000_CTRL	0x00000  /* Device Control - RW */
 #define E1000_STATUS	0x00008  /* Device Status - RO */
 #define E1000_EECD	0x00010  /* EEPROM/Flash Control - RW */
-#define E1000_EERD	0x00014  /* EEPROM Read - RW */
+/* NVM  Register Descriptions */
+#define E1000_EERD		0x00014  /* EEPROM Read - RW */
+#define E1000_EEWR		0x0102C  /* EEPROM Write Register - RW */
+#define E1000_EERD_V2	0x12014  /* EEprom mode read - RW */
+#define E1000_EEWR_V2	0x12018  /* EEprom mode write - RW */
 #define E1000_CTRL_EXT	0x00018  /* Extended Device Control - RW */
-#define E1000_FLA	0x0001C  /* Flash Access - RW */
-#define E1000_MDIC	0x00020  /* MDI Control - RW */
+#define E1000_FLA		0x0001C  /* Flash Access - RW */
+#define E1000_MDIC		0x00020  /* MDI Control - RW */
 #define E1000_MDICNFG	0x00E04  /* MDI Config - RW */
 #define E1000_REGISTER_SET_SIZE		0x20000 /* CSR Size */
 #define E1000_EEPROM_INIT_CTRL_WORD_2	0x0F /* EEPROM Init Ctrl Word 2 */
@@ -67,7 +71,6 @@
 #define E1000_EEMNGCTL_I210	0x01010  /* i210 MNG EEprom Mode Control */
 #define E1000_EEARBC	0x01024  /* EEPROM Auto Read Bus Control */
 #define E1000_EEARBC_I210	0x12024 /* EEPROM Auto Read Bus Control */
-#define E1000_EEWR	0x0102C  /* EEPROM Write Register - RW */
 #define E1000_FLOP	0x0103C  /* FLASH Opcode Register */
 #define E1000_I2CCMD	0x01028  /* SFPI2C Command Register - RW */
 #define E1000_I2CPARAMS	0x0102C /* SFPI2C Parameters Register - RW */
@@ -241,7 +244,7 @@
 #define E1000_FFMT_REG(_i)	(0x09000 + ((_i) * 8))
 #define E1000_FFVT_REG(_i)	(0x09800 + ((_i) * 8))
 #define E1000_FFLT_REG(_i)	(0x05F00 + ((_i) * 8))
-#define E1000_PBSLAC		0x03100  /* Pkt Buffer Slave Access Control */
+#define E1000_PBSLAC	0x03100  /* Pkt Buffer Access Control */
 #define E1000_PBSLAD(_n)	(0x03110 + (0x4 * (_n)))  /* Pkt Buffer DWORD */
 #define E1000_TXPBS		0x03404  /* Tx Packet Buffer Size - RW */
 /* Same as TXPBS, renamed for newer Si - RW */
@@ -640,8 +643,5 @@
 #define E1000_B2OGPRC	0x04158 /* BMC2OS packets received by host */
 #define E1000_O2BGPTC	0x08FE4 /* OS2BMC packets received by BMC */
 #define E1000_O2BSPC	0x0415C /* OS2BMC packets transmitted by host */
-
-#define E1000_LTRMINV	0x5BB0 /* LTR Minimum Value */
-#define E1000_LTRMAXV	0x5BB4 /* LTR Maximum Value */
 
 #endif

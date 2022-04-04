@@ -39,7 +39,7 @@
 #define DRV_HW_PERF
 #define VERSION_SUFFIX
 
-#define DRV_VERSION	"5.8.5" VERSION_SUFFIX DRV_DEBUG DRV_HW_PERF
+#define DRV_VERSION	"5.9.3" VERSION_SUFFIX DRV_DEBUG DRV_HW_PERF
 #define DRV_SUMMARY	"Intel(R) Gigabit Ethernet Linux Driver"
 
 char igb_driver_name[] = "igb";
@@ -2042,7 +2042,7 @@ void igb_reset(struct igb_adapter *adapter)
 		E1000_WRITE_REG(hw, E1000_VFTE, 0);
 	}
 
-	/* Allow time for pending master requests to run */
+	/* Allow time for pending primary requests to run */
 	e1000_reset_hw(hw);
 
 	if (adapter->flags & IGB_FLAG_MEDIA_RESET) {
@@ -9308,8 +9308,8 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake,
 		}
 	}
 
-	/* Allow time for pending master requests to run */
-	e1000_disable_pcie_master(hw);
+	/* Allow time for pending pci primary requests to run */
+	e1000_disable_pcie_primary(hw);
 
 	*enable_wake = wufc || adapter->en_mng_pt;
 	if (!*enable_wake)
@@ -10263,7 +10263,7 @@ static void igb_vmm_control(struct igb_adapter *adapter)
  */
 static u32 igb_get_os_driver_version(void)
 {
-	static const char driver_version[] = "5.8.5";
+	static const char driver_version[] = "5.9.3";
 	u8 driver_version_num[] = {0, 0, 0, 0};
 	char const *c = driver_version;
 	uint pos;

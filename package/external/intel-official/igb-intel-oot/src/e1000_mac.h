@@ -21,7 +21,7 @@ s32  e1000_check_for_fiber_link_generic(struct e1000_hw *hw);
 s32  e1000_check_for_serdes_link_generic(struct e1000_hw *hw);
 s32  e1000_cleanup_led_generic(struct e1000_hw *hw);
 s32  e1000_config_fc_after_link_up_generic(struct e1000_hw *hw);
-s32  e1000_disable_pcie_master_generic(struct e1000_hw *hw);
+s32  e1000_disable_pcie_primary_generic(struct e1000_hw *hw);
 s32  e1000_force_mac_fc_generic(struct e1000_hw *hw);
 s32  e1000_get_auto_rd_done_generic(struct e1000_hw *hw);
 s32  e1000_get_bus_info_pcie_generic(struct e1000_hw *hw);
@@ -37,6 +37,7 @@ s32  e1000_led_off_generic(struct e1000_hw *hw);
 void e1000_update_mc_addr_list_generic(struct e1000_hw *hw,
 				       u8 *mc_addr_list, u32 mc_addr_count);
 int e1000_rar_set_generic(struct e1000_hw *hw, u8 *addr, u32 index);
+s32  e1000_set_default_fc_generic(struct e1000_hw *hw);
 s32  e1000_set_fc_watermarks_generic(struct e1000_hw *hw);
 s32  e1000_setup_fiber_serdes_link_generic(struct e1000_hw *hw);
 s32  e1000_setup_led_generic(struct e1000_hw *hw);

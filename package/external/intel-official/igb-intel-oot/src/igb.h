@@ -199,9 +199,9 @@ struct vf_mac_filter {
 #define IGB_EEPROM_APME         0x0400
 #define AUTO_ALL_MODES          0
 
-#ifndef IGB_MASTER_SLAVE
-/* Switch to override PHY master/slave setting */
-#define IGB_MASTER_SLAVE	e1000_ms_hw_default
+#ifndef IGB_PRIMARY_SECONDARY
+/* Switch to override PHY primary/secondary setting */
+#define IGB_PRIMARY_SECONDARY	e1000_ms_hw_default
 #endif
 
 #define IGB_MNG_VLAN_NONE -1

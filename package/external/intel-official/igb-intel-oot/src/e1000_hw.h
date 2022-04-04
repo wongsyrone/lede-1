@@ -168,8 +168,8 @@ enum e1000_fc_mode {
 
 enum e1000_ms_type {
 	e1000_ms_hw_default = 0,
-	e1000_ms_force_master,
-	e1000_ms_force_slave,
+	e1000_ms_force_primary,
+	e1000_ms_force_secondary,
 	e1000_ms_auto
 };
 

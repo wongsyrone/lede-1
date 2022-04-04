@@ -221,7 +221,7 @@
 /* Device Control */
 #define E1000_CTRL_FD		0x00000001  /* Full duplex.0=half; 1=full */
 #define E1000_CTRL_PRIOR	0x00000004  /* Priority on PCI. 0=rx,1=fair */
-#define E1000_CTRL_GIO_MASTER_DISABLE 0x00000004 /*Blocks new Master reqs */
+#define E1000_CTRL_GIO_PRIMARY_DISABLE 0x00000004 /*Blocks new Primary reqs */
 #define E1000_CTRL_LRST		0x00000008  /* Link reset. 0=normal,1=reset */
 #define E1000_CTRL_ASDE		0x00000020  /* Auto-speed detect enable */
 #define E1000_CTRL_SLU		0x00000040  /* Set link up (Force Link) */
@@ -286,7 +286,7 @@
 #define E1000_STATUS_SPEED_1000		0x00000080 /* Speed 1000Mb/s */
 #define E1000_STATUS_LAN_INIT_DONE	0x00000200 /* Lan Init Compltn by NVM */
 #define E1000_STATUS_PHYRA		0x00000400 /* PHY Reset Asserted */
-#define E1000_STATUS_GIO_MASTER_ENABLE	0x00080000 /* Master request status */
+#define E1000_STATUS_GIO_PRIMARY_ENABLE	0x00080000 /* Primary request status */
 #define E1000_STATUS_2P5_SKU		0x00001000 /* Val of 2.5GBE SKU strap */
 #define E1000_STATUS_2P5_SKU_OVER	0x00002000 /* Val of 2.5GBE SKU Over */
 #define E1000_STATUS_PCIM_STATE		0x40000000 /* PCIm function state */
@@ -631,7 +631,7 @@
 #define E1000_ERR_MAC_INIT		5
 #define E1000_ERR_PHY_TYPE		6
 #define E1000_ERR_RESET			9
-#define E1000_ERR_MASTER_REQUESTS_PENDING	10
+#define E1000_ERR_PRIMARY_REQUESTS_PENDING	10
 #define E1000_ERR_HOST_INTERFACE_COMMAND	11
 #define E1000_BLK_PHY_RESET		12
 #define E1000_ERR_SWFW_SYNC		13
@@ -648,8 +648,8 @@
 #define COPPER_LINK_UP_LIMIT		10
 #define PHY_AUTO_NEG_LIMIT		45
 #define PHY_FORCE_LIMIT			20
-/* Number of 100 microseconds we wait for PCI Express master disable */
-#define MASTER_DISABLE_TIMEOUT		800
+/* Number of 100 microseconds we wait for PCI Express primary disable */
+#define PRIMARY_DISABLE_TIMEOUT		800
 /* Number of milliseconds we wait for PHY configuration done after MAC reset */
 #define PHY_CFG_TIMEOUT			100
 /* Number of 2 milliseconds we wait for acquiring MDIO ownership. */
@@ -779,7 +779,7 @@
 #define E1000_EEE_LP_ADV_ADDR_I350	0x040F     /* EEE LP Advertisement */
 #define E1000_M88E1543_PAGE_ADDR	0x16       /* Page Offset Register */
 #define E1000_M88E1543_EEE_CTRL_1	0x0
-#define E1000_M88E1543_EEE_CTRL_1_MS	0x0001     /* EEE Master/Slave */
+#define E1000_M88E1543_EEE_CTRL_1_MS	0x0001     /* EEE Primary/Secondary */
 #define E1000_M88E1543_FIBER_CTRL	0x0        /* Fiber Control Register */
 #define E1000_EEE_ADV_DEV_I354		7
 #define E1000_EEE_ADV_ADDR_I354		60
@@ -897,14 +897,16 @@
 #define CR_1000T_FD_CAPS	0x0200 /* Advertise 1000T FD capability  */
 /* 1=Repeater/switch device port 0=DTE device */
 #define CR_1000T_REPEATER_DTE	0x0400
-/* 1=Configure PHY as Master 0=Configure PHY as Slave */
+/* 1=Configure PHY as Primary 0=Configure PHY as Secondary */
 #define CR_1000T_MS_VALUE	0x0800
-/* 1=Master/Slave manual config value 0=Automatic Master/Slave config */
+/* 1=Primary/Secondary manual config value
+ * 0=Automatic Primary/Secondary config
+ */
 #define CR_1000T_MS_ENABLE	0x1000
 #define CR_1000T_TEST_MODE_NORMAL 0x0000 /* Normal Operation */
 #define CR_1000T_TEST_MODE_1	0x2000 /* Transmit Waveform test */
-#define CR_1000T_TEST_MODE_2	0x4000 /* Master Transmit Jitter test */
-#define CR_1000T_TEST_MODE_3	0x6000 /* Slave Transmit Jitter test */
+#define CR_1000T_TEST_MODE_2	0x4000 /* Primary Transmit Jitter test */
+#define CR_1000T_TEST_MODE_3	0x6000 /* Secondary Transmit Jitter test */
 #define CR_1000T_TEST_MODE_4	0x8000 /* Transmitter Distortion test */
 
 /* 1000BASE-T Status Register */
@@ -914,8 +916,8 @@
 #define SR_1000T_LP_FD_CAPS		0x0800 /* LP is 1000T FD capable */
 #define SR_1000T_REMOTE_RX_STATUS	0x1000 /* Remote receiver OK */
 #define SR_1000T_LOCAL_RX_STATUS	0x2000 /* Local receiver OK */
-#define SR_1000T_MS_CONFIG_RES		0x4000 /* 1=Local Tx Master, 0=Slave */
-#define SR_1000T_MS_CONFIG_FAULT	0x8000 /* Master/Slave config fault */
+#define SR_1000T_MS_CONFIG_RES	0x4000 /* 1=Local Tx Primary, 0=Secondary */
+#define SR_1000T_MS_CONFIG_FAULT 0x8000 /* Primary/Secondary config fault */
 
 #define SR_1000T_PHY_EXCESSIVE_IDLE_ERR_COUNT	5
 
@@ -1226,15 +1228,15 @@
 #define M88E1000_PSSR_CABLE_LENGTH_SHIFT	7
 
 /* Number of times we will attempt to autonegotiate before downshifting if we
- * are the master
+ * are the primary
  */
-#define M88E1000_EPSCR_MASTER_DOWNSHIFT_MASK	0x0C00
-#define M88E1000_EPSCR_MASTER_DOWNSHIFT_1X	0x0000
+#define M88E1000_EPSCR_PRIMARY_DOWNSHIFT_MASK	0x0C00
+#define M88E1000_EPSCR_PRIMARY_DOWNSHIFT_1X	0x0000
 /* Number of times we will attempt to autonegotiate before downshifting if we
- * are the slave
+ * are the secondary
  */
-#define M88E1000_EPSCR_SLAVE_DOWNSHIFT_MASK	0x0300
-#define M88E1000_EPSCR_SLAVE_DOWNSHIFT_1X	0x0100
+#define M88E1000_EPSCR_SECONDARY_DOWNSHIFT_MASK	0x0300
+#define M88E1000_EPSCR_SECONDARY_DOWNSHIFT_1X	0x0100
 #define M88E1000_EPSCR_TX_CLK_25	0x0070 /* 25  MHz TX_CLK */
 
 /* Intel I347AT4 Registers */
@@ -1245,7 +1247,7 @@
 /* I347AT4 Extended PHY Specific Control Register */
 
 /* Number of times we will attempt to autonegotiate before downshifting if we
- * are the master
+ * are the primary
  */
 #define I347AT4_PSCR_DOWNSHIFT_ENABLE	0x0800
 #define I347AT4_PSCR_DOWNSHIFT_MASK	0x7000
@@ -1380,33 +1382,6 @@
 #define E1000_TXPB0S_SIZE_I210_MASK	0x0000003F /* Tx packet buffer 0 size */
 #define I210_RXPBSIZE_DEFAULT		0x000000A2 /* RXPBSIZE default */
 #define I210_TXPBSIZE_DEFAULT		0x04000014 /* TXPBSIZE default */
-
-#define E1000_LTRC_EEEMS_EN		0x00000020 /* Enable EEE LTR max send */
-/* Minimum time for 1000BASE-T where no data will be transmit following move out
- * of EEE LPI Tx state
- */
-#define E1000_TW_SYSTEM_1000_MASK	0x000000FF
-/* Minimum time for 100BASE-T where no data will be transmit following move out
- * of EEE LPI Tx state
- */
-#define E1000_TW_SYSTEM_100_MASK	0x0000FF00
-#define E1000_TW_SYSTEM_100_SHIFT	8
-#define E1000_LTRMINV_LTRV_MASK		0x000003FF /* LTR minimum value */
-#define E1000_LTRMAXV_LTRV_MASK		0x000003FF /* LTR maximum value */
-#define E1000_LTRMINV_SCALE_MASK	0x00001C00 /* LTR minimum scale */
-#define E1000_LTRMINV_SCALE_SHIFT	10
-/* Reg val to set scale to 1024 nsec */
-#define E1000_LTRMINV_SCALE_1024	2
-/* Reg val to set scale to 32768 nsec */
-#define E1000_LTRMINV_SCALE_32768	3
-#define E1000_LTRMINV_LSNP_REQ		0x00008000 /* LTR Snoop Requirement */
-#define E1000_LTRMAXV_SCALE_MASK	0x00001C00 /* LTR maximum scale */
-#define E1000_LTRMAXV_SCALE_SHIFT	10
-/* Reg val to set scale to 1024 nsec */
-#define E1000_LTRMAXV_SCALE_1024	2
-/* Reg val to set scale to 32768 nsec */
-#define E1000_LTRMAXV_SCALE_32768	3
-#define E1000_LTRMAXV_LSNP_REQ		0x00008000 /* LTR Snoop Requirement */
 
 /* Proxy Filter Control */
 #define E1000_PROXYFC_D0		0x00000001 /* Enable offload in D0 */
