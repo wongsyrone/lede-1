@@ -8,6 +8,8 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/ninja-build/ninja/tar.gz/v$(PKG_VERSION)?
 PKG_HASH:=ce35865411f0490368a8fc383f29071de6690cbadc27704734978221f25e2bed
 
+HOST_BUILD_DEPENDS:=python3/host
+
 include $(INCLUDE_DIR)/host-build.mk
 
 CONFIGURE_ARGS:=
@@ -23,7 +25,7 @@ define Host/Compile
 		CXX="$(HOSTCXX_NOCACHE)" \
 		CXXFLAGS="$(HOST_CXXFLAGS) $(HOST_CPPFLAGS)" \
 		LDFLAGS="$(HOST_LDFLAGS)" \
-		$(STAGING_DIR_HOST)/bin/$(PYTHON) configure.py --bootstrap $(CONFIGURE_ARGS)
+		$(PYTHON) configure.py --bootstrap $(CONFIGURE_ARGS)
 endef
 
 define Host/Install
