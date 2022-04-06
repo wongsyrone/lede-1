@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dnsmasq
-PKG_UPSTREAM_VERSION:=2.86
+PKG_UPSTREAM_VERSION:=2.87test8
 PKG_VERSION:=$(subst test,~~test,$(subst rc,~rc,$(PKG_UPSTREAM_VERSION)))
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION).tar.xz
-PKG_SOURCE_URL:=http://thekelleys.org.uk/dnsmasq
-PKG_HASH:=28d52cfc9e2004ac4f85274f52b32e1647b4dbc9761b82e7de1e41c49907eb08
+PKG_SOURCE_URL:=http://thekelleys.org.uk/dnsmasq/test-releases
+PKG_HASH:=cb7245f4726d5692dd27d8c5f8ece8b88c9995fc0d649fd76d2870f80b852369
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
@@ -33,7 +33,8 @@ PKG_CONFIG_DEPENDS:= CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_dhcp \
 	CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_conntrack \
 	CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_noid \
 	CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_broken_rtc \
-	CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_tftp
+	CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_tftp \
+	CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_nftset
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -49,7 +50,6 @@ endef
 define Package/dnsmasq
 $(call Package/dnsmasq/Default)
   VARIANT:=nodhcpv6
-  DEPENDS+=+kmod-ipt-ipset
 endef
 
 define Package/dnsmasq-dhcpv6
@@ -62,10 +62,11 @@ endef
 
 define Package/dnsmasq-full
 $(call Package/dnsmasq/Default)
-  TITLE += (with DNSSEC, DHCPv6, Auth DNS, IPset, Conntrack, NO_ID enabled by default)
+  TITLE += (with DNSSEC, DHCPv6, Auth DNS, IPset, Conntrack, NO_ID, nftset enabled by default)
   DEPENDS+=+PACKAGE_dnsmasq_full_dnssec:libnettle \
 	+PACKAGE_dnsmasq_full_ipset:kmod-ipt-ipset \
-	+PACKAGE_dnsmasq_full_conntrack:libnetfilter-conntrack
+	+PACKAGE_dnsmasq_full_conntrack:libnetfilter-conntrack \
+	+PACKAGE_dnsmasq_full_nftset:nftables-json
   VARIANT:=full
   PROVIDES:=dnsmasq
 endef
@@ -123,6 +124,10 @@ define Package/dnsmasq-full/config
 	config PACKAGE_dnsmasq_full_tftp
 		bool "Build with TFTP server support."
 		default y
+	config PACKAGE_dnsmasq_full_nftset
+		bool "Build with nftset support."
+		depends on DEFAULT_nftables
+		default y
 	endif
 endef
 
@@ -148,10 +153,11 @@ ifeq ($(BUILD_VARIANT),full)
 		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_conntrack),-DHAVE_CONNTRACK,) \
 		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_noid),-DNO_ID,) \
 		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_broken_rtc),-DHAVE_BROKEN_RTC) \
-		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_tftp),,-DNO_TFTP)
+		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_tftp),,-DNO_TFTP) \
+		$(if $(CONFIG_PACKAGE_dnsmasq_$(BUILD_VARIANT)_nftset),-DHAVE_NFTSET,)
 	COPTS += $(if $(CONFIG_LIBNETTLE_MINI),-DNO_GMP,)
 else
-	COPTS += -DNO_AUTH -DNO_ID
+	COPTS += -DNO_AUTH -DNO_IPSET -DNO_ID
 endif
 
 MAKE_FLAGS := \
