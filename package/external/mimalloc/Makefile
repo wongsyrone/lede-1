@@ -7,13 +7,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mimalloc
-PKG_VERSION:=1.7.0
-PKG_RELEASE:=92ead2d
+PKG_VERSION:=1.7.5
+PKG_RELEASE:=817569d
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/microsoft/mimalloc.git
+PKG_MIRROR_HASH:=999added494fb963ee6480ee6b7c815d3a2bea49d8c4d62f4798881453c36c14
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=92ead2d88061dde1264800b389b744ac1b79cf39
+PKG_SOURCE_VERSION:=817569dfad79732233fb86649c89e04387ce02e9
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
 CMAKE_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
@@ -43,7 +44,7 @@ endef
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib $(1)/usr/include
 	$(CP) -v $(PKG_INSTALL_DIR)/usr/lib/mimalloc-*/*.a $(1)/usr/lib/
-	$(CP) -v $(PKG_INSTALL_DIR)/usr/lib/mimalloc-*/include/* $(1)/usr/include/
+	$(CP) -v $(PKG_INSTALL_DIR)/usr/include/mimalloc-*/* $(1)/usr/include/
 endef
 
 # static lib only, no need to install to target
