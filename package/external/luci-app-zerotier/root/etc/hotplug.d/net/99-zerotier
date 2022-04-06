@@ -19,6 +19,7 @@ delay_run_in_background() {
 
 add_iptables_rule() {
 	local zt_iface="$1"
+	my_log "add iptables rule"
 	iptables -I FORWARD -i $zt_iface -j ACCEPT -m comment --comment "zt_hotplug: allow inbound forward $zt_iface"
 	iptables -I FORWARD -o $zt_iface -j ACCEPT -m comment --comment "zt_hotplug: allow outbound forward $zt_iface"
 	iptables -t nat -I POSTROUTING -o $zt_iface -j MASQUERADE -m comment --comment "zt_hotplug: allow outbound postrouting masq $zt_iface"
@@ -26,9 +27,28 @@ add_iptables_rule() {
 
 del_iptables_rule() {
 	local zt_iface="$1"
+	my_log "del iptables rule"
 	iptables -D FORWARD -i $zt_iface -j ACCEPT
 	iptables -D FORWARD -o $zt_iface -j ACCEPT
 	iptables -t nat -D POSTROUTING -o $zt_iface -j MASQUERADE
+}
+
+add_nftables_rule() {
+	local zt_iface="$1"
+	my_log "add nftables rule"
+
+	nft add chain inet fw4 zt_auto_nat_pre_fwd \{ type filter hook forward priority -50\; policy accept\; \} 2>&1
+
+	nft insert rule inet fw4 zt_auto_nat_pre_fwd iifname \"$zt_iface\" counter accept comment \"zt_hotplug: allow inbound forward $zt_iface \" 2>&1
+
+	nft insert rule inet fw4 zt_auto_nat_pre_fwd oifname \"$zt_iface\" counter accept comment \"zt_hotplug: allow outbound forward $zt_iface \" 2>&1
+}
+
+del_nftables_rule() {
+	local zt_iface="$1"
+	my_log "del nftables rule"
+	nft flush chain inet fw4 zt_auto_nat_pre_fwd 2>&1
+	nft delete chain inet fw4 zt_auto_nat_pre_fwd 2>&1
 }
 
 if [ "$SUBSYSTEM" != "net" ]; then
@@ -88,6 +108,12 @@ EOF
 
 remove_firewall_rules() {
 	my_log "delete firewall rules"
+	if [ -f "/usr/sbin/nft" ]; then
+		del_nftables_rule $INTERFACE
+	else
+		del_iptables_rule $INTERFACE
+	fi
+
 	uci -q batch <<-EOF >/dev/null
 delete firewall.zt_zone_$INTERFACE
 delete firewall.zt_rule_allowInbound
@@ -98,14 +124,12 @@ delete firewall.zt_rule_allowSecondPort
 delete firewall.zt_rule_allowThirdPort
 commit firewall
 EOF
-	del_iptables_rule $INTERFACE
 }
 
 if [ "$ACTION" = "remove" ]; then
-	remove_netif
 	remove_firewall_rules
+	remove_netif
 	/etc/init.d/network reload
-	delay_run_in_background 15 /etc/init.d/miniupnpd restart
 fi
 
 if [ "$ACTION" = "add" ]; then
@@ -129,7 +153,6 @@ set firewall.@zone[-1].mtu_fix=0
 add_list firewall.@zone[-1].device=$INTERFACE
 commit firewall
 EOF
-		fw3 -q reload
 		config_load 'zerotier'
 		
 		netIds="$(uci get zerotier.openwrt_network.join)"
@@ -206,7 +229,10 @@ set firewall.@rule[-1].dest_port='$thirdPort'
 commit firewall
 EOF
 			}
-			add_iptables_rule $INTERFACE
+			if [ -f "/usr/sbin/nft" ]; then
+				add_nftables_rule $INTERFACE
+			else
+				add_iptables_rule $INTERFACE
+			fi
 		fi
-		delay_run_in_background 15 /etc/init.d/miniupnpd restart
 fi
