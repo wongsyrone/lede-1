@@ -26,6 +26,9 @@ PKG_BUILD_DEPENDS := mimalloc libevent2-wong
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
+RSTRIP:=:
+STRIP:=:
+
 MY_LIBEVENT_STAGING_DIR := $(BUILD_DIR)/libevent2-wong/usr
 
 TARGET_CFLAGS += -Wall -Wextra
