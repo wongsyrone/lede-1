@@ -16,11 +16,9 @@ local function fastpath_status()
 	return luci.sys.call("/etc/init.d/turboacc check_status fastpath") == 0
 end
 
-
 local function fullconenat_status()
 	return luci.sys.call("/etc/init.d/turboacc check_status fullconenat") == 0
 end
-
 
 function action_status()
 	luci.http.prepare_content("application/json")
