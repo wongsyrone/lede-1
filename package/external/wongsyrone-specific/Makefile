@@ -7,24 +7,28 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wongsyrone-specific
-PKG_VERSION:=1
+PKG_VERSION:=2
 
 
 include $(INCLUDE_DIR)/package.mk
 
+# iptables
+# +IPV6:ip6tables-extra +IPV6:ip6tables-mod-nat
+# +iptables-mod-extra +iptables-mod-filter +iptables-mod-ipopt +iptables-mod-nat-extra +iptables-mod-tproxy
+# +iptables-mod-fullconenat
 
 define Package/wongsyrone-specific
 	SECTION:=wongsyrone
 	CATEGORY:=wongsyrone Specific
 	TITLE:=wongsyrone specific packages
-	DEPENDS:=+ipset +ip +iptables-mod-extra +iptables-mod-filter +iptables-mod-ipopt +iptables-mod-nat-extra +iptables-mod-tproxy \
-		+IPV6:ip6tables-extra +IPV6:ip6tables-mod-nat \
-		+libsodium \
+	DEPENDS:=+ipset +ip  \
+		+kmod-nf-nathelper +kmod-nf-nathelper-extra +kmod-nft-socket +kmod-nft-compat +kmod-nft-tproxy \
 		+transocks-wong +ipt2socks \
-		+pdnsd +trojan +v2ray +vlmcsd +pcap-dnsproxy \
-		+iptables-mod-fullconenat +luci-app-turboacc \
+		+pdnsd +trojan +v2ray +vlmcsd \
+		+luci-app-turboacc \
 		+ethtool \
-		+kmod-igb-intel-oot +kmod-e1000e-intel-oot +kmod-ixgbe-intel-oot
+		+kmod-igb +kmod-e1000e \
+		+kmod-nft-fullcone
 endef
 
 define Package/wongsyrone-specific/description
