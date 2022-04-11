@@ -5,6 +5,8 @@
 . "$IPKG_INSTROOT"/lib/functions.sh
 . /etc/init.d/zerotier
 
+NFTABLES_AUTO_NAT_RULE_FILE="/etc/nftables.d/99-zerotier-auto-nat-auto-generated-do-not-touch.nft"
+
 my_log() {
 	logger -t zerotier-hotplug "$@" "ACTION=$ACTION DEVPATH=$DEVPATH SUBSYSTEM=$SUBSYSTEM INTERFACE=$INTERFACE"
 }
@@ -35,20 +37,31 @@ del_iptables_rule() {
 
 add_nftables_rule() {
 	local zt_iface="$1"
+	cat > $NFTABLES_AUTO_NAT_RULE_FILE <<EOF
+	chain zt_auto_nat_pre_fwd {
+		type filter hook forward priority -50; policy accept;
+		iifname "$zt_iface" counter accept comment "zt_hotplug: allow inbound forward $zt_iface"
+		oifname "$zt_iface" counter accept comment "zt_hotplug: allow outbound forward $zt_iface"
+	}
+	chain zt_auto_nat_post_rt {
+		type nat hook postrouting priority srcnat; policy accept;
+		oifname "$zt_iface" counter meta nfproto ipv6 masquerade comment "zt_hotplug: allow outbound postrouting masq IPv6 $zt_iface"
+		oifname "$zt_iface" counter meta nfproto ipv4 masquerade comment "zt_hotplug: allow outbound postrouting masq IPv4 $zt_iface"
+	}
+EOF
 	my_log "add nftables rule"
-
-	nft add chain inet fw4 zt_auto_nat_pre_fwd \{ type filter hook forward priority -50\; policy accept\; \} 2>&1
-
-	nft insert rule inet fw4 zt_auto_nat_pre_fwd iifname \"$zt_iface\" counter accept comment \"zt_hotplug: allow inbound forward $zt_iface \" 2>&1
-
-	nft insert rule inet fw4 zt_auto_nat_pre_fwd oifname \"$zt_iface\" counter accept comment \"zt_hotplug: allow outbound forward $zt_iface \" 2>&1
+	/etc/init.d/firewall reload
 }
 
 del_nftables_rule() {
 	local zt_iface="$1"
+	rm -f $NFTABLES_AUTO_NAT_RULE_FILE
+	nft flush chain inet fw4 zt_auto_nat_pre_fwd
+	nft flush chain inet fw4 zt_auto_nat_post_rt
+	nft delete chain inet fw4 zt_auto_nat_pre_fwd
+	nft delete chain inet fw4 zt_auto_nat_post_rt
 	my_log "del nftables rule"
-	nft flush chain inet fw4 zt_auto_nat_pre_fwd 2>&1
-	nft delete chain inet fw4 zt_auto_nat_pre_fwd 2>&1
+	/etc/init.d/firewall reload
 }
 
 if [ "$SUBSYSTEM" != "net" ]; then
@@ -109,9 +122,9 @@ EOF
 remove_firewall_rules() {
 	my_log "delete firewall rules"
 	if [ -f "/usr/sbin/nft" ]; then
-		del_nftables_rule $INTERFACE
+		del_nftables_rule "$INTERFACE"
 	else
-		del_iptables_rule $INTERFACE
+		del_iptables_rule "$INTERFACE"
 	fi
 
 	uci -q batch <<-EOF >/dev/null
@@ -230,9 +243,9 @@ commit firewall
 EOF
 			}
 			if [ -f "/usr/sbin/nft" ]; then
-				add_nftables_rule $INTERFACE
+				add_nftables_rule "$INTERFACE"
 			else
-				add_iptables_rule $INTERFACE
+				add_iptables_rule "$INTERFACE"
 			fi
 		fi
 fi
