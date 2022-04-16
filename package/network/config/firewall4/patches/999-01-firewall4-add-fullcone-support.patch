@@ -1,11 +1,9 @@
-From cbcd66a2a09b78ff723c2db202186658ed9bf30d Mon Sep 17 00:00:00 2001
+From 980594ee7bcb0bcded95731bb12cf118d7f48951 Mon Sep 17 00:00:00 2001
 From: Syrone Wong <wong.syrone@gmail.com>
 Date: Sat, 9 Apr 2022 13:24:19 +0800
 Subject: [PATCH] firewall4: add fullcone support
 
 fullcone is drop-in replacement of masq for non-udp traffic
-
-fullcone should attach to prerouting and postrouting hook directly
 
 add runtime fullcone rule check, disable it globally if fullcone expr is
 invalid
@@ -13,8 +11,8 @@ invalid
  root/etc/config/firewall                      |  2 +
  root/usr/share/firewall4/templates/ruleset.uc | 13 +++++-
  .../firewall4/templates/zone-fullcone.uc      |  4 ++
- root/usr/share/ucode/fw4.uc                   | 45 ++++++++++++++++++-
- 4 files changed, 61 insertions(+), 3 deletions(-)
+ root/usr/share/ucode/fw4.uc                   | 44 ++++++++++++++++++-
+ 4 files changed, 60 insertions(+), 3 deletions(-)
  create mode 100644 root/usr/share/firewall4/templates/zone-fullcone.uc
 
 diff --git a/root/etc/config/firewall b/root/etc/config/firewall
@@ -38,7 +36,7 @@ index f4a3322..2f17ad2 100644
  	option mtu_fix		1
  
 diff --git a/root/usr/share/firewall4/templates/ruleset.uc b/root/usr/share/firewall4/templates/ruleset.uc
-index b402315..09d800f 100644
+index b402315..aae698f 100644
 --- a/root/usr/share/firewall4/templates/ruleset.uc
 +++ b/root/usr/share/firewall4/templates/ruleset.uc
 @@ -1,3 +1,4 @@
@@ -46,29 +44,18 @@ index b402315..09d800f 100644
  {% let flowtable_devices = fw4.resolve_offload_devices(); -%}
  
  table inet fw4
-@@ -214,6 +215,10 @@ table inet fw4 {
- 		{%+ include("zone-jump.uc", { fw4, zone, rule, direction: "dstnat" }) %}
+@@ -237,6 +238,10 @@ table inet fw4 {
+ {%   for (let redirect in fw4.redirects("dstnat_"+zone.name)): %}
+ 		{%+ include("redirect.uc", { fw4, redirect }) %}
  {%   endfor %}
- {%  endif %}
-+{%  if (zone.fullcone): %}
-+		{%+ include("zone-fullcone.uc", { fw4, zone, family: 4, direction: "dstnat" }) %}
-+		{%+ include("zone-fullcone.uc", { fw4, zone, family: 6, direction: "dstnat" }) %}
-+{%  endif %}
- {% endfor %}
++{%   if (zone.fullcone): %}
++		{%+ include("zone-fullcone.uc", { fw4, zone, direction: "dstnat" }) %}
++{%   endif %}
++
  	}
  
-@@ -228,6 +233,10 @@ table inet fw4 {
- 		{%+ include("zone-jump.uc", { fw4, zone, rule, direction: "srcnat" }) %}
- {%   endfor %}
  {%  endif %}
-+{%  if (zone.fullcone): %}
-+		{%+ include("zone-fullcone.uc", { fw4, zone, family: 4, direction: "srcnat" }) %}
-+		{%+ include("zone-fullcone.uc", { fw4, zone, family: 6, direction: "srcnat" }) %}
-+{%  endif %}
- {% endfor %}
- 	}
- 
-@@ -245,14 +254,14 @@ table inet fw4 {
+@@ -245,20 +250,24 @@ table inet fw4 {
  {%   for (let redirect in fw4.redirects("srcnat_"+zone.name)): %}
  		{%+ include("redirect.uc", { fw4, redirect }) %}
  {%   endfor %}
@@ -85,18 +72,28 @@ index b402315..09d800f 100644
  {%    for (let saddrs in zone.masq6_src_subnets): %}
  {%     for (let daddrs in zone.masq6_dest_subnets): %}
  		{%+ include("zone-masq.uc", { fw4, zone, family: 6, saddrs, daddrs }) %}
+ {%     endfor %}
+ {%    endfor %}
+ {%   endif %}
++{%   if (zone.fullcone): %}
++		{%+ include("zone-fullcone.uc", { fw4, zone, direction: "srcnat" }) %}
++{%   endif %}
++
+ 	}
+ 
+ {%  endif %}
 diff --git a/root/usr/share/firewall4/templates/zone-fullcone.uc b/root/usr/share/firewall4/templates/zone-fullcone.uc
 new file mode 100644
-index 0000000..0f8340b
+index 0000000..f0647da
 --- /dev/null
 +++ b/root/usr/share/firewall4/templates/zone-fullcone.uc
 @@ -0,0 +1,4 @@
 +{# /usr/share/firewall4/templates/zone-fullcone.uc #}
-+		meta nfproto {{ fw4.nfproto(family) }} fullcone comment "!fw4: Handle {{ zone.name }} {{
-+		fw4.nfproto(family, true)
-+}} {{ direction }} fullcone NAT traffic"
++		fullcone comment "!fw4: Handle {{
++		zone.name
++}} IPv4/IPv6 fullcone NAT traffic"
 diff --git a/root/usr/share/ucode/fw4.uc b/root/usr/share/ucode/fw4.uc
-index 0659af6..05e13a0 100644
+index b81f9ad..ec5958e 100644
 --- a/root/usr/share/ucode/fw4.uc
 +++ b/root/usr/share/ucode/fw4.uc
 @@ -1,3 +1,5 @@
@@ -182,14 +179,13 @@ index 0659af6..05e13a0 100644
  		if (zone.mtu_fix && this.kernel < 0x040a0000) {
  			this.warn_section(data, "option 'mtu_fix' requires kernel 4.10 or later");
  			return;
-@@ -2041,10 +2078,16 @@ return {
+@@ -2041,10 +2078,15 @@ return {
  		zone.related_subnets = related_subnets;
  		zone.related_physdevs = related_physdevs;
  
 +		if (zone.fullcone) {
-+			// should attach to chain srcnat(postrouting) and dstnat(prerouting) directly, this is NOT interface specific
-+			zone.dflags.snat = false;
-+			zone.dflags.dnat = false;
++			zone.dflags.snat = true;
++			zone.dflags.dnat = true;
 +		}
 +
  		if (zone.masq || zone.masq6)
