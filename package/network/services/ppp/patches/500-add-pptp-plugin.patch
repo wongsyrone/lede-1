@@ -1,67 +1,14 @@
---- a/configure
-+++ b/configure
-@@ -133,7 +133,7 @@ if [ -d "$ksrc" ]; then
-     mkmkf $ksrc/Makedefs$compiletype Makedefs.com
-     for dir in pppd pppstats chat pppdump pppd/plugins pppd/plugins/pppoe \
- 	       pppd/plugins/radius pppd/plugins/pppoatm \
--	       pppd/plugins/pppol2tp; do
-+	       pppd/plugins/pppol2tp pppd/plugins/pptp ; do
- 	mkmkf $dir/Makefile.$makext $dir/Makefile
-     done
-     if [ -f $ksrc/Makefile.$makext$archvariant ]; then
---- a/pppd/plugins/Makefile.linux
-+++ b/pppd/plugins/Makefile.linux
-@@ -14,7 +14,7 @@ INSTALL	= install
- # EAP-TLS
- CFLAGS += -DUSE_EAPTLS=1
- 
--SUBDIRS := pppoe pppoatm pppol2tp
-+SUBDIRS := pppoe pppoatm pppol2tp pptp
- # Uncomment the next line to include the radius authentication plugin
- SUBDIRS += radius
- PLUGINS := minconn.so passprompt.so passwordfd.so winbind.so
---- /dev/null
-+++ b/pppd/plugins/pptp/Makefile.linux
-@@ -0,0 +1,31 @@
-+#
-+# This program may be distributed according to the terms of the GNU
-+# General Public License, version 2 or (at your option) any later version.
-+#
-+# $Id: Makefile.linux,v 1.9 2012/05/04 21:48:00 dgolle Exp $
-+#***********************************************************************
-+
-+DESTDIR = $(INSTROOT)@DESTDIR@
-+LIBDIR = $(DESTDIR)/lib/pppd/$(PPPDVERSION)
-+
-+PPPDVERSION = $(shell awk -F '"' '/VERSION/ { print $$2; }' ../../patchlevel.h)
-+
-+INSTALL	= install
-+
-+COPTS=-O2 -g
-+CFLAGS  = $(COPTS) -I. -I../.. -I../../../include -fPIC -DPPPD_VERSION=\"$(PPPDVERSION)\"
-+all: pptp.so
-+
-+%.o: %.c
-+	$(CC) $(CFLAGS) -c -o $@ $<
-+
-+pptp.so: dirutil.o orckit_quirks.o pptp.o pptp_callmgr.o pptp_ctrl.o pptp_quirks.o util.o vector.o
-+	$(CC) -o pptp.so -shared dirutil.o orckit_quirks.o pptp.o pptp_callmgr.o pptp_ctrl.o pptp_quirks.o util.o vector.o
-+
-+install: all
-+	$(INSTALL) -d -m 755 $(LIBDIR)
-+	$(INSTALL) -c -m 4550 pptp.so $(LIBDIR)
-+
-+clean:
-+	rm -f *.o *.so
-+
 --- /dev/null
 +++ b/pppd/plugins/pptp/dirutil.c
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,71 @@
 +/* dirutil.c ... directory utilities.
 + *               C. Scott Ananian <cananian@alumni.princeton.edu>
 + *
 + * $Id: dirutil.c,v 1.2 2003/06/17 17:25:47 reink Exp $
 + */
++#if HAVE_CONFIG_H
++#include <config.h>
++#endif
 +
 +#include <sys/stat.h>
 +#include <sys/types.h>
@@ -144,12 +91,15 @@
 +int make_valid_path(char *dirname, mode_t mode);
 --- /dev/null
 +++ b/pppd/plugins/pptp/orckit_quirks.c
-@@ -0,0 +1,86 @@
+@@ -0,0 +1,89 @@
 +/* orckit_quirks.c ...... fix quirks in orckit adsl modems
 + *                        mulix <mulix@actcom.co.il>
 + *
 + * $Id: orckit_quirks.c,v 1.3 2002/03/01 01:23:36 quozl Exp $
 + */
++#if HAVE_CONFIG_H
++#include <config.h>
++#endif
 +
 +#include <string.h>
 +#include <sys/types.h>
@@ -395,7 +345,7 @@
 +
 +extern char** environ;
 +
-+char pppd_version[] = PPPD_VERSION;
++char pppd_version[] = VERSION;
 +extern int new_style_driver;
 +
 +
@@ -660,13 +610,17 @@
 +}
 --- /dev/null
 +++ b/pppd/plugins/pptp/pptp_callmgr.c
-@@ -0,0 +1,381 @@
+@@ -0,0 +1,385 @@
 +/* pptp_callmgr.c ... Call manager for PPTP connections.
 + *                    Handles TCP port 1723 protocol.
 + *                    C. Scott Ananian <cananian@alumni.princeton.edu>
 + *
 + * $Id: pptp_callmgr.c,v 1.20 2005/03/31 07:42:39 quozl Exp $
 + */
++#if HAVE_CONFIG_H
++#include <config.h>
++#endif
++
 +#include <signal.h>
 +#include <sys/time.h>
 +#include <sys/types.h>
@@ -1064,12 +1018,15 @@
 +			   struct in_addr localbind);
 --- /dev/null
 +++ b/pppd/plugins/pptp/pptp_ctrl.c
-@@ -0,0 +1,1078 @@
+@@ -0,0 +1,1081 @@
 +/* pptp_ctrl.c ... handle PPTP control connection.
 + *                 C. Scott Ananian <cananian@alumni.princeton.edu>
 + *
 + * $Id: pptp_ctrl.c,v 1.31 2005/03/31 07:42:39 quozl Exp $
 + */
++#if HAVE_CONFIG_H
++#include <config.h>
++#endif
 +
 +#include <errno.h>
 +#include <sys/time.h>
@@ -2555,12 +2512,15 @@
 +#endif /* INC_PPTP_OPTIONS_H */
 --- /dev/null
 +++ b/pppd/plugins/pptp/pptp_quirks.c
-@@ -0,0 +1,54 @@
+@@ -0,0 +1,57 @@
 +/* pptp_quirks.c ...... various options to fix quirks found in buggy adsl modems
 + *                      mulix <mulix@actcom.co.il>
 + *
 + * $Id: pptp_quirks.c,v 1.2 2001/11/23 03:42:51 quozl Exp $
 + */
++#if HAVE_CONFIG_H
++#include <config.h>
++#endif
 +
 +#include <string.h>
 +#include "orckit_quirks.h"
@@ -2674,12 +2634,15 @@
 +#endif /* INC_PPTP_QUIRKS_H */
 --- /dev/null
 +++ b/pppd/plugins/pptp/util.c
-@@ -0,0 +1,109 @@
+@@ -0,0 +1,112 @@
 +/* util.c ....... error message utilities.
 + *                C. Scott Ananian <cananian@alumni.princeton.edu>
 + *
 + * $Id: util.c,v 1.11 2005/08/22 00:49:48 quozl Exp $
 + */
++#if HAVE_CONFIG_H
++#include <config.h>
++#endif
 +
 +#include <stdio.h>
 +#include <stdarg.h>
@@ -2722,13 +2685,13 @@
 +int sigpipe_create()
 +{
 +  int rc;
-+  
++
 +  rc = pipe(sigpipe);
 +  if (rc < 0) return rc;
-+  
++
 +  fcntl(sigpipe[0], F_SETFD, FD_CLOEXEC);
 +  fcntl(sigpipe[1], F_SETFD, FD_CLOEXEC);
-+  
++
 +#ifdef O_NONBLOCK
 +#define FLAG_TO_SET O_NONBLOCK
 +#else
@@ -2738,7 +2701,7 @@
 +#define FLAG_TO_SET FNDELAY
 +#endif
 +#endif
-+  
++
 +  rc = fcntl(sigpipe[1], F_GETFL);
 +  if (rc != -1)
 +    rc = fcntl(sigpipe[1], F_SETFL, rc | FLAG_TO_SET);
@@ -2820,13 +2783,16 @@
 +#endif /* INC_UTIL_H */
 --- /dev/null
 +++ b/pppd/plugins/pptp/vector.c
-@@ -0,0 +1,209 @@
+@@ -0,0 +1,212 @@
 +/* vector.c ..... store a vector of PPTP_CALL information and search it
 + *                efficiently.
 + *                C. Scott Ananian <cananian@alumni.princeton.edu>
 + *
 + * $Id: vector.c,v 1.3 2003/06/17 10:12:55 reink Exp $
 + */
++#if HAVE_CONFIG_H
++#include <config.h>
++#endif
 +
 +#include <stdlib.h>
 +#include <string.h>
@@ -2893,7 +2859,7 @@
 +}
 +
 +/*** vector_insert*************************************************************
-+ * nice thing about file descriptors is that we are assured by POSIX 
++ * nice thing about file descriptors is that we are assured by POSIX
 + * that they are monotonically increasing.
 + */
 +int vector_insert(VECTOR *v, int key, PPTP_CALL * call)
@@ -2978,7 +2944,7 @@
 +/*** vector_scan ***************************************************************
 + * Hmm.  Let's be fancy and use a binary search for the first
 + * unused key, taking advantage of the list is stored sorted; ie
-+ * we can look at pointers and keys at two different locations, 
++ * we can look at pointers and keys at two different locations,
 + * and if (ptr1 - ptr2) = (key1 - key2) then all the slots
 + * between ptr1 and ptr2 are filled.  Note that ptr1-ptr2 should
 + * never be greater than key1-key2 (no duplicate keys!)... we
@@ -3064,3 +3030,34 @@
 +PPTP_CALL * vector_get_Nth(VECTOR *v, int n);
 +
 +#endif /* INC_VECTOR_H */
+--- a/configure.ac
++++ b/configure.ac
+@@ -323,6 +323,7 @@ AC_CONFIG_FILES([
+     pppd/plugins/pppoe/Makefile
+     pppd/plugins/pppoatm/Makefile
+     pppd/plugins/pppol2tp/Makefile
++    pppd/plugins/pptp/Makefile
+     pppd/plugins/radius/Makefile
+     pppdump/Makefile
+     pppstats/Makefile
+--- a/pppd/plugins/Makefile.am
++++ b/pppd/plugins/Makefile.am
+@@ -21,5 +21,5 @@ winbind_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+ winbind_la_SOURCES = winbind.c
+ 
+ if !SUNOS
+-SUBDIRS = pppoe pppoatm pppol2tp radius
++SUBDIRS = pppoe pppoatm pppol2tp pptp radius
+ endif
+--- /dev/null
++++ b/pppd/plugins/pptp/Makefile.am
+@@ -0,0 +1,9 @@
++pppd_plugin_LTLIBRARIES = pptp.la
++pppd_plugindir = $(PPPD_PLUGIN_DIR)
++
++dist_man8_MANS = pppd-pptp.8
++noinst_HEADERS = dirutil.h orckit_quirks.h pptp_callmgr.h pptp_ctrl.h pptp_msg.h pptp_options.h pptp_quirks.h util.h vector.h
++
++pptp_la_CPPFLAGS = -I${top_srcdir}/include -I${top_srcdir}/pppd
++pptp_la_LDFLAGS = -module -avoid-version
++pptp_la_SOURCES = dirutil.c orckit_quirks.c pptp.c pptp_callmgr.c pptp_ctrl.c pptp_quirks.c util.c vector.c

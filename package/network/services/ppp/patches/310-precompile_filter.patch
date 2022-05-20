@@ -11,36 +11,9 @@ packets which are treated as active.
 
 Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 
---- a/pppd/Makefile.linux
-+++ b/pppd/Makefile.linux
-@@ -51,6 +51,9 @@ MPPE=y
- # and that the kernel driver support PPP packet filtering.
- #FILTER=y
- 
-+# Support for precompiled filters
-+PRECOMPILED_FILTER=y
-+
- # Uncomment the next line to enable multilink PPP (enabled by default)
- # Linux distributions: Please leave multilink ENABLED in your builds
- # of pppd!
-@@ -214,6 +217,14 @@ LIBS    += -lpcap -L$(STAGING_DIR)/usr/l
- CFLAGS  += -DPPP_FILTER -I$(STAGING_DIR)/usr/include
- endif
- 
-+ifdef PRECOMPILED_FILTER
-+PPPDSRCS += pcap_pcc.c
-+HEADERS  += pcap_pcc.h
-+PPPDOBJS += pcap_pcc.o
-+LIBS	+= $(STAGING_DIR)/usr/lib/libpcap.a
-+CFLAGS	+= -DPPP_FILTER -DPPP_PRECOMPILED_FILTER -I$(STAGING_DIR)/usr/include
-+endif
-+
- ifdef HAVE_INET6
-      PPPDSRCS += ipv6cp.c eui64.c
-      HEADERS  += ipv6cp.h eui64.h
 --- a/pppd/options.c
 +++ b/pppd/options.c
-@@ -56,6 +56,7 @@
+@@ -60,6 +60,7 @@
  
  #ifdef PPP_FILTER
  #include <pcap.h>
@@ -48,7 +21,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  /*
   * There have been 3 or 4 different names for this in libpcap CVS, but
   * this seems to be what they have settled on...
-@@ -168,6 +169,13 @@ static int setlogfile(char **);
+@@ -175,6 +176,13 @@ static int setlogfile(char **);
  static int loadplugin(char **);
  #endif
  
@@ -62,7 +35,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  #ifdef PPP_FILTER
  static int setpassfilter(char **);
  static int setactivefilter(char **);
-@@ -360,6 +368,14 @@ option_t general_options[] = {
+@@ -369,6 +377,14 @@ option_t general_options[] = {
        "set filter for active pkts", OPT_PRIO },
  #endif
  
@@ -77,7 +50,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  #ifdef MAXOCTETS
      { "maxoctets", o_int, &maxoctets,
        "Set connection traffic limit",
-@@ -1468,6 +1484,27 @@ callfile(char **argv)
+@@ -1477,6 +1493,27 @@ callfile(char **argv)
      return ok;
  }
  
@@ -107,7 +80,11 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
   * setpassfilter - Set the pass filter for packets
 --- /dev/null
 +++ b/pppd/pcap_pcc.c
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,78 @@
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
 +#include <pcap.h>
 +#include <pcap-bpf.h>
 +#include <stdio.h>
@@ -161,10 +138,10 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +               goto err;
 +           }
 +           p->bf_len = size;
-+           p->bf_insns = (struct bpf_insn *) 
++           p->bf_insns = (struct bpf_insn *)
 +               malloc (size * sizeof (struct bpf_insn));
 +       }
-+    } 
++    }
 +    if (size != index)
 +    {
 +       option_error("error in precompiled active-filter,"
@@ -177,18 +154,50 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +
 +err:
 +  option_error("error in precompiled active-filter"
-+              " expression line %s:%d (wrong size)\n", 
++              " expression line %s:%d (wrong size)\n",
 +              fname, line);
 +  fclose (f);
 +  return 0;
 +}
 --- /dev/null
 +++ b/pppd/pcap_pcc.h
-@@ -0,0 +1,7 @@
+@@ -0,0 +1,9 @@
 +#ifndef PCAP_PCC_H
 +#define PCAP_PCC_H
++
++#include "pppdconf.h"
 +
 +#include <pcap.h>
 +
 +int pcap_pre_compiled (char * fname, struct bpf_program *p);
 +#endif /* PCAP_PCC_H */
+--- a/configure.ac
++++ b/configure.ac
+@@ -293,6 +293,11 @@ AM_COND_IF([WITH_FILTER], [
+         ])
+     ])
+ 
++AC_ARG_WITH([precompiled-filter], AS_HELP_STRING([--with-precompiled-filter], [OpenWrt specific hack to pcap precompiled filter]))
++AM_CONDITIONAL([WITH_PRECOMPILED_FILTER], test "x${with_precompiled_filter}" = "xyes")
++AM_COND_IF([WITH_PRECOMPILED_FILTER], [
++    AC_DEFINE([PPP_PRECOMPILED_FILTER], 1, ["Have OpenWrt specific pcap precompiled filter support"])])
++
+ #
+ # Some contributions require GTK/GLIB
+ AC_ARG_WITH([gtk], AS_HELP_STRING([--with-gtk], [Build contributions with the GTK+ interface]))
+--- a/pppd/Makefile.am
++++ b/pppd/Makefile.am
+@@ -107,6 +107,13 @@ pppd_LDFLAGS += $(PCAP_LDFLAGS)
+ pppd_LIBS += $(PCAP_LIBS)
+ endif
+ 
++if WITH_PRECOMPILED_FILTER
++pppd_SOURCES += pcap_pcc.c
++pppd_CPPFLAGS += -DPPP_PRECOMPILED_FILTER $(PCAP_CFLAGS)
++pppd_LDFLAGS += $(PCAP_LDFLAGS)
++pppd_LIBS += $(PCAP_LIBS)
++endif
++
+ if WITH_PLUGINS
+ pppd_CPPFLAGS += -DPPPD_PLUGIN_DIR='"@PPPD_PLUGIN_DIR@"'
+ pppd_LIBS += -ldl

@@ -1,0 +1,11 @@
+--- a/m4/ax_check_pcap.m4
++++ b/m4/ax_check_pcap.m4
+@@ -42,7 +42,7 @@ AC_DEFUN([AX_CHECK_PCAP], [
+         ])
+     
+     if [ test "x${with_pcap}" != "xno" ] ; then
+-        PCAP_LIBS="-lpcap"
++        PCAP_LIBS="${STAGING_DIR}/usr/lib/libpcap.a"
+         for pcapdir in $pcapdirs; do
+             AC_MSG_CHECKING([for pcap.h in $pcapdir])
+             if test -f "$pcapdir/include/pcap.h"; then
