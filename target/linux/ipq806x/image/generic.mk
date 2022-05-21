@@ -65,6 +65,19 @@ define Device/ZyXELImage
 		append-metadata
 endef
 
+define Device/arris_tr4400-v2
+	$(call Device/LegacyImage)
+	DEVICE_VENDOR := Arris
+	DEVICE_MODEL := TR4400
+	DEVICE_VARIANT := v2
+	SOC := qcom-ipq8065
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_PACKAGES := ath10k-firmware-qca9984-ct ath10k-firmware-qca99x0-ct
+	KERNEL_IN_UBI := 1
+endef
+TARGET_DEVICES += arris_tr4400-v2
+
 define Device/askey_rt4230w-rev6
 	$(call Device/LegacyImage)
 	DEVICE_VENDOR := Askey
@@ -234,7 +247,7 @@ define Device/nec_wg2600hp3
 	DEVICE_PACKAGES := -kmod-ata-ahci -kmod-ata-ahci-platform \
 		-kmod-usb-ohci -kmod-usb2 -kmod-usb-ledtrig-usbport \
 		-kmod-usb-phy-qcom-dwc3 -kmod-usb3 -kmod-usb-dwc3-qcom \
-		ath10k-firmware-qca9984-ct ipq-wifi-nec_wg2600hp3
+		ath10k-firmware-qca9984-ct
 endef
 TARGET_DEVICES += nec_wg2600hp3
 
