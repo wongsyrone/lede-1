@@ -9,33 +9,24 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=openssl1.1
-
-PKG_BASE:=1.1.1
-PKG_BUGFIX:=l
-PKG_VERSION:=$(PKG_BASE)$(PKG_BUGFIX)
-PKG_HASH:=0b7a3e5e59c34827fe0c3a74b7ec8baef302b98fa80088d7f9153aa16fa76bd1
-ENGINES_DIR=engines-1.1
-
-
-PKG_RELEASE:=1
+PKG_NAME:=openssl3
+PKG_VERSION:=3.0.4
+PKG_RELEASE:=$(AUTORELEASE)
 PKG_USE_MIPS16:=0
-PATCH_DIR=./patches/$(PKG_BASE)
 
-PKG_BUILD_PARALLEL:=0
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/openssl-$(PKG_VERSION)
+PKG_BUILD_PARALLEL:=1
 
-PKG_SOURCE:=openssl-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:= \
-	http://www.openssl.org/source/ \
-	http://www.openssl.org/source/old/$(PKG_BASE)/ \
-	http://ftp.fi.muni.cz/pub/openssl/source/ \
-	http://ftp.fi.muni.cz/pub/openssl/source/old/$(PKG_BASE)/ \
-	ftp://ftp.pca.dfn.de/pub/tools/net/openssl/source/ \
-	ftp://ftp.pca.dfn.de/pub/tools/net/openssl/source/old/$(PKG_BASE)/
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/openssl/openssl.git
+PKG_MIRROR_HASH:=474daf9a201b96d0620a9539f3e4fd240945c254b2c768baa76b836b7027cea4
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE_VERSION:=e8c886104f9430c88ff31ad20b121cf05b1deb81
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+
 
 PKG_LICENSE:=OpenSSL
 PKG_LICENSE_FILES:=LICENSE
+PKG_MAINTAINER:=Eneas U de Queiroz <cotequeiroz@gmail.com>
 PKG_CPE_ID:=cpe:/a:openssl:openssl
 
 include $(INCLUDE_DIR)/package.mk
@@ -45,40 +36,36 @@ HOSTCC=$(HOSTCC_NOCACHE)
 HOSTCXX=$(HOSTCXX_NOCACHE)
 endif
 
-define Package/$(PKG_NAME)/Default
-  TITLE:=Open source SSL toolkit
+define Package/openssl3/Default
+  TITLE:=Open source SSL toolkit3
   URL:=http://www.openssl.org/
   SECTION:=libs
   CATEGORY:=Libraries
 endef
 
-define Package/openssl1.1/Default/description
+define Package/openssl3/Default/description
 The OpenSSL Project is a collaborative effort to develop a robust,
 commercial-grade, full-featured, and Open Source toolkit implementing the
-Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols as well
-as a full-strength general-purpose cryptography library.
+Transport Layer Security (TLS) protocol as well as a full-strength
+general-purpose cryptography library.
 endef
 
-define Package/libopenssl1.1
-$(call Package/openssl1.1/Default)
+define Package/libopenssl3
+$(call Package/openssl3/Default)
   SUBMENU:=SSL
+  DEPENDS:=+OPENSSL_WITH_COMPRESSION:zlib
   TITLE+= (libraries)
-  ABI_VERSION:=$(PKG_VERSION)
+  ABI_VERSION:=3.0
   MENU:=1
 endef
 
-define Package/libopenssl1.1/description
-$(call Package/openssl/Default/description)
+define Package/libopenssl3/description
+$(call Package/openssl3/Default/description)
 This package contains the OpenSSL shared libraries, needed by other programs.
 endef
 
-
-define Package/libopenssl1.1/conffiles
-/etc/ssl/openssl.cnf
-endef
-
 # do NOT interfere original openssl staging dir
-MY_PKG_STAGING_DIR:=$(BUILD_DIR)/openssl1.1_staging_dir
+MY_PKG_STAGING_DIR:=$(BUILD_DIR)/openssl3_staging_dir
 
 OPENSSL_OPTIONS:= no-shared no-ssl3-method
 
@@ -94,16 +81,11 @@ OPENSSL_OPTIONS += no-seed
 
 OPENSSL_OPTIONS += no-whirlpool
 
-OPENSSL_OPTIONS += no-deprecated
-
 TARGET_CFLAGS := $(filter-out -O%,$(TARGET_CFLAGS)) -O3
-
-
 
 OPENSSL_TARGET:=linux-$(call qstrip,$(CONFIG_ARCH))-openwrt
 
-
-STAMP_CONFIGURED := $(STAMP_CONFIGURED)_$(shell echo $(OPENSSL_OPTIONS) | mkhash md5)
+STAMP_CONFIGURED := $(STAMP_CONFIGURED)_$(shell echo $(OPENSSL_OPTIONS) | $(MKHASH) md5)
 
 define Build/Configure
 	[ -f $(STAMP_CONFIGURED) ] || { \
@@ -114,14 +96,14 @@ define Build/Configure
 	(cd $(PKG_BUILD_DIR); \
 		./Configure $(OPENSSL_TARGET) \
 			--prefix=/usr \
-			--openssldir=/etc/ssl \
 			--libdir=lib \
+			--openssldir=/etc/ssl \
+			--cross-compile-prefix="$(TARGET_CROSS)" \
 			$(TARGET_CPPFLAGS) \
 			$(TARGET_LDFLAGS) \
 			$(OPENSSL_OPTIONS) && \
 		{ [ -f $(STAMP_CONFIGURED) ] || make clean; } \
 	)
-
 endef
 
 TARGET_CFLAGS += $(FPIC) -ffunction-sections -fdata-sections
@@ -129,14 +111,12 @@ TARGET_LDFLAGS += -Wl,--gc-sections
 
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
-		CROSS_COMPILE="$(TARGET_CROSS)" \
 		CC="$(TARGET_CC)" \
 		SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH) \
 		OPENWRT_OPTIMIZATION_FLAGS="$(TARGET_CFLAGS)" \
 		$(OPENSSL_MAKEFLAGS) \
 		all
 	$(MAKE) -C $(PKG_BUILD_DIR) \
-		CROSS_COMPILE="$(TARGET_CROSS)" \
 		CC="$(TARGET_CC)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		$(OPENSSL_MAKEFLAGS) \
@@ -155,8 +135,9 @@ define Build/Clean
 	$(call Build/Clean/Default)
 endef
 
-define Package/libopenssl1.1/install
+define Package/libopenssl3/install
 true
 endef
 
-$(eval $(call BuildPackage,libopenssl1.1))
+
+$(eval $(call BuildPackage,libopenssl3))
