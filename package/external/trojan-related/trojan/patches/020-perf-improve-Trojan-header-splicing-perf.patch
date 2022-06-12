@@ -1,0 +1,28 @@
+From 3398c6cc790ada6320cd2c82053b26037bc6d55d Mon Sep 17 00:00:00 2001
+From: KujouRinka <kujourinka@gmail.com>
+Date: Fri, 21 Jan 2022 22:31:19 +0800
+Subject: [PATCH 1/4] perf: improve Trojan header splicing perf
+
+---
+ src/session/clientsession.cpp | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/session/clientsession.cpp b/src/session/clientsession.cpp
+index 0537348..863a594 100644
+--- a/src/session/clientsession.cpp
++++ b/src/session/clientsession.cpp
+@@ -162,7 +162,10 @@ void ClientSession::in_recv(const string &data) {
+                 destroy();
+                 return;
+             }
+-            out_write_buf = config.password.cbegin()->first + "\r\n" + data[1] + data.substr(3) + "\r\n";
++            out_write_buf = string().append(config.password.cbegin()->first)
++                    .append("\r\n").append(1, data[1])
++                    .append(data.substr(3))
++                    .append("\r\n");
+             TrojanRequest req;
+             if (req.parse(out_write_buf) == -1) {
+                 Log::log_with_endpoint(in_endpoint, "unsupported command", Log::ERROR);
+-- 
+2.36.1
+

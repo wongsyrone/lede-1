@@ -1,0 +1,26 @@
+From 816ef61d3e3fbe13e26db9169a25ca7f5396d1c8 Mon Sep 17 00:00:00 2001
+From: Chigusa0w0 <9378097+Chigusa0w0@users.noreply.github.com>
+Date: Wed, 1 Jun 2022 02:08:36 -0400
+Subject: [PATCH 2/4] Add ACTIVE_DISCONNECT session state
+
+---
+ src/session/serversession.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/session/serversession.h b/src/session/serversession.h
+index c351f28..03bfcac 100644
+--- a/src/session/serversession.h
++++ b/src/session/serversession.h
+@@ -30,7 +30,8 @@ private:
+         HANDSHAKE,
+         FORWARD,
+         UDP_FORWARD,
+-        DESTROY
++        DESTROY,
++        ACTIVE_DISCONNECT
+     } status;
+     boost::asio::ssl::stream<boost::asio::ip::tcp::socket>in_socket;
+     boost::asio::ip::tcp::socket out_socket;
+-- 
+2.36.1
+

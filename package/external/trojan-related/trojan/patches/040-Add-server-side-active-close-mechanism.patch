@@ -1,0 +1,56 @@
+From 3275c8fdbc26184eb04faa9a8bd43834f0125261 Mon Sep 17 00:00:00 2001
+From: Chigusa0w0 <9378097+Chigusa0w0@users.noreply.github.com>
+Date: Wed, 1 Jun 2022 02:27:20 -0400
+Subject: [PATCH 3/4] Add server-side active close mechanism
+
+This patch set fixes the behavior of Trojan not immediately attempting to close a frontend connection if the Trojan backend unexpectedly closed the connection.
+
+In some cases, an attacker can trick the backend into closing the connection immediately after sending valid data with carefully constructed contents. For connections that are not relayed by Trojan, the attack can observe the closure of the connection immediately. However, in scenarios where Trojan is present, the connection will be kept even after the attacker receives the aforementioned data. This difference in behavior can be used to detect the presence of Trojan.
+
+The behavioral difference does not result in the leak of confidential user data.
+---
+ src/session/serversession.cpp | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/src/session/serversession.cpp b/src/session/serversession.cpp
+index fd4bc98..a5a3576 100644
+--- a/src/session/serversession.cpp
++++ b/src/session/serversession.cpp
+@@ -67,6 +67,14 @@ void ServerSession::in_async_read() {
+     auto self = shared_from_this();
+     in_socket.async_read_some(boost::asio::buffer(in_read_buf, MAX_LENGTH), [this, self](const boost::system::error_code error, size_t length) {
+         if (error) {
++            if ((boost::asio::error::eof == error) ||
++                (boost::asio::error::connection_reset == error) ||
++                (boost::asio::error::operation_aborted == error))
++            {
++                Log::log_with_endpoint(in_endpoint, "remote server actively closed the connection", Log::INFO);
++                status = ACTIVE_DISCONNECT;
++            }
++
+             destroy();
+             return;
+         }
+@@ -330,6 +338,7 @@ void ServerSession::destroy() {
+     if (status == DESTROY) {
+         return;
+     }
++    auto previous_status = status;
+     status = DESTROY;
+     Log::log_with_endpoint(in_endpoint, "disconnected, " + to_string(recv_len) + " bytes received, " + to_string(sent_len) + " bytes sent, lasted for " + to_string(time(nullptr) - start_time) + " seconds", Log::INFO);
+     if (auth && !auth_password.empty()) {
+@@ -347,6 +356,11 @@ void ServerSession::destroy() {
+         udp_socket.cancel(ec);
+         udp_socket.close(ec);
+     }
++    if (previous_status == ACTIVE_DISCONNECT) {
++        in_socket.next_layer().cancel(ec);
++        in_socket.next_layer().shutdown(tcp::socket::shutdown_both, ec);
++        in_socket.next_layer().close(ec);
++    }
+     if (in_socket.next_layer().is_open()) {
+         auto self = shared_from_this();
+         auto ssl_shutdown_cb = [this, self](const boost::system::error_code error) {
+-- 
+2.36.1
+
