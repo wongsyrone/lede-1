@@ -1,4 +1,4 @@
-From 980594ee7bcb0bcded95731bb12cf118d7f48951 Mon Sep 17 00:00:00 2001
+From aa3b56e289fba7425e649a608c333622ffd9c367 Mon Sep 17 00:00:00 2001
 From: Syrone Wong <wong.syrone@gmail.com>
 Date: Sat, 9 Apr 2022 13:24:19 +0800
 Subject: [PATCH] firewall4: add fullcone support
@@ -9,12 +9,14 @@ add runtime fullcone rule check, disable it globally if fullcone expr is
 invalid
 ---
  root/etc/config/firewall                      |  2 +
- root/usr/share/firewall4/templates/ruleset.uc | 13 +++++-
+ root/usr/share/firewall4/templates/ruleset.uc | 11 ++++-
  .../firewall4/templates/zone-fullcone.uc      |  4 ++
  root/usr/share/ucode/fw4.uc                   | 44 ++++++++++++++++++-
- 4 files changed, 60 insertions(+), 3 deletions(-)
+ 4 files changed, 58 insertions(+), 3 deletions(-)
  create mode 100644 root/usr/share/firewall4/templates/zone-fullcone.uc
 
+diff --git a/root/etc/config/firewall b/root/etc/config/firewall
+index b9a4647..73fb250 100644
 --- a/root/etc/config/firewall
 +++ b/root/etc/config/firewall
 @@ -5,6 +5,7 @@ config defaults
@@ -33,6 +35,8 @@ invalid
  	option masq		1
  	option mtu_fix		1
  
+diff --git a/root/usr/share/firewall4/templates/ruleset.uc b/root/usr/share/firewall4/templates/ruleset.uc
+index faf8bed..0a258be 100644
 --- a/root/usr/share/firewall4/templates/ruleset.uc
 +++ b/root/usr/share/firewall4/templates/ruleset.uc
 @@ -1,3 +1,4 @@
@@ -50,7 +54,7 @@ invalid
  	}
  
  {%  endif %}
-@@ -246,20 +250,23 @@ table inet fw4 {
+@@ -246,19 +250,22 @@ table inet fw4 {
  {%   for (let redirect in fw4.redirects(`srcnat_${zone.name}`)): %}
  		{%+ include("redirect.uc", { fw4, redirect }) %}
  {%   endfor %}
@@ -69,13 +73,15 @@ invalid
  		{%+ include("zone-masq.uc", { fw4, zone, family: 6, saddrs, daddrs }) %}
  {%     endfor %}
  {%    endfor %}
- {%   endif %}
++{%   endif %}
 +{%   if (zone.fullcone): %}
 +		{%+ include("zone-fullcone.uc", { fw4, zone, direction: "srcnat" }) %}
-+{%   endif %}
+ {%   endif %}
  	}
  
- {%  endif %}
+diff --git a/root/usr/share/firewall4/templates/zone-fullcone.uc b/root/usr/share/firewall4/templates/zone-fullcone.uc
+new file mode 100644
+index 0000000..f0647da
 --- /dev/null
 +++ b/root/usr/share/firewall4/templates/zone-fullcone.uc
 @@ -0,0 +1,4 @@
@@ -83,6 +89,8 @@ invalid
 +		fullcone comment "!fw4: Handle {{
 +		zone.name
 +}} IPv4/IPv6 fullcone NAT traffic"
+diff --git a/root/usr/share/ucode/fw4.uc b/root/usr/share/ucode/fw4.uc
+index a06d097..bfb7b7f 100644
 --- a/root/usr/share/ucode/fw4.uc
 +++ b/root/usr/share/ucode/fw4.uc
 @@ -1,3 +1,5 @@
@@ -117,7 +125,7 @@ invalid
  
  return {
  	read_kernel_version: function() {
-@@ -1383,6 +1404,7 @@ return {
+@@ -1377,6 +1398,7 @@ return {
  			"dnat",
  			"snat",
  			"masquerade",
@@ -125,7 +133,7 @@ invalid
  			"accept",
  			"reject",
  			"drop"
-@@ -1802,6 +1824,7 @@ return {
+@@ -1800,6 +1822,7 @@ return {
  		}
  
  		let defs = this.parse_options(data, {
@@ -133,7 +141,7 @@ invalid
  			input: [ "policy", "drop" ],
  			output: [ "policy", "drop" ],
  			forward: [ "policy", "drop" ],
-@@ -1834,6 +1857,11 @@ return {
+@@ -1832,6 +1855,11 @@ return {
  
  		delete defs.syn_flood;
  
@@ -145,7 +153,7 @@ invalid
  		this.state.defaults = defs;
  	},
  
-@@ -1858,6 +1886,7 @@ return {
+@@ -1856,6 +1884,7 @@ return {
  			masq_dest: [ "network", null, PARSE_LIST ],
  
  			masq6: [ "bool" ],
@@ -153,7 +161,7 @@ invalid
  
  			extra: [ "string", null, UNSUPPORTED ],
  			extra_src: [ "string", null, UNSUPPORTED ],
-@@ -1888,6 +1917,14 @@ return {
+@@ -1886,6 +1915,14 @@ return {
  			return;
  		}
  
@@ -168,7 +176,7 @@ invalid
  		if (zone.mtu_fix && this.kernel < 0x040a0000) {
  			this.warn_section(data, "option 'mtu_fix' requires kernel 4.10 or later");
  			return;
-@@ -2058,10 +2095,15 @@ return {
+@@ -2056,10 +2093,15 @@ return {
  		zone.related_subnets = related_subnets;
  		zone.related_physdevs = related_physdevs;
  
@@ -185,3 +193,6 @@ invalid
  			zone.dflags.helper = true;
  
  			for (let helper in (length(zone.helper) ? zone.helper : this.state.helpers)) {
+-- 
+2.36.1
+
