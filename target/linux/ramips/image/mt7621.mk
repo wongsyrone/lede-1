@@ -2,6 +2,7 @@
 # MT7621 Profiles
 #
 
+include ./common-sercomm.mk
 include ./common-tp-link.mk
 
 DEFAULT_SOC := mt7621
@@ -92,6 +93,13 @@ define Build/zytrx-header
 	$(eval version=$(word 2,$(1)))
 	$(STAGING_DIR_HOST)/bin/zytrx -B '$(board)' -v '$(version)' -i $@ -o $@.new
 	mv $@.new $@
+endef
+
+define Build/zyxel-nwa-fit
+	$(TOPDIR)/scripts/mkits-zyxel-fit.sh \
+		$@.its $@ "6b e1 6f e1 ff ff ff ff ff ff"
+	PATH=$(LINUX_DIR)/scripts/dtc:$(PATH) mkimage -f $@.its $@.new
+	@mv $@.new $@
 endef
 
 define Device/dsa-migration
@@ -284,6 +292,19 @@ define Device/beeline_smartbox-flash
 	uboot-envtools
 endef
 TARGET_DEVICES += beeline_smartbox-flash
+
+define Device/beeline_smartbox-giga
+  $(Device/sercomm_dxx)
+  IMAGE_SIZE := 24576k
+  SERCOMM_HWID := DBE
+  SERCOMM_HWVER := 10100
+  SERCOMM_SWVER := 1001
+  DEVICE_VENDOR := Beeline
+  DEVICE_MODEL := SmartBox GIGA
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap \
+	kmod-usb3 uboot-envtools
+endef
+TARGET_DEVICES += beeline_smartbox-giga
 
 define Device/buffalo_wsr-1166dhp
   $(Device/dsa-migration)
@@ -1413,6 +1434,29 @@ define Device/netgear_wac124
 endef
 TARGET_DEVICES += netgear_wac124
 
+define Device/netgear_wax202
+  $(Device/dsa-migration)
+  DEVICE_VENDOR := NETGEAR
+  DEVICE_MODEL := WAX202
+  DEVICE_PACKAGES := kmod-mt7915e
+  NETGEAR_ENC_MODEL := WAX202
+  NETGEAR_ENC_REGION := US
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  UBINIZE_OPTS := -E 5
+  IMAGE_SIZE := 38912k
+  KERNEL_SIZE := 4096k
+  KERNEL_LOADADDR := 0x82000000
+  KERNEL := kernel-bin | relocate-kernel 0x80001000 | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb | \
+	append-squashfs4-fakeroot
+  IMAGES += factory.img
+  IMAGE/factory.img := append-kernel | pad-to $$(KERNEL_SIZE) | \
+	append-ubi | check-size | netgear-encrypted-factory
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += netgear_wax202
+
 define Device/netgear_wndr3700-v5
   $(Device/dsa-migration)
   $(Device/netgear_sercomm_nor)
@@ -2173,6 +2217,33 @@ define Device/zyxel_nr7101
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 TARGET_DEVICES += zyxel_nr7101
+
+define Device/zyxel_nwa-ax
+  $(Device/dsa-migration)
+  DEVICE_VENDOR := ZyXEL
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_SIZE := 8192k
+  UBINIZE_OPTS := -E 5
+  DEVICE_PACKAGES := kmod-mt7915e uboot-envtools zyxel-bootconfig
+  KERNEL := kernel-bin | lzma | fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
+  IMAGES += factory.bin ramboot-factory.bin
+  IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | zyxel-nwa-fit
+  IMAGE/ramboot-factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+
+define Device/zyxel_nwa50ax
+  $(Device/zyxel_nwa-ax)
+  DEVICE_MODEL := NWA50AX
+endef
+TARGET_DEVICES += zyxel_nwa50ax
+
+define Device/zyxel_nwa55axe
+  $(Device/zyxel_nwa-ax)
+  DEVICE_MODEL := NWA55AXE
+endef
+TARGET_DEVICES += zyxel_nwa55axe
 
 define Device/zyxel_wap6805
   $(Device/dsa-migration)
