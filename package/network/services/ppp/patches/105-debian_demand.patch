@@ -15,7 +15,7 @@
  #include <sys/socket.h>
 +#include <netinet/in.h>
 +#include <arpa/inet.h>
- #ifdef PPP_FILTER
+ #ifdef PPP_WITH_FILTER
  #include <pcap-bpf.h>
  #endif
 @@ -218,6 +222,14 @@ loop_chars(unsigned char *p, int n)

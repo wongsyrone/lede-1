@@ -13,9 +13,9 @@ PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/ppp-project/ppp
-PKG_SOURCE_DATE:=2022-02-04
-PKG_SOURCE_VERSION:=d7e62a8499c4032d79e05afbd8fd3efd51c5b148
-PKG_MIRROR_HASH:=bf45a85d88ae54d9d03c0881c3ab511e3925ceeea57371849c781af462f4f578
+PKG_SOURCE_DATE:=2022-07-25
+PKG_SOURCE_VERSION:=fb3529ccfc1868e8563a2dcfbae7b386125fccbc
+PKG_MIRROR_HASH:=06ba47ce8665b5485d4e4043f1be09456b647780838e54dce4bfbc3dd93bc4dd
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=BSD-4-Clause
 PKG_CPE_ID:=cpe:/a:samba:ppp
@@ -181,10 +181,9 @@ TARGET_CFLAGS += -fPIC
 
 # precompiled filter --with-openssl=$(STAGING_DIR)/usr
 CONFIGURE_ARGS += \
-	--enable-maxoctets \
 	--disable-systemd \
 	--enable-microsoft-extensions \
-	$(call autoconf_bool,CONFIG_IPV6,ipv6-support) \
+	$(call autoconf_bool,CONFIG_IPV6,ipv6cp) \
 	--disable-eaptls \
 	--disable-peap \
 	--without-gtk \
@@ -198,6 +197,13 @@ ifeq ($(BUILD_VARIANT),multilink)
 else
   CONFIGURE_ARGS += --disable-multilink
 endif
+
+# remove shipped outdated linux headers
+# https://github.com/ppp-project/ppp/commit/509f04959ad891d7f981f035ed461d51bd1f74b0
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	rm -rf $(PKG_BUILD_DIR)/include/linux
+endef
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include

@@ -13,33 +13,42 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 
 --- a/pppd/options.c
 +++ b/pppd/options.c
-@@ -60,6 +60,7 @@
+@@ -62,6 +62,7 @@
  
- #ifdef PPP_FILTER
+ #ifdef PPP_WITH_FILTER
  #include <pcap.h>
 +#include <pcap-bpf.h>
  /*
   * There have been 3 or 4 different names for this in libpcap CVS, but
   * this seems to be what they have settled on...
-@@ -175,6 +176,13 @@ static int setlogfile(char **);
+@@ -140,7 +141,7 @@ char	path_ipv6down[MAXPATHLEN]; /* pathn
+ 
+ unsigned int  maxoctets = 0;    /* default - no limit */
+ int maxoctets_dir = 0;       /* default - sum of traffic */
+-int maxoctets_timeout = 1;   /* default 1 second */ 
++int maxoctets_timeout = 1;   /* default 1 second */
+ 
+ 
+ extern option_t auth_options[];
+@@ -177,6 +178,13 @@ static int setlogfile(char **);
  static int loadplugin(char **);
  #endif
  
-+#ifdef PPP_PRECOMPILED_FILTER
++#ifdef PPP_WITH_PRECOMPILED_FILTER
 +#include "pcap_pcc.h"
 +static int setprecompiledpassfilter(char **);
 +static int setprecompiledactivefilter(char **);
-+#undef PPP_FILTER
++#undef PPP_WITH_FILTER
 +#endif
 +
- #ifdef PPP_FILTER
+ #ifdef PPP_WITH_FILTER
  static int setpassfilter(char **);
  static int setactivefilter(char **);
-@@ -369,6 +377,14 @@ option_t general_options[] = {
+@@ -369,6 +377,15 @@ option_t general_options[] = {
        "set filter for active pkts", OPT_PRIO },
  #endif
  
-+#ifdef PPP_PRECOMPILED_FILTER
++#ifdef PPP_WITH_PRECOMPILED_FILTER
 +    { "precompiled-pass-filter", 1, setprecompiledpassfilter,
 +      "set precompiled filter for packets to pass", OPT_PRIO },
 +
@@ -47,14 +56,15 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +      "set precompiled filter for active pkts", OPT_PRIO },
 +#endif
 +
- #ifdef MAXOCTETS
++
      { "maxoctets", o_int, &maxoctets,
        "Set connection traffic limit",
-@@ -1477,6 +1493,27 @@ callfile(char **argv)
+       OPT_PRIO | OPT_LLIMIT | OPT_NOINCR | OPT_ZEROINF },
+@@ -1478,6 +1495,27 @@ callfile(char **argv)
      return ok;
  }
  
-+#ifdef PPP_PRECOMPILED_FILTER
++#ifdef PPP_WITH_PRECOMPILED_FILTER
 +/*
 + * setprecompiledpassfilter - Set the pass filter for packets using a
 + * precompiled expression
@@ -75,9 +85,18 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +}
 +#endif
 +
- #ifdef PPP_FILTER
+ #ifdef PPP_WITH_FILTER
  /*
   * setpassfilter - Set the pass filter for packets
+@@ -1521,7 +1559,7 @@ setactivefilter(char **argv)
+ #endif
+ 
+ /*
+- * setdomain - Set domain name to append to hostname 
++ * setdomain - Set domain name to append to hostname
+  */
+ static int
+ setdomain(char **argv)
 --- /dev/null
 +++ b/pppd/pcap_pcc.c
 @@ -0,0 +1,78 @@
@@ -173,14 +192,14 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +#endif /* PCAP_PCC_H */
 --- a/configure.ac
 +++ b/configure.ac
-@@ -293,6 +293,11 @@ AM_COND_IF([WITH_FILTER], [
+@@ -289,6 +289,11 @@ AM_COND_IF([PPP_WITH_FILTER], [
          ])
      ])
  
 +AC_ARG_WITH([precompiled-filter], AS_HELP_STRING([--with-precompiled-filter], [OpenWrt specific hack to pcap precompiled filter]))
-+AM_CONDITIONAL([WITH_PRECOMPILED_FILTER], test "x${with_precompiled_filter}" = "xyes")
-+AM_COND_IF([WITH_PRECOMPILED_FILTER], [
-+    AC_DEFINE([PPP_PRECOMPILED_FILTER], 1, ["Have OpenWrt specific pcap precompiled filter support"])])
++AM_CONDITIONAL([PPP_WITH_PRECOMPILED_FILTER], test "x${with_precompiled_filter}" = "xyes")
++AM_COND_IF([PPP_WITH_PRECOMPILED_FILTER], [
++    AC_DEFINE([PPP_WITH_PRECOMPILED_FILTER], 1, ["Have OpenWrt specific pcap precompiled filter support"])])
 +
  #
  # Some contributions require GTK/GLIB
@@ -191,13 +210,13 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  pppd_LIBS += $(PCAP_LIBS)
  endif
  
-+if WITH_PRECOMPILED_FILTER
++if PPP_WITH_PRECOMPILED_FILTER
 +pppd_SOURCES += pcap_pcc.c
-+pppd_CPPFLAGS += -DPPP_PRECOMPILED_FILTER $(PCAP_CFLAGS)
++pppd_CPPFLAGS += -DPPP_WITH_PRECOMPILED_FILTER $(PCAP_CFLAGS)
 +pppd_LDFLAGS += $(PCAP_LDFLAGS)
 +pppd_LIBS += $(PCAP_LIBS)
 +endif
 +
- if WITH_PLUGINS
+ if PPP_WITH_PLUGINS
  pppd_CPPFLAGS += -DPPPD_PLUGIN_DIR='"@PPPD_PLUGIN_DIR@"'
  pppd_LIBS += -ldl

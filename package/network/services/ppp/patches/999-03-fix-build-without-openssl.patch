@@ -1,10 +1,11 @@
---- a/pppd/Makefile.am
-+++ b/pppd/Makefile.am
-@@ -157,6 +157,7 @@ libppp_crypt_la_SOURCES=
+--- a/pppd/sha1.h
++++ b/pppd/sha1.h
+@@ -3,6 +3,8 @@
+ #ifndef PPP_SHA1_H
+ #define PPP_SHA1_H
  
- if !WITH_OPENSSL
- libppp_crypt_la_SOURCES += md4.c md5.c sha1.c
-+libppp_crypt_la_CPPFLAGS = -I${top_srcdir}/include
- else
- libppp_crypt_la_CPPFLAGS=$(OPENSSL_INCLUDES)
- libppp_crypt_la_LDFLAGS=$(OPENSSL_LDFLAGS)
++#include <sys/types.h>		/* for u_int32_t, if defined */
++
+ #include "pppdconf.h"
+ 
+ #ifndef USE_SHA
