@@ -21,15 +21,6 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  /*
   * There have been 3 or 4 different names for this in libpcap CVS, but
   * this seems to be what they have settled on...
-@@ -140,7 +141,7 @@ char	path_ipv6down[MAXPATHLEN]; /* pathn
- 
- unsigned int  maxoctets = 0;    /* default - no limit */
- int maxoctets_dir = 0;       /* default - sum of traffic */
--int maxoctets_timeout = 1;   /* default 1 second */ 
-+int maxoctets_timeout = 1;   /* default 1 second */
- 
- 
- extern option_t auth_options[];
 @@ -177,6 +178,13 @@ static int setlogfile(char **);
  static int loadplugin(char **);
  #endif
@@ -88,15 +79,6 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  #ifdef PPP_WITH_FILTER
  /*
   * setpassfilter - Set the pass filter for packets
-@@ -1521,7 +1559,7 @@ setactivefilter(char **argv)
- #endif
- 
- /*
-- * setdomain - Set domain name to append to hostname 
-+ * setdomain - Set domain name to append to hostname
-  */
- static int
- setdomain(char **argv)
 --- /dev/null
 +++ b/pppd/pcap_pcc.c
 @@ -0,0 +1,78 @@
