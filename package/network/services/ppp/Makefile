@@ -198,13 +198,6 @@ else
   CONFIGURE_ARGS += --disable-multilink
 endif
 
-# remove shipped outdated linux headers
-# https://github.com/ppp-project/ppp/commit/509f04959ad891d7f981f035ed461d51bd1f74b0
-define Build/Prepare
-	$(call Build/Prepare/Default)
-	rm -rf $(PKG_BUILD_DIR)/include/linux
-endef
-
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/pppd $(1)/usr/include/

@@ -3032,7 +3032,7 @@
 +#endif /* INC_VECTOR_H */
 --- a/configure.ac
 +++ b/configure.ac
-@@ -323,6 +323,7 @@ AC_CONFIG_FILES([
+@@ -319,6 +319,7 @@ AC_CONFIG_FILES([
      pppd/plugins/pppoe/Makefile
      pppd/plugins/pppoatm/Makefile
      pppd/plugins/pppol2tp/Makefile
@@ -3058,6 +3058,6 @@
 +dist_man8_MANS = pppd-pptp.8
 +noinst_HEADERS = dirutil.h orckit_quirks.h pptp_callmgr.h pptp_ctrl.h pptp_msg.h pptp_options.h pptp_quirks.h util.h vector.h
 +
-+pptp_la_CPPFLAGS = -I${top_srcdir}/include -I${top_srcdir}/pppd
++pptp_la_CPPFLAGS = -I${top_srcdir} -I${top_srcdir}/pppd
 +pptp_la_LDFLAGS = -module -avoid-version
 +pptp_la_SOURCES = dirutil.c orckit_quirks.c pptp.c pptp_callmgr.c pptp_ctrl.c pptp_quirks.c util.c vector.c
