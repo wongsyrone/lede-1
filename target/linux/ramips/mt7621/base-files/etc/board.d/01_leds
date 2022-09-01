@@ -24,7 +24,8 @@ asus,rt-n56u-b1)
 	ucidef_set_led_netdev "wan" "WAN link" "blue:wan" "wan"
 	;;
 beeline,smartbox-flash|\
-beeline,smartbox-giga)
+beeline,smartbox-giga|\
+beeline,smartbox-turbo)
 	ucidef_set_led_netdev "wan" "wan" "blue:wan" "wan"
 	;;
 cudy,wr2100)
@@ -65,8 +66,8 @@ dlink,dir-882-r1)
 	;;
 gnubee,gb-pc1|\
 gnubee,gb-pc2)
-	ucidef_set_led_netdev "lan1" "lan1" "green:lan1" "lan1"
-	ucidef_set_led_netdev "lan2" "lan2" "green:lan2" "lan2"
+	ucidef_set_led_netdev "ethblack_act" "ethblack act" "green:ethblack_act" "ethblack" "tx rx"
+	ucidef_set_led_netdev "ethblue_act" "ethblue act" "green:ethblue_act" "ethblue" "tx rx"
 	;;
 linksys,e5600)
 	ucidef_set_led_netdev "wan" "wan link" "blue:wan" "wan" "link"
@@ -161,12 +162,19 @@ xiaomi,redmi-router-ac2100)
 youhua,wr1200js)
 	ucidef_set_led_netdev "internet" "INTERNET" "green:wan" "wan"
 	;;
+yuncore,ax820)
+	ucidef_set_led_netdev "lan" "LAN" "green:lan" "lan"
+	ucidef_set_led_netdev "wan" "WAN" "green:wan" "wan"
+	;;
 zbtlink,zbt-wg1608-16m)
 	ucidef_set_led_netdev "lan1" "LAN1" "green:lan-1" "lan1"
 	ucidef_set_led_netdev "lan2" "LAN2" "green:lan-2" "lan2"
 	ucidef_set_led_netdev "lan3" "LAN3" "green:lan-3" "lan3"
 	ucidef_set_led_netdev "lan4" "LAN4" "green:lan-4" "lan4"
 	ucidef_set_led_netdev "wan" "WAN" "green:wan" "wan"
+	;;
+zyxel,lte3301-plus)
+	ucidef_set_led_netdev "internet" "internet" "white:internet" "wwan0"
 	;;
 esac
 

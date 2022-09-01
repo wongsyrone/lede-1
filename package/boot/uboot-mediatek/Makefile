@@ -9,7 +9,7 @@ include $(INCLUDE_DIR)/u-boot.mk
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
 
-MT7621_LOWLEVEL_PRELOADER_URL:=https://raw.githubusercontent.com/mtk-openwrt/mt7621-lowlevel-preloader/master/
+MT7621_LOWLEVEL_PRELOADER_URL:=https://raw.githubusercontent.com/mtk-openwrt/mt7621-lowlevel-preloader/a03b07c60bf1ba4add9b671d32caa102fe948180/
 
 define Download/mt7621-stage-sram
   FILE:=mt7621_stage_sram.bin
@@ -17,8 +17,18 @@ define Download/mt7621-stage-sram
   HASH:=1dda68aa089f0ff262e01539b990dea478952e9fb68bcc0a8cd6f76f0135c62e
 endef
 
+define Download/mt7621-stage-sram-noprint
+  FILE:=mt7621_stage_sram_noprint.bin
+  URL:=$(MT7621_LOWLEVEL_PRELOADER_URL)
+  HASH:=8ee419275144fc298e9444d413d98e965a55d283152a74ea6a1f8de79eb516b6
+endef
+
 ifdef CONFIG_TARGET_ramips_mt7621
+ifdef CONFIG_DEBUG
 $(eval $(call Download,mt7621-stage-sram))
+else
+$(eval $(call Download,mt7621-stage-sram-noprint))
+endif
 endif
 
 define U-Boot/Default
@@ -122,6 +132,7 @@ define U-Boot/mt7622_ubnt_unifi-6-lr
   BL2_BOOTDEV:=nor
   BL2_DDRBLOB:=2
   DEPENDS:=+trusted-firmware-a-mt7622-nor-2ddr
+  FIP_COMPRESS:=1
 endef
 
 define U-Boot/mt7623a_unielec_u7623
@@ -164,6 +175,67 @@ define U-Boot/mt7629_rfb
   UBOOT_CONFIG:=mt7629_rfb
 endef
 
+define U-Boot/mt7986_rfb
+  NAME:=MT7986 Reference Board
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=mediatek_mt7986-rfb
+  UBOOT_CONFIG:=mt7986_rfb
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=sdmmc
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-sdmmc-ddr4
+endef
+
+define U-Boot/mt7986_bananapi_bpi-r3-emmc
+  NAME:=BananaPi BPi-R3
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r3
+  UBOOT_CONFIG:=mt7986a_bpi-r3-emmc
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-emmc-ddr4
+endef
+
+define U-Boot/mt7986_bananapi_bpi-r3-sdmmc
+  NAME:=BananaPi BPi-R3
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r3
+  UBOOT_CONFIG:=mt7986a_bpi-r3-sd
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=sdmmc
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-sdmmc-ddr4
+endef
+
+define U-Boot/mt7986_bananapi_bpi-r3-snand
+  NAME:=BananaPi BPi-R3
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r3
+  UBOOT_CONFIG:=mt7986a_bpi-r3-snand
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ddr4
+endef
+
+define U-Boot/mt7986_bananapi_bpi-r3-nor
+  NAME:=BananaPi BPi-R3
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r3
+  UBOOT_CONFIG:=mt7986a_bpi-r3-nor
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=nor
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-nor-ddr4
+  FIP_COMPRESS:=1
+endef
+
 UBOOT_TARGETS := \
 	mt7620_mt7530_rfb \
 	mt7620_rfb \
@@ -179,23 +251,36 @@ UBOOT_TARGETS := \
 	mt7623a_unielec_u7623 \
 	mt7628_rfb \
 	ravpower_rp-wd009 \
-	mt7629_rfb
+	mt7629_rfb \
+	mt7986_bananapi_bpi-r3-emmc \
+	mt7986_bananapi_bpi-r3-sdmmc \
+	mt7986_bananapi_bpi-r3-snand \
+	mt7986_bananapi_bpi-r3-nor \
+	mt7986_rfb
 
 ifdef CONFIG_TARGET_mediatek
 UBOOT_MAKE_FLAGS += $(UBOOT_IMAGE:.fip=.bin)
 endif
 
 define Build/fip-image
+	$(if $(FIP_COMPRESS),\
+		xz -f -e -k -9 -C crc32 $(STAGING_DIR_IMAGE)/$(if $(BL2_SOC),$(BL2_SOC),$(BUILD_SUBTARGET))-$(BL2_BOOTDEV)-$(if $(BL2_DDRTYPE),$(BL2_DDRTYPE)-)$(if $(BL2_DDRBLOB),$(BL2_DDRBLOB)ddr-)bl31.bin ;\
+		xz -f -e -k -9 -C crc32 $(PKG_BUILD_DIR)/u-boot.bin \
+	)
 	$(STAGING_DIR_HOST)/bin/fiptool create \
-		--soc-fw $(STAGING_DIR_IMAGE)/$(BUILD_SUBTARGET)-$(BL2_BOOTDEV)-$(BL2_DDRBLOB)ddr-bl31.bin \
-		--nt-fw $(PKG_BUILD_DIR)/u-boot.bin \
+		--soc-fw $(STAGING_DIR_IMAGE)/$(if $(BL2_SOC),$(BL2_SOC),$(BUILD_SUBTARGET))-$(BL2_BOOTDEV)-$(if $(BL2_DDRTYPE),$(BL2_DDRTYPE)-)$(if $(BL2_DDRBLOB),$(BL2_DDRBLOB)ddr-)bl31.bin$(if $(FIP_COMPRESS),.xz) \
+		--nt-fw $(PKG_BUILD_DIR)/u-boot.bin$(if $(FIP_COMPRESS),.xz) \
 		$(PKG_BUILD_DIR)/u-boot.fip
 endef
 
 ifdef CONFIG_TARGET_ramips_mt7621
 define Build/Prepare
 	$(call Build/Prepare/Default)
+ifdef CONFIG_DEBUG
 	$(CP) $(DL_DIR)/mt7621_stage_sram.bin $(PKG_BUILD_DIR)/
+else
+	$(CP) $(DL_DIR)/mt7621_stage_sram_noprint.bin $(PKG_BUILD_DIR)/mt7621_stage_sram.bin
+endif
 endef
 endif
 
