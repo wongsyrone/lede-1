@@ -757,6 +757,7 @@ define BuildImage
 
   else
     image_prepare:
+		rm -rf $(KDIR)/tmp
 		mkdir -p $(BIN_DIR) $(KDIR)/tmp
   endif
 
