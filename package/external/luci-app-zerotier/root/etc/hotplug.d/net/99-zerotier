@@ -136,6 +136,8 @@ delete firewall.zt_fwd_lan2${INTERFACE}
 delete firewall.zt_rule_allowSecondPort
 delete firewall.zt_rule_allowThirdPort
 commit firewall
+delete dhcp.$INTERFACE
+commit dhcp
 EOF
 }
 
@@ -165,6 +167,10 @@ set firewall.@zone[-1].masq=1
 set firewall.@zone[-1].mtu_fix=0
 add_list firewall.@zone[-1].device=$INTERFACE
 commit firewall
+set dhcp.$INTERFACE=dhcp
+set dhcp.$INTERFACE.interface='$INTERFACE'
+set dhcp.$INTERFACE.ignore='1'
+commit dhcp
 EOF
 		config_load 'zerotier'
 		
