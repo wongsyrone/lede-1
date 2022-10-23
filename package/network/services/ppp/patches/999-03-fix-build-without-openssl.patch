@@ -1,11 +1,10 @@
---- a/pppd/sha1.h
-+++ b/pppd/sha1.h
-@@ -3,6 +3,8 @@
- #ifndef PPP_SHA1_H
- #define PPP_SHA1_H
+--- a/pppd/ppp-sha1.c
++++ b/pppd/ppp-sha1.c
+@@ -106,6 +106,7 @@ static void sha1_clean(PPP_MD_CTX *ctx)
+  * 34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
+  */
  
 +#include <sys/types.h>		/* for u_int32_t, if defined */
-+
- #include "pppdconf.h"
+ #include <string.h>
+ #include <netinet/in.h>	/* htonl() */
  
- #ifndef USE_SHA
