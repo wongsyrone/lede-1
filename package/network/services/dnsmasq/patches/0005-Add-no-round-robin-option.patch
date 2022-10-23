@@ -1,0 +1,120 @@
+From fe9a134baf0c3b62e1076120b7b7ea428103cf3e Mon Sep 17 00:00:00 2001
+From: Simon Kelley <simon@thekelleys.org.uk>
+Date: Tue, 18 Oct 2022 16:06:48 +0100
+Subject: [PATCH 3/3] Add --no-round-robin option.
+
+---
+ CHANGELOG     |  2 ++
+ man/dnsmasq.8 |  6 ++++++
+ src/cache.c   | 12 +++++++++---
+ src/dnsmasq.h |  3 ++-
+ src/option.c  |  3 +++
+ 5 files changed, 22 insertions(+), 4 deletions(-)
+
+--- a/CHANGELOG
++++ b/CHANGELOG
+@@ -32,7 +32,9 @@ version 2.88
+ 	to an easily reproducible case which saved mucg labour in
+ 	finding it.
+ 
++	Add --no-round-robin option.
+ 
++	
+ version 2.87
+         Allow arbitrary prefix lengths in --rev-server and
+ 	--domain=....,local
+--- a/man/dnsmasq.8
++++ b/man/dnsmasq.8
+@@ -816,6 +816,12 @@ Disable negative caching. Negative cachi
+ "no such domain" answers from upstream nameservers and answer
+ identical queries without forwarding them again. 
+ .TP
++.B --no-round-robin
++Dnsmasq normally permutes the order of A or AAAA records for the same
++name on successive queries, for load-balancing. This turns off that
++behaviour, so that the records are always returned in the order
++that they are received from upstream.
++.TP
+ .B --use-stale-cache
+ When set, if a DNS name exists in the cache, but its time-to-live has expired, dnsmasq will return the data anyway. (It attempts to refresh the
+ data with an upstream query after returning the stale data.) This can improve speed and reliability. It comes at the expense
+--- a/src/cache.c
++++ b/src/cache.c
+@@ -233,7 +233,8 @@ static void cache_hash(struct crec *crec
+      immortal entries are at the end of the hash-chain.
+      This allows reverse searches and garbage collection to be optimised */
+ 
+-  struct crec **up = hash_bucket(cache_get_name(crecp));
++  char *name = cache_get_name(crecp);
++  struct crec **up = hash_bucket(name);
+ 
+   if (!(crecp->flags & F_REVERSE))
+     {
+@@ -244,6 +245,11 @@ static void cache_hash(struct crec *crec
+ 	while (*up && !((*up)->flags & F_IMMORTAL))
+ 	  up = &((*up)->hash_next);
+     }
++
++  /* Preserve order when inserting the same name multiple times. */
++  while (*up && hostname_isequal(cache_get_name(*up), name))
++    up = &((*up)->hash_next);
++  
+   crecp->hash_next = *up;
+   *up = crecp;
+ }
+@@ -722,7 +728,7 @@ static struct crec *really_insert(char *
+   new->ttd = now + (time_t)ttl;
+   new->next = new_chain;
+   new_chain = new;
+-
++  
+   return new;
+ }
+ 
+@@ -900,7 +906,7 @@ int cache_find_non_terminal(char *name,
+ struct crec *cache_find_by_name(struct crec *crecp, char *name, time_t now, unsigned int prot)
+ {
+   struct crec *ans;
+-  int no_rr = prot & F_NO_RR;
++  int no_rr = (prot & F_NO_RR) || option_bool(OPT_NORR);
+ 
+   prot &= ~F_NO_RR;
+   
+--- a/src/dnsmasq.h
++++ b/src/dnsmasq.h
+@@ -280,7 +280,8 @@ struct event_desc {
+ #define OPT_STRIP_ECS      69
+ #define OPT_STRIP_MAC      70
+ #define OPT_STALE_CACHE    71
+-#define OPT_LAST           72
++#define OPT_NORR           72
++#define OPT_LAST           73
+ 
+ #define OPTION_BITS (sizeof(unsigned int)*8)
+ #define OPTION_SIZE ( (OPT_LAST/OPTION_BITS)+((OPT_LAST%OPTION_BITS)!=0) )
+--- a/src/option.c
++++ b/src/option.c
+@@ -184,6 +184,7 @@ struct myoption {
+ #define LOPT_RANDPORT_LIM  375
+ #define LOPT_FAST_RETRY    376
+ #define LOPT_STALE_CACHE   377
++#define LOPT_NORR          378
+ 
+ #ifdef HAVE_GETOPT_LONG
+ static const struct option opts[] =  
+@@ -236,6 +237,7 @@ static const struct myoption opts[] =
+     { "localmx", 0, 0, 'L' },
+     { "local-ttl", 1, 0, 'T' },
+     { "no-negcache", 0, 0, 'N' },
++    { "no-round-robin", 0, 0, LOPT_NORR },
+     { "addn-hosts", 1, 0, 'H' },
+     { "hostsdir", 1, 0, LOPT_HOST_INOTIFY },
+     { "query-port", 1, 0, 'Q' },
+@@ -567,6 +569,7 @@ static struct {
+   { LOPT_SCRIPT_TIME, OPT_LEASE_RENEW, NULL, gettext_noop("Call dhcp-script when lease expiry changes."), NULL },
+   { LOPT_UMBRELLA, ARG_ONE, "[=<optspec>]", gettext_noop("Send Cisco Umbrella identifiers including remote IP."), NULL },
+   { LOPT_QUIET_TFTP, OPT_QUIET_TFTP, NULL, gettext_noop("Do not log routine TFTP."), NULL },
++  { LOPT_NORR, OPT_NORR, NULL, gettext_noop("Suppress round-robin ordering of DNS records."), NULL },
+   { 0, 0, NULL, NULL, NULL }
+ }; 
+ 
