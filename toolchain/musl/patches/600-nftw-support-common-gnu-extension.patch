@@ -87,9 +87,3 @@ Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
  
  	return 0;
  }
-@@ -139,4 +163,5 @@ int nftw(const char *path, int (*fn)(con
- 	return r;
- }
- 
-+#undef nftw64
- weak_alias(nftw, nftw64);
