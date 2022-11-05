@@ -1030,8 +1030,32 @@ static int rtl838x_eth_stop(struct net_device *ndev)
 	return 0;
 }
 
+static void rtl838x_eth_set_multicast_list(struct net_device *ndev)
+{
+	/*
+	 * Flood all classes of RMA addresses (01-80-C2-00-00-{01..2F})
+	 * CTRL_0_FULL = GENMASK(21, 0) = 0x3FFFFF
+	 */
+	if (!(ndev->flags & (IFF_PROMISC | IFF_ALLMULTI))) {
+		sw_w32(0x0, RTL838X_RMA_CTRL_0);
+		sw_w32(0x0, RTL838X_RMA_CTRL_1);
+	}
+	if (ndev->flags & IFF_ALLMULTI)
+		sw_w32(GENMASK(21, 0), RTL838X_RMA_CTRL_0);
+	if (ndev->flags & IFF_PROMISC) {
+		sw_w32(GENMASK(21, 0), RTL838X_RMA_CTRL_0);
+		sw_w32(0x7fff, RTL838X_RMA_CTRL_1);
+	}
+}
+
 static void rtl839x_eth_set_multicast_list(struct net_device *ndev)
 {
+	/*
+	 * Flood all classes of RMA addresses (01-80-C2-00-00-{01..2F})
+	 * CTRL_0_FULL = GENMASK(31, 2) = 0xFFFFFFFC
+	 * Lower two bits are reserved, corresponding to RMA 01-80-C2-00-00-00
+	 * CTRL_1_FULL = CTRL_2_FULL = GENMASK(31, 0)
+	 */
 	if (!(ndev->flags & (IFF_PROMISC | IFF_ALLMULTI))) {
 		sw_w32(0x0, RTL839X_RMA_CTRL_0);
 		sw_w32(0x0, RTL839X_RMA_CTRL_1);
@@ -1039,72 +1063,53 @@ static void rtl839x_eth_set_multicast_list(struct net_device *ndev)
 		sw_w32(0x0, RTL839X_RMA_CTRL_3);
 	}
 	if (ndev->flags & IFF_ALLMULTI) {
-		sw_w32(0x7fffffff, RTL839X_RMA_CTRL_0);
-		sw_w32(0x7fffffff, RTL839X_RMA_CTRL_1);
-		sw_w32(0x7fffffff, RTL839X_RMA_CTRL_2);
+		sw_w32(GENMASK(31, 2), RTL839X_RMA_CTRL_0);
+		sw_w32(GENMASK(31, 0), RTL839X_RMA_CTRL_1);
+		sw_w32(GENMASK(31, 0), RTL839X_RMA_CTRL_2);
 	}
 	if (ndev->flags & IFF_PROMISC) {
-		sw_w32(0x7fffffff, RTL839X_RMA_CTRL_0);
-		sw_w32(0x7fffffff, RTL839X_RMA_CTRL_1);
-		sw_w32(0x7fffffff, RTL839X_RMA_CTRL_2);
+		sw_w32(GENMASK(31, 2), RTL839X_RMA_CTRL_0);
+		sw_w32(GENMASK(31, 0), RTL839X_RMA_CTRL_1);
+		sw_w32(GENMASK(31, 0), RTL839X_RMA_CTRL_2);
 		sw_w32(0x3ff, RTL839X_RMA_CTRL_3);
-	}
-}
-
-static void rtl838x_eth_set_multicast_list(struct net_device *ndev)
-{
-	struct rtl838x_eth_priv *priv = netdev_priv(ndev);
-
-	if (priv->family_id == RTL8390_FAMILY_ID)
-		return rtl839x_eth_set_multicast_list(ndev);
-
-	if (!(ndev->flags & (IFF_PROMISC | IFF_ALLMULTI))) {
-		sw_w32(0x0, RTL838X_RMA_CTRL_0);
-		sw_w32(0x0, RTL838X_RMA_CTRL_1);
-	}
-	if (ndev->flags & IFF_ALLMULTI)
-		sw_w32(0x1fffff, RTL838X_RMA_CTRL_0);
-	if (ndev->flags & IFF_PROMISC) {
-		sw_w32(0x1fffff, RTL838X_RMA_CTRL_0);
-		sw_w32(0x7fff, RTL838X_RMA_CTRL_1);
 	}
 }
 
 static void rtl930x_eth_set_multicast_list(struct net_device *ndev)
 {
-	if (!(ndev->flags & (IFF_PROMISC | IFF_ALLMULTI))) {
+	/*
+	 * Flood all classes of RMA addresses (01-80-C2-00-00-{01..2F})
+	 * CTRL_0_FULL = GENMASK(31, 2) = 0xFFFFFFFC
+	 * Lower two bits are reserved, corresponding to RMA 01-80-C2-00-00-00
+	 * CTRL_1_FULL = CTRL_2_FULL = GENMASK(31, 0)
+	 */
+	if (ndev->flags & (IFF_ALLMULTI | IFF_PROMISC)) {
+		sw_w32(GENMASK(31, 2), RTL930X_RMA_CTRL_0);
+		sw_w32(GENMASK(31, 0), RTL930X_RMA_CTRL_1);
+		sw_w32(GENMASK(31, 0), RTL930X_RMA_CTRL_2);
+	} else {
 		sw_w32(0x0, RTL930X_RMA_CTRL_0);
 		sw_w32(0x0, RTL930X_RMA_CTRL_1);
 		sw_w32(0x0, RTL930X_RMA_CTRL_2);
-	}
-	if (ndev->flags & IFF_ALLMULTI) {
-		sw_w32(0x7fffffff, RTL930X_RMA_CTRL_0);
-		sw_w32(0x7fffffff, RTL930X_RMA_CTRL_1);
-		sw_w32(0x7fffffff, RTL930X_RMA_CTRL_2);
-	}
-	if (ndev->flags & IFF_PROMISC) {
-		sw_w32(0x7fffffff, RTL930X_RMA_CTRL_0);
-		sw_w32(0x7fffffff, RTL930X_RMA_CTRL_1);
-		sw_w32(0x7fffffff, RTL930X_RMA_CTRL_2);
 	}
 }
 
 static void rtl931x_eth_set_multicast_list(struct net_device *ndev)
 {
-	if (!(ndev->flags & (IFF_PROMISC | IFF_ALLMULTI))) {
+	/*
+	 * Flood all classes of RMA addresses (01-80-C2-00-00-{01..2F})
+	 * CTRL_0_FULL = GENMASK(31, 2) = 0xFFFFFFFC
+	 * Lower two bits are reserved, corresponding to RMA 01-80-C2-00-00-00.
+	 * CTRL_1_FULL = CTRL_2_FULL = GENMASK(31, 0)
+	 */
+	if (ndev->flags & (IFF_ALLMULTI | IFF_PROMISC)) {
+		sw_w32(GENMASK(31, 2), RTL931X_RMA_CTRL_0);
+		sw_w32(GENMASK(31, 0), RTL931X_RMA_CTRL_1);
+		sw_w32(GENMASK(31, 0), RTL931X_RMA_CTRL_2);
+	} else {
 		sw_w32(0x0, RTL931X_RMA_CTRL_0);
 		sw_w32(0x0, RTL931X_RMA_CTRL_1);
 		sw_w32(0x0, RTL931X_RMA_CTRL_2);
-	}
-	if (ndev->flags & IFF_ALLMULTI) {
-		sw_w32(0x7fffffff, RTL931X_RMA_CTRL_0);
-		sw_w32(0x7fffffff, RTL931X_RMA_CTRL_1);
-		sw_w32(0x7fffffff, RTL931X_RMA_CTRL_2);
-	}
-	if (ndev->flags & IFF_PROMISC) {
-		sw_w32(0x7fffffff, RTL931X_RMA_CTRL_0);
-		sw_w32(0x7fffffff, RTL931X_RMA_CTRL_1);
-		sw_w32(0x7fffffff, RTL931X_RMA_CTRL_2);
 	}
 }
 
@@ -1247,6 +1252,7 @@ static int rtl838x_hw_receive(struct net_device *dev, int r, int budget)
 	struct rtl838x_eth_priv *priv = netdev_priv(dev);
 	struct ring_b *ring = priv->membase;
 	struct sk_buff *skb;
+	LIST_HEAD(rx_list);
 	unsigned long flags;
 	int i, len, work_done = 0;
 	u8 *data, *skb_data;
@@ -1324,7 +1330,7 @@ static int rtl838x_hw_receive(struct net_device *dev, int r, int budget)
 			dev->stats.rx_packets++;
 			dev->stats.rx_bytes += len;
 
-			netif_receive_skb(skb);
+			list_add_tail(&skb->list, &rx_list);
 		} else {
 			if (net_ratelimit())
 				dev_warn(&dev->dev, "low on memory - packet dropped\n");
@@ -1341,6 +1347,8 @@ static int rtl838x_hw_receive(struct net_device *dev, int r, int budget)
 		ring->c_rx[r] = (ring->c_rx[r] + 1) % priv->rxringlen;
 		last = (u32 *)KSEG1ADDR(sw_r32(priv->r->dma_if_rx_cur + r * 4));
 	} while (&ring->rx_r[r][ring->c_rx[r]] != last && work_done < budget);
+
+	netif_receive_skb_list(&rx_list);
 
 	// Update counters
 	priv->r->update_cntr(r, 0);
@@ -2242,7 +2250,7 @@ static int rtl83xx_set_features(struct net_device *dev, netdev_features_t featur
 		if (!(features & NETIF_F_RXCSUM))
 			sw_w32_mask(BIT(3), 0, priv->r->mac_port_ctrl(priv->cpu_port));
 		else
-			sw_w32_mask(0, BIT(4), priv->r->mac_port_ctrl(priv->cpu_port));
+			sw_w32_mask(0, BIT(3), priv->r->mac_port_ctrl(priv->cpu_port));
 	}
 
 	return 0;
