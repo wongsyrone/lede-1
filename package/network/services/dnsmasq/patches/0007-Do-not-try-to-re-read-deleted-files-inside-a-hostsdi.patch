@@ -1,0 +1,43 @@
+From 92c32e0bace9ba11bea2cb77912695da3221f656 Mon Sep 17 00:00:00 2001
+From: Dominik Derigs <dl6er@dl6er.de>
+Date: Thu, 27 Oct 2022 12:36:38 +0100
+Subject: [PATCH 3/5] Do not (try to) re-read deleted files inside a
+ --hostsdir.
+
+---
+ src/inotify.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/src/inotify.c b/src/inotify.c
+index e257ec4..522f6b7 100644
+--- a/src/inotify.c
++++ b/src/inotify.c
+@@ -293,8 +293,12 @@ int inotify_check(time_t now)
+ 		    strcpy(path, dd->dname);
+ 		    strcat(path, "/");
+ 		    strcat(path, in->name);
+-		     
+-		    my_syslog(LOG_INFO, _("inotify: new, removed or changed file %s"), path);
++
++		    /* Is this is a deletion event? */
++		    if (in->mask & IN_DELETE)
++		      my_syslog(LOG_INFO, _("inotify: %s (removed)"), path);
++		    else
++		      my_syslog(LOG_INFO, _("inotify: %s (new or modified)"), path);
+ 
+ 		    if (dd->flags & AH_HOSTS)
+ 		      {
+@@ -304,7 +308,9 @@ int inotify_check(time_t now)
+ 			    if (removed > 0)
+ 			      my_syslog(LOG_INFO, _("flushed %u outdated entries"), removed);
+ 
+-			    read_hostsfile(path, ah->index, 0, NULL, 0);
++			    /* (Re-)load hostsfile only if this event isn't triggered by deletion */
++			    if (!(in->mask & IN_DELETE))
++			      read_hostsfile(path, ah->index, 0, NULL, 0);
+ #ifdef HAVE_DHCP
+ 			    if (daemon->dhcp || daemon->doing_dhcp6) 
+ 			      {
+-- 
+2.38.1
+

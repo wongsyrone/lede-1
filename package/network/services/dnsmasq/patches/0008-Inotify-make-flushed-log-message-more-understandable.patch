@@ -1,0 +1,51 @@
+From 34fac952b6e60f43671cf66b1e553f6196a218ae Mon Sep 17 00:00:00 2001
+From: Simon Kelley <simon@thekelleys.org.uk>
+Date: Thu, 27 Oct 2022 13:14:45 +0100
+Subject: [PATCH 4/5] Inotify: make "flushed" log message more understandable.
+
+Saying we've "flushed x outdated entries" is confusing, since
+the count is the total number of entries in the modified file,
+most of which are going	to get added straight back when	the file
+is re-read.
+
+The log now looks like
+
+dnsmasq: inotify: /tmp/dir/1 (new or modified)
+dnsmasq: inotify: flushed 1 addresses read from /tmp/dir/1
+dnsmasq: read /tmp/dir/1 - 2 addresses
+
+which hopefully make it more obvious that /tmp/dir/1 contained one
+address before, and now contains two.
+---
+ src/inotify.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/inotify.c b/src/inotify.c
+index 522f6b7..cc6d7bd 100644
+--- a/src/inotify.c
++++ b/src/inotify.c
+@@ -296,9 +296,9 @@ int inotify_check(time_t now)
+ 
+ 		    /* Is this is a deletion event? */
+ 		    if (in->mask & IN_DELETE)
+-		      my_syslog(LOG_INFO, _("inotify: %s (removed)"), path);
+-		    else
+-		      my_syslog(LOG_INFO, _("inotify: %s (new or modified)"), path);
++		      my_syslog(LOG_INFO, _("inotify: %s removed"), path);
++		    else 
++		      my_syslog(LOG_INFO, _("inotify: %s new or modified"), path);
+ 
+ 		    if (dd->flags & AH_HOSTS)
+ 		      {
+@@ -306,7 +306,7 @@ int inotify_check(time_t now)
+ 			  {
+ 			    const unsigned int removed = cache_remove_uid(ah->index);
+ 			    if (removed > 0)
+-			      my_syslog(LOG_INFO, _("flushed %u outdated entries"), removed);
++			      my_syslog(LOG_INFO, _("inotify: flushed %u addresses read from %s"), removed, path);
+ 
+ 			    /* (Re-)load hostsfile only if this event isn't triggered by deletion */
+ 			    if (!(in->mask & IN_DELETE))
+-- 
+2.38.1
+
