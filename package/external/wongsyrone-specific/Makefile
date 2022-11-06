@@ -27,7 +27,7 @@ define Package/wongsyrone-specific
 		+pdnsd +trojan +v2ray +vlmcsd \
 		+luci-app-turboacc \
 		+ethtool \
-		+kmod-igb +kmod-e1000e \
+		+kmod-igb-intel +kmod-e1000e \
 		+kmod-nft-fullcone
 endef
 
