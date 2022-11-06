@@ -161,6 +161,9 @@ CONFIGURE_ARGS += \
 	--without-crond-dir \
 	--without-systemd-unit-dir
 
+CONFIGURE_VARS += \
+	ac_cv_func_fallocate64=yes
+
 define Build/Prepare
 	$(call Build/Prepare/Default)
 	$(CP) $(SCRIPT_DIR)/config.{guess,sub} $(PKG_BUILD_DIR)/config/
