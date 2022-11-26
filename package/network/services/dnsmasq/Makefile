@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dnsmasq
-PKG_UPSTREAM_VERSION:=2.88test3
+PKG_UPSTREAM_VERSION:=2.88rc4
 PKG_VERSION:=$(subst test,~~test,$(subst rc,~rc,$(PKG_UPSTREAM_VERSION)))
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_UPSTREAM_VERSION).tar.xz
-PKG_SOURCE_URL:=https://thekelleys.org.uk/dnsmasq/test-releases/
-PKG_HASH:=bdfdf0c2f839a500e5a0074c69309f2bb2846eb8f013f073d7f07f6c59dbb4a2
+PKG_SOURCE_URL:=https://thekelleys.org.uk/dnsmasq/release-candidates/
+PKG_HASH:=d81ab3d5a65ddc0596f5a06ce445dc15f844dd2b4ad18056daecbd655edc7fd7
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=COPYING
