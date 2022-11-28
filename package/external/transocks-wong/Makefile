@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=transocks-wong
 PKG_VERSION:=d7fb93a
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/wongsyrone/transocks-wong.git
@@ -78,5 +78,8 @@ define Package/transocks-wong/install
 	$(INSTALL_BIN) ./files/transocks-wong.init $(1)/etc/init.d/transocks-wong
 endef
 
+define Package/transocks-wong/conffiles
+/etc/config/transocks-wong
+endef
 
 $(eval $(call BuildPackage,transocks-wong))

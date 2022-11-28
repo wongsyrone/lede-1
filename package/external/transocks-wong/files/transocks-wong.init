@@ -9,15 +9,15 @@ USE_PROCD=1
 
 
 PROG=/usr/sbin/transocks-wong
-LISTENARG=--listener-addr-port="[::]:8123"
-TARGETARG=--socks5-addr-port="[::1]:1081"
-PUMPARG=--pump-method=splicepump
 
 config_load "transocks-wong"
 
 parse_transocks_wong()
 {
-	config_get ENABLED "$section" "enabled"
+	config_get ENABLED "$section" "enabled" "0"
+	config_get LISTENERADDRPORT "$section" "listener_addr_port" "[::]:8123"
+	config_get SOCKS5ADDRPORT "$section" "socks5_addr_port" "[::1]:1081"
+	config_get PUMPMETHOD "$section" "pump_method" "splicepump"
 }
 
 config_foreach parse_transocks_wong 'transocks-wong'
@@ -30,9 +30,9 @@ start_service() {
 		do
 			procd_open_instance
 			procd_set_param command $PROG
-			procd_append_param command $LISTENARG
-			procd_append_param command $TARGETARG
-			procd_append_param command $PUMPARG
+			procd_append_param command --listener-addr-port="$LISTENERADDRPORT"
+			procd_append_param command --socks5-addr-port="$SOCKS5ADDRPORT"
+			procd_append_param command --pump-method="$PUMPMETHOD"
 			procd_set_param user root # run service as user root
 			procd_set_param stdout 1 # forward stdout of the command to logd
 			procd_set_param stderr 1 # same for stderr
