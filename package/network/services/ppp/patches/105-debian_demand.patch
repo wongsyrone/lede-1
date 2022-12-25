@@ -159,7 +159,7 @@
      } else {
 --- a/pppd/pppd.h
 +++ b/pppd/pppd.h
-@@ -641,7 +641,7 @@ void demand_conf(void);	/* config interf
+@@ -642,7 +642,7 @@ void demand_conf(void);	/* config interf
  void demand_block(void);	/* set all NPs to queue up packets */
  void demand_unblock(void); /* set all NPs to pass packets */
  void demand_discard(void); /* set all NPs to discard packets */

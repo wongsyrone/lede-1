@@ -21,7 +21,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  /*
   * There have been 3 or 4 different names for this in libpcap CVS, but
   * this seems to be what they have settled on...
-@@ -177,6 +178,13 @@ static int setlogfile(char **);
+@@ -178,6 +179,13 @@ static int setlogfile(char **);
  static int loadplugin(char **);
  #endif
  
@@ -35,7 +35,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  #ifdef PPP_WITH_FILTER
  static int setpassfilter(char **);
  static int setactivefilter(char **);
-@@ -369,6 +377,15 @@ option_t general_options[] = {
+@@ -374,6 +382,15 @@ option_t general_options[] = {
        "set filter for active pkts", OPT_PRIO },
  #endif
  
@@ -51,7 +51,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
      { "maxoctets", o_int, &maxoctets,
        "Set connection traffic limit",
        OPT_PRIO | OPT_LLIMIT | OPT_NOINCR | OPT_ZEROINF },
-@@ -1478,6 +1495,27 @@ callfile(char **argv)
+@@ -1546,6 +1563,27 @@ callfile(char **argv)
      return ok;
  }
  
@@ -174,7 +174,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +#endif /* PCAP_PCC_H */
 --- a/configure.ac
 +++ b/configure.ac
-@@ -289,6 +289,11 @@ AM_COND_IF([PPP_WITH_FILTER], [
+@@ -282,6 +282,11 @@ AM_COND_IF([PPP_WITH_FILTER], [
          ])
      ])
  
@@ -188,7 +188,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  AC_ARG_WITH([gtk], AS_HELP_STRING([--with-gtk], [Build contributions with the GTK+ interface]))
 --- a/pppd/Makefile.am
 +++ b/pppd/Makefile.am
-@@ -107,6 +107,13 @@ pppd_LDFLAGS += $(PCAP_LDFLAGS)
+@@ -117,6 +117,13 @@ pppd_LDFLAGS += $(PCAP_LDFLAGS)
  pppd_LIBS += $(PCAP_LIBS)
  endif
  

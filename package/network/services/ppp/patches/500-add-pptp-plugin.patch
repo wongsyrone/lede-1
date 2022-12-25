@@ -3032,7 +3032,7 @@
 +#endif /* INC_VECTOR_H */
 --- a/configure.ac
 +++ b/configure.ac
-@@ -319,6 +319,7 @@ AC_CONFIG_FILES([
+@@ -312,6 +312,7 @@ AC_CONFIG_FILES([
      pppd/plugins/pppoe/Makefile
      pppd/plugins/pppoatm/Makefile
      pppd/plugins/pppol2tp/Makefile

@@ -10,7 +10,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 
 --- a/pppd/sys-linux.c
 +++ b/pppd/sys-linux.c
-@@ -230,7 +230,7 @@ static int driver_is_old       = 0;
+@@ -238,7 +238,7 @@ static int driver_is_old       = 0;
  static int restore_term        = 0;	/* 1 => we've munged the terminal */
  static struct termios inittermios;	/* Initial TTY termios */
  
@@ -19,7 +19,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  
  static char loop_name[20];
  static unsigned char inbuf[512]; /* buffer for chars read from loopback */
-@@ -249,8 +249,8 @@ static int	looped;			/* 1 if using loop
+@@ -257,8 +257,8 @@ static int	looped;			/* 1 if using loop
  static int	link_mtu;		/* mtu for the link (not bundle) */
  
  static struct utsname utsname;	/* for the kernel version */
@@ -29,7 +29,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  
  #define MAX_IFS		100
  
-@@ -1784,11 +1784,12 @@ int ccp_fatal_error (int unit)
+@@ -1975,11 +1975,12 @@ int ccp_fatal_error (int unit)
   *
   * path_to_procfs - find the path to the proc file system mount point
   */
@@ -44,7 +44,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
      struct mntent *mntent;
      FILE *fp;
  
-@@ -1810,6 +1811,7 @@ static char *path_to_procfs(const char *
+@@ -2001,6 +2002,7 @@ static char *path_to_procfs(const char *
  	    fclose (fp);
  	}
      }
@@ -52,7 +52,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  
      strlcpy(proc_path + proc_path_len, tail,
  	    sizeof(proc_path) - proc_path_len);
-@@ -2694,15 +2696,19 @@ int ppp_available(void)
+@@ -2885,15 +2887,19 @@ int ppp_available(void)
      int    my_version, my_modification, my_patch;
      int osmaj, osmin, ospatch;
  
@@ -72,7 +72,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  
  	/* XXX should get from driver */
  	driver_version = 2;
-@@ -2762,6 +2768,7 @@ int ppp_available(void)
+@@ -2953,6 +2959,7 @@ int ppp_available(void)
  
      if (ok && ((ifr.ifr_hwaddr.sa_family & ~0xFF) != ARPHRD_PPP))
  	ok = 0;
@@ -80,7 +80,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  
  /*
   *  This is the PPP device. Validate the version of the driver at this
-@@ -3466,6 +3473,7 @@ get_pty(int *master_fdp, int *slave_fdp,
+@@ -3567,6 +3574,7 @@ get_pty(int *master_fdp, int *slave_fdp,
      }
  #endif /* TIOCGPTN */
  
@@ -88,7 +88,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
      if (sfd < 0) {
  	/* the old way - scan through the pty name space */
  	for (i = 0; i < 64; ++i) {
-@@ -3490,6 +3498,7 @@ get_pty(int *master_fdp, int *slave_fdp,
+@@ -3591,6 +3599,7 @@ get_pty(int *master_fdp, int *slave_fdp,
  	    }
  	}
      }
@@ -115,7 +115,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  
 --- a/pppd/plugins/pppoe/plugin.c
 +++ b/pppd/plugins/pppoe/plugin.c
-@@ -63,9 +63,6 @@ static char const RCSID[] =
+@@ -58,9 +58,6 @@ static char const RCSID[] =
  
  char pppd_version[] = PPPD_VERSION;
  
@@ -125,7 +125,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  char *pppd_pppoe_service = NULL;
  static char *acName = NULL;
  static char *existingSession = NULL;
-@@ -422,10 +419,6 @@ PPPoEDevnameHook(char *cmd, char **argv,
+@@ -417,10 +414,6 @@ PPPoEDevnameHook(char *cmd, char **argv,
  void
  plugin_init(void)
  {

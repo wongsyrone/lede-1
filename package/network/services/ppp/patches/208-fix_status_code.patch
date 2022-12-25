@@ -12,7 +12,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 
 --- a/pppd/main.c
 +++ b/pppd/main.c
-@@ -1041,7 +1041,8 @@ get_input(void)
+@@ -1050,7 +1050,8 @@ get_input(void)
  	}
  	notice("Modem hangup");
  	hungup = 1;
