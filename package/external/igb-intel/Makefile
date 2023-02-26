@@ -7,12 +7,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kmod-igb-intel
-PKG_VERSION:=5.12.3
+PKG_VERSION:=5.13.16
 PKG_RELEASE:=1
 
 PKG_SOURCE:=igb-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://downloads.sourceforge.net/project/e1000/igb%20stable/$(PKG_VERSION)/
-PKG_MD5SUM:=e4aaa5ddf78aaa725fe61d635a90dd5a
+PKG_MD5SUM:=e9b5327b786de16f4b4ccd03e147ca0d
 
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
@@ -32,6 +32,10 @@ define KernelPackage/igb-intel
 endef
 
 define Build/Compile
+	cd ${PKG_BUILD_DIR}/src; KSRC="$(LINUX_DIR)" \
+		CONFFILE="$(LINUX_DIR)/.config" \
+		OUT="$(PKG_BUILD_DIR)/src/kcompat_generated_defs.h" \
+		bash kcompat-generator.sh
 	+$(KERNEL_MAKE) M=$(PKG_BUILD_DIR)/src modules
 endef
 
