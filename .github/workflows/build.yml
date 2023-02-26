@@ -22,6 +22,9 @@ on:
         type: boolean
       build_all_boards:
         type: boolean
+      use_openwrt_container:
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -44,6 +47,11 @@ jobs:
         run: |
           OWNER_LC=$(echo "${{ github.repository_owner }}" \
             | tr '[:upper:]' '[:lower:]')
+
+          if [ ${{ inputs.use_openwrt_container }} == "true" ]; then
+            OWNER_LC=openwrt
+          fi
+
           echo "owner_lc=$OWNER_LC" >> $GITHUB_OUTPUT
 
       - name: Generate ccache hash
@@ -137,6 +145,16 @@ jobs:
           echo "TARGET=$TARGET" >> "$GITHUB_ENV"
           echo "SUBTARGET=$SUBTARGET" >> "$GITHUB_ENV"
 
+      - name: Prepare prebuilt tools
+        shell: su buildbot -c "sh -e {0}"
+        working-directory: openwrt
+        run: |
+          mkdir -p staging_dir build_dir
+          ln -s /prebuilt_tools/staging_dir/host staging_dir/host
+          ln -s /prebuilt_tools/build_dir/host build_dir/host
+
+          ./scripts/ext-tools.sh --refresh
+
       - name: Update & Install feeds
         if: inputs.include_feeds == true
         shell: su buildbot -c "sh -e {0}"
@@ -169,7 +187,7 @@ jobs:
           fi
 
           if [ -n "$major_ver" ]; then
-            git fetch --tags
+            git fetch --tags -f
             latest_tag="$(git tag --sort=-creatordate -l $major_ver* | head -n1)"
             if [ -n "$latest_tag" ]; then
               TOOLCHAIN_PATH=releases/$(echo $latest_tag | sed 's/^v//')
@@ -189,6 +207,8 @@ jobs:
             TOOLCHAIN_SHA256=$(echo "$TOOLCHAIN_STRING" | cut -d ' ' -f 1)
 
             echo "toolchain-type=external_sdk" >> $GITHUB_OUTPUT
+          else
+            echo "toolchain-type=internal" >> $GITHUB_OUTPUT
           fi
 
           echo "TOOLCHAIN_FILE=$TOOLCHAIN_FILE" >> "$GITHUB_ENV"
@@ -196,7 +216,7 @@ jobs:
           echo "TOOLCHAIN_PATH=$TOOLCHAIN_PATH" >> "$GITHUB_ENV"
 
       - name: Cache external toolchain/sdk
-        if: inputs.build_toolchain == false
+        if: inputs.build_toolchain == false && steps.parse-toolchain.outputs.toolchain-type != 'internal'
         id: cache-external-toolchain
         uses: actions/cache@v3
         with:
@@ -212,17 +232,12 @@ jobs:
             ccache-kernel-${{ env.TARGET }}/${{ env.SUBTARGET }}-
 
       - name: Download external toolchain/sdk
-        if: inputs.build_toolchain == false && steps.cache-external-toolchain.outputs.cache-hit != 'true'
+        if: inputs.build_toolchain == false && steps.cache-external-toolchain.outputs.cache-hit != 'true' && steps.parse-toolchain.outputs.toolchain-type != 'internal'
         shell: su buildbot -c "sh -e {0}"
         working-directory: openwrt
         run: |
           wget -O - https://downloads.cdn.openwrt.org/${{ env.TOOLCHAIN_PATH }}/targets/${{ env.TARGET }}/${{ env.SUBTARGET }}/${{ env.TOOLCHAIN_FILE }}.tar.xz \
             | tar --xz -xf -
-
-      - name: Extract prebuilt tools
-        shell: su buildbot -c "sh -e {0}"
-        working-directory: openwrt
-        run: ./scripts/ext-tools.sh --tools /tools.tar
 
       - name: Configure testing kernel
         if: inputs.testing == true
@@ -311,7 +326,7 @@ jobs:
             --config ${{ env.TARGET }}/${{ env.SUBTARGET }}
 
       - name: Configure internal toolchain
-        if: inputs.build_toolchain == true
+        if: inputs.build_toolchain == true || steps.parse-toolchain.outputs.toolchain-type == 'internal'
         shell: su buildbot -c "sh -e {0}"
         working-directory: openwrt
         run: |

@@ -168,7 +168,7 @@ endef
 TARGET_DEVICES += ubnt_rocket-5ac-lite
 
 define Device/ubnt_routerstation_common
-  DEVICE_PACKAGES := -kmod-ath9k -wpad-basic-wolfssl -uboot-envtools kmod-usb-ohci \
+  DEVICE_PACKAGES := -kmod-ath9k -wpad-basic-mbedtls -uboot-envtools kmod-usb-ohci \
 	kmod-usb2 fconfig
   DEVICE_VENDOR := Ubiquiti
   SOC := ar7161
@@ -229,7 +229,7 @@ TARGET_DEVICES += ubnt_unifi-ap-lr
 define Device/ubnt_unifiac
   DEVICE_VENDOR := Ubiquiti
   SOC := qca9563
-  IMAGE_SIZE := 7744k
+  IMAGE_SIZE := 15488k
   DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
 endef
 

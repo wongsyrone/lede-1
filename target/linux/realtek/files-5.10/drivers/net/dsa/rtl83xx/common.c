@@ -121,28 +121,45 @@ void rtl_table_release(struct table_reg *r)
 //	pr_info("Unlock done\n");
 }
 
+static int rtl_table_exec(struct table_reg *r, bool is_write, int idx)
+{
+	int ret = 0;
+	u32 cmd, val;
+
+	/* Read/write bit has inverted meaning on RTL838x */
+	if (r->rmode)
+		cmd = is_write ? 0 : BIT(r->c_bit);
+	else
+		cmd = is_write ? BIT(r->c_bit) : 0;
+
+	cmd |= BIT(r->c_bit + 1); /* Execute bit */
+	cmd |= r->tbl << r->t_bit; /* Table type */
+	cmd |= idx & (BIT(r->t_bit) - 1); /* Index */
+
+	sw_w32(cmd, r->addr);
+
+	ret = readx_poll_timeout(sw_r32, r->addr, val,
+				 !(val & BIT(r->c_bit + 1)), 20, 10000);
+	if (ret)
+		pr_err("%s: timeout\n", __func__);
+
+	return ret;
+}
+
 /*
  * Reads table index idx into the data registers of the table
  */
-void rtl_table_read(struct table_reg *r, int idx)
+int rtl_table_read(struct table_reg *r, int idx)
 {
-	u32 cmd = r->rmode ? BIT(r->c_bit) : 0;
-
-	cmd |= BIT(r->c_bit + 1) | (r->tbl << r->t_bit) | (idx & (BIT(r->t_bit) - 1));
-	sw_w32(cmd, r->addr);
-	do { } while (sw_r32(r->addr) & BIT(r->c_bit + 1));
+	return rtl_table_exec(r, false, idx);
 }
 
 /*
  * Writes the content of the table data registers into the table at index idx
  */
-void rtl_table_write(struct table_reg *r, int idx)
+int rtl_table_write(struct table_reg *r, int idx)
 {
-	u32 cmd = r->rmode ? 0 : BIT(r->c_bit);
-
-	cmd |= BIT(r->c_bit + 1) | (r->tbl << r->t_bit) | (idx & (BIT(r->t_bit) - 1));
-	sw_w32(cmd, r->addr);
-	do { } while (sw_r32(r->addr) & BIT(r->c_bit + 1));
+	return rtl_table_exec(r, true, idx);
 }
 
 /*
@@ -323,7 +340,6 @@ static int __init rtl83xx_mdio_probe(struct rtl838x_switch_priv *priv)
 		if (of_property_read_u32(dn, "reg", &pn))
 			continue;
 
-		pr_info("%s found port %d\n", __func__, pn);
 		phy_node = of_parse_phandle(dn, "phy-handle", 0);
 		if (!phy_node) {
 			if (pn != priv->cpu_port)
@@ -331,14 +347,9 @@ static int __init rtl83xx_mdio_probe(struct rtl838x_switch_priv *priv)
 			continue;
 		}
 
-		pr_info("%s port %d has phandle\n", __func__, pn);
 		if (of_property_read_u32(phy_node, "sds", &priv->ports[pn].sds_num))
 			priv->ports[pn].sds_num = -1;
-		else {
-			pr_info("%s sds port %d is %d\n", __func__, pn,
-				priv->ports[pn].sds_num);
-		}
-		pr_info("%s port %d has SDS\n", __func__, priv->ports[pn].sds_num);
+		pr_debug("%s port %d has SDS %d\n", __func__, pn, priv->ports[pn].sds_num);
 
 		if (of_get_phy_mode(dn, &interface))
 			interface = PHY_INTERFACE_MODE_NA;
@@ -1275,6 +1286,8 @@ static void rtl83xx_net_event_work_do(struct work_struct *work)
 	struct rtl838x_switch_priv *priv = net_work->priv;
 
 	rtl83xx_l3_nexthop_update(priv, net_work->gw_addr, net_work->mac);
+
+	kfree(net_work);
 }
 
 static int rtl83xx_netevent_event(struct notifier_block *this,
@@ -1288,13 +1301,6 @@ static int rtl83xx_netevent_event(struct notifier_block *this,
 
 	priv = container_of(this, struct rtl838x_switch_priv, ne_nb);
 
-	net_work = kzalloc(sizeof(*net_work), GFP_ATOMIC);
-	if (!net_work)
-		return NOTIFY_BAD;
-
-	INIT_WORK(&net_work->work, rtl83xx_net_event_work_do);
-	net_work->priv = priv;
-
 	switch (event) {
 	case NETEVENT_NEIGH_UPDATE:
 		if (n->tbl != &arp_tbl)
@@ -1303,9 +1309,15 @@ static int rtl83xx_netevent_event(struct notifier_block *this,
 		port = rtl83xx_port_dev_lower_find(dev, priv);
 		if (port < 0 || !(n->nud_state & NUD_VALID)) {
 			pr_debug("%s: Neigbour invalid, not updating\n", __func__);
-			kfree(net_work);
 			return NOTIFY_DONE;
 		}
+
+		net_work = kzalloc(sizeof(*net_work), GFP_ATOMIC);
+		if (!net_work)
+			return NOTIFY_BAD;
+
+		INIT_WORK(&net_work->work, rtl83xx_net_event_work_do);
+		net_work->priv = priv;
 
 		net_work->mac = ether_addr_to_u64(n->ha);
 		net_work->gw_addr = *(__be32 *) n->primary_key;

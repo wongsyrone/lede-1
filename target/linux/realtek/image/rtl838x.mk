@@ -12,6 +12,22 @@ define Device/allnet_all-sg8208m
 endef
 TARGET_DEVICES += allnet_all-sg8208m
 
+define Device/apresia_aplgs120gtss
+  $(Device/cameo-fw)
+  SOC := rtl8382
+  IMAGE_SIZE := 14848k
+  DEVICE_VENDOR := APRESIA
+  DEVICE_MODEL := ApresiaLightGS120GT-SS
+  UIMAGE_MAGIC := 0x12345000
+  CAMEO_KERNEL_PART_SIZE := 1572864
+  CAMEO_KERNEL_PART := 3
+  CAMEO_ROOTFS_PART := 4
+  CAMEO_CUSTOMER_SIGNATURE := 2
+  CAMEO_BOARD_MODEL := APLGS120GTSS
+  CAMEO_BOARD_VERSION := 4
+endef
+TARGET_DEVICES += apresia_aplgs120gtss
+
 define Device/d-link_dgs-1210-10mp-f
   $(Device/d-link_dgs-1210)
   SOC := rtl8380
@@ -67,7 +83,10 @@ define Device/engenius_ews2910p
   DEVICE_VENDOR := EnGenius
   DEVICE_MODEL := EWP2910P
   UIMAGE_MAGIC := 0x03802910
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | gzip | \
+  KERNEL_INITRAMFS := \
+	kernel-bin | \
+	append-dtb | \
+	libdeflate-gzip | \
 	uImage gzip -n 'IMG-0.00.00-c0.0.00'
 endef
 TARGET_DEVICES += engenius_ews2910p
@@ -116,8 +135,16 @@ TARGET_DEVICES += iodata_bsh-g24mb
 
 # "NGE" refers to the uImage magic
 define Device/netgear_nge
-  KERNEL := kernel-bin | append-dtb | lzma | uImage lzma
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | lzma | uImage lzma
+  KERNEL := \
+	kernel-bin | \
+	append-dtb | \
+	lzma | \
+	uImage lzma
+  KERNEL_INITRAMFS := \
+	kernel-bin | \
+	append-dtb | \
+	lzma | \
+	uImage lzma
   SOC := rtl8380
   IMAGE_SIZE := 14848k
   UIMAGE_MAGIC := 0x4e474520
@@ -207,17 +234,9 @@ define Device/tplink_sg2210p-v3
 endef
 TARGET_DEVICES += tplink_sg2210p-v3
 
-define Device/zyxel_gs1900
-  SOC := rtl8380
-  IMAGE_SIZE := 6976k
-  DEVICE_VENDOR := ZyXEL
-  UIMAGE_MAGIC := 0x83800000
-  KERNEL_INITRAMFS := kernel-bin | append-dtb | gzip | zyxel-vers | \
-	uImage gzip
-endef
-
 define Device/zyxel_gs1900-10hp
   $(Device/zyxel_gs1900)
+  SOC := rtl8380
   DEVICE_MODEL := GS1900-10HP
   ZYXEL_VERS := AAZI
 endef
@@ -233,6 +252,7 @@ TARGET_DEVICES += zyxel_gs1900-16
 
 define Device/zyxel_gs1900-8
   $(Device/zyxel_gs1900)
+  SOC := rtl8380
   DEVICE_MODEL := GS1900-8
   ZYXEL_VERS := AAHH
 endef
@@ -240,6 +260,7 @@ TARGET_DEVICES += zyxel_gs1900-8
 
 define Device/zyxel_gs1900-8hp-v1
   $(Device/zyxel_gs1900)
+  SOC := rtl8380
   DEVICE_MODEL := GS1900-8HP
   DEVICE_VARIANT := v1
   ZYXEL_VERS := AAHI
@@ -249,6 +270,7 @@ TARGET_DEVICES += zyxel_gs1900-8hp-v1
 
 define Device/zyxel_gs1900-8hp-v2
   $(Device/zyxel_gs1900)
+  SOC := rtl8380
   DEVICE_MODEL := GS1900-8HP
   DEVICE_VARIANT := v2
   ZYXEL_VERS := AAHI
