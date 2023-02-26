@@ -326,13 +326,13 @@
 +#include <sys/wait.h>
 +#include <sys/ioctl.h>
 +
-+#include "pppd.h"
++#include "pppd-private.h"
 +#include "fsm.h"
 +#include "lcp.h"
 +#include "ipcp.h"
 +#include "ccp.h"
 +#include "pathnames.h"
-+
++#include <pppd/options.h>
 +#include "pptp_callmgr.h"
 +#include <net/if.h>
 +#include <net/ethernet.h>
@@ -364,7 +364,7 @@
 +static void launch_callmgr(int call_is,struct in_addr inetaddr, char *phonenr,int window);
 +static int get_call_id(int sock, pid_t gre, pid_t pppd, u_int16_t *peer_call_id);
 +
-+static option_t Options[] =
++static struct option Options[] =
 +{
 +    { "pptp_server", o_string, &pptp_server,
 +      "PPTP Server" },
@@ -387,8 +387,8 @@
 +    check_options: NULL,
 +    connect: &pptp_connect,
 +    disconnect: &pptp_disconnect,
-+    establish_ppp: &generic_establish_ppp,
-+    disestablish_ppp: &generic_disestablish_ppp,
++    establish_ppp: &ppp_generic_establish,
++    disestablish_ppp: &ppp_generic_disestablish,
 +    close: NULL,
 +    cleanup: NULL
 +};
@@ -396,7 +396,7 @@
 +static int pptp_start_server(void)
 +{
 +	pptp_fd=pptp_sock;
-+	sprintf(ppp_devnam,"pptp (%s)",pptp_client);
++	sprintf(ppp_devnam(),"pptp (%s)",pptp_client);
 +
 +	return pptp_fd;
 +}
@@ -477,7 +477,7 @@
 +		return -1;
 +	}
 +
-+	sprintf(ppp_devnam,"pptp (%s)",pptp_server);
++	sprintf(ppp_devnam(),"pptp (%s)",pptp_server);
 +
 +	return pptp_fd;
 +}
@@ -601,12 +601,12 @@
 +
 +void plugin_init(void)
 +{
-+    add_options(Options);
++    ppp_add_options(Options);
 +
 +    info("PPTP plugin version %s", PPTP_VERSION);
 +
 +    the_channel = &pptp_channel;
-+    modem = 0;
++    ppp_set_modem(0);
 +}
 --- /dev/null
 +++ b/pppd/plugins/pptp/pptp_callmgr.c
@@ -3058,6 +3058,6 @@
 +dist_man8_MANS = pppd-pptp.8
 +noinst_HEADERS = dirutil.h orckit_quirks.h pptp_callmgr.h pptp_ctrl.h pptp_msg.h pptp_options.h pptp_quirks.h util.h vector.h
 +
-+pptp_la_CPPFLAGS = -I${top_srcdir} -I${top_srcdir}/pppd
++pptp_la_CPPFLAGS = -I${top_srcdir} -I${top_srcdir}/pppd -DPLUGIN
 +pptp_la_LDFLAGS = -module -avoid-version
 +pptp_la_SOURCES = dirutil.c orckit_quirks.c pptp.c pptp_callmgr.c pptp_ctrl.c pptp_quirks.c util.c vector.c

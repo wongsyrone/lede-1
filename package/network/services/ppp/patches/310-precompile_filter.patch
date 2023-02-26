@@ -81,7 +81,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
   * setpassfilter - Set the pass filter for packets
 --- /dev/null
 +++ b/pppd/pcap_pcc.c
-@@ -0,0 +1,78 @@
+@@ -0,0 +1,79 @@
 +#ifdef HAVE_CONFIG_H
 +#include "config.h"
 +#endif
@@ -93,6 +93,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +#include <string.h>
 +#include <errno.h>
 +#include "pppd.h"
++#include "options.h"
 +
 +int pcap_pre_compiled (char * fname, struct bpf_program *p)
 +{
@@ -101,7 +102,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +    FILE *f = fopen (fname, "r");
 +    if (!f)
 +    {
-+       option_error("error opening precompiled active-filter '%s': %s",
++       ppp_option_error("error opening precompiled active-filter '%s': %s",
 +                    fname, strerror (errno));
 +       return 0;
 +    }
@@ -145,7 +146,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +    }
 +    if (size != index)
 +    {
-+       option_error("error in precompiled active-filter,"
++       ppp_option_error("error in precompiled active-filter,"
 +                    " expected %d expressions, got %dn",
 +                    size, index);
 +       ret = 0;
@@ -154,7 +155,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +    return ret;
 +
 +err:
-+  option_error("error in precompiled active-filter"
++  ppp_option_error("error in precompiled active-filter"
 +              " expression line %s:%d (wrong size)\n",
 +              fname, line);
 +  fclose (f);

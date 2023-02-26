@@ -14,9 +14,9 @@ Signed-off-by: George Kashperko <george@znau.edu.ua>
  #include <unistd.h>
 +#include <net/if.h>
  
- #include "pppd.h"
+ #include "pppd-private.h"
  #include "fsm.h"
-@@ -61,7 +62,8 @@ static void iterate_bundle_links(void (*
+@@ -62,7 +63,8 @@ static void iterate_bundle_links(void (*
  
  static int get_default_epdisc(struct epdisc *);
  static int parse_num(char *str, const char *key, int *valp);
@@ -26,7 +26,7 @@ Signed-off-by: George Kashperko <george@znau.edu.ua>
  
  #define set_ip_epdisc(ep, addr) do {	\
  	ep->length = 4;			\
-@@ -202,35 +204,38 @@ mp_join_bundle(void)
+@@ -215,35 +217,37 @@ mp_join_bundle(void)
  	key.dptr = bundle_id;
  	key.dsize = p - bundle_id;
  	pid = tdb_fetch(pppdb, key);
@@ -36,7 +36,6 @@ Signed-off-by: George Kashperko <george@znau.edu.ua>
 +
  		/* bundle ID exists, see if the pppd record exists */
  		rec = tdb_fetch(pppdb, pid);
-+
  		if (rec.dptr != NULL && rec.dsize > 0) {
  			/* make sure the string is null-terminated */
  			rec.dptr[rec.dsize-1] = 0;
@@ -61,7 +60,7 @@ Signed-off-by: George Kashperko <george@znau.edu.ua>
 -		if (bundle_attach(unit)) {
 +		if (unit >= 0 && bundle_attach(unit)) {
  			set_ifunit(0);
- 			script_setenv("BUNDLE", bundle_id + 7, 0);
+ 			ppp_script_setenv("BUNDLE", bundle_id + 7, 0);
  			make_bundle_links(1);
  			unlock_db();
 -			info("Link attached to %s", ifname);
@@ -73,7 +72,7 @@ Signed-off-by: George Kashperko <george@znau.edu.ua>
  	}
  
  	/* we have to make a new bundle */
-@@ -410,20 +415,39 @@ parse_num(char *str, const char *key, in
+@@ -423,20 +427,39 @@ parse_num(char *str, const char *key, in
  	return 0;
  }
  
@@ -119,7 +118,7 @@ Signed-off-by: George Kashperko <george@znau.edu.ua>
  			&& memcmp(vd.dptr, key.dptr, vd.dsize) == 0;
 --- a/pppd/sys-linux.c
 +++ b/pppd/sys-linux.c
-@@ -991,6 +991,16 @@ void cfg_bundle(int mrru, int mtru, int
+@@ -994,6 +994,16 @@ void cfg_bundle(int mrru, int mtru, int
  	add_fd(ppp_dev_fd);
  }
  
@@ -136,7 +135,7 @@ Signed-off-by: George Kashperko <george@znau.edu.ua>
  /*
   * make_new_bundle - create a new PPP unit (i.e. a bundle)
   * and connect our channel to it.  This should only get called
-@@ -1009,6 +1019,8 @@ void make_new_bundle(int mrru, int mtru,
+@@ -1012,6 +1022,8 @@ void make_new_bundle(int mrru, int mtru,
  
  	/* set the mrru and flags */
  	cfg_bundle(mrru, mtru, rssn, tssn);

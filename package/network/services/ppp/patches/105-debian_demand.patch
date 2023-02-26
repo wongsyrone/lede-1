@@ -157,8 +157,8 @@
  	sifnpmode(f->unit, PPP_IPV6, NPMODE_PASS);
  
      } else {
---- a/pppd/pppd.h
-+++ b/pppd/pppd.h
+--- a/pppd/pppd-private.h
++++ b/pppd/pppd-private.h
 @@ -642,7 +642,7 @@ void demand_conf(void);	/* config interf
  void demand_block(void);	/* set all NPs to queue up packets */
  void demand_unblock(void); /* set all NPs to pass packets */
