@@ -1,0 +1,11 @@
+--- a/pppd/plugins/pppoe/plugin.c
++++ b/pppd/plugins/pppoe/plugin.c
+@@ -386,7 +386,7 @@ PPPoEDevnameHook(char *cmd, char **argv,
+     /* Close socket */
+     close(fd);
+     if (r && doit) {
+-	strlcpy(devnam, cmd, MAXPATHLEN);
++	strlcpy(devnam, cmd, MAXNAMELEN);
+ 	if (the_channel != &pppoe_channel) {
+ 
+ 	    the_channel = &pppoe_channel;

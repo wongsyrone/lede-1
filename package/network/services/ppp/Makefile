@@ -178,6 +178,7 @@ TARGET_CFLAGS += -ffunction-sections -fdata-sections -flto
 TARGET_LDFLAGS += -Wl,--gc-sections -flto -fuse-linker-plugin
 
 TARGET_CFLAGS += -fPIC
+TARGET_CFLAGS += -ggdb3
 
 # precompiled filter --with-openssl=$(STAGING_DIR)/usr
 CONFIGURE_ARGS += \
