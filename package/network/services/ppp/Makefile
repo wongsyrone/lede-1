@@ -26,6 +26,7 @@ PKG_VERSION:=$(PKG_RELEASE_VERSION).git-$(PKG_SOURCE_DATE)
 PKG_BUILD_DEPENDS:=libpcap openssl
 
 PKG_ASLR_PIE_REGULAR:=1
+PKG_BUILD_FLAGS:=gc-sections lto
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
@@ -174,8 +175,6 @@ This tool performs the same discovery process as pppoe, but does
 not initiate a session. Can be useful to debug pppoe.
 endef
 
-TARGET_CFLAGS += -ffunction-sections -fdata-sections -flto
-TARGET_LDFLAGS += -Wl,--gc-sections -flto -fuse-linker-plugin
 
 TARGET_CFLAGS += -fPIC
 TARGET_CFLAGS += -ggdb3

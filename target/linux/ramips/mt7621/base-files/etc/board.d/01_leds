@@ -76,6 +76,7 @@ dlink,dir-3060-a1)
 	ucidef_set_led_netdev "net_white" "WAN Link" "white:net" "wan" "link"
 	ucidef_set_led_netdev "net_orange" "WAN Activity" "orange:net" "wan" "tx rx"
 	;;
+dlink,dir-853-a1|\
 dlink,dir-853-a3)
 	ucidef_set_led_netdev "wan" "wan" "blue:net" "wan"
 	;;
@@ -156,6 +157,7 @@ oraybox,x3a)
 	ucidef_set_led_netdev "lan" "lan link" "green:status" "br-lan"
 	;;
 tplink,archer-a6-v3|\
+tplink,archer-ax23-v1|\
 tplink,archer-c6-v3|\
 tplink,archer-c6u-v1)
 	ucidef_set_led_netdev "lan" "LAN" "green:lan" "br-lan"

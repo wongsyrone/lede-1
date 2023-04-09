@@ -254,6 +254,7 @@ TARGET_NM:=$(TARGET_CROSS)gcc-nm
 TARGET_CC:=$(TARGET_CROSS)gcc
 TARGET_CXX:=$(TARGET_CROSS)g++
 KPATCH:=$(SCRIPT_DIR)/patch-kernel.sh
+FILECMD:=$(STAGING_DIR_HOST)/bin/file
 SED:=$(STAGING_DIR_HOST)/bin/sed -i -e
 ESED:=$(STAGING_DIR_HOST)/bin/sed -E -i -e
 MKHASH:=$(STAGING_DIR_HOST)/bin/mkhash
@@ -285,8 +286,8 @@ export HOSTCC_NOCACHE
 export HOSTCXX_NOCACHE
 
 ifneq ($(CONFIG_CCACHE),)
-  TARGET_CC:= ccache_cc
-  TARGET_CXX:= ccache_cxx
+  TARGET_CC:= ccache $(TARGET_CC)
+  TARGET_CXX:= ccache $(TARGET_CXX)
   HOSTCC:= ccache $(HOSTCC)
   HOSTCXX:= ccache $(HOSTCXX)
   export CCACHE_BASEDIR:=$(TOPDIR)
