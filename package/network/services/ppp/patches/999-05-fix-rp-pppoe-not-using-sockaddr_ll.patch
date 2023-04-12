@@ -22,10 +22,10 @@ sll_family is picked arbitrarily, just make sure struct sockaddr_ll is working.
  AC_CONFIG_SRCDIR([pppd/main.c])
 -AC_CONFIG_HEADERS([pppd/config.h pppd/pppdconf.h pppd/plugins/pppoe/config.h])
 +AC_CONFIG_HEADERS([pppd/config.h pppd/pppdconf.h])
+ AC_ENABLE_STATIC(no)
  
  # Checks for programs.
- AC_PROG_CC
-@@ -74,6 +74,13 @@ AM_COND_IF([LINUX], [
+@@ -77,6 +77,13 @@ AM_COND_IF([LINUX], [
          netinet/if_ether.h      \
          netpacket/packet.h])])
  

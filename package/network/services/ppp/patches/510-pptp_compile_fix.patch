@@ -1,7 +1,7 @@
 --- a/pppd/plugins/pptp/pptp.c
 +++ b/pppd/plugins/pptp/pptp.c
 @@ -48,7 +48,7 @@
- 
+ #include <pppd/options.h>
  #include "pptp_callmgr.h"
  #include <net/if.h>
 -#include <net/ethernet.h>

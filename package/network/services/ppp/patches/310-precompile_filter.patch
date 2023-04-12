@@ -35,7 +35,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  #ifdef PPP_WITH_FILTER
  static int setpassfilter(char **);
  static int setactivefilter(char **);
-@@ -374,6 +382,15 @@ option_t general_options[] = {
+@@ -374,6 +382,15 @@ struct option general_options[] = {
        "set filter for active pkts", OPT_PRIO },
  #endif
  
@@ -51,7 +51,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
      { "maxoctets", o_int, &maxoctets,
        "Set connection traffic limit",
        OPT_PRIO | OPT_LLIMIT | OPT_NOINCR | OPT_ZEROINF },
-@@ -1546,6 +1563,27 @@ callfile(char **argv)
+@@ -1648,6 +1665,27 @@ callfile(char **argv)
      return ok;
  }
  
@@ -175,7 +175,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
 +#endif /* PCAP_PCC_H */
 --- a/configure.ac
 +++ b/configure.ac
-@@ -282,6 +282,11 @@ AM_COND_IF([PPP_WITH_FILTER], [
+@@ -307,6 +307,11 @@ AM_COND_IF([PPP_WITH_FILTER], [
          ])
      ])
  
@@ -189,7 +189,7 @@ Signed-off-by: Jo-Philipp Wich <jo@mein.io>
  AC_ARG_WITH([gtk], AS_HELP_STRING([--with-gtk], [Build contributions with the GTK+ interface]))
 --- a/pppd/Makefile.am
 +++ b/pppd/Makefile.am
-@@ -117,6 +117,13 @@ pppd_LDFLAGS += $(PCAP_LDFLAGS)
+@@ -128,6 +128,13 @@ pppd_LDFLAGS += $(PCAP_LDFLAGS)
  pppd_LIBS += $(PCAP_LIBS)
  endif
  
