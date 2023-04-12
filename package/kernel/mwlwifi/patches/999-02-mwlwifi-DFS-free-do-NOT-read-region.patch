@@ -1,0 +1,92 @@
+--- a/core.c
++++ b/core.c
+@@ -127,7 +127,7 @@ struct region_code_mapping {
+ static const struct region_code_mapping regmap[] = {
+ 	{"US", 0x10}, /* US FCC */
+ 	{"CA", 0x20}, /* Canada */
+-	{"FR", 0x30}, /* France */
++	{"BG", 0x30}, /* Bulgaria */
+ 	{"ES", 0x31}, /* Spain  */
+ 	{"FR", 0x32}, /* France */
+ 	{"JP", 0x40}, /* Japan  */
+--- a/hif/fwcmd.c
++++ b/hif/fwcmd.c
+@@ -1167,6 +1167,9 @@ int mwl_fwcmd_max_tx_power(struct ieee80
+ 		break;
+ 	}
+ 
++	// do not reduce power
++	reduce_val = 0; /* Max */
++
+ 	if (channel->band == NL80211_BAND_2GHZ)
+ 		band = FREQ_BAND_2DOT4GHZ;
+ 	else if (channel->band == NL80211_BAND_5GHZ)
+@@ -1192,6 +1195,13 @@ int mwl_fwcmd_max_tx_power(struct ieee80
+ 		else
+ 			sub_ch = EXT_CH_BELOW_CTRL_CH;
+ 		break;
++	case NL80211_CHAN_WIDTH_160:
++		width = CH_160_MHZ_WIDTH;
++		if (conf->chandef.center_freq1 > channel->center_freq)
++			sub_ch = EXT_CH_ABOVE_CTRL_CH;
++		else
++			sub_ch = EXT_CH_BELOW_CTRL_CH;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -1276,6 +1286,9 @@ int mwl_fwcmd_tx_power(struct ieee80211_
+ 		break;
+ 	}
+ 
++	// do NOT reduce power
++	reduce_val = 0; /* Max */
++
+ 	if (channel->band == NL80211_BAND_2GHZ)
+ 		band = FREQ_BAND_2DOT4GHZ;
+ 	else if (channel->band == NL80211_BAND_5GHZ)
+@@ -1301,6 +1314,13 @@ int mwl_fwcmd_tx_power(struct ieee80211_
+ 		else
+ 			sub_ch = EXT_CH_BELOW_CTRL_CH;
+ 		break;
++	case NL80211_CHAN_WIDTH_160:
++		width = CH_160_MHZ_WIDTH;
++		if (conf->chandef.center_freq1 > channel->center_freq)
++			sub_ch = EXT_CH_ABOVE_CTRL_CH;
++		else
++			sub_ch = EXT_CH_BELOW_CTRL_CH;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -3170,6 +3190,10 @@ int mwl_fwcmd_set_cdd(struct ieee80211_h
+ 	struct mwl_priv *priv = hw->priv;
+ 	struct hostcmd_cmd_set_cdd *pcmd;
+ 
++	// force-enable Cyclic delay diversity
++	// https://en.wikipedia.org/wiki/Cyclic_delay_diversity
++	priv->cdd = 1;
++
+ 	pcmd = (struct hostcmd_cmd_set_cdd *)&priv->pcmd_buf[0];
+ 
+ 	mutex_lock(&priv->fwcmd_mutex);
+@@ -3445,6 +3469,9 @@ int mwl_fwcmd_get_fw_region_code_sc4(str
+ 	struct hostcmd_cmd_get_fw_region_code_sc4 *pcmd;
+ 	u16 cmd;
+ 
++	// do not load the firmware region
++	return -EIO;
++
+ 	pcmd = (struct hostcmd_cmd_get_fw_region_code_sc4 *)&priv->pcmd_buf[0];
+ 
+ 	mutex_lock(&priv->fwcmd_mutex);
+@@ -3485,6 +3512,9 @@ int mwl_fwcmd_get_pwr_tbl_sc4(struct iee
+ 	int status;
+ 	u16 cmd;
+ 
++	// do not load the regulatory power table
++	return -EIO;
++
+ 	pcmd = (struct hostcmd_cmd_get_device_pwr_tbl_sc4 *)&priv->pcmd_buf[0];
+ 
+ 	mutex_lock(&priv->fwcmd_mutex);

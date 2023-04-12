@@ -1,0 +1,140 @@
+--- a/db.txt
++++ b/db.txt
+@@ -13,21 +13,20 @@ country 00:
+ 	# There is no global intersection for 802.11ah, so just mark the entire
+ 	# possible band as NO-IR
+ 	(755 - 928 @ 2), (20), NO-IR
+-	(2402 - 2472 @ 40), (20)
++	(2402 - 2472 @ 40), (24)
+ 	# Channel 12 - 13.
+-	(2457 - 2482 @ 20), (20), NO-IR, AUTO-BW
++	(2457 - 2482 @ 20), (24), NO-IR, AUTO-BW
+ 	# Channel 14. Only JP enables this and for 802.11b only
+-	(2474 - 2494 @ 20), (20), NO-IR, NO-OFDM
++	(2474 - 2494 @ 20), (24), NO-IR, NO-OFDM
+ 	# Channel 36 - 48
+-	(5170 - 5250 @ 80), (20), AUTO-BW
+ 	# Channel 52 - 64
+-	(5250 - 5330 @ 80), (20), NO-IR, DFS, AUTO-BW
++	(5150 - 5330 @ 160), (24), AUTO-BW
+ 	# Channel 100 - 144
+-	(5490 - 5730 @ 160), (20), NO-IR, DFS
++	(5490 - 5730 @ 160), (24), NO-IR
+ 	# Channel 149 - 165
+-	(5735 - 5835 @ 80), (20), NO-IR
++	(5735 - 5835 @ 80), (24), NO-IR
+ 	# IEEE 802.11ad (60GHz), channels 1..3
+-	(57240 - 63720 @ 2160), (0)
++	(57240 - 63720 @ 2160), (40)
+ 
+ # AD as part of CEPT accepted decisions 2005/513/EC (5GHz RLAN, EN 301 893)
+ # and 2006/771/EC (amended by 2008/432/EC, Short-Range Devices, EN 300 440)
+@@ -236,18 +235,18 @@ country BG: DFS-ETSI
+ 	(2400 - 2483.5 @ 40), (100 mW)
+ 	# 5 GHz Radio Local Area Networks (RLANs), ref:
+ 	# II.H01 of the List, BDS EN 301 893
+-	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW, wmmrule=ETSI
+-	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW, wmmrule=ETSI
++	# Channel 32 - 68
++	(5150 - 5350 @ 160), (500 mW), AUTO-BW, wmmrule=ETSI
+ 	# II.H01 of the List, I.54 from the List, BDS EN 301 893
+-	(5470 - 5725 @ 160), (500 mW), DFS, wmmrule=ETSI
+-	# short range devices (ETSI EN 300 440-1)
++	# Channel  96 - 173
++	# Channel 100 - 173
++	(5470 - 5875 @ 160), (500 mW), wmmrule=ETSI
+ 	# I.43 of the List, BDS EN 300 440-2, BDS EN 300 440-1
+-	(5725 - 5875 @ 80), (25 mW)
+ 	# WiFi 6E
+ 	(5945 - 6425 @ 160), (23), NO-OUTDOOR, wmmrule=ETSI
+ 	# 60 GHz band channels 1-4 (ETSI EN 302 567)
+ 	# II.H03 of the List, BDS EN 302 567-2
+-	(57000 - 66000 @ 2160), (40)
++	(57000 - 71000 @ 2160), (40)
+ 
+ country BH: DFS-JP
+ 	(2402 - 2482 @ 40), (20)
+@@ -495,15 +494,15 @@ country CZ: DFS-ETSI
+ # https://www.bundesnetzagentur.de/SharedDocs/Downloads/DE/Sachgebiete/Telekommunikation/Unternehmen_Institutionen/Frequenzen/Allgemeinzuteilungen/MobilfunkDectWlanCBFunk/vfg552021WLAN6GHz.pdf
+ country DE: DFS-ETSI
+ 	(2400 - 2483.5 @ 40), (100 mW)
+-	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW, wmmrule=ETSI
+-	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW, wmmrule=ETSI
+-	(5470 - 5725 @ 160), (500 mW), DFS, wmmrule=ETSI
+-	# short range devices (ETSI EN 300 440-1)
+-	(5725 - 5875 @ 80), (25 mW)
++	# Channel 32 - 68
++	(5150 - 5350 @ 160), (500 mW), AUTO-BW, wmmrule=ETSI
++	# Channel  96 - 173
++	# Channel 100 - 173
++	(5470 - 5875 @ 160), (500 mW), wmmrule=ETSI
+ 	# WiFi 6E
+-	(5945 - 6425 @ 160), (23), NO-OUTDOOR, wmmrule=ETSI
++	(5945 - 6425 @ 160), (500 mW), AUTO-BW, wmmrule=ETSI
+ 	# 60 GHz band channels 1-4 (ETSI EN 302 567)
+-	(57000 - 66000 @ 2160), (40)
++	(57000 - 71000 @ 2160), (40)
+ 
+ # DK as part of EU/CEPT accepted decisions 2005/513/EC (5GHz RLAN, EN 301 893)
+ # and 2006/771/EC (amended by 2008/432/EC, Short-Range Devices, EN 300 440)
+@@ -564,16 +563,13 @@ country EC: DFS-FCC
+ # EE: https://www.ttja.ee/et/ettevottele-organisatsioonile/sideteenused/raadioseadmed/wifi-seade
+ # EE: https://www.itu.int/ITU-D/study_groups/SGP_1998-2002/JGRES09/pdf/estonia.pdf
+ country EE: DFS-ETSI
+-	(2400 - 2483.5 @ 40), (100 mW)
+-	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW, wmmrule=ETSI
+-	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW, wmmrule=ETSI
+-	(5470 - 5725 @ 160), (500 mW), DFS, wmmrule=ETSI
+-	# short range devices (ETSI EN 300 440-1)
+-	(5725 - 5875 @ 80), (25 mW)
++	(2400 - 2494 @ 40), (200 mW)
++	(5150 - 5350 @ 160), (500 mW), AUTO-BW, wmmrule=ETSI
++	(5470 - 5875 @ 160), (500 mW), wmmrule=ETSI
+ 	# 6 GHz band
+ 	(5945 - 6425 @ 160), (23), NO-OUTDOOR, wmmrule=ETSI
+ 	# 60 GHz band channels 1-4 (ETSI EN 302 567)
+-	(57000 - 66000 @ 2160), (40)
++	(57000 - 71000 @ 2160), (40)
+ 
+ # https://www.tra.gov.eg/en/industry/importing-of-equipment/Pages/Regulations-for-use-of-Wireless-Networks-Devices.aspx
+ country EG: DFS-ETSI
+@@ -640,11 +636,11 @@ country FM: DFS-FCC
+ # FR: https://www.anfr.fr/fileadmin/mediatheque/documents/tnrbf/TNRBF_2021-12-14.pdf
+ country FR: DFS-ETSI
+ 	(2400 - 2483.5 @ 40), (100 mW)
+-	(5150 - 5250 @ 80), (200 mW), NO-OUTDOOR, AUTO-BW, wmmrule=ETSI
+-	(5250 - 5350 @ 80), (100 mW), NO-OUTDOOR, DFS, AUTO-BW, wmmrule=ETSI
+-	(5470 - 5725 @ 160), (500 mW), DFS, wmmrule=ETSI
+-	# short range devices (ETSI EN 300 440-1)
+-	(5725 - 5875 @ 80), (25 mW)
++	# Channel 32 - 68
++	(5150 - 5350 @ 160), (500 mW), AUTO-BW, wmmrule=ETSI
++	# Channel  96 - 173
++	# Channel 100 - 173
++	(5470 - 5875 @ 160), (500 mW), wmmrule=ETSI
+ 	# WiFi 6E low power indoor
+ 	(5945 - 6425 @ 160), (23), NO-OUTDOOR, wmmrule=ETSI
+ 	# 60 GHz band channels 1-6 (ETSI EN 302 567 v2.2.1)
+@@ -1737,16 +1733,17 @@ country US: DFS-FCC
+ 	(904 - 920 @ 16), (30)
+ 	# S1G Channel 37-51
+ 	(920 - 928 @ 8), (30)
+-	(2400 - 2472 @ 40), (30)
++	(2400 - 2494 @ 40), (30)
+ 	# 5.15 ~ 5.25 GHz: 30 dBm for master mode, 23 dBm for clients
+-	(5150 - 5250 @ 80), (23), AUTO-BW
+-	(5250 - 5350 @ 80), (24), DFS, AUTO-BW
++	# Channel 32 - 68
++	(5150 - 5350 @ 160), (30), AUTO-BW
++	# Channel  96 - 173
++	# Channel 100 - 173
+ 	# This range ends at 5725 MHz, but channel 144 extends to 5730 MHz.
+ 	# Since 5725 ~ 5730 MHz belongs to the next range which has looser
+ 	# requirements, we can extend the range by 5 MHz to make the kernel
+ 	# happy and be able to use channel 144.
+-	(5470 - 5730 @ 160), (24), DFS
+-	(5730 - 5850 @ 80), (30), AUTO-BW
++	(5470 - 5875 @ 160), (30), AUTO-BW
+ 	# https://www.federalregister.gov/documents/2021/05/03/2021-08802/use-of-the-5850-5925-ghz-band
+ 	# max. 33 dBm AP @ 20MHz, 36 dBm AP @ 40Mhz+, 6 dB less for clients
+ 	(5850 - 5895 @ 40), (27), NO-OUTDOOR, AUTO-BW, NO-IR
