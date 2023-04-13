@@ -1,6 +1,6 @@
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
-@@ -1631,14 +1631,26 @@ void emit_dbus_signal(int action, struct
+@@ -1651,14 +1651,26 @@ void emit_dbus_signal(int action, struct
  
  /* ubus.c */
  #ifdef HAVE_UBUS
@@ -41,7 +41,7 @@
  
  int extract_name(struct dns_header *header, size_t plen, unsigned char **pp, 
  		 char *name, int isExtract, int extrabytes)
-@@ -394,9 +396,64 @@ static int private_net6(struct in6_addr
+@@ -384,9 +386,64 @@ static int private_net6(struct in6_addr
      ((u32 *)a)[0] == htonl(0x20010db8); /* RFC 6303 4.6 */
  }
  
@@ -107,7 +107,7 @@
  
    for (i = count; i != 0; i--)
      {
-@@ -405,7 +462,7 @@ static unsigned char *do_doctor(unsigned
+@@ -395,7 +452,7 @@ static unsigned char *do_doctor(unsigned
        
        GETSHORT(qtype, p); 
        GETSHORT(qclass, p);
@@ -116,7 +116,7 @@
        GETSHORT(rdlen, p);
        
        if (qclass == C_IN && qtype == T_A)
-@@ -416,6 +473,9 @@ static unsigned char *do_doctor(unsigned
+@@ -406,6 +463,9 @@ static unsigned char *do_doctor(unsigned
  	  if (!CHECK_LEN(header, p, qlen, INADDRSZ))
  	    return 0;
  	  
@@ -126,7 +126,7 @@
  	  /* alignment */
  	  memcpy(&addr, p, INADDRSZ);
  	  
-@@ -433,13 +493,22 @@ static unsigned char *do_doctor(unsigned
+@@ -423,13 +483,22 @@ static unsigned char *do_doctor(unsigned
  	      addr.s_addr &= ~doctor->mask.s_addr;
  	      addr.s_addr |= (doctor->out.s_addr & doctor->mask.s_addr);
  	      /* Since we munged the data, the server it came from is no longer authoritative */
@@ -151,7 +151,7 @@
        if (!ADD_RDLEN(header, p, qlen, rdlen))
  	 return 0; /* bad packet */
      }
-@@ -570,7 +639,7 @@ int extract_addresses(struct dns_header
+@@ -558,7 +627,7 @@ int extract_addresses(struct dns_header
    cache_start_insert();
  
    /* find_soa is needed for dns_doctor side effects, so don't call it lazily if there are any. */
@@ -269,7 +269,7 @@
    struct ubus_context *ubus = (struct ubus_context *)daemon->ubus;
 --- a/src/dnsmasq.c
 +++ b/src/dnsmasq.c
-@@ -2003,6 +2003,10 @@ static void check_dns_listeners(time_t n
+@@ -1997,6 +1997,10 @@ static void check_dns_listeners(time_t n
  		  daemon->pipe_to_parent = pipefd[1];
  		}
  
