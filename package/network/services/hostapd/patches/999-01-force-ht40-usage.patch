@@ -1,0 +1,37 @@
+--- a/src/ap/hw_features.c
++++ b/src/ap/hw_features.c
+@@ -333,7 +333,7 @@ static void ieee80211n_check_scan(struct
+ 	wpa_scan_results_free(scan_res);
+ 
+ 	iface->secondary_ch = iface->conf->secondary_channel;
+-	if (!oper40) {
++	if (0 && !oper40) {
+ 		wpa_printf(MSG_INFO, "20/40 MHz operation not permitted on "
+ 			   "channel pri=%d sec=%d based on overlapping BSSes",
+ 			   iface->conf->channel,
+--- a/src/ap/ieee802_11_ht.c
++++ b/src/ap/ieee802_11_ht.c
+@@ -280,7 +280,6 @@ void hostapd_2040_coex_action(struct hos
+ 			       HOSTAPD_MODULE_IEEE80211,
+ 			       HOSTAPD_LEVEL_DEBUG,
+ 			       "20 MHz BSS width request bit is set in BSS coexistence information field");
+-		is_ht40_allowed = 0;
+ 	}
+ 
+ 	if (bc_ie->coex_param & WLAN_20_40_BSS_COEX_40MHZ_INTOL) {
+@@ -290,7 +289,6 @@ void hostapd_2040_coex_action(struct hos
+ 			       HOSTAPD_MODULE_IEEE80211,
+ 			       HOSTAPD_LEVEL_DEBUG,
+ 			       "40 MHz intolerant bit is set in BSS coexistence information field");
+-		is_ht40_allowed = 0;
+ 	}
+ 
+ 	/* 20/40 BSS Intolerant Channel Report element (zero or more times) */
+@@ -322,7 +320,6 @@ void hostapd_2040_coex_action(struct hos
+ 				       HOSTAPD_LEVEL_DEBUG,
+ 				       "20_40_INTOLERANT channel %d reported",
+ 				       chan);
+-			is_ht40_allowed = 0;
+ 		}
+ 
+ 		data += 2 + ielen;
