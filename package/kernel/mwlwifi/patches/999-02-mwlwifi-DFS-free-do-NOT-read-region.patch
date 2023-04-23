@@ -11,31 +11,7 @@
  	{"JP", 0x40}, /* Japan  */
 --- a/hif/fwcmd.c
 +++ b/hif/fwcmd.c
-@@ -1167,6 +1167,9 @@ int mwl_fwcmd_max_tx_power(struct ieee80
- 		break;
- 	}
- 
-+	// do not reduce power
-+	reduce_val = 0; /* Max */
-+
- 	if (channel->band == NL80211_BAND_2GHZ)
- 		band = FREQ_BAND_2DOT4GHZ;
- 	else if (channel->band == NL80211_BAND_5GHZ)
-@@ -1192,6 +1195,13 @@ int mwl_fwcmd_max_tx_power(struct ieee80
- 		else
- 			sub_ch = EXT_CH_BELOW_CTRL_CH;
- 		break;
-+	case NL80211_CHAN_WIDTH_160:
-+		width = CH_160_MHZ_WIDTH;
-+		if (conf->chandef.center_freq1 > channel->center_freq)
-+			sub_ch = EXT_CH_ABOVE_CTRL_CH;
-+		else
-+			sub_ch = EXT_CH_BELOW_CTRL_CH;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-@@ -1276,6 +1286,9 @@ int mwl_fwcmd_tx_power(struct ieee80211_
+@@ -1168,6 +1168,9 @@ int mwl_fwcmd_tx_power(struct ieee80211_
  		break;
  	}
  
@@ -45,7 +21,7 @@
  	if (channel->band == NL80211_BAND_2GHZ)
  		band = FREQ_BAND_2DOT4GHZ;
  	else if (channel->band == NL80211_BAND_5GHZ)
-@@ -1301,6 +1314,13 @@ int mwl_fwcmd_tx_power(struct ieee80211_
+@@ -1193,6 +1196,13 @@ int mwl_fwcmd_tx_power(struct ieee80211_
  		else
  			sub_ch = EXT_CH_BELOW_CTRL_CH;
  		break;
@@ -59,7 +35,7 @@
  	default:
  		return -EINVAL;
  	}
-@@ -3170,6 +3190,10 @@ int mwl_fwcmd_set_cdd(struct ieee80211_h
+@@ -3087,6 +3097,10 @@ int mwl_fwcmd_set_cdd(struct ieee80211_h
  	struct mwl_priv *priv = hw->priv;
  	struct hostcmd_cmd_set_cdd *pcmd;
  
@@ -70,7 +46,7 @@
  	pcmd = (struct hostcmd_cmd_set_cdd *)&priv->pcmd_buf[0];
  
  	mutex_lock(&priv->fwcmd_mutex);
-@@ -3445,6 +3469,9 @@ int mwl_fwcmd_get_fw_region_code_sc4(str
+@@ -3362,6 +3376,9 @@ int mwl_fwcmd_get_fw_region_code_sc4(str
  	struct hostcmd_cmd_get_fw_region_code_sc4 *pcmd;
  	u16 cmd;
  
@@ -80,7 +56,7 @@
  	pcmd = (struct hostcmd_cmd_get_fw_region_code_sc4 *)&priv->pcmd_buf[0];
  
  	mutex_lock(&priv->fwcmd_mutex);
-@@ -3485,6 +3512,9 @@ int mwl_fwcmd_get_pwr_tbl_sc4(struct iee
+@@ -3402,6 +3419,9 @@ int mwl_fwcmd_get_pwr_tbl_sc4(struct iee
  	int status;
  	u16 cmd;
  
