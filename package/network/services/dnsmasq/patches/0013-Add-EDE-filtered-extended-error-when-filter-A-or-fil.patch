@@ -1,7 +1,7 @@
 From 1f0f86a0d0d0759de4c5eb1080333618563ee5a0 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 20 Mar 2023 18:32:14 +0000
-Subject: [PATCH 13/25] Add EDE "filtered" extended error when --filter-A or
+Subject: [PATCH 13/41] Add EDE "filtered" extended error when --filter-A or
  --filter-AAAA act.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -21,9 +21,11 @@ the preceding caching patches.
  src/rrfilter.c | 46 +++++++++++++++++++-----------------
  5 files changed, 83 insertions(+), 47 deletions(-)
 
+diff --git a/src/dnsmasq.h b/src/dnsmasq.h
+index fe9aa07..292a402 100644
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
-@@ -1366,7 +1366,7 @@ void report_addresses(struct dns_header
+@@ -1366,7 +1366,7 @@ void report_addresses(struct dns_header *header, size_t len, u32 mark);
  size_t answer_request(struct dns_header *header, char *limit, size_t qlen,  
  		      struct in_addr local_addr, struct in_addr local_netmask, 
  		      time_t now, int ad_reqd, int do_bit, int have_pseudoheader,
@@ -41,9 +43,11 @@ the preceding caching patches.
  u16 *rrfilter_desc(int type);
  int expand_workspace(unsigned char ***wkspc, int *szp, int new);
  /* modes. */
+diff --git a/src/edns0.c b/src/edns0.c
+index c498eb1..567101b 100644
 --- a/src/edns0.c
 +++ b/src/edns0.c
-@@ -178,7 +178,7 @@ size_t add_pseudoheader(struct dns_heade
+@@ -178,7 +178,7 @@ size_t add_pseudoheader(struct dns_header *header, size_t plen, unsigned char *l
  	    memcpy(buff, datap, rdlen);	      
  	  
  	  /* now, delete OPT RR */
@@ -52,9 +56,11 @@ the preceding caching patches.
  	  
  	  /* Now, force addition of a new one */
  	  p = NULL;	  
+diff --git a/src/forward.c b/src/forward.c
+index 3f3954d..d79cc56 100644
 --- a/src/forward.c
 +++ b/src/forward.c
-@@ -721,7 +721,7 @@ static size_t process_reply(struct dns_h
+@@ -721,7 +721,7 @@ static size_t process_reply(struct dns_header *header, time_t now, struct server
  	  if (added_pheader)
  	    {
  	      /* client didn't send EDNS0, we added one, strip it off before returning answer. */
@@ -63,7 +69,7 @@ the preceding caching patches.
  	      pheader = NULL;
  	    }
  	  else
-@@ -831,11 +831,16 @@ static size_t process_reply(struct dns_h
+@@ -831,11 +831,16 @@ static size_t process_reply(struct dns_header *header, time_t now, struct server
  
        if (rcode == NOERROR)
  	{
@@ -82,7 +88,7 @@ the preceding caching patches.
  	}
        
        if (doctored)
-@@ -859,7 +864,7 @@ static size_t process_reply(struct dns_h
+@@ -859,7 +864,7 @@ static size_t process_reply(struct dns_header *header, time_t now, struct server
        
        /* If the requestor didn't set the DO bit, don't return DNSSEC info. */
        if (!do_bit)
@@ -91,7 +97,7 @@ the preceding caching patches.
      }
  #endif
  
-@@ -1807,7 +1812,7 @@ void receive_query(struct listener *list
+@@ -1807,7 +1812,7 @@ void receive_query(struct listener *listen, time_t now)
  #endif
    else
      {
@@ -100,7 +106,7 @@ the preceding caching patches.
        int ad_reqd = do_bit;
        u16 hb3 = header->hb3, hb4 = header->hb4;
        int fd = listen->fd;
-@@ -1817,17 +1822,28 @@ void receive_query(struct listener *list
+@@ -1817,17 +1822,28 @@ void receive_query(struct listener *listen, time_t now)
  	ad_reqd = 1;
        
        m = answer_request(header, ((char *) header) + udp_size, (size_t)n, 
@@ -134,7 +140,7 @@ the preceding caching patches.
  #ifdef HAVE_DUMPFILE
  	  dump_packet_udp(DUMP_REPLY, daemon->packet, m, NULL, &source_addr, listen->fd);
  #endif
-@@ -2097,7 +2113,7 @@ unsigned char *tcp_request(int confd, ti
+@@ -2097,7 +2113,7 @@ unsigned char *tcp_request(int confd, time_t now,
    unsigned char *pheader;
    unsigned int mark = 0;
    int have_mark = 0;
@@ -143,7 +149,7 @@ the preceding caching patches.
    unsigned int flags = 0;
    u16 hb3, hb4;
      
-@@ -2291,7 +2307,7 @@ unsigned char *tcp_request(int confd, ti
+@@ -2291,7 +2307,7 @@ unsigned char *tcp_request(int confd, time_t now,
  	   else
  	     /* m > 0 if answered from cache */
  	     m = answer_request(header, ((char *) header) + 65536, (size_t)size, 
@@ -152,7 +158,7 @@ the preceding caching patches.
  	   
  	  /* Do this by steam now we're not in the select() loop */
  	  check_log_writer(1); 
-@@ -2430,13 +2446,23 @@ unsigned char *tcp_request(int confd, ti
+@@ -2430,13 +2446,23 @@ unsigned char *tcp_request(int confd, time_t now,
  		m = add_pseudoheader(header, m, ((unsigned char *) header) + 65536, daemon->edns_pktsz, 0, NULL, 0, do_bit, 0);
  	    }
  	}
@@ -183,9 +189,11 @@ the preceding caching patches.
        check_log_writer(1);
        
        *length = htons(m);
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index 75481d3..ea21ffa 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -1419,7 +1419,7 @@ static int cache_validated(const struct
+@@ -1419,7 +1419,7 @@ static int cache_validated(const struct crec *crecp)
  size_t answer_request(struct dns_header *header, char *limit, size_t qlen,  
  		      struct in_addr local_addr, struct in_addr local_netmask, 
  		      time_t now, int ad_reqd, int do_bit, int have_pseudoheader,
@@ -194,7 +202,7 @@ the preceding caching patches.
  {
    char *name = daemon->namebuff;
    unsigned char *p, *ansp;
-@@ -1437,6 +1437,9 @@ size_t answer_request(struct dns_header
+@@ -1437,6 +1437,9 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  
    if (stale)
      *stale = 0;
@@ -204,7 +212,7 @@ the preceding caching patches.
    
    /* never answer queries with RD unset, to avoid cache snooping. */
    if (ntohs(header->ancount) != 0 ||
-@@ -1705,8 +1708,7 @@ size_t answer_request(struct dns_header
+@@ -1705,8 +1708,7 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			  /* don't answer wildcard queries with data not from /etc/hosts or dhcp leases */
  			  if (qtype == T_ANY && !(crecp->flags & (F_HOSTS | F_DHCP)))
  			    continue;
@@ -214,7 +222,7 @@ the preceding caching patches.
  			  if (!(crecp->flags & F_DNSSECOK))
  			    sec_data = 0;
  			  
-@@ -1887,6 +1889,9 @@ size_t answer_request(struct dns_header
+@@ -1887,6 +1889,9 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			    
  			    if (!dryrun)
  			      log_query(F_NEG | F_CONFIG | flag, name, NULL, NULL, 0);
@@ -224,7 +232,7 @@ the preceding caching patches.
  			  }
  			else if (crecp->flags & F_NEG)
  			  {
-@@ -1947,6 +1952,9 @@ size_t answer_request(struct dns_header
+@@ -1947,6 +1952,9 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  		      
  		      if (!dryrun)
  			log_query(F_NEG | F_CONFIG | flag, name, NULL, NULL, 0);
@@ -234,9 +242,11 @@ the preceding caching patches.
  		    }
  		}
  	    }
+diff --git a/src/rrfilter.c b/src/rrfilter.c
+index 42d9c21..3a5547a 100644
 --- a/src/rrfilter.c
 +++ b/src/rrfilter.c
-@@ -156,41 +156,43 @@ static int check_rrs(unsigned char *p, s
+@@ -156,41 +156,43 @@ static int check_rrs(unsigned char *p, struct dns_header *header, size_t plen, i
  }
  	
  
@@ -290,7 +300,7 @@ the preceding caching patches.
  
        if (mode == RRFILTER_EDNS0) /* EDNS */
  	{
-@@ -225,7 +227,7 @@ size_t rrfilter(struct dns_header *heade
+@@ -225,7 +227,7 @@ size_t rrfilter(struct dns_header *header, size_t plen, int mode)
  	}
        
        if (!expand_workspace(&rrs, &rr_sz, rr_found + 1))
@@ -299,7 +309,7 @@ the preceding caching patches.
        
        rrs[rr_found++] = pstart;
        rrs[rr_found++] = p;
-@@ -240,7 +242,7 @@ size_t rrfilter(struct dns_header *heade
+@@ -240,7 +242,7 @@ size_t rrfilter(struct dns_header *header, size_t plen, int mode)
    
    /* Nothing to do. */
    if (rr_found == 0)
@@ -308,7 +318,7 @@ the preceding caching patches.
  
    /* Second pass, look for pointers in names in the records we're keeping and make sure they don't
       point to records we're going to elide. This is theoretically possible, but unlikely. If
-@@ -248,38 +250,38 @@ size_t rrfilter(struct dns_header *heade
+@@ -248,38 +250,38 @@ size_t rrfilter(struct dns_header *header, size_t plen, int mode)
    p = (unsigned char *)(header+1);
    
    /* question first */
@@ -357,3 +367,6 @@ the preceding caching patches.
  }
  
  /* This is used in the DNSSEC code too, hence it's exported */
+-- 
+2.41.0
+

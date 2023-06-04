@@ -1,7 +1,7 @@
 From a78487a4df8f23f99e8e8d5bb7449b6429bae1fa Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Sat, 1 Apr 2023 21:35:26 +0100
-Subject: [PATCH 24/25] Use a simpler arrangement for the all_addr union to
+Subject: [PATCH 24/41] Use a simpler arrangement for the all_addr union to
  avoid the compiler padding it with an extra 8 bytes.
 
 Use the F_KEYTAG flag in a a cache record to discriminate between
@@ -13,9 +13,11 @@ which has a point to block storage.
  src/rfc1035.c | 67 ++++++++++++++++++++++++++++++---------------------
  3 files changed, 84 insertions(+), 51 deletions(-)
 
+diff --git a/src/cache.c b/src/cache.c
+index 06ed672..fd10240 100644
 --- a/src/cache.c
 +++ b/src/cache.c
-@@ -275,8 +275,8 @@ static void cache_blockdata_free(struct
+@@ -275,8 +275,8 @@ static void cache_blockdata_free(struct crec *crecp)
  {
    if (!(crecp->flags & F_NEG))
      {
@@ -26,7 +28,7 @@ which has a point to block storage.
  #ifdef HAVE_DNSSEC
        else if (crecp->flags & F_DNSKEY)
  	blockdata_free(crecp->addr.key.keydata);
-@@ -469,10 +469,20 @@ static struct crec *cache_scan_free(char
+@@ -469,10 +469,20 @@ static struct crec *cache_scan_free(char *name, union all_addr *addr, unsigned s
  	{
  	  if ((crecp->flags & F_FORWARD) && hostname_isequal(cache_get_name(crecp), name))
  	    {
@@ -60,7 +62,7 @@ which has a point to block storage.
  		}
  #ifdef HAVE_DNSSEC
  	      if (flags & F_DNSKEY)
-@@ -869,8 +879,8 @@ int cache_recv_insert(time_t now, int fd
+@@ -869,8 +879,8 @@ int cache_recv_insert(time_t now, int fd)
  	  if (!read_write(fd, (unsigned char *)&addr, sizeof(addr), 1))
  	    return 0;
  	  
@@ -71,7 +73,7 @@ which has a point to block storage.
  	    return 0;
  #ifdef HAVE_DNSSEC
  	   if (flags & F_DNSKEY)
-@@ -1796,7 +1806,12 @@ static void dump_cache_entry(struct crec
+@@ -1796,7 +1806,12 @@ static void dump_cache_entry(struct crec *cache, time_t now)
    if ((cache->flags & F_CNAME) && !is_outdated_cname_pointer(cache))
      a = sanitise(cache_get_cname_target(cache));
    else if (cache->flags & F_RR)
@@ -85,7 +87,7 @@ which has a point to block storage.
  #ifdef HAVE_DNSSEC
    else if (cache->flags & F_DS)
      {
-@@ -2052,7 +2067,14 @@ void log_query(unsigned int flags, char
+@@ -2052,7 +2067,14 @@ void log_query(unsigned int flags, char *name, union all_addr *addr, char *arg,
      {
        dest = daemon->addrbuff;
  
@@ -101,7 +103,7 @@ which has a point to block storage.
  	sprintf(daemon->addrbuff, arg, addr->log.keytag, addr->log.algo, addr->log.digest);
        else if (flags & F_RCODE)
  	{
-@@ -2083,8 +2105,6 @@ void log_query(unsigned int flags, char
+@@ -2083,8 +2105,6 @@ void log_query(unsigned int flags, char *name, union all_addr *addr, char *arg,
  	      sprintf(portstring, "#%u", type);
  	    }
  	}
@@ -110,6 +112,8 @@ which has a point to block storage.
        else
  	dest = arg;
      }
+diff --git a/src/dnsmasq.h b/src/dnsmasq.h
+index b6712f0..b7196f0 100644
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
 @@ -329,21 +329,23 @@ union all_addr {
@@ -147,9 +151,11 @@ which has a point to block storage.
  
  struct bogus_addr {
    int is6, prefix;
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index d4c6a26..ccf88df 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -806,20 +806,20 @@ int extract_addresses(struct dns_header
+@@ -806,20 +806,20 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  		  if (!CHECK_LEN(header, p1, qlen, ardlen))
  		    return 2; /* bad packet */
  		  
@@ -178,7 +184,7 @@ which has a point to block storage.
  		      
  		      /* The RR data may include names, and those names may include
  			 compression, which will be rendered meaningless when
-@@ -827,7 +827,7 @@ int extract_addresses(struct dns_header
+@@ -827,7 +827,7 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  			 Here we go through a description of the packet type to
  			 find the names, and extract them to a c-string and then
  			 re-encode them to standalone DNS format without compression. */
@@ -187,7 +193,7 @@ which has a point to block storage.
  			return 0;
  		      do
  			{
-@@ -836,9 +836,9 @@ int extract_addresses(struct dns_header
+@@ -836,9 +836,9 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  			  if (desc == -1)
  			    {
  			      /* Copy the rest of the RR and end. */
@@ -199,7 +205,7 @@ which has a point to block storage.
  			    }
  			  else if (desc == 0)
  			    {
-@@ -849,18 +849,18 @@ int extract_addresses(struct dns_header
+@@ -849,18 +849,18 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  				return 2;
  			      
  			      len = to_wire(name);
@@ -222,7 +228,7 @@ which has a point to block storage.
  			      p1 += desc;
  			    }
  			} while (desc != -1);
-@@ -968,7 +968,7 @@ int extract_addresses(struct dns_header
+@@ -968,7 +968,7 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  		ttl = cttl;
  	      
  	      if (flags & F_RR)
@@ -231,7 +237,7 @@ which has a point to block storage.
  
  	      newc = cache_insert(name, &addr, C_IN, now, ttl, F_FORWARD | F_NEG | flags | (secure ? F_DNSSECOK : 0));	
  	      if (newc && cpp)
-@@ -2103,8 +2103,14 @@ size_t answer_request(struct dns_header
+@@ -2103,8 +2103,14 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  		 do
  		   {
  		     int flags = crecp->flags;
@@ -247,7 +253,7 @@ which has a point to block storage.
  		       {
  			 if (crec_isstale(crecp, now))
  			   {
-@@ -2127,23 +2133,28 @@ size_t answer_request(struct dns_header
+@@ -2127,23 +2133,28 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			 
  			 if (!dryrun)
  			   {
@@ -287,3 +293,6 @@ which has a point to block storage.
  			     /* log after cache insertion as log_txt mangles rrdata */
  			     if (qtype == T_TXT && !(crecp->flags & F_NEG))
  			       log_txt(name, (unsigned char *)rrdata, rrlen, crecp->flags & F_DNSSECOK);
+-- 
+2.41.0
+

@@ -1,7 +1,7 @@
 From ef8e930e4295265b8f46898a8e166f17d7f8ddc8 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Tue, 7 Mar 2023 22:46:44 +0000
-Subject: [PATCH 07/25] Generalise cached NXDOMAIN replies.
+Subject: [PATCH 07/41] Generalise cached NXDOMAIN replies.
 
 We can cache an NXDOMAIN reply to a query for any RRTYPE
 and reply from a cached NXDOMAIN to any RRTYPE.
@@ -9,9 +9,11 @@ and reply from a cached NXDOMAIN to any RRTYPE.
  src/rfc1035.c | 22 ++++++++++++++++++----
  1 file changed, 18 insertions(+), 4 deletions(-)
 
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index 1693253..3d82ad9 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -894,9 +894,8 @@ int extract_addresses(struct dns_header
+@@ -894,9 +894,8 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  	    {
  	      flags &= ~(F_IPV4 | F_IPV6 | F_SRV);
  	      
@@ -23,7 +25,7 @@ and reply from a cached NXDOMAIN to any RRTYPE.
  	    }
  	  
  	  log_query(F_UPSTREAM | F_FORWARD | F_NEG | flags | (secure ? F_DNSSECOK : 0), name, NULL, NULL, 0);
-@@ -2081,7 +2080,22 @@ size_t answer_request(struct dns_header
+@@ -2081,7 +2080,22 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  	}
  
        if (!ans)
@@ -47,3 +49,6 @@ and reply from a cached NXDOMAIN to any RRTYPE.
      }
    
    if (dryrun)
+-- 
+2.41.0
+

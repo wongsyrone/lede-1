@@ -1,15 +1,17 @@
 From 047256a6d89ae4b2de0aa51d1f490b521ba32fa1 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Fri, 31 Mar 2023 23:28:56 +0100
-Subject: [PATCH 22/25] --domain=# is valid. --synth-domain=# isn't.
+Subject: [PATCH 22/41] --domain=# is valid. --synth-domain=# isn't.
 
 ---
  src/option.c | 347 ++++++++++++++++++++++++++-------------------------
  1 file changed, 175 insertions(+), 172 deletions(-)
 
+diff --git a/src/option.c b/src/option.c
+index ac3b24d..632eb2f 100644
 --- a/src/option.c
 +++ b/src/option.c
-@@ -2568,179 +2568,182 @@ static int one_opt(int option, char *arg
+@@ -2568,179 +2568,182 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
  
      case 's':         /* --domain */
      case LOPT_SYNTH:  /* --synth-domain */
@@ -364,3 +366,6 @@ Subject: [PATCH 22/25] --domain=# is valid. --synth-domain=# isn't.
        
      case LOPT_CPE_ID: /* --add-dns-client */
        if (arg)
+-- 
+2.41.0
+

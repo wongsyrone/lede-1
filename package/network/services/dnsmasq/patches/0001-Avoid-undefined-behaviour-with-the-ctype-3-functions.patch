@@ -1,7 +1,7 @@
 From 137ae2e9cf0dc3596641e7c8b91d15307a35319e Mon Sep 17 00:00:00 2001
 From: Taylor R Campbell <campbell+dnsmasq@mumble.net>
 Date: Sat, 25 Feb 2023 15:00:30 +0000
-Subject: [PATCH 01/25] Avoid undefined behaviour with the ctype(3) functions.
+Subject: [PATCH 01/41] Avoid undefined behaviour with the ctype(3) functions.
 
 As defined in the C standard:
 
@@ -68,9 +68,11 @@ course.
  src/tftp.c        | 2 +-
  7 files changed, 14 insertions(+), 14 deletions(-)
 
+diff --git a/src/dhcp-common.c b/src/dhcp-common.c
+index 84081ce..b4d255e 100644
 --- a/src/dhcp-common.c
 +++ b/src/dhcp-common.c
-@@ -838,7 +838,7 @@ char *option_string(int prot, unsigned i
+@@ -838,7 +838,7 @@ char *option_string(int prot, unsigned int opt, unsigned char *val, int opt_len,
  		for (i = 0, j = 0; i < opt_len && j < buf_len ; i++)
  		  {
  		    char c = val[i];
@@ -79,7 +81,7 @@ course.
  		      buf[j++] = c;
  		  }
  #ifdef HAVE_DHCP6
-@@ -852,7 +852,7 @@ char *option_string(int prot, unsigned i
+@@ -852,7 +852,7 @@ char *option_string(int prot, unsigned int opt, unsigned char *val, int opt_len,
  		    for (k = i + 1; k < opt_len && k < l && j < buf_len ; k++)
  		     {
  		       char c = val[k];
@@ -88,7 +90,7 @@ course.
  			 buf[j++] = c;
  		     }
  		    i = l;
-@@ -873,7 +873,7 @@ char *option_string(int prot, unsigned i
+@@ -873,7 +873,7 @@ char *option_string(int prot, unsigned int opt, unsigned char *val, int opt_len,
  		    for (k = 0; k < len && j < buf_len; k++)
  		      {
  		       char c = *p++;
@@ -97,6 +99,8 @@ course.
  			 buf[j++] = c;
  		     }
  		    i += len +2;
+diff --git a/src/dhcp.c b/src/dhcp.c
+index 42d819f..e578391 100644
 --- a/src/dhcp.c
 +++ b/src/dhcp.c
 @@ -916,14 +916,14 @@ void dhcp_read_ethers(void)
@@ -117,6 +121,8 @@ course.
  	*ip = 0;
        if (!*ip || parse_hex(buff, hwaddr, ETHER_ADDR_LEN, NULL, NULL) != ETHER_ADDR_LEN)
  	{
+diff --git a/src/loop.c b/src/loop.c
+index cd4855e..19bfae0 100644
 --- a/src/loop.c
 +++ b/src/loop.c
 @@ -92,7 +92,7 @@ int detect_loop(char *query, int type)
@@ -128,9 +134,11 @@ course.
        return 0;
  
    uid = strtol(query, NULL, 16);
+diff --git a/src/option.c b/src/option.c
+index e4810fd..1090bca 100644
 --- a/src/option.c
 +++ b/src/option.c
-@@ -2751,7 +2751,7 @@ static int one_opt(int option, char *arg
+@@ -2751,7 +2751,7 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
  		ret_err(gen_err);
  	      
  	      for (p = arg; *p; p++)
@@ -157,7 +165,7 @@ course.
  	    for (cp1 = cp; *cp1; cp1++)
  	      *cp1 = *(cp1+1);
  	  else
-@@ -5315,7 +5315,7 @@ static void read_file(char *file, FILE *
+@@ -5315,7 +5315,7 @@ static void read_file(char *file, FILE *f, int hard_opt, int from_script)
  	      memmove(p, p+1, strlen(p+1)+1);
  	    }
  
@@ -166,9 +174,11 @@ course.
  	    {
  	      *p = ' ';
  	      white = 1;
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index 5c0df56..1693253 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -519,7 +519,7 @@ static int print_txt(struct dns_header *
+@@ -519,7 +519,7 @@ static int print_txt(struct dns_header *header, const size_t qlen, char *name,
        /* make counted string zero-term and sanitise */
        for (i = 0; i < len; i++)
  	{
@@ -177,9 +187,11 @@ course.
  	    break;
  	  *p3 = *(p3+1);
  	  p3++;
+diff --git a/src/rfc2131.c b/src/rfc2131.c
+index 17e97b5..5190982 100644
 --- a/src/rfc2131.c
 +++ b/src/rfc2131.c
-@@ -1678,7 +1678,7 @@ static int sanitise(unsigned char *opt,
+@@ -1678,7 +1678,7 @@ static int sanitise(unsigned char *opt, char *buf)
    for (i = option_len(opt); i > 0; i--)
      {
        char c = *p++;
@@ -188,9 +200,11 @@ course.
  	*buf++ = c;
      }
    *buf = 0; /* add terminator */
+diff --git a/src/tftp.c b/src/tftp.c
+index 0861f37..8e1dc4a 100644
 --- a/src/tftp.c
 +++ b/src/tftp.c
-@@ -405,7 +405,7 @@ void tftp_request(struct listener *liste
+@@ -405,7 +405,7 @@ void tftp_request(struct listener *listen, time_t now)
  	if (*p == '\\')
  	  *p = '/';
  	else if (option_bool(OPT_TFTP_LC))
@@ -199,3 +213,6 @@ course.
  		
        strcpy(daemon->namebuff, "/");
        if (prefix)
+-- 
+2.41.0
+

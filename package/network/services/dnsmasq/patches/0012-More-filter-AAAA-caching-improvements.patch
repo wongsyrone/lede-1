@@ -1,7 +1,7 @@
 From 28429720355c21739c851c28b003b6d0b4aee549 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 20 Mar 2023 17:14:17 +0000
-Subject: [PATCH 12/25] More --filter-AAAA caching improvements.
+Subject: [PATCH 12/41] More --filter-AAAA caching improvements.
 
 Cache answers before filtering and filter coming out of the cache.
 ---
@@ -9,9 +9,11 @@ Cache answers before filtering and filter coming out of the cache.
  src/rfc1035.c | 38 +++++++++++++++++++++++++++++---------
  2 files changed, 38 insertions(+), 19 deletions(-)
 
+diff --git a/src/forward.c b/src/forward.c
+index 0f03818..3f3954d 100644
 --- a/src/forward.c
 +++ b/src/forward.c
-@@ -811,16 +811,6 @@ static size_t process_reply(struct dns_h
+@@ -811,16 +811,6 @@ static size_t process_reply(struct dns_header *header, time_t now, struct server
  	    }
  	}
  
@@ -28,7 +30,7 @@ Cache answers before filtering and filter coming out of the cache.
        switch (extract_addresses(header, n, daemon->namebuff, now, ipsets, nftsets, is_sign, check_rebind, no_cache, cache_secure, &doctored))
  	{
  	case 1:
-@@ -839,6 +829,15 @@ static size_t process_reply(struct dns_h
+@@ -839,6 +829,15 @@ static size_t process_reply(struct dns_header *header, time_t now, struct server
  	  break;
  	}
  
@@ -44,9 +46,11 @@ Cache answers before filtering and filter coming out of the cache.
        if (doctored)
  	cache_secure = 0;
      }
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index 5abacbd..75481d3 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -880,7 +880,18 @@ int extract_addresses(struct dns_header
+@@ -880,7 +880,18 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  		    return 2;
  		}
  	      else
@@ -66,7 +70,7 @@ Cache answers before filtering and filter coming out of the cache.
  	    }
  	  
  	  p1 = endrr;
-@@ -1863,8 +1874,21 @@ size_t answer_request(struct dns_header
+@@ -1863,8 +1874,21 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			
  			if (!(crecp->flags & F_DNSSECOK))
  			  sec_data = 0;
@@ -90,7 +94,7 @@ Cache answers before filtering and filter coming out of the cache.
  			  {
  			    ans = 1;
  			    auth = 0;
-@@ -1882,9 +1906,6 @@ size_t answer_request(struct dns_header
+@@ -1882,9 +1906,6 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  				!is_same_net(crecp->addr.addr4, local_addr, local_netmask))
  			      continue;
  			    
@@ -100,7 +104,7 @@ Cache answers before filtering and filter coming out of the cache.
  			    ans = 1;
  			    if (!dryrun)
  			      {
-@@ -1917,13 +1938,12 @@ size_t answer_request(struct dns_header
+@@ -1917,13 +1938,12 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  		     that may be enough to tell us if the answer should be NODATA and save the round trip.
  		     Cached NXDOMAIN has already been handled, so here we look for any record for the domain,
  		     since its existence allows us to return a NODATA answer. Note that we never set the AD flag,
@@ -116,3 +120,6 @@ Cache answers before filtering and filter coming out of the cache.
  		      
  		      if (!dryrun)
  			log_query(F_NEG | F_CONFIG | flag, name, NULL, NULL, 0);
+-- 
+2.41.0
+

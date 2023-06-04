@@ -1,13 +1,15 @@
 From ef5aac95d4391fb1290fd76a3826b2851e589bbc Mon Sep 17 00:00:00 2001
 From: Clayton Craft <clayton@craftyguy.net>
 Date: Wed, 8 Mar 2023 15:35:05 +0000
-Subject: [PATCH 08/25] Allow configuring filter-A/AAAA via dbus.
+Subject: [PATCH 08/41] Allow configuring filter-A/AAAA via dbus.
 
 ---
  dbus/DBus-interface |  8 ++++++++
  src/dbus.c          | 14 ++++++++++++++
  2 files changed, 22 insertions(+)
 
+diff --git a/dbus/DBus-interface b/dbus/DBus-interface
+index 59b41b1..00b4465 100644
 --- a/dbus/DBus-interface
 +++ b/dbus/DBus-interface
 @@ -44,6 +44,14 @@ SetFilterWin2KOption
@@ -25,6 +27,8 @@ Subject: [PATCH 08/25] Allow configuring filter-A/AAAA via dbus.
  SetBogusPrivOption
  ------------------
  Takes boolean, sets or resets the --bogus-priv option.
+diff --git a/src/dbus.c b/src/dbus.c
+index fd5d1ca..4366b7e 100644
 --- a/src/dbus.c
 +++ b/src/dbus.c
 @@ -52,6 +52,12 @@ const char* introspection_xml_template =
@@ -40,7 +44,7 @@ Subject: [PATCH 08/25] Allow configuring filter-A/AAAA via dbus.
  "    <method name=\"SetLocaliseQueriesOption\">\n"
  "      <arg name=\"localise-queries\" direction=\"in\" type=\"b\"/>\n"
  "    </method>\n"
-@@ -817,6 +823,14 @@ DBusHandlerResult message_handler(DBusCo
+@@ -817,6 +823,14 @@ DBusHandlerResult message_handler(DBusConnection *connection,
      {
        reply = dbus_set_bool(message, OPT_FILTER, "filterwin2k");
      }
@@ -55,3 +59,6 @@ Subject: [PATCH 08/25] Allow configuring filter-A/AAAA via dbus.
    else if (strcmp(method, "SetLocaliseQueriesOption") == 0)
      {
        reply = dbus_set_bool(message, OPT_LOCALISE, "localise-queries");
+-- 
+2.41.0
+

@@ -1,7 +1,7 @@
 From 138e1e2a2d918b37cb0274fe310d53be35acf4cf Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Fri, 31 Mar 2023 17:44:02 +0100
-Subject: [PATCH 20/25] Optimse memory use for arbitrary-RR caching.
+Subject: [PATCH 20/41] Optimse memory use for arbitrary-RR caching.
 
 RRs 13 bytes or less don't need to allocate block storage.
 ---
@@ -10,9 +10,11 @@ RRs 13 bytes or less don't need to allocate block storage.
  src/rfc1035.c | 123 +++++++++++++++++++++++++++++---------------------
  3 files changed, 87 insertions(+), 59 deletions(-)
 
+diff --git a/src/cache.c b/src/cache.c
+index f49def4..64e19cb 100644
 --- a/src/cache.c
 +++ b/src/cache.c
-@@ -275,8 +275,8 @@ static void cache_blockdata_free(struct
+@@ -275,8 +275,8 @@ static void cache_blockdata_free(struct crec *crecp)
  {
    if (!(crecp->flags & F_NEG))
      {
@@ -34,7 +36,7 @@ RRs 13 bytes or less don't need to allocate block storage.
  		}
  #ifdef HAVE_DNSSEC
  	      if (flags & F_DNSKEY)
-@@ -869,7 +869,8 @@ int cache_recv_insert(time_t now, int fd
+@@ -869,7 +869,8 @@ int cache_recv_insert(time_t now, int fd)
  	  if (!read_write(fd, (unsigned char *)&addr, sizeof(addr), 1))
  	    return 0;
  	  
@@ -44,6 +46,8 @@ RRs 13 bytes or less don't need to allocate block storage.
  	    return 0;
  #ifdef HAVE_DNSSEC
  	   if (flags & F_DNSKEY)
+diff --git a/src/dnsmasq.h b/src/dnsmasq.h
+index 9ee5e39..b6712f0 100644
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
 @@ -331,8 +331,16 @@ union all_addr {
@@ -65,16 +69,18 @@ RRs 13 bytes or less don't need to allocate block storage.
    } rr;
  };
  
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index 8c8b73a..d4c6a26 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -805,56 +805,70 @@ int extract_addresses(struct dns_header
+@@ -805,56 +805,70 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  		  
  		  if (!CHECK_LEN(header, p1, qlen, ardlen))
  		    return 2; /* bad packet */
 +		  
  		  addr.rr.rrtype = aqtype;
 -		  addr.rr.datalen = 0;
- 
+-
 -		  /* The RR data may include names, and those names may include
 -		     compression, which will be rendered meaningless when
 -		     copied into another packet. 
@@ -84,6 +90,7 @@ RRs 13 bytes or less don't need to allocate block storage.
 -		  if (!(addr.rr.rrdata = blockdata_alloc(NULL, 0)))
 -		    return 0;
 -		  do
++
 +		  /* If the data has no names and is small enough, store it in
 +		     the crec address field rather than allocate a block. */
 +		  if (*rrdesc == -1 && ardlen <= RR_IMDATALEN)
@@ -99,6 +106,13 @@ RRs 13 bytes or less don't need to allocate block storage.
 +		      addr.rr.u.block.datalen = 0;
  		      
 -		      if (desc == -1)
+-			{
+-			  /* Copy the rest of the RR and end. */
+-			  if (!blockdata_expand(addr.rr.rrdata, addr.rr.datalen, (char *)p1, endrr - p1))
+-			    return 0;
+-			  addr.rr.datalen += endrr - p1;
+-			}
+-		      else if (desc == 0)
 +		      /* The RR data may include names, and those names may include
 +			 compression, which will be rendered meaningless when
 +			 copied into another packet. 
@@ -109,13 +123,6 @@ RRs 13 bytes or less don't need to allocate block storage.
 +			return 0;
 +		      do
  			{
--			  /* Copy the rest of the RR and end. */
--			  if (!blockdata_expand(addr.rr.rrdata, addr.rr.datalen, (char *)p1, endrr - p1))
--			    return 0;
--			  addr.rr.datalen += endrr - p1;
--			}
--		      else if (desc == 0)
--			{
 -			  /* Name, extract it then re-encode. */
 -			  int len;
 -
@@ -183,7 +190,7 @@ RRs 13 bytes or less don't need to allocate block storage.
  		} 
  	      else if (flags & (F_IPV4 | F_IPV6))
  		{
-@@ -2113,21 +2127,26 @@ size_t answer_request(struct dns_header
+@@ -2113,21 +2127,26 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			 
  			 if (!dryrun)
  			   {
@@ -216,3 +223,6 @@ RRs 13 bytes or less don't need to allocate block storage.
  			     else
  			       log_query(flags, name, &crecp->addr, NULL, 0);
  			   }
+-- 
+2.41.0
+

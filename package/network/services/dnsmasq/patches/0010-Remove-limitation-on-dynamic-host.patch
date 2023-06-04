@@ -1,7 +1,7 @@
 From 946180701191ea7e552fa5a939140a635d47b566 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Thu, 16 Mar 2023 15:16:17 +0000
-Subject: [PATCH 10/25] Remove limitation on --dynamic-host.
+Subject: [PATCH 10/41] Remove limitation on --dynamic-host.
 
 Dynamic-host was implemented to ignore interface addresses with /32
 (or /128 for IPv6) prefix lengths, since they are not useful for
@@ -20,9 +20,11 @@ problems.
  src/network.c | 13 ++-----------
  1 file changed, 2 insertions(+), 11 deletions(-)
 
+diff --git a/src/network.c b/src/network.c
+index 1e41a78..a80d096 100644
 --- a/src/network.c
 +++ b/src/network.c
-@@ -359,13 +359,8 @@ static int iface_allowed(struct iface_pa
+@@ -359,13 +359,8 @@ static int iface_allowed(struct iface_param *param, int if_index, char *label,
  		struct in_addr newaddr = addr->in.sin_addr;
  		
  		if (int_name->flags & INP4)
@@ -38,7 +40,7 @@ problems.
  		
  		/* check for duplicates. */
  		for (lp = int_name->addr; lp; lp = lp->next)
-@@ -398,10 +393,6 @@ static int iface_allowed(struct iface_pa
+@@ -398,10 +393,6 @@ static int iface_allowed(struct iface_param *param, int if_index, char *label,
  		  {
  		    int i;
  
@@ -49,3 +51,6 @@ problems.
  		    for (i = 0; i < 16; i++)
  		      {
  			int bits = ((i+1)*8) - prefixlen;
+-- 
+2.41.0
+

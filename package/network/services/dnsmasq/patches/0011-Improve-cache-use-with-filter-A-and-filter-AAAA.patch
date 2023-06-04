@@ -1,7 +1,7 @@
 From 5a9eae429a7d0680d606f03f2759d7dde0bbe3f0 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 20 Mar 2023 15:16:29 +0000
-Subject: [PATCH 11/25] Improve cache use with --filter-A and --filter-AAAA
+Subject: [PATCH 11/41] Improve cache use with --filter-A and --filter-AAAA
 
 If --filter-AAAA is set and we have cached entry for
 the domain in question fpr any RR type that allows us to
@@ -11,9 +11,11 @@ going upstream. Similarly for --filter-A.
  src/rfc1035.c | 20 ++++++++++++++++++++
  1 file changed, 20 insertions(+)
 
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index 3d82ad9..5abacbd 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -1910,6 +1910,25 @@ size_t answer_request(struct dns_header
+@@ -1910,6 +1910,25 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			anscount++;
  		    }
  		}
@@ -39,7 +41,7 @@ going upstream. Similarly for --filter-A.
  	    }
  
  	  if (qtype == T_MX || qtype == T_ANY)
-@@ -1920,6 +1939,7 @@ size_t answer_request(struct dns_header
+@@ -1920,6 +1939,7 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  		  {
  		    ans = found = 1;
  		    sec_data = 0;
@@ -47,3 +49,6 @@ going upstream. Similarly for --filter-A.
  		    if (!dryrun)
  		      {
  			int offset;
+-- 
+2.41.0
+

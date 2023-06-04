@@ -1,7 +1,7 @@
 From eb92fb32b746f2104b0f370b5b295bb8dd4bd5e5 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Tue, 7 Mar 2023 22:07:46 +0000
-Subject: [PATCH 06/25] Set the default maximum DNS UDP packet size to 1232.
+Subject: [PATCH 06/41] Set the default maximum DNS UDP packet size to 1232.
 
 http://www.dnsflagday.net/2020/ refers.
 
@@ -12,6 +12,8 @@ Thanks to Xiang Li for the prompt.
  src/config.h  | 2 +-
  3 files changed, 11 insertions(+), 3 deletions(-)
 
+diff --git a/CHANGELOG b/CHANGELOG
+index 3af20cf..52d8678 100644
 --- a/CHANGELOG
 +++ b/CHANGELOG
 @@ -7,8 +7,15 @@ version 2.90
@@ -31,9 +33,11 @@ Thanks to Xiang Li for the prompt.
  version 2.89
          Fix bug introduced in 2.88 (commit fe91134b) which can result
  	in corruption of the DNS cache internal data structures and
+diff --git a/man/dnsmasq.8 b/man/dnsmasq.8
+index 41e2e04..5acb935 100644
 --- a/man/dnsmasq.8
 +++ b/man/dnsmasq.8
-@@ -183,7 +183,8 @@ to zero completely disables DNS function
+@@ -183,7 +183,8 @@ to zero completely disables DNS function, leaving only DHCP and/or TFTP.
  .TP
  .B \-P, --edns-packet-max=<size>
  Specify the largest EDNS.0 UDP packet which is supported by the DNS
@@ -43,6 +47,8 @@ Thanks to Xiang Li for the prompt.
  .TP
  .B \-Q, --query-port=<query_port>
  Send outbound DNS queries from, and listen for their replies on, the
+diff --git a/src/config.h b/src/config.h
+index 1e7b30f..37b374e 100644
 --- a/src/config.h
 +++ b/src/config.h
 @@ -19,7 +19,7 @@
@@ -54,3 +60,6 @@ Thanks to Xiang Li for the prompt.
  #define SAFE_PKTSZ 1232 /* "go anywhere" UDP packet size, see https://dnsflagday.net/2020/ */
  #define KEYBLOCK_LEN 40 /* choose to minimise fragmentation when storing DNSSEC keys */
  #define DNSSEC_WORK 50 /* Max number of queries to validate one question */
+-- 
+2.41.0
+

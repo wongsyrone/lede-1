@@ -1,7 +1,7 @@
 From 042c64273d553c8305d3747849b44a0b257b0622 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Tue, 28 Mar 2023 18:24:22 +0100
-Subject: [PATCH 17/25] Remove code for caching SRV.
+Subject: [PATCH 17/41] Remove code for caching SRV.
 
 Function replaced by the ability to cache any RR type.
 
@@ -16,9 +16,11 @@ list of cacheable RR-types.
  src/rfc1035.c | 102 +++++++++-----------------------------------------
  6 files changed, 42 insertions(+), 130 deletions(-)
 
+diff --git a/man/dnsmasq.8 b/man/dnsmasq.8
+index 5acb935..6d844bf 100644
 --- a/man/dnsmasq.8
 +++ b/man/dnsmasq.8
-@@ -376,6 +376,13 @@ Remove A records from answers. No IPv4 a
+@@ -376,6 +376,13 @@ Remove A records from answers. No IPv4 addresses will be returned.
  .B --filter-AAAA
  Remove AAAA records from answers. No IPv6 addresses will be returned.
  .TP
@@ -32,9 +34,11 @@ list of cacheable RR-types.
  .B \-r, --resolv-file=<file>
  Read the IP addresses of the upstream nameservers from <file>, instead of
  /etc/resolv.conf. For the format of this file see
+diff --git a/src/cache.c b/src/cache.c
+index 64fc69d..f49def4 100644
 --- a/src/cache.c
 +++ b/src/cache.c
-@@ -136,7 +136,7 @@ static void cache_hash(struct crec *crec
+@@ -136,7 +136,7 @@ static void cache_hash(struct crec *crecp);
  
  unsigned short rrtype(char *in)
  {
@@ -43,7 +47,7 @@ list of cacheable RR-types.
    
    for (i = 0; i < (sizeof(typestr)/sizeof(typestr[0])); i++)
      if (strcasecmp(in, typestr[i].name) == 0)
-@@ -275,9 +275,7 @@ static void cache_blockdata_free(struct
+@@ -275,9 +275,7 @@ static void cache_blockdata_free(struct crec *crecp)
  {
    if (!(crecp->flags & F_NEG))
      {
@@ -54,7 +58,7 @@ list of cacheable RR-types.
  	blockdata_free(crecp->addr.rr.rrdata);
  #ifdef HAVE_DNSSEC
        else if (crecp->flags & F_DNSKEY)
-@@ -472,7 +470,7 @@ static struct crec *cache_scan_free(char
+@@ -472,7 +470,7 @@ static struct crec *cache_scan_free(char *name, union all_addr *addr, unsigned s
  	  if ((crecp->flags & F_FORWARD) && hostname_isequal(cache_get_name(crecp), name))
  	    {
  	      /* Don't delete DNSSEC in favour of a CNAME, they can co-exist */
@@ -80,7 +84,7 @@ list of cacheable RR-types.
  	      if (flags & F_RR)
  		{
  		  /* A negative RR entry is possible and has no data, obviously. */
-@@ -869,16 +862,13 @@ int cache_recv_insert(time_t now, int fd
+@@ -869,16 +862,13 @@ int cache_recv_insert(time_t now, int fd)
  
        ttl = difftime(ttd, now);
        
@@ -98,7 +102,7 @@ list of cacheable RR-types.
  	  if ((flags & F_RR) && !(flags & F_NEG) && !(addr.rr.rrdata = blockdata_read(fd, addr.rr.datalen)))
  	    return 0;
  #ifdef HAVE_DNSSEC
-@@ -1610,7 +1600,7 @@ static void make_non_terminals(struct cr
+@@ -1610,7 +1600,7 @@ static void make_non_terminals(struct crec *source)
        if (!is_outdated_cname_pointer(crecp) &&
  	  (crecp->flags & F_FORWARD) &&
  	  (crecp->flags & type) &&
@@ -107,7 +111,7 @@ list of cacheable RR-types.
  	  hostname_isequal(name, cache_get_name(crecp)))
  	{
  	  *up = crecp->hash_next;
-@@ -1667,7 +1657,7 @@ static void make_non_terminals(struct cr
+@@ -1667,7 +1657,7 @@ static void make_non_terminals(struct crec *source)
  
        if (crecp)
  	{
@@ -116,7 +120,7 @@ list of cacheable RR-types.
  	  if (!(crecp->flags & F_IMMORTAL))
  	    crecp->ttd = source->ttd;
  	  crecp->name.namep = name;
-@@ -1804,17 +1794,6 @@ static void dump_cache_entry(struct crec
+@@ -1804,17 +1794,6 @@ static void dump_cache_entry(struct crec *cache, time_t now)
    p += sprintf(p, "%-30.30s ", sanitise(n));
    if ((cache->flags & F_CNAME) && !is_outdated_cname_pointer(cache))
      a = sanitise(cache_get_cname_target(cache));
@@ -134,7 +138,7 @@ list of cacheable RR-types.
    else if (cache->flags & F_RR)
      sprintf(a, "%s", querystr(NULL, cache->addr.rr.rrtype));
  #ifdef HAVE_DNSSEC
-@@ -1843,8 +1822,6 @@ static void dump_cache_entry(struct crec
+@@ -1843,8 +1822,6 @@ static void dump_cache_entry(struct crec *cache, time_t now)
      t = "6";
    else if (cache->flags & F_CNAME)
      t = "C";
@@ -143,7 +147,7 @@ list of cacheable RR-types.
    else if (cache->flags & F_RR)
      t = "T";
  #ifdef HAVE_DNSSEC
-@@ -2133,8 +2110,6 @@ void log_query(unsigned int flags, char
+@@ -2133,8 +2110,6 @@ void log_query(unsigned int flags, char *name, union all_addr *addr, char *arg,
      }
    else if (flags & F_CNAME)
      dest = "<CNAME>";
@@ -152,7 +156,7 @@ list of cacheable RR-types.
    else if (flags & F_RRNAME)
      dest = arg;
      
-@@ -2158,7 +2133,7 @@ void log_query(unsigned int flags, char
+@@ -2158,7 +2133,7 @@ void log_query(unsigned int flags, char *name, union all_addr *addr, char *arg,
      }
    else if (flags & F_AUTH)
      source = "auth";
@@ -161,6 +165,8 @@ list of cacheable RR-types.
      {
        source = arg;
        verb = "to";
+diff --git a/src/dnsmasq.h b/src/dnsmasq.h
+index 376c630..7a00ece 100644
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
 @@ -326,10 +326,6 @@ union all_addr {
@@ -192,9 +198,11 @@ list of cacheable RR-types.
  #define F_STALE     (1u<<31)
  
  #define UID_NONE      0
+diff --git a/src/forward.c b/src/forward.c
+index 7cd2d9a..d79cc56 100644
 --- a/src/forward.c
 +++ b/src/forward.c
-@@ -545,7 +545,7 @@ static int forward_query(int udpfd, unio
+@@ -545,7 +545,7 @@ static int forward_query(int udpfd, union mysockaddr *udpaddr,
  		}
  #ifdef HAVE_DNSSEC
  	      else
@@ -203,7 +211,7 @@ list of cacheable RR-types.
  				     (forward->flags & FREC_DNSKEY_QUERY) ? "dnssec-retry[DNSKEY]" : "dnssec-retry[DS]", 0);
  #endif
  
-@@ -1050,7 +1050,7 @@ static void dnssec_validate(struct frec
+@@ -1050,7 +1050,7 @@ static void dnssec_validate(struct frec *forward, struct dns_header *header,
  #ifdef HAVE_DUMPFILE
  		  dump_packet_udp(DUMP_SEC_QUERY, (void *)header, (size_t)nn, NULL, &server->addr, fd);
  #endif
@@ -212,7 +220,7 @@ list of cacheable RR-types.
  				       STAT_ISEQUAL(status, STAT_NEED_KEY) ? "dnssec-query[DNSKEY]" : "dnssec-query[DS]", 0);
  		  return;
  		}
-@@ -2059,7 +2059,7 @@ static int tcp_key_recurse(time_t now, i
+@@ -2059,7 +2059,7 @@ static int tcp_key_recurse(time_t now, int status, struct dns_header *header, si
        log_save = daemon->log_display_id;
        daemon->log_display_id = ++daemon->log_id;
        
@@ -221,9 +229,11 @@ list of cacheable RR-types.
  			    STAT_ISEQUAL(status, STAT_NEED_KEY) ? "dnssec-query[DNSKEY]" : "dnssec-query[DS]", 0);
              
        new_status = tcp_key_recurse(now, new_status, new_header, m, class, name, keyname, server, have_mark, mark, keycount);
+diff --git a/src/option.c b/src/option.c
+index 87a321e..0f70932 100644
 --- a/src/option.c
 +++ b/src/option.c
-@@ -3446,7 +3446,7 @@ static int one_opt(int option, char *arg
+@@ -3446,7 +3446,7 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
  	break;
        }
  
@@ -232,7 +242,7 @@ list of cacheable RR-types.
        daemon->fast_retry_timeout = TIMEOUT;
        
        if (!arg)
-@@ -3469,7 +3469,7 @@ static int one_opt(int option, char *arg
+@@ -3469,7 +3469,7 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
  	}
        break;
  
@@ -250,9 +260,11 @@ list of cacheable RR-types.
        {
  	int max_expiry = STALE_CACHE_EXPIRY;
  	if (arg)
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index 28579c6..63aff8a 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -705,9 +705,7 @@ int extract_addresses(struct dns_header
+@@ -705,9 +705,7 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  	  addrlen = IN6ADDRSZ;
  	  flags |= F_IPV6;
  	}
@@ -263,7 +275,7 @@ list of cacheable RR-types.
  	flags |= F_RR;
        else
  	insert = 0; /* NOTE: do not cache data from CNAME queries. */
-@@ -800,26 +798,7 @@ int extract_addresses(struct dns_header
+@@ -800,26 +798,7 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  	    {
  	      found = 1;
  	      
@@ -291,7 +303,7 @@ list of cacheable RR-types.
  		{
  		  short desc, *rrdesc = rrfilter_desc(aqtype);
  		  unsigned char *tmp = namep;
-@@ -953,7 +932,7 @@ int extract_addresses(struct dns_header
+@@ -953,7 +932,7 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  	{
  	  if (flags & F_NXDOMAIN)
  	    {
@@ -300,7 +312,7 @@ list of cacheable RR-types.
  	      
  	      /* Can store NXDOMAIN reply for any qtype. */
  	      insert = 1;
-@@ -1998,7 +1977,7 @@ size_t answer_request(struct dns_header
+@@ -1998,7 +1977,7 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  		     since its existence allows us to return a NODATA answer. Note that we never set the AD flag,
  		     since we didn't authentucate the record. */
  
@@ -309,7 +321,7 @@ list of cacheable RR-types.
  		    {
  		      ans = 1;
  		      sec_data = auth = 0;
-@@ -2053,13 +2032,12 @@ size_t answer_request(struct dns_header
+@@ -2053,13 +2032,12 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  	  	  
  	  if (qtype == T_SRV || qtype == T_ANY)
  	    {
@@ -324,7 +336,7 @@ list of cacheable RR-types.
  		    sec_data = 0;
  		    if (!dryrun)
  		      {
-@@ -2093,60 +2071,6 @@ size_t answer_request(struct dns_header
+@@ -2093,60 +2071,6 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  		  *up = move;
  		  move->next = NULL;
  		}
@@ -385,7 +397,7 @@ list of cacheable RR-types.
  	    }
  
  	  if (qtype == T_NAPTR || qtype == T_ANY)
-@@ -2199,7 +2123,10 @@ size_t answer_request(struct dns_header
+@@ -2199,7 +2123,10 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			 
  			 if (!(crecp->flags & F_DNSSECOK))
  			   sec_data = 0;
@@ -397,7 +409,7 @@ list of cacheable RR-types.
  			 auth = 0;
  			 ans = 1;
  			 
-@@ -2231,9 +2158,16 @@ size_t answer_request(struct dns_header
+@@ -2231,9 +2158,16 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
        
        if (!ans)
  	{
@@ -416,3 +428,6 @@ list of cacheable RR-types.
  	      ans = nxdomain = 1;
  	      auth = 0;
  
+-- 
+2.41.0
+

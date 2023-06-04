@@ -1,7 +1,7 @@
 From 638c7c4d20004c0f320820098e29df62a27dd2a1 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Thu, 23 Mar 2023 17:15:35 +0000
-Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
+Subject: [PATCH 16/41] Add --cache-rr to enable caching of arbitrary RR types.
 
 ---
  src/blockdata.c | 121 +++++++++++++++++++++++++++---------
@@ -15,6 +15,8 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  src/util.c      |  17 ++++-
  9 files changed, 415 insertions(+), 173 deletions(-)
 
+diff --git a/src/blockdata.c b/src/blockdata.c
+index 4c26155..56698c7 100644
 --- a/src/blockdata.c
 +++ b/src/blockdata.c
 @@ -19,7 +19,7 @@
@@ -124,7 +126,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
    
    return ret;
  }
-@@ -111,6 +122,58 @@ struct blockdata *blockdata_alloc(char *
+@@ -111,6 +122,58 @@ struct blockdata *blockdata_alloc(char *data, size_t len)
    return blockdata_alloc_real(0, data, len);
  }
  
@@ -183,9 +185,11 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  void blockdata_free(struct blockdata *blocks)
  {
    struct blockdata *tmp;
+diff --git a/src/cache.c b/src/cache.c
+index 6ae6688..64fc69d 100644
 --- a/src/cache.c
 +++ b/src/cache.c
-@@ -29,6 +29,7 @@ static void make_non_terminals(struct cr
+@@ -29,6 +29,7 @@ static void make_non_terminals(struct crec *source);
  static struct crec *really_insert(char *name, union all_addr *addr, unsigned short class,
  				  time_t now,  unsigned long ttl, unsigned int flags);
  static void dump_cache_entry(struct crec *cache, time_t now);
@@ -193,7 +197,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  
  /* type->string mapping: this is also used by the name-hash function as a mixing table. */
  /* taken from https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml */
-@@ -133,6 +134,17 @@ static void cache_link(struct crec *crec
+@@ -133,6 +134,17 @@ static void cache_link(struct crec *crecp);
  static void rehash(int size);
  static void cache_hash(struct crec *crecp);
  
@@ -211,7 +215,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  void next_uid(struct crec *crecp)
  {
    static unsigned int uid = 0;
-@@ -265,6 +277,8 @@ static void cache_blockdata_free(struct
+@@ -265,6 +277,8 @@ static void cache_blockdata_free(struct crec *crecp)
      {
        if (crecp->flags & F_SRV)
  	blockdata_free(crecp->addr.srv.target);
@@ -220,7 +224,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  #ifdef HAVE_DNSSEC
        else if (crecp->flags & F_DNSKEY)
  	blockdata_free(crecp->addr.key.keydata);
-@@ -459,7 +473,8 @@ static struct crec *cache_scan_free(char
+@@ -459,7 +473,8 @@ static struct crec *cache_scan_free(char *name, union all_addr *addr, unsigned s
  	    {
  	      /* Don't delete DNSSEC in favour of a CNAME, they can co-exist */
  	      if ((flags & crecp->flags & (F_IPV4 | F_IPV6 | F_SRV | F_NXDOMAIN)) || 
@@ -252,7 +256,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  #ifdef HAVE_DNSSEC
  	      if (flags & F_DNSKEY)
  		{
-@@ -848,16 +869,18 @@ int cache_recv_insert(time_t now, int fd
+@@ -848,16 +869,18 @@ int cache_recv_insert(time_t now, int fd)
  
        ttl = difftime(ttd, now);
        
@@ -275,7 +279,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  #ifdef HAVE_DNSSEC
  	   if (flags & F_DNSKEY)
  	     {
-@@ -1587,7 +1610,7 @@ static void make_non_terminals(struct cr
+@@ -1587,7 +1610,7 @@ static void make_non_terminals(struct crec *source)
        if (!is_outdated_cname_pointer(crecp) &&
  	  (crecp->flags & F_FORWARD) &&
  	  (crecp->flags & type) &&
@@ -284,7 +288,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	  hostname_isequal(name, cache_get_name(crecp)))
  	{
  	  *up = crecp->hash_next;
-@@ -1644,7 +1667,7 @@ static void make_non_terminals(struct cr
+@@ -1644,7 +1667,7 @@ static void make_non_terminals(struct crec *source)
  
        if (crecp)
  	{
@@ -293,7 +297,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	  if (!(crecp->flags & F_IMMORTAL))
  	    crecp->ttd = source->ttd;
  	  crecp->name.namep = name;
-@@ -1792,6 +1815,8 @@ static void dump_cache_entry(struct crec
+@@ -1792,6 +1815,8 @@ static void dump_cache_entry(struct crec *cache, time_t now)
        blockdata_retrieve(cache->addr.srv.target, targetlen, a + len);
        a[len + targetlen] = 0;		
      }
@@ -302,7 +306,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  #ifdef HAVE_DNSSEC
    else if (cache->flags & F_DS)
      {
-@@ -1820,6 +1845,8 @@ static void dump_cache_entry(struct crec
+@@ -1820,6 +1845,8 @@ static void dump_cache_entry(struct crec *cache, time_t now)
      t = "C";
    else if (cache->flags & F_SRV)
      t = "V";
@@ -311,7 +315,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  #ifdef HAVE_DNSSEC
    else if (cache->flags & F_DS)
      t = "S";
-@@ -2078,6 +2105,8 @@ void log_query(unsigned int flags, char
+@@ -2078,6 +2105,8 @@ void log_query(unsigned int flags, char *name, union all_addr *addr, char *arg,
  	      sprintf(portstring, "#%u", type);
  	    }
  	}
@@ -320,6 +324,8 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
        else
  	dest = arg;
      }
+diff --git a/src/dnsmasq.c b/src/dnsmasq.c
+index bd3dcf5..6fb9571 100644
 --- a/src/dnsmasq.c
 +++ b/src/dnsmasq.c
 @@ -125,17 +125,11 @@ int main (int argc, char **argv)
@@ -344,6 +350,8 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
        /* one char flag per possible RR in answer section (may get extended). */
        daemon->rr_status_sz = 64;
        daemon->rr_status = safe_malloc(sizeof(*daemon->rr_status) * daemon->rr_status_sz);
+diff --git a/src/dnsmasq.h b/src/dnsmasq.h
+index 7d26460..376c630 100644
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
 @@ -282,7 +282,8 @@ struct event_desc {
@@ -393,7 +401,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  void next_uid(struct crec *crecp);
  void log_query(unsigned int flags, char *name, union all_addr *addr, char *arg, unsigned short type); 
  char *record_source(unsigned int index);
-@@ -1342,6 +1350,8 @@ int read_hostsfile(char *filename, unsig
+@@ -1342,6 +1350,8 @@ int read_hostsfile(char *filename, unsigned int index, int cache_size,
  void blockdata_init(void);
  void blockdata_report(void);
  struct blockdata *blockdata_alloc(char *data, size_t len);
@@ -428,6 +436,8 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  /* edns0.c */
  unsigned char *find_pseudoheader(struct dns_header *header, size_t plen,
  				   size_t *len, unsigned char **p, int *is_sign, int *is_last);
+diff --git a/src/dnssec.c b/src/dnssec.c
+index 219ba9a..aa196eb 100644
 --- a/src/dnssec.c
 +++ b/src/dnssec.c
 @@ -24,81 +24,6 @@
@@ -512,7 +522,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  /* Input in presentation format */
  static int count_labels(char *name)
  {
-@@ -225,7 +150,7 @@ static int is_check_date(unsigned long c
+@@ -225,7 +150,7 @@ static int is_check_date(unsigned long curtime)
     On returning 0, the end has been reached.
  */
  struct rdata_state {
@@ -521,7 +531,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
    size_t c;
    unsigned char *end, *ip, *op;
    char *buff;
-@@ -246,7 +171,7 @@ static int get_rdata(struct dns_header *
+@@ -246,7 +171,7 @@ static int get_rdata(struct dns_header *header, size_t plen, struct rdata_state
      {
        d = *(state->desc);
        
@@ -530,7 +540,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	{
  	  /* all the bytes to the end. */
  	  if ((state->c = state->end - state->ip) != 0)
-@@ -294,7 +219,7 @@ static int get_rdata(struct dns_header *
+@@ -294,7 +219,7 @@ static int get_rdata(struct dns_header *header, size_t plen, struct rdata_state
  
  /* Bubble sort the RRset into the canonical order. */
  
@@ -539,7 +549,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  		      unsigned char **rrset, char *buff1, char *buff2)
  {
    int swap, i, j;
-@@ -331,7 +256,7 @@ static int sort_rrset(struct dns_header
+@@ -331,7 +256,7 @@ static int sort_rrset(struct dns_header *header, size_t plen, u16 *rr_desc, int
  	     is the identity function and we can compare
  	     the RRs directly. If not we compare the 
  	     canonicalised RRs one byte at a time. */
@@ -548,7 +558,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	    {
  	      int rdmin = rdlen1 > rdlen2 ? rdlen2 : rdlen1;
  	      int cmp = memcmp(state1.ip, state2.ip, rdmin);
-@@ -524,7 +449,7 @@ static int validate_rrset(time_t now, st
+@@ -524,7 +449,7 @@ static int validate_rrset(time_t now, struct dns_header *header, size_t plen, in
    unsigned char *p;
    int rdlen, j, name_labels, algo, labels, key_tag;
    struct crec *crecp = NULL;
@@ -557,7 +567,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
    u32 sig_expiration, sig_inception;
    int failflags = DNSSEC_FAIL_NOSIG | DNSSEC_FAIL_NYV | DNSSEC_FAIL_EXP | DNSSEC_FAIL_NOKEYSUP;
    
-@@ -671,7 +596,7 @@ static int validate_rrset(time_t now, st
+@@ -671,7 +596,7 @@ static int validate_rrset(time_t now, struct dns_header *header, size_t plen, in
  	     
  	     If canonicalisation is not needed, a simple insertion into the hash works.
  	  */
@@ -566,6 +576,8 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	    {
  	      len = htons(rdlen);
  	      hash->update(ctx, 2, (unsigned char *)&len);
+diff --git a/src/option.c b/src/option.c
+index 2e208ba..87a321e 100644
 --- a/src/option.c
 +++ b/src/option.c
 @@ -186,6 +186,7 @@ struct myoption {
@@ -601,7 +613,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
    { 0, 0, NULL, NULL, NULL }
  }; 
  
-@@ -3465,6 +3468,27 @@ static int one_opt(int option, char *arg
+@@ -3465,6 +3468,27 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
  	    }
  	}
        break;
@@ -629,7 +641,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
              
  #ifdef HAVE_DHCP
      case 'X': /* --dhcp-lease-max */
-@@ -5733,10 +5757,15 @@ void read_opts(int argc, char **argv, ch
+@@ -5733,10 +5757,15 @@ void read_opts(int argc, char **argv, char *compile_opts)
  {
    size_t argbuf_size = MAXDNAME;
    char *argbuf = opt_malloc(argbuf_size);
@@ -647,9 +659,11 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
    opterr = 0;
  
    daemon = opt_malloc(sizeof(struct daemon));
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index ea21ffa..28579c6 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -89,23 +89,14 @@ int extract_name(struct dns_header *head
+@@ -89,23 +89,14 @@ int extract_name(struct dns_header *header, size_t plen, unsigned char **pp,
  	    if (isExtract)
  	      {
  		unsigned char c = *p;
@@ -678,7 +692,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	      }
  	    else 
  	      {
-@@ -118,10 +109,9 @@ int extract_name(struct dns_header *head
+@@ -118,10 +109,9 @@ int extract_name(struct dns_header *header, size_t plen, unsigned char **pp,
  		    cp++;
  		    if (c1 >= 'A' && c1 <= 'Z')
  		      c1 += 'a' - 'A';
@@ -691,7 +705,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  		    
  		    if (c2 >= 'A' && c2 <= 'Z')
  		      c2 += 'a' - 'A';
-@@ -502,12 +492,10 @@ static int find_soa(struct dns_header *h
+@@ -502,12 +492,10 @@ static int find_soa(struct dns_header *header, size_t qlen, int *doctored)
  }
  
  /* Print TXT reply to log */
@@ -706,7 +720,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
    /* Loop over TXT payload */
    while ((p1 - p) < ardlen)
      {
-@@ -526,7 +514,7 @@ static int print_txt(struct dns_header *
+@@ -526,7 +514,7 @@ static int print_txt(struct dns_header *header, const size_t qlen, char *name,
  	}
  
        *p3 = 0;
@@ -715,7 +729,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
        /* restore */
        memmove(p1 + 1, p1, i);
        *p1 = len;
-@@ -719,6 +707,8 @@ int extract_addresses(struct dns_header
+@@ -719,6 +707,8 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  	}
        else if (qtype == T_SRV)
  	flags |= F_SRV;
@@ -724,7 +738,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
        else
  	insert = 0; /* NOTE: do not cache data from CNAME queries. */
        
-@@ -804,7 +794,7 @@ int extract_addresses(struct dns_header
+@@ -804,7 +794,7 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  #ifdef HAVE_DNSSEC
  	      if (!option_bool(OPT_DNSSEC_VALID) || aqtype != T_RRSIG)
  #endif
@@ -733,7 +747,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	    }
  	  else if (!(flags & F_NXDOMAIN))
  	    {
-@@ -829,6 +819,64 @@ int extract_addresses(struct dns_header
+@@ -829,6 +819,64 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  		  if (!extract_name(header, qlen, &tmp, name, 1, 0))
  		    return 2;
  		}
@@ -798,7 +812,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	      else if (flags & (F_IPV4 | F_IPV6))
  		{
  		  /* copy address into aligned storage */
-@@ -876,8 +924,10 @@ int extract_addresses(struct dns_header
+@@ -876,8 +924,10 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  	      
  	      if (aqtype == T_TXT)
  		{
@@ -811,7 +825,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  		}
  	      else
  		{
-@@ -903,7 +953,7 @@ int extract_addresses(struct dns_header
+@@ -903,7 +953,7 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  	{
  	  if (flags & F_NXDOMAIN)
  	    {
@@ -820,7 +834,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	      
  	      /* Can store NXDOMAIN reply for any qtype. */
  	      insert = 1;
-@@ -924,7 +974,10 @@ int extract_addresses(struct dns_header
+@@ -924,7 +974,10 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  	      if (ttl == 0)
  		ttl = cttl;
  	      
@@ -832,7 +846,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	      if (newc && cpp)
  		{
  		  next_uid(newc);
-@@ -2044,7 +2097,7 @@ size_t answer_request(struct dns_header
+@@ -2044,7 +2097,7 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  	      if (!found)
  		{
  		  if ((crecp = cache_find_by_name(NULL, name, now, F_SRV | F_NXDOMAIN | (dryrun ? F_NO_RR : 0))) &&
@@ -841,7 +855,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  		    do
  		      {
  			int stale_flag = 0;
-@@ -2125,8 +2178,57 @@ size_t answer_request(struct dns_header
+@@ -2125,8 +2178,57 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  	      if (!dryrun)
  		log_query(F_CONFIG | F_NEG, name, &addr, NULL, 0);
  	    }
@@ -900,9 +914,11 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
        if (!ans)
  	{
  	  /* We may know that the domain doesn't exist for any RRtype. */
+diff --git a/src/rrfilter.c b/src/rrfilter.c
+index 3a5547a..e4c56cb 100644
 --- a/src/rrfilter.c
 +++ b/src/rrfilter.c
-@@ -136,9 +136,9 @@ static int check_rrs(unsigned char *p, s
+@@ -136,9 +136,9 @@ static int check_rrs(unsigned char *p, struct dns_header *header, size_t plen, i
  	  
  	  if (class == C_IN)
  	    {
@@ -914,7 +930,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  		{
  		  if (*d != 0)
  		    pp += *d;
-@@ -285,7 +285,7 @@ size_t rrfilter(struct dns_header *heade
+@@ -285,7 +285,7 @@ size_t rrfilter(struct dns_header *header, size_t *plen, int mode)
  }
  
  /* This is used in the DNSSEC code too, hence it's exported */
@@ -945,7 +961,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  
    return p+1;
  }
-@@ -352,3 +352,78 @@ int expand_workspace(unsigned char ***wk
+@@ -352,3 +352,78 @@ int expand_workspace(unsigned char ***wkspc, int *szp, int new)
  
    return 1;
  }
@@ -1024,6 +1040,8 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
 +  if ((char *)l != name)
 +    *(l-1) = 0;
 +}
+diff --git a/src/util.c b/src/util.c
+index e0ce67d..073d7ad 100644
 --- a/src/util.c
 +++ b/src/util.c
 @@ -115,6 +115,19 @@ u64 rand64(void)
@@ -1046,7 +1064,7 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  /* returns 1 if name is OK and ascii printable
   * returns 2 if name should be processed by IDN */
  static int check_name(char *in)
-@@ -280,11 +293,9 @@ unsigned char *do_rfc1035_name(unsigned
+@@ -280,11 +293,9 @@ unsigned char *do_rfc1035_name(unsigned char *p, char *sval, char *limit)
            if (limit && p + 1 > (unsigned char*)limit)
              return NULL;
  
@@ -1059,3 +1077,6 @@ Subject: [PATCH 16/25] Add --cache-rr to enable caching of arbitrary RR types.
  	    *p++ = *sval;
  	}
        
+-- 
+2.41.0
+

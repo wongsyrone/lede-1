@@ -1,7 +1,7 @@
 From b14aa762ff2a42573b8b9ead85ccfa1f2b938a72 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Sat, 1 Apr 2023 22:03:49 +0100
-Subject: [PATCH 25/25] Fix long-term bug in TCP caching code which would lose
+Subject: [PATCH 25/41] Fix long-term bug in TCP caching code which would lose
  NXDOMAIN.
 
 A NXDOMAIN answer recieved over TCP by a child process would
@@ -11,6 +11,8 @@ fail to insert it into the cache.
  src/cache.c | 109 +++++++++++++++++++++++++++-------------------------
  1 file changed, 57 insertions(+), 52 deletions(-)
 
+diff --git a/src/cache.c b/src/cache.c
+index fd10240..3884d4c 100644
 --- a/src/cache.c
 +++ b/src/cache.c
 @@ -800,28 +800,30 @@ void cache_end_insert(void)
@@ -63,7 +65,7 @@ fail to insert it into the cache.
  	    }
  	}
        
-@@ -872,34 +874,7 @@ int cache_recv_insert(time_t now, int fd
+@@ -872,34 +874,7 @@ int cache_recv_insert(time_t now, int fd)
  
        ttl = difftime(ttd, now);
        
@@ -99,7 +101,7 @@ fail to insert it into the cache.
  	{
  	  struct crec *newc = really_insert(daemon->namebuff, NULL, C_IN, now, ttl, flags);
  	  /* This relies on the fact that the target of a CNAME immediately precedes
-@@ -907,11 +882,11 @@ int cache_recv_insert(time_t now, int fd
+@@ -907,11 +882,11 @@ int cache_recv_insert(time_t now, int fd)
  	     the order reversal on the new_chain. */
  	  if (newc)
  	    {
@@ -116,7 +118,7 @@ fail to insert it into the cache.
  		{
  		  next_uid(crecp);
  		  newc->addr.cname.target.cache = crecp;
-@@ -919,6 +894,36 @@ int cache_recv_insert(time_t now, int fd
+@@ -919,6 +894,36 @@ int cache_recv_insert(time_t now, int fd)
  		}
  	    }
  	}
@@ -153,3 +155,6 @@ fail to insert it into the cache.
      }
  }
  	
+-- 
+2.41.0
+

@@ -1,7 +1,7 @@
 From a3c8b75972604443cf763fb06e259b38ceec3351 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Wed, 29 Mar 2023 22:43:21 +0100
-Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
+Subject: [PATCH 18/41] Add filtering of arbitrary RR-types.
 
 ---
  man/dnsmasq.8  |  3 ++
@@ -14,9 +14,11 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  src/rrfilter.c |  5 +--
  8 files changed, 102 insertions(+), 90 deletions(-)
 
+diff --git a/man/dnsmasq.8 b/man/dnsmasq.8
+index 6d844bf..acb78df 100644
 --- a/man/dnsmasq.8
 +++ b/man/dnsmasq.8
-@@ -376,6 +376,9 @@ Remove A records from answers. No IPv4 a
+@@ -376,6 +376,9 @@ Remove A records from answers. No IPv4 addresses will be returned.
  .B --filter-AAAA
  Remove AAAA records from answers. No IPv6 addresses will be returned.
  .TP
@@ -26,9 +28,11 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  .B --cache-rr=<rrtype>[,<rrtype>...]
  By default, dnsmasq caches A, AAAA, CNAME and SRV DNS record types.
  This option adds other record types to the cache. The RR-type can be given
+diff --git a/src/dbus.c b/src/dbus.c
+index 4366b7e..4512b8e 100644
 --- a/src/dbus.c
 +++ b/src/dbus.c
-@@ -825,11 +825,25 @@ DBusHandlerResult message_handler(DBusCo
+@@ -825,11 +825,25 @@ DBusHandlerResult message_handler(DBusConnection *connection,
      }
    else if (strcmp(method, "SetFilterA") == 0)
      {
@@ -56,6 +60,8 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
      }
    else if (strcmp(method, "SetLocaliseQueriesOption") == 0)
      {
+diff --git a/src/dnsmasq.c b/src/dnsmasq.c
+index 6fb9571..c77d9c3 100644
 --- a/src/dnsmasq.c
 +++ b/src/dnsmasq.c
 @@ -140,7 +140,7 @@ int main (int argc, char **argv)
@@ -67,6 +73,8 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  #endif
    
  #ifdef HAVE_DHCP
+diff --git a/src/dnsmasq.h b/src/dnsmasq.h
+index 7a00ece..9ee5e39 100644
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
 @@ -276,14 +276,12 @@ struct event_desc {
@@ -109,9 +117,11 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  
  /* edns0.c */
  unsigned char *find_pseudoheader(struct dns_header *header, size_t plen,
+diff --git a/src/forward.c b/src/forward.c
+index d79cc56..5c1bad3 100644
 --- a/src/forward.c
 +++ b/src/forward.c
-@@ -829,19 +829,8 @@ static size_t process_reply(struct dns_h
+@@ -829,19 +829,8 @@ static size_t process_reply(struct dns_header *header, time_t now, struct server
  	  break;
  	}
  
@@ -133,6 +143,8 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
        
        if (doctored)
  	cache_secure = 0;
+diff --git a/src/option.c b/src/option.c
+index 0f70932..ac3b24d 100644
 --- a/src/option.c
 +++ b/src/option.c
 @@ -187,6 +187,7 @@ struct myoption {
@@ -172,7 +184,7 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
    { 0, 0, NULL, NULL, NULL }
  }; 
  
-@@ -3470,19 +3473,39 @@ static int one_opt(int option, char *arg
+@@ -3470,19 +3473,39 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
        break;
  
      case LOPT_CACHE_RR: /* --cache-rr */
@@ -218,9 +230,11 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  	
  	if (!comma) break;
  	arg = comma;
+diff --git a/src/rfc1035.c b/src/rfc1035.c
+index 63aff8a..8c8b73a 100644
 --- a/src/rfc1035.c
 +++ b/src/rfc1035.c
-@@ -916,7 +916,7 @@ int extract_addresses(struct dns_header
+@@ -916,7 +916,7 @@ int extract_addresses(struct dns_header *header, size_t qlen, char *name, time_t
  		     returned packet in process_reply() but gets cached here anyway
  		     and will be filtered again on the way out of the cache. Here,
  		     we just need to alter the logging. */
@@ -229,7 +243,7 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  		    negflag = F_NEG | F_CONFIG;
  		  
  		  log_query(negflag | flags | F_FORWARD | secflag, name, &addr, NULL, aqtype);
-@@ -1912,7 +1912,7 @@ size_t answer_request(struct dns_header
+@@ -1912,7 +1912,7 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			if (!(crecp->flags & (F_HOSTS | F_DHCP)))
  			  auth = 0;
  
@@ -238,7 +252,7 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  			    !(crecp->flags & (F_HOSTS | F_DHCP | F_CONFIG | F_NEG)))
  			  {
  			    /* We have a cached answer but we're filtering it. */
-@@ -1921,7 +1921,7 @@ size_t answer_request(struct dns_header
+@@ -1921,7 +1921,7 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			    
  			    if (!dryrun)
  			      log_query(F_NEG | F_CONFIG | flag, name, NULL, NULL, 0);
@@ -247,7 +261,7 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  			    if (filtered)
  			      *filtered = 1;
  			  }
-@@ -1968,27 +1968,6 @@ size_t answer_request(struct dns_header
+@@ -1968,27 +1968,6 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			anscount++;
  		    }
  		}
@@ -275,7 +289,7 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  	    }
  
  	  if (qtype == T_MX || qtype == T_ANY)
-@@ -2103,30 +2082,32 @@ size_t answer_request(struct dns_header
+@@ -2103,30 +2082,32 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  		log_query(F_CONFIG | F_NEG, name, &addr, NULL, 0);
  	    }
  
@@ -315,7 +329,7 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  			 auth = 0;
  			 ans = 1;
  			 
-@@ -2134,7 +2115,7 @@ size_t answer_request(struct dns_header
+@@ -2134,7 +2115,7 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			   {
  			     char *rrdata = NULL;
  
@@ -324,7 +338,7 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  			       {
  				 rrdata = blockdata_retrieve(crecp->addr.rr.rrdata, crecp->addr.rr.datalen, NULL);
  			     
-@@ -2148,38 +2129,46 @@ size_t answer_request(struct dns_header
+@@ -2148,38 +2129,46 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
  			     if (qtype == T_TXT && !(crecp->flags & F_NEG))
  			       log_txt(name, (unsigned char *)rrdata, crecp->addr.rr.datalen, crecp->flags & F_DNSSECOK);
  			     else
@@ -389,9 +403,11 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
      }
    
    if (dryrun)
+diff --git a/src/rrfilter.c b/src/rrfilter.c
+index e4c56cb..d98236e 100644
 --- a/src/rrfilter.c
 +++ b/src/rrfilter.c
-@@ -219,10 +219,7 @@ size_t rrfilter(struct dns_header *heade
+@@ -219,10 +219,7 @@ size_t rrfilter(struct dns_header *header, size_t *plen, int mode)
  	  if (class != C_IN)
  	    continue;
  	  
@@ -403,3 +419,6 @@ Subject: [PATCH 18/25] Add filtering of arbitrary RR-types.
  	    continue;
  	}
        
+-- 
+2.41.0
+
