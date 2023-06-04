@@ -10,6 +10,12 @@ case "$board" in
 	ucidef_set_led_netdev "lan" "LAN" "orange:eth0" "eth0"
 	ucidef_set_led_switch "wan" "WAN" "orange:eth1" "switch0" "0x04"
 	;;
+alcatel,hh40v)
+	ucidef_set_led_netdev "lan_data" "LAN Data" "green:lan" "eth1" "tx rx"
+	ucidef_set_led_netdev "lan_link" "LAN Link" "orange:lan" "eth1" "link"
+	ucidef_set_led_netdev "wan_data" "WAN Data" "green:wan" "eth0" "tx rx"
+	ucidef_set_led_netdev "wan_link" "WAN Link" "orange:wan" "eth0" "link"
+	;;
 alfa-network,ap121f|\
 alfa-network,ap121fe|\
 avm,fritz450e|\
@@ -227,6 +233,9 @@ dlink,dap-1365-a1)
 	;;
 dlink,dir-859-a1)
 	ucidef_set_led_switch "internet" "WAN" "green:internet" "switch0" "0x20"
+	;;
+dlink,dir-859-a3)
+	ucidef_set_led_switch "wan" "WAN" "green:wan" "switch0" "0x20"
 	;;
 engenius,ens202ext-v1|\
 engenius,enstationac-v1)

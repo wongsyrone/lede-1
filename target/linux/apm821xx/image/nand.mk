@@ -15,7 +15,7 @@ define Build/MerakiAdd-dtb
 	@mv $@.new $@
 endef
 
-define Build/MerakiNAND
+define Build/meraki-header
 	-$(STAGING_DIR_HOST)/bin/mkmerakifw \
 		-B $(BOARD_NAME) -s \
 		-i $@ \
@@ -32,7 +32,7 @@ define Device/meraki_mr24
   IMAGES := sysupgrade.bin
   DTB_SIZE := 64512
   IMAGE_SIZE := 8191k
-  KERNEL := kernel-bin | lzma | uImage lzma | MerakiAdd-dtb | MerakiNAND
+  KERNEL := kernel-bin | lzma | uImage lzma | MerakiAdd-dtb | meraki-header
   KERNEL_INITRAMFS := kernel-bin | lzma | dtb | MuImage-initramfs lzma
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
   UBINIZE_OPTS := -E 5
@@ -100,7 +100,7 @@ define Device/netgear_wndr4700
 	kmod-dm kmod-fs-ext4 kmod-fs-vfat kmod-usb-ledtrig-usbport \
 	kmod-md-mod kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-iso8859-15 \
 	kmod-nls-utf8 kmod-usb3 kmod-usb-dwc2 kmod-usb-storage \
-	partx-utils
+	partx-utils kmod-ata-dwc
   BOARD_NAME := wndr4700
   PAGESIZE := 2048
   SUBPAGESIZE := 512

@@ -25,6 +25,7 @@
 #include <linux/phy.h>
 #include <linux/platform_device.h>
 #include <linux/reset.h>
+#include <linux/version.h>
 
 /* DMA channels */
 #define DMA_CHAN_WIDTH			0x10
@@ -278,8 +279,9 @@ static const struct of_device_id bcm6348_iudma_of_match[] = {
 	{ .compatible = "brcm,bcm6338-iudma", },
 	{ .compatible = "brcm,bcm6348-iudma", },
 	{ .compatible = "brcm,bcm6358-iudma", },
-	{ /* sentinel */ },
+	{ /* sentinel */ }
 };
+MODULE_DEVICE_TABLE(of, bcm6348_emac_of_match);
 
 static struct platform_driver bcm6348_iudma_driver = {
 	.driver = {
@@ -288,7 +290,7 @@ static struct platform_driver bcm6348_iudma_driver = {
 	},
 	.probe	= bcm6348_iudma_probe,
 };
-builtin_platform_driver(bcm6348_iudma_driver);
+module_platform_driver(bcm6348_iudma_driver);
 
 /*
  * BCM6348 Eternet MACs
@@ -1502,6 +1504,7 @@ static int bcm6348_emac_probe(struct platform_device *pdev)
 	struct bcm6348_emac *emac;
 	struct bcm6348_iudma *iudma;
 	struct net_device *ndev;
+	unsigned char dev_addr[ETH_ALEN];
 	unsigned i;
 	int num_resets;
 	int ret;
@@ -1563,12 +1566,13 @@ static int bcm6348_emac_probe(struct platform_device *pdev)
 	emac->old_duplex = -1;
 	emac->old_pause = -1;
 
-	of_get_mac_address(node, ndev->dev_addr);
-	if (is_valid_ether_addr(ndev->dev_addr)) {
-		dev_info(dev, "mtd mac %pM\n", ndev->dev_addr);
+	of_get_mac_address(node, dev_addr);
+	if (is_valid_ether_addr(dev_addr)) {
+		dev_addr_set(ndev, dev_addr);
+		dev_info(dev, "mtd mac %pM\n", dev_addr);
 	} else {
-		random_ether_addr(ndev->dev_addr);
-		dev_info(dev, "random mac %pM\n", ndev->dev_addr);
+		eth_hw_addr_random(ndev);
+		dev_info(dev, "random mac\n");
 	}
 
 	emac->rx_skb_size = ALIGN(ndev->mtu + ENET_MTU_OVERHEAD,
@@ -1643,7 +1647,11 @@ static int bcm6348_emac_probe(struct platform_device *pdev)
 	ndev->min_mtu = ETH_ZLEN - ETH_HLEN;
 	ndev->mtu = ETH_DATA_LEN - VLAN_ETH_HLEN;
 	ndev->max_mtu = ENET_MAX_MTU - VLAN_ETH_HLEN;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,1,0)
+	netif_napi_add(ndev, &emac->napi, bcm6348_emac_poll);
+#else
 	netif_napi_add(ndev, &emac->napi, bcm6348_emac_poll, 16);
+#endif
 	SET_NETDEV_DEV(ndev, dev);
 
 	ret = devm_register_netdev(dev, ndev);
@@ -1693,7 +1701,7 @@ static const struct of_device_id bcm6348_emac_of_match[] = {
 	{ .compatible = "brcm,bcm6338-emac", },
 	{ .compatible = "brcm,bcm6348-emac", },
 	{ .compatible = "brcm,bcm6358-emac", },
-	{ /* sentinel */ },
+	{ /* sentinel */ }
 };
 MODULE_DEVICE_TABLE(of, bcm6348_emac_of_match);
 
@@ -1717,3 +1725,8 @@ int bcm6348_iudma_drivers_register(struct platform_device *pdev)
 
 	return ret;
 }
+
+MODULE_AUTHOR("Álvaro Fernández Rojas <noltari@gmail.com>");
+MODULE_DESCRIPTION("BCM6348 Ethernet Controller Driver");
+MODULE_LICENSE("GPL v2");
+MODULE_ALIAS("platform:bcm6348-enet");

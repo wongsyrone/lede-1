@@ -5,7 +5,7 @@
 +CONFIG_POSITION_INDEPENDENT=y
 +CONFIG_ARCH_MEDIATEK=y
 +CONFIG_TARGET_MT7622=y
-+CONFIG_SYS_TEXT_BASE=0x41e00000
++CONFIG_TEXT_BASE=0x41e00000
 +CONFIG_SYS_MALLOC_F_LEN=0x4000
 +CONFIG_SYS_LOAD_ADDR=0x40080000
 +CONFIG_USE_DEFAULT_ENV_FILE=y
@@ -158,6 +158,7 @@
 + */
 +
 +/dts-v1/;
++#include <dt-bindings/input/linux-event-codes.h>
 +#include "mt7622.dtsi"
 +#include "mt7622-u-boot.dtsi"
 +
@@ -178,12 +179,11 @@
 +
 +	gpio-keys {
 +		compatible = "gpio-keys";
-+		u-boot,dm-pre-reloc;
 +
 +		reset {
 +			label = "reset";
 +			gpios = <&gpio 62 GPIO_ACTIVE_LOW>;
-+			u-boot,dm-pre-reloc;
++			linux,code = <KEY_RESTART>;
 +		};
 +	};
 +

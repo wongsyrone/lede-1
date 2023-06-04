@@ -18,7 +18,7 @@ define Device/avm_fritz7320
   DEVICE_ALT0_VENDOR := 1&1
   DEVICE_ALT0_MODEL := HomeServer
   DEVICE_ALT1_VENDOR := AVM
-  DEVICE_ALT1_MODEL := Fritz!box 7330
+  DEVICE_ALT1_MODEL := Fritz!Box 7330
   SOC := ar9
   IMAGE_SIZE := 15744k
   LOADER_FLASH_OFFS := 0x31000
@@ -154,6 +154,7 @@ define Device/zte_h201l
 	kmod-usb-dwc2 kmod-usb-ledtrig-usbport \
 	kmod-ltq-tapi kmod-ltq-vmmc
   SUPPORTED_DEVICES += H201L
+  DEFAULT := n
 endef
 TARGET_DEVICES += zte_h201l
 

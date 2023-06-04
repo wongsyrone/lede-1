@@ -988,7 +988,7 @@ config BUSYBOX_DEFAULT_RESET
 	default y
 config BUSYBOX_DEFAULT_RESIZE
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_FEATURE_RESIZE_PRINT
 	bool
 	default n
@@ -3029,7 +3029,7 @@ config BUSYBOX_DEFAULT_ASH_ALIAS
 	default y
 config BUSYBOX_DEFAULT_ASH_RANDOM_SUPPORT
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_ASH_EXPAND_PRMT
 	bool
 	default y

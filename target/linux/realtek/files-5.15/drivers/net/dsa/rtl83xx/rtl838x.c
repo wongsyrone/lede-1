@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 
 #include <asm/mach-rtl838x/mach-rtl83xx.h>
+#include <linux/etherdevice.h>
 #include <linux/iopoll.h>
 #include <net/nexthop.h>
 
@@ -541,6 +542,15 @@ static void rtl838x_enable_mcast_flood(int port, bool enable)
 static void rtl838x_enable_bcast_flood(int port, bool enable)
 {
 
+}
+
+static void rtl838x_set_static_move_action(int port, bool forward)
+{
+	int shift = MV_ACT_PORT_SHIFT(port);
+	u32 val = forward ? MV_ACT_FORWARD : MV_ACT_DROP;
+
+	sw_w32_mask(MV_ACT_MASK << shift, val << shift,
+		    RTL838X_L2_PORT_STATIC_MV_ACT(port));
 }
 
 static void rtl838x_stp_get(struct rtl838x_switch_priv *priv, u16 msti, u32 port_state[])
@@ -1291,15 +1301,16 @@ static void rtl838x_pie_rule_dump_raw(u32 r[])
 	pr_info("Sel    : %08x\n", r[17]);
 }
 
-static void rtl838x_pie_rule_dump(struct  pie_rule *pr)
-{
-	pr_info("Drop: %d, fwd: %d, ovid: %d, ivid: %d, flt: %d, log: %d, rmk: %d, meter: %d tagst: %d, mir: %d, nopri: %d, cpupri: %d, otpid: %d, itpid: %d, shape: %d\n",
-		pr->drop, pr->fwd_sel, pr->ovid_sel, pr->ivid_sel, pr->flt_sel, pr->log_sel, pr->rmk_sel, pr->log_sel, pr->tagst_sel, pr->mir_sel, pr->nopri_sel,
-		pr->cpupri_sel, pr->otpid_sel, pr->itpid_sel, pr->shaper_sel);
-	if (pr->fwd_sel)
-		pr_info("FWD: %08x\n", pr->fwd_data);
-	pr_info("TID: %x, %x\n", pr->tid, pr->tid_m);
-}
+// Currently not used
+// static void rtl838x_pie_rule_dump(struct  pie_rule *pr)
+// {
+// 	pr_info("Drop: %d, fwd: %d, ovid: %d, ivid: %d, flt: %d, log: %d, rmk: %d, meter: %d tagst: %d, mir: %d, nopri: %d, cpupri: %d, otpid: %d, itpid: %d, shape: %d\n",
+// 		pr->drop, pr->fwd_sel, pr->ovid_sel, pr->ivid_sel, pr->flt_sel, pr->log_sel, pr->rmk_sel, pr->log_sel, pr->tagst_sel, pr->mir_sel, pr->nopri_sel,
+// 		pr->cpupri_sel, pr->otpid_sel, pr->itpid_sel, pr->shaper_sel);
+// 	if (pr->fwd_sel)
+// 		pr_info("FWD: %08x\n", pr->fwd_data);
+// 	pr_info("TID: %x, %x\n", pr->tid, pr->tid_m);
+// }
 
 static int rtl838x_pie_rule_read(struct rtl838x_switch_priv *priv, int idx, struct  pie_rule *pr)
 {
@@ -1717,6 +1728,7 @@ const struct rtl838x_reg rtl838x_reg = {
 	.enable_flood = rtl838x_enable_flood,
 	.enable_mcast_flood = rtl838x_enable_mcast_flood,
 	.enable_bcast_flood = rtl838x_enable_bcast_flood,
+	.set_static_move_action = rtl838x_set_static_move_action,
 	.stp_get = rtl838x_stp_get,
 	.stp_set = rtl838x_stp_set,
 	.mac_port_ctrl = rtl838x_mac_port_ctrl,

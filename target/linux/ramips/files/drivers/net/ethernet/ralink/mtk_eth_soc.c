@@ -1096,11 +1096,7 @@ poll_again:
 	return rx_done;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)
-static void fe_tx_timeout(struct net_device *dev)
-#else
 static void fe_tx_timeout(struct net_device *dev, unsigned int txqueue)
-#endif
 {
 	struct fe_priv *priv = netdev_priv(dev);
 	struct fe_tx_ring *ring = &priv->tx_ring;
@@ -1561,7 +1557,9 @@ static int fe_probe(struct platform_device *pdev)
 	struct clk *sysclk;
 	int err, napi_weight;
 
-	device_reset(&pdev->dev);
+	err = device_reset(&pdev->dev);
+	if (err)
+		dev_err(&pdev->dev, "failed to reset device\n");
 
 	match = of_match_device(of_fe_match, &pdev->dev);
 	soc = (struct fe_soc_data *)match->data;
