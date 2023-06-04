@@ -13,12 +13,12 @@ PKG_RELEASE=1
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=
 
-# https://github.com/jbsky/mwlwifi/commits/next
+# https://github.com/jbsky/mwlwifi/commits/develop
 PKG_SOURCE_URL:=https://github.com/jbsky/mwlwifi
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2023-04-23
-PKG_SOURCE_VERSION:=76633275fc520eac0bd314d782d21ec1c12067e8
-PKG_MIRROR_HASH:=352071bdeb854d685647515b302a1eba216c7c3132c907249606243f1734d238
+PKG_SOURCE_DATE:=2023-05-27
+PKG_SOURCE_VERSION:=aaa264aa672bb1d53e88e4e6c2e17ade2f007581
+PKG_MIRROR_HASH:=8d2973a9f392530cf16d7221057e7b1ec6b5f25139616c33e6778e01d68c5dda
 
 PKG_MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
 PKG_BUILD_PARALLEL:=1
@@ -43,7 +43,8 @@ NOSTDINC_FLAGS := \
 	-I$(STAGING_DIR)/usr/include/mac80211/uapi \
 	-I$(STAGING_DIR)/usr/include/mac80211 \
 	-include backport/backport.h \
-	-Wno-unused-result
+	-Wno-unused-result \
+	-Wno-unused-variable
 
 define Build/Compile
 	+$(KERNEL_MAKE) $(PKG_JOBS) \

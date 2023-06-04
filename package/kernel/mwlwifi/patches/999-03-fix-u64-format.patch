@@ -1,0 +1,25 @@
+--- a/mac80211.c
++++ b/mac80211.c
+@@ -353,11 +353,11 @@ out:
+ static void mwl_mac80211_bss_info_changed_sta(struct ieee80211_hw *hw,
+ 					      struct ieee80211_vif *vif,
+ 					      struct ieee80211_bss_conf *info,
+-					      u32 changed)
++					      u64 changed)
+ {
+ 	struct mwl_priv *priv = hw->priv;
+ 	struct mwl_vif *mwl_vif = mwl_dev_get_vif(vif);
+-	wiphy_debug(hw->wiphy, "%s => macid: %d, vif->addr=%pM, change: 0x%x\n",__func__, mwl_vif->macid, vif->addr, changed);
++	wiphy_debug(hw->wiphy, "%s => macid: %d, vif->addr=%pM, change: 0x%llx\n",__func__, mwl_vif->macid, vif->addr, changed);
+ 
+ 	if (changed & BSS_CHANGED_ASSOC )
+ 		wiphy_debug(hw->wiphy, "BSS_CHANGED_ASSOC assoc=%d aid=%d\n", vif->cfg.assoc, vif->cfg.aid);
+@@ -460,7 +460,7 @@ static void mwl_mac80211_bss_info_change
+ 	mwl_vif = mwl_dev_get_vif(vif);
+ 
+ 	if(priv->debug_bss){
+-		wiphy_debug(hw->wiphy, "%s => macid: %d, vif->addr=%pM, change: 0x%x\n",__func__, mwl_vif->macid, vif->addr, changed);
++		wiphy_debug(hw->wiphy, "%s => macid: %d, vif->addr=%pM, change: 0x%llx\n",__func__, mwl_vif->macid, vif->addr, changed);
+ 
+ 		if (changed & BSS_CHANGED_ASSOC )
+ 			wiphy_debug(hw->wiphy, "BSS_CHANGED_ASSOC assoc=%d aid=%d\n", vif->cfg.assoc, vif->cfg.aid);
