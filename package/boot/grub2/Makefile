@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=grub
 PKG_VERSION:=2.06
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/grub
@@ -25,7 +25,7 @@ ifneq ($(BUILD_VARIANT),none)
 endif
 
 PKG_FLAGS:=nonshared
-PKG_BUILD_FLAGS:=no-lto
+PKG_BUILD_FLAGS:=no-gc-sections no-lto no-mold
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
@@ -41,7 +41,7 @@ endef
 
 Package/grub2=$(call Package/grub2/Default,x86,pc)
 Package/grub2-efi=$(call Package/grub2/Default,x86,efi)
-Package/grub2-efi-arm=$(call Package/grub2/Default,armvirt,efi)
+Package/grub2-efi-arm=$(call Package/grub2/Default,armsr,efi)
 
 define Package/grub2-editenv
   CATEGORY:=Utilities
