@@ -1,7 +1,7 @@
 From 946180701191ea7e552fa5a939140a635d47b566 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Thu, 16 Mar 2023 15:16:17 +0000
-Subject: [PATCH 10/41] Remove limitation on --dynamic-host.
+Subject: [PATCH 10/44] Remove limitation on --dynamic-host.
 
 Dynamic-host was implemented to ignore interface addresses with /32
 (or /128 for IPv6) prefix lengths, since they are not useful for
@@ -52,5 +52,5 @@ index 1e41a78..a80d096 100644
  		      {
  			int bits = ((i+1)*8) - prefixlen;
 -- 
-2.41.0
+2.42.0
 

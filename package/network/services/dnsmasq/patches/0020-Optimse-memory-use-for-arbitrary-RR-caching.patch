@@ -1,7 +1,7 @@
 From 138e1e2a2d918b37cb0274fe310d53be35acf4cf Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Fri, 31 Mar 2023 17:44:02 +0100
-Subject: [PATCH 20/41] Optimse memory use for arbitrary-RR caching.
+Subject: [PATCH 20/44] Optimse memory use for arbitrary-RR caching.
 
 RRs 13 bytes or less don't need to allocate block storage.
 ---
@@ -224,5 +224,5 @@ index 8c8b73a..d4c6a26 100644
  			       log_query(flags, name, &crecp->addr, NULL, 0);
  			   }
 -- 
-2.41.0
+2.42.0
 

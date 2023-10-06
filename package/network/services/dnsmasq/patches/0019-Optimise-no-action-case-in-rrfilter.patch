@@ -1,7 +1,7 @@
 From 153eeb070b2135cac9e12fc38e944ca8683b74c7 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Thu, 30 Mar 2023 16:00:04 +0100
-Subject: [PATCH 19/41] Optimise no-action case in rrfilter().
+Subject: [PATCH 19/44] Optimise no-action case in rrfilter().
 
 ---
  src/rrfilter.c | 3 +++
@@ -22,5 +22,5 @@ index d98236e..d380e14 100644
        !(p = skip_name(p, header, *plen, 4)))
      return 0;
 -- 
-2.41.0
+2.42.0
 

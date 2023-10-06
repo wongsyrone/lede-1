@@ -1,7 +1,7 @@
 From 597378cdf55b248a54b930fa31acbad7415aaefd Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Wed, 12 Apr 2023 16:25:49 +0100
-Subject: [PATCH 29/41] Turn "used" member of struct iname into flags in
+Subject: [PATCH 29/44] Turn "used" member of struct iname into flags in
  preparation for more.
 
 ---
@@ -142,5 +142,5 @@ index 146ca0c..94bc682 100644
  	  {
  	    new->next = daemon->if_addrs;
 -- 
-2.41.0
+2.42.0
 

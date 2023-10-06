@@ -1,7 +1,7 @@
 From 638c7c4d20004c0f320820098e29df62a27dd2a1 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Thu, 23 Mar 2023 17:15:35 +0000
-Subject: [PATCH 16/41] Add --cache-rr to enable caching of arbitrary RR types.
+Subject: [PATCH 16/44] Add --cache-rr to enable caching of arbitrary RR types.
 
 ---
  src/blockdata.c | 121 +++++++++++++++++++++++++++---------
@@ -1078,5 +1078,5 @@ index e0ce67d..073d7ad 100644
  	}
        
 -- 
-2.41.0
+2.42.0
 

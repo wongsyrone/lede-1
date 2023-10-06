@@ -1,7 +1,7 @@
 From 137ae2e9cf0dc3596641e7c8b91d15307a35319e Mon Sep 17 00:00:00 2001
 From: Taylor R Campbell <campbell+dnsmasq@mumble.net>
 Date: Sat, 25 Feb 2023 15:00:30 +0000
-Subject: [PATCH 01/41] Avoid undefined behaviour with the ctype(3) functions.
+Subject: [PATCH 01/44] Avoid undefined behaviour with the ctype(3) functions.
 
 As defined in the C standard:
 
@@ -214,5 +214,5 @@ index 0861f37..8e1dc4a 100644
        strcpy(daemon->namebuff, "/");
        if (prefix)
 -- 
-2.41.0
+2.42.0
 

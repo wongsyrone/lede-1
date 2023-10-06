@@ -1,7 +1,7 @@
 From a78487a4df8f23f99e8e8d5bb7449b6429bae1fa Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Sat, 1 Apr 2023 21:35:26 +0100
-Subject: [PATCH 24/41] Use a simpler arrangement for the all_addr union to
+Subject: [PATCH 24/44] Use a simpler arrangement for the all_addr union to
  avoid the compiler padding it with an extra 8 bytes.
 
 Use the F_KEYTAG flag in a a cache record to discriminate between
@@ -294,5 +294,5 @@ index d4c6a26..ccf88df 100644
  			     if (qtype == T_TXT && !(crecp->flags & F_NEG))
  			       log_txt(name, (unsigned char *)rrdata, rrlen, crecp->flags & F_DNSSECOK);
 -- 
-2.41.0
+2.42.0
 

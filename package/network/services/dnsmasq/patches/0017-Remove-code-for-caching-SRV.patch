@@ -1,7 +1,7 @@
 From 042c64273d553c8305d3747849b44a0b257b0622 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Tue, 28 Mar 2023 18:24:22 +0100
-Subject: [PATCH 17/41] Remove code for caching SRV.
+Subject: [PATCH 17/44] Remove code for caching SRV.
 
 Function replaced by the ability to cache any RR type.
 
@@ -429,5 +429,5 @@ index 28579c6..63aff8a 100644
  	      auth = 0;
  
 -- 
-2.41.0
+2.42.0
 

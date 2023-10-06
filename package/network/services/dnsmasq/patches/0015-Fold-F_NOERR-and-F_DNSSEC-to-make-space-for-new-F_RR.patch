@@ -1,7 +1,7 @@
 From 88fc6c80236e946c7b719a8ef0bd0b08bdbc3295 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 20 Mar 2023 23:11:38 +0000
-Subject: [PATCH 15/41] Fold F_NOERR and F_DNSSEC to make space for new F_RR.
+Subject: [PATCH 15/44] Fold F_NOERR and F_DNSSEC to make space for new F_RR.
 
 ---
  src/cache.c   | 2 +-
@@ -79,5 +79,5 @@ index d79cc56..7cd2d9a 100644
              
        new_status = tcp_key_recurse(now, new_status, new_header, m, class, name, keyname, server, have_mark, mark, keycount);
 -- 
-2.41.0
+2.42.0
 

@@ -1,7 +1,7 @@
 From 7d6b68c5d7016aca5372f12e9f0c25f0a108644d Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 6 Mar 2023 13:06:03 +0000
-Subject: [PATCH 02/41] Document suppressing deafult options in --dhcp-option.
+Subject: [PATCH 02/44] Document suppressing deafult options in --dhcp-option.
 
 ---
  man/dnsmasq.8 | 10 +++++++++-
@@ -29,5 +29,5 @@ index 3d1d96a..41e2e04 100644
  Data types allowed are comma separated
  dotted-quad IPv4 addresses, []-wrapped IPv6 addresses, a decimal number, colon-separated hex digits
 -- 
-2.41.0
+2.42.0
 

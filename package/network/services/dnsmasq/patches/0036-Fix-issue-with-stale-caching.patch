@@ -1,7 +1,7 @@
 From d774add784d01c8346b271e8fb5cbedc44d7ed08 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 1 May 2023 20:42:30 +0100
-Subject: [PATCH 36/41] Fix issue with stale caching.
+Subject: [PATCH 36/44] Fix issue with stale caching.
 
 After replying with stale data, dnsmasq sends the query upstream to
 refresh the cache asynchronously and sometimes sends the wrong packet:
@@ -229,5 +229,5 @@ index 10b68f8..ecfeebd 100644
  }
  
 -- 
-2.41.0
+2.42.0
 

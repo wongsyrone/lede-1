@@ -1,7 +1,7 @@
 From 86ee779e22e9fc3a6f3add1935d3392e27df1dca Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Wed, 5 Apr 2023 17:29:04 +0100
-Subject: [PATCH 27/41] Make --server=/#/<addr> behave the same as
+Subject: [PATCH 27/44] Make --server=/#/<addr> behave the same as
  --server=<addr>
 
 For consistency with --address and older dnsmasq releases.
@@ -25,5 +25,5 @@ index 588a558..146ca0c 100644
  		  }
  		
 -- 
-2.41.0
+2.42.0
 

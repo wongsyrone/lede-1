@@ -1,7 +1,7 @@
 From bd188e306a06ca0acb6c213ecc0e1dc0dc22c3f6 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 17 Apr 2023 16:23:06 +0100
-Subject: [PATCH 31/41] Fix paren blunder in
+Subject: [PATCH 31/44] Fix paren blunder in
  aaba66efbd3b4e7283993ca3718df47706a8549b
 
 Thanks to Dominik Derigs for spotting this.
@@ -23,5 +23,5 @@ index caf077f..f036297 100644
  	      return;
  #endif
 -- 
-2.41.0
+2.42.0
 

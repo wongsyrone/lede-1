@@ -1,7 +1,7 @@
 From bcb46809dcf8992aeb36a3267e4af4ac1c04f471 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Petr=20Men=C5=A1=C3=ADk?= <pemensik@redhat.com>
 Date: Mon, 17 Apr 2023 21:05:00 +0100
-Subject: [PATCH 33/41] Optimization of socket events handling of dbus.
+Subject: [PATCH 33/44] Optimization of socket events handling of dbus.
 
 Reduces calls to locate the file descriptor structure. Should lower CPU usage when monitoring
 dbus watches.
@@ -53,5 +53,5 @@ index 34cf2f6..ed5e44a 100644
  
  	if (flags != 0)
 -- 
-2.41.0
+2.42.0
 

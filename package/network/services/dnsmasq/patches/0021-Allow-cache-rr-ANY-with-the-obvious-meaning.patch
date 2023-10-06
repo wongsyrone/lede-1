@@ -1,7 +1,7 @@
 From c244d92d8a3f96e3a16b53f733190faa17004ae3 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Fri, 31 Mar 2023 18:49:22 +0100
-Subject: [PATCH 21/41] Allow --cache-rr=ANY with the obvious meaning.
+Subject: [PATCH 21/44] Allow --cache-rr=ANY with the obvious meaning.
 
 ---
  man/dnsmasq.8 | 2 +-
@@ -35,5 +35,5 @@ index 073d7ad..04cd2f0 100644
  
        list = list->next;
 -- 
-2.41.0
+2.42.0
 

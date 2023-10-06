@@ -1,7 +1,7 @@
 From 997982f78bd3f8c311b9557e1ef825555e7290bb Mon Sep 17 00:00:00 2001
 From: Dominik Derigs <dl6er@dl6er.de>
 Date: Fri, 3 Mar 2023 18:05:26 +0100
-Subject: [PATCH 03/41] Fix --rev-server option. It was broken in
+Subject: [PATCH 03/44] Fix --rev-server option. It was broken in
  1db9943c6879c160a5fbef885d5ceadd3668b74d when resolving upstream servers by
  name was extended to --rev-server without accounting for the fact that
  re-using one and the same upstream server for each of the x.y.z.in-addr.arpa
@@ -37,5 +37,5 @@ index 1090bca..2e208ba 100644
  	    {
  	      if ((string = parse_server_addr(&sdetails)))
 -- 
-2.41.0
+2.42.0
 

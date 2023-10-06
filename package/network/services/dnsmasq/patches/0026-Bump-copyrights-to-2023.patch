@@ -1,7 +1,7 @@
 From df242de5c695b297cf96bcba5095158c87c3a93d Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Wed, 5 Apr 2023 12:34:34 +0100
-Subject: [PATCH 26/41] Bump copyrights to 2023.
+Subject: [PATCH 26/44] Bump copyrights to 2023.
 
 ---
  src/arp.c            | 2 +-
@@ -545,5 +545,5 @@ index 04cd2f0..6521e3f 100644
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
 -- 
-2.41.0
+2.42.0
 

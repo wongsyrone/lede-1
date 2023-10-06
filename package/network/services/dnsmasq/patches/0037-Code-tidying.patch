@@ -1,7 +1,7 @@
 From 1d6fe0ea84689a84c16dfee68b5e2700a62fc892 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 1 May 2023 23:06:29 +0100
-Subject: [PATCH 37/41] Code tidying.
+Subject: [PATCH 37/44] Code tidying.
 
 ---
  src/edns0.c | 17 +++++++----------
@@ -36,5 +36,5 @@ index 7f7d5d8..800c51f 100644
        PUTSHORT(T_OPT, p);
        PUTSHORT(udp_sz, p); /* max packet length, 512 if not given in EDNS0 header */
 -- 
-2.41.0
+2.42.0
 

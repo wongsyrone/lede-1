@@ -1,7 +1,7 @@
 From f5ef0f064c3f06b250a9eeda36dc239227658b00 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 6 Mar 2023 23:00:58 +0000
-Subject: [PATCH 04/41] Fix possible SEGV when no servers defined.
+Subject: [PATCH 04/44] Fix possible SEGV when no servers defined.
 
 If there exists a --address=/<domain>/  or --server=/<domain>/#
 configuration but no upstream server config unqualified by
@@ -52,5 +52,5 @@ index fe8e25a..9cc51e6 100644
  }
  
 -- 
-2.41.0
+2.42.0
 

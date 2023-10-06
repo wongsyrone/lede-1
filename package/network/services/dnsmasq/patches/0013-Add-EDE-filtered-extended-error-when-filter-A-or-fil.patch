@@ -1,7 +1,7 @@
 From 1f0f86a0d0d0759de4c5eb1080333618563ee5a0 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 20 Mar 2023 18:32:14 +0000
-Subject: [PATCH 13/41] Add EDE "filtered" extended error when --filter-A or
+Subject: [PATCH 13/44] Add EDE "filtered" extended error when --filter-A or
  --filter-AAAA act.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -368,5 +368,5 @@ index 42d9c21..3a5547a 100644
  
  /* This is used in the DNSSEC code too, hence it's exported */
 -- 
-2.41.0
+2.42.0
 

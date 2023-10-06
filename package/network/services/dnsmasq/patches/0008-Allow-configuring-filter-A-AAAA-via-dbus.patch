@@ -1,7 +1,7 @@
 From ef5aac95d4391fb1290fd76a3826b2851e589bbc Mon Sep 17 00:00:00 2001
 From: Clayton Craft <clayton@craftyguy.net>
 Date: Wed, 8 Mar 2023 15:35:05 +0000
-Subject: [PATCH 08/41] Allow configuring filter-A/AAAA via dbus.
+Subject: [PATCH 08/44] Allow configuring filter-A/AAAA via dbus.
 
 ---
  dbus/DBus-interface |  8 ++++++++
@@ -60,5 +60,5 @@ index fd5d1ca..4366b7e 100644
      {
        reply = dbus_set_bool(message, OPT_LOCALISE, "localise-queries");
 -- 
-2.41.0
+2.42.0
 

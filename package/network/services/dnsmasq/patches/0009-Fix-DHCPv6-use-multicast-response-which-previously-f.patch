@@ -1,7 +1,7 @@
 From 00be8b39e240934e404533deda08cbae2aae25a8 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Wed, 15 Mar 2023 21:12:55 +0000
-Subject: [PATCH 09/41] Fix DHCPv6 "use multicast" response which previously
+Subject: [PATCH 09/44] Fix DHCPv6 "use multicast" response which previously
  failed to set the message type correctly.
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,5 +42,5 @@ index 8754481..477df91 100644
    
    return 1;
 -- 
-2.41.0
+2.42.0
 

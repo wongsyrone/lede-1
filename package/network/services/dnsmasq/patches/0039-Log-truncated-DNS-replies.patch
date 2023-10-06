@@ -1,7 +1,7 @@
 From 1419de285fdacde2dc9683b701ee2d71090eade3 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Wed, 17 May 2023 23:19:30 +0100
-Subject: [PATCH 39/41] Log truncated DNS replies.
+Subject: [PATCH 39/44] Log truncated DNS replies.
 
 ---
  src/cache.c   | 17 +++++++++++------
@@ -136,5 +136,5 @@ index 55319e9..56b65bb 100644
       Don't cache replies from non-recursive nameservers, since we may get a 
       reply containing a CNAME but not its target, even though the target 
 -- 
-2.41.0
+2.42.0
 

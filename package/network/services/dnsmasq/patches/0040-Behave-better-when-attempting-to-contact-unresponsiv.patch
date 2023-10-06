@@ -1,7 +1,7 @@
 From 50adf82199c362da6c542f1d22be2eeab7481211 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Fri, 26 May 2023 17:55:35 +0100
-Subject: [PATCH 40/41] Behave better when attempting to contact unresponsive
+Subject: [PATCH 40/44] Behave better when attempting to contact unresponsive
  TCP servers.
 
 By default TCP connect takes minutes to fail when trying to
@@ -64,5 +64,5 @@ index ecfeebd..fc49029 100644
  	      close(serv->tcpfd);
  	      serv->tcpfd = -1;
 -- 
-2.41.0
+2.42.0
 

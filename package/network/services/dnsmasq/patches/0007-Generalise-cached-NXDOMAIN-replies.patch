@@ -1,7 +1,7 @@
 From ef8e930e4295265b8f46898a8e166f17d7f8ddc8 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Tue, 7 Mar 2023 22:46:44 +0000
-Subject: [PATCH 07/41] Generalise cached NXDOMAIN replies.
+Subject: [PATCH 07/44] Generalise cached NXDOMAIN replies.
 
 We can cache an NXDOMAIN reply to a query for any RRTYPE
 and reply from a cached NXDOMAIN to any RRTYPE.
@@ -50,5 +50,5 @@ index 1693253..3d82ad9 100644
    
    if (dryrun)
 -- 
-2.41.0
+2.42.0
 

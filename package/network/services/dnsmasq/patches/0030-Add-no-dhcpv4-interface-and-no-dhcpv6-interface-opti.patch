@@ -1,7 +1,7 @@
 From aaba66efbd3b4e7283993ca3718df47706a8549b Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Wed, 12 Apr 2023 22:55:14 +0100
-Subject: [PATCH 30/41] Add --no-dhcpv4-interface and --no-dhcpv6-interface
+Subject: [PATCH 30/44] Add --no-dhcpv4-interface and --no-dhcpv6-interface
  options.
 
 ---
@@ -281,5 +281,5 @@ index 8bbaea0..caf077f 100644
  #endif
  	}
 -- 
-2.41.0
+2.42.0
 

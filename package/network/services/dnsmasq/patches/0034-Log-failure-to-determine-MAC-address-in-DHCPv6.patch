@@ -1,7 +1,7 @@
 From 52e6ad2761e4e39c3e89fe3b8d68b98cf538a27c Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 17 Apr 2023 21:25:30 +0100
-Subject: [PATCH 34/41] Log failure to determine MAC address in DHCPv6.
+Subject: [PATCH 34/44] Log failure to determine MAC address in DHCPv6.
 
 ---
  src/rfc3315.c | 2 ++
@@ -21,5 +21,5 @@ index bc09887..d513844 100644
    if ((opt = opt6_find(state->packet_options, state->end, OPTION6_FQDN, 1)))
      {
 -- 
-2.41.0
+2.42.0
 

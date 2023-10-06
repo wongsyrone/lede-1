@@ -1,7 +1,7 @@
 From 9bbf098a970c9e5fa251939208e25fb21064d1be Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Fri, 26 May 2023 18:19:15 +0100
-Subject: [PATCH 41/41] =/== typo in last commit.
+Subject: [PATCH 41/44] =/== typo in last commit.
 
 ---
  src/forward.c | 2 +-
@@ -21,5 +21,5 @@ index 9398353..95213c5 100644
  #endif
  	  
 -- 
-2.41.0
+2.42.0
 

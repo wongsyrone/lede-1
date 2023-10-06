@@ -1,7 +1,7 @@
 From 33635d8564f96cedcef9bf9826cbbca76f28aa81 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Petr=20Men=C5=A1=C3=ADk?= <pemensik@redhat.com>
 Date: Mon, 17 Apr 2023 20:55:31 +0100
-Subject: [PATCH 32/41] Fix crash in dbus code.
+Subject: [PATCH 32/44] Fix crash in dbus code.
 
 If I configure dnsmasq to use dbus and then restart dbus.service with watchers present,
 it crashes dnsmasq. The reason is simple, it uses loop to walk over watchers to call
@@ -89,5 +89,5 @@ index 24efcb8..34cf2f6 100644
      {
        dbus_connection_ref (connection);
 -- 
-2.41.0
+2.42.0
 

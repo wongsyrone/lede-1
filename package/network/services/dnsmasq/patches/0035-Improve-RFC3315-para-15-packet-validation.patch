@@ -1,7 +1,7 @@
 From 7500157cff8ea28ab03e6e62e0d1575e4d01746b Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 24 Apr 2023 15:07:55 +0100
-Subject: [PATCH 35/41] Improve RFC3315 para 15 packet validation.
+Subject: [PATCH 35/44] Improve RFC3315 para 15 packet validation.
 
 Thanks to Shashikumar Shashil for spotting the ommision.
 ---
@@ -61,5 +61,5 @@ index d513844..c2e2692 100644
  	   If there is only one possible context, we can use its tags */
  	if (state->context && state->context->netid.net && !state->context->current)
 -- 
-2.41.0
+2.42.0
 

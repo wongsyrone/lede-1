@@ -1,7 +1,7 @@
 From 28429720355c21739c851c28b003b6d0b4aee549 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Mon, 20 Mar 2023 17:14:17 +0000
-Subject: [PATCH 12/41] More --filter-AAAA caching improvements.
+Subject: [PATCH 12/44] More --filter-AAAA caching improvements.
 
 Cache answers before filtering and filter coming out of the cache.
 ---
@@ -121,5 +121,5 @@ index 5abacbd..75481d3 100644
  		      if (!dryrun)
  			log_query(F_NEG | F_CONFIG | flag, name, NULL, NULL, 0);
 -- 
-2.41.0
+2.42.0
 

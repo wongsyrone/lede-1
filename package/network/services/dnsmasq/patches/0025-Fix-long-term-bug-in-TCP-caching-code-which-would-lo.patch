@@ -1,7 +1,7 @@
 From b14aa762ff2a42573b8b9ead85ccfa1f2b938a72 Mon Sep 17 00:00:00 2001
 From: Simon Kelley <simon@thekelleys.org.uk>
 Date: Sat, 1 Apr 2023 22:03:49 +0100
-Subject: [PATCH 25/41] Fix long-term bug in TCP caching code which would lose
+Subject: [PATCH 25/44] Fix long-term bug in TCP caching code which would lose
  NXDOMAIN.
 
 A NXDOMAIN answer recieved over TCP by a child process would
@@ -156,5 +156,5 @@ index fd10240..3884d4c 100644
  }
  	
 -- 
-2.41.0
+2.42.0
 
