@@ -12,19 +12,16 @@ GRUB_TERMINAL_CONFIG =
 GRUB_CONSOLE_CMDLINE = earlycon
 
 ifneq ($(CONFIG_GRUB_CONSOLE),)
+  GRUB_CONSOLE_CMDLINE += console=tty1
   GRUB_TERMINALS += console
 endif
 
-GRUB_SERIAL:=$(call qstrip,$(CONFIG_GRUB_SERIAL))
+GRUB_SERIAL:=$(call qstrip,$(CONFIG_TARGET_SERIAL))
 
-ifneq ($(GRUB_SERIAL),)
-  GRUB_SERIAL_CONFIG := serial --unit=0 --speed=$(CONFIG_GRUB_BAUDRATE) --word=8 --parity=no --stop=1 --rtscts=$(if $(CONFIG_GRUB_FLOWCONTROL),on,off)
-  GRUB_TERMINALS += serial
-endif
+GRUB_SERIAL_CONFIG := serial --unit=0 --speed=$(CONFIG_GRUB_BAUDRATE) --word=8 --parity=no --stop=1 --rtscts=$(if $(CONFIG_GRUB_FLOWCONTROL),on,off)
+GRUB_TERMINALS += serial
 
-ifneq ($(GRUB_TERMINALS),)
-  GRUB_TERMINAL_CONFIG := terminal_input $(GRUB_TERMINALS); terminal_output $(GRUB_TERMINALS)
-endif
+GRUB_TERMINAL_CONFIG := terminal_input $(GRUB_TERMINALS); terminal_output $(GRUB_TERMINALS)
 
 ROOTPART:=$(call qstrip,$(CONFIG_TARGET_ROOTFS_PARTNAME))
 ROOTPART:=$(if $(ROOTPART),$(ROOTPART),PARTUUID=$(IMG_PART_SIGNATURE)-02)
@@ -77,18 +74,18 @@ DEVICE_VARS += GRUB2_VARIANT UBOOT
 define Device/efi-default
   IMAGE/rootfs.img := append-rootfs | pad-to $(ROOTFS_PARTSIZE)
   IMAGE/rootfs.img.gz := append-rootfs | pad-to $(ROOTFS_PARTSIZE) | gzip
-  IMAGE/combined.img := grub-config efi | combined efi | grub-install efi | append-metadata
-  IMAGE/combined.img.gz := grub-config efi | combined efi | grub-install efi | gzip | append-metadata
-  IMAGE/combined.vmdk := grub-config efi | combined efi | grub-install efi | qemu-image vmdk
+  IMAGE/combined-efi.img := grub-config efi | combined efi | grub-install efi | append-metadata
+  IMAGE/combined-efi.img.gz := grub-config efi | combined efi | grub-install efi | gzip | append-metadata
+  IMAGE/combined-efi.vmdk := grub-config efi | combined efi | grub-install efi | qemu-image vmdk
  ifeq ($(CONFIG_TARGET_IMAGES_GZIP),y)
     IMAGES-y := rootfs.img.gz
-    IMAGES-y += combined.img.gz
+    IMAGES-y += combined-efi.img.gz
   else
     IMAGES-y := rootfs.img
-    IMAGES-y += combined.img
+    IMAGES-y += combined-efi.img
   endif
   ifeq ($(CONFIG_VMDK_IMAGES),y)
-    IMAGES-y += combined.vmdk
+    IMAGES-y += combined-efi.vmdk
   endif
   KERNEL := kernel-bin
   KERNEL_INSTALL := 1
@@ -109,10 +106,11 @@ define Device/generic
   DEVICE_PACKAGES += kmod-amazon-ena kmod-e1000e kmod-vmxnet3 kmod-rtc-rx8025 \
 	kmod-i2c-mux-pca954x kmod-gpio-pca953x partx-utils kmod-wdt-sp805 \
 	kmod-mvneta kmod-mvpp2 kmod-fsl-dpaa1-net kmod-fsl-dpaa2-net \
-	kmod-fsl-enetc-net kmod-dwmac-imx kmod-fsl-fec kmod-thunderx-net \
+	kmod-fsl-enetc-net kmod-dwmac-imx kmod-fsl-fec \
 	kmod-dwmac-rockchip kmod-dwmac-sun8i kmod-phy-aquantia kmod-phy-broadcom \
 	kmod-phy-marvell kmod-phy-marvell-10g kmod-sfp kmod-atlantic \
-	kmod-bcmgenet kmod-octeontx2-net
+	kmod-bcmgenet kmod-octeontx2-net kmod-renesas-net-avb \
+	kmod-phy-realtek kmod-phy-smsc $(if $(CONFIG_aarch64),kmod-thunderx-net)
 endef
 TARGET_DEVICES += generic
 

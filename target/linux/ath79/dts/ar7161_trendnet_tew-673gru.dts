@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	compatible = "trendnet,tew-673gru", "qca,ar7161";
@@ -20,7 +21,8 @@
 		compatible = "gpio-leds";
 
 		led_wps: wps {
-			label = "blue:wps";
+			function = LED_FUNCTION_WPS;
+			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&gpio 9 GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -92,13 +94,13 @@
 &pcie0 {
 	status = "okay";
 
-	wifi@0,11 {
+	wifi@11,0 {
 		compatible = "pci168c,0029";
 		reg = <0x8800 0 0 0 0>;
 		qca,no-eeprom;
 	};
 
-	wifi@0,12 {
+	wifi@12,0 {
 		compatible = "pci168c,0029";
 		reg = <0x9000 0 0 0 0>;
 		qca,no-eeprom;

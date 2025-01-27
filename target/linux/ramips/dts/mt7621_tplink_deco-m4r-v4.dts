@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	compatible = "tplink,deco-m4r-v4", "mediatek,mt7621-soc";
@@ -34,7 +35,7 @@
 		led {
 			label = "led";
 			gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
-			debounce_interval = <60>;
+			debounce-interval = <60>;
 			linux,code = <KEY_BRIGHTNESS_TOGGLE>;
 		};
 
@@ -55,7 +56,8 @@
 		};
 
 		lan {
-			label = "green:lan";
+			function = LED_FUNCTION_LAN;
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio 9 GPIO_ACTIVE_LOW>;
 		};
 
@@ -126,17 +128,19 @@
 				reg = <0x40000 0xf60000>;
 			};
 
-			config: partition@fa0000 {
+			partition@fa0000 {
 				label = "config";
 				reg = <0xfa0000 0x010000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_config_8: macaddr@8 {
-					reg = <0x8 0x6>;
+					macaddr_config_8: macaddr@8 {
+						reg = <0x8 0x6>;
+					};
 				};
 			};
 
@@ -146,20 +150,23 @@
 				read-only;
 			};
 
-			radio: partition@ff0000 {
-				compatible = "nvmem-cells";
+			partition@ff0000 {
 				label = "radio";
 				reg = <0xff0000 0x10000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
 				read-only;
 
-				eeprom_radio_0: eeprom@0 {
-					reg = <0x0 0x400>;
-				};
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				eeprom_radio_8000: eeprom@8000 {
-					reg = <0x8000 0x4da8>;
+					eeprom_radio_0: eeprom@0 {
+						reg = <0x0 0x400>;
+					};
+
+					eeprom_radio_8000: eeprom@8000 {
+						reg = <0x8000 0x4da8>;
+					};
 				};
 			};
 		};

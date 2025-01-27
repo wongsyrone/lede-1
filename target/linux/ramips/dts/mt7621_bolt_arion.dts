@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	compatible = "bolt,arion", "mediatek,mt7621-soc";
@@ -21,12 +22,14 @@
 		compatible = "gpio-leds";
 
 		led_wlan_blue: wlan_blue {
-			label = "blue:wlan";
+			function = LED_FUNCTION_WLAN;
+			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&gpio 43 GPIO_ACTIVE_LOW>;
 		};
 
 		led_wlan_red: wlan_red {
-			label = "red:wlan";
+			function = LED_FUNCTION_WLAN;
+			color = <LED_COLOR_ID_RED>;
 			gpios = <&gpio 86 GPIO_ACTIVE_LOW>;
 		};
 
@@ -99,24 +102,29 @@
 				read-only;
 			};
 
-			factory: partition@40000 {
-				compatible = "nvmem-cells";
+			partition@40000 {
 				label = "factory";
 				reg = <0x40000 0x10000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
 				read-only;
 
-				eeprom_factory_0: eeprom@0 {
-					reg = <0x0 0x400>;
-				};
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				eeprom_factory_8000: eeprom@8000 {
-					reg = <0x8000 0x200>;
-				};
+					eeprom_factory_0: eeprom@0 {
+						reg = <0x0 0x400>;
+					};
 
-				macaddr_factory_28: macaddr@28 {
-					reg = <0x28 0x6>;
+					eeprom_factory_8000: eeprom@8000 {
+						reg = <0x8000 0x200>;
+					};
+
+					macaddr_factory_28: macaddr@28 {
+						compatible = "mac-base";
+						reg = <0x28 0x6>;
+						#nvmem-cell-cells = <1>;
+					};
 				};
 			};
 
@@ -154,9 +162,8 @@
 };
 
 &gmac0 {
-	nvmem-cells = <&macaddr_factory_28>;
+	nvmem-cells = <&macaddr_factory_28 3>;
 	nvmem-cell-names = "mac-address";
-	mac-address-increment = <3>;
 };
 
 &switch0 {
@@ -169,7 +176,7 @@
 		wan: port@1 {
 			status = "okay";
 			label = "wan";
-			nvmem-cells = <&macaddr_factory_28>;
+			nvmem-cells = <&macaddr_factory_28 0>;
 			nvmem-cell-names = "mac-address";
 		};
 

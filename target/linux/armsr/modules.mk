@@ -1,7 +1,7 @@
 define KernelPackage/acpi-mdio
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=ACPI MDIO support
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-libphy +kmod-mdio-devres
+  DEPENDS:=@TARGET_armsr +kmod-libphy +kmod-mdio-devres
   KCONFIG:=CONFIG_ACPI_MDIO
   FILES:=$(LINUX_DIR)/drivers/net/mdio/acpi_mdio.ko
   AUTOLOAD:=$(call AutoLoad,11,acpi_mdio)
@@ -15,7 +15,7 @@ $(eval $(call KernelPackage,acpi-mdio))
 
 define KernelPackage/bcmgenet
   SUBMENU=$(NETWORK_DEVICES_MENU)
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-mdio-bcm-unimac
+  DEPENDS:=@TARGET_armsr +kmod-mdio-bcm-unimac
   TITLE:=Broadcom GENET internal MAC (Raspberry Pi 4)
   KCONFIG:=CONFIG_BCMGENET
   FILES=$(LINUX_DIR)/drivers/net/ethernet/broadcom/genet/genet.ko
@@ -26,7 +26,7 @@ $(eval $(call KernelPackage,bcmgenet))
 
 define KernelPackage/mdio-bcm-unimac
   SUBMENU=$(NETWORK_DEVICES_MENU)
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-of-mdio
+  DEPENDS:=@TARGET_armsr +kmod-of-mdio
   TITLE:=Broadcom UniMAC MDIO bus controller
   KCONFIG:=CONFIG_MDIO_BCM_UNIMAC
   FILES=$(LINUX_DIR)/drivers/net/mdio/mdio-bcm-unimac.ko
@@ -37,7 +37,7 @@ $(eval $(call KernelPackage,mdio-bcm-unimac))
 
 define KernelPackage/fsl-pcs-lynx
   SUBMENU=$(NETWORK_DEVICES_MENU)
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-libphy +kmod-of-mdio +kmod-phylink
+  DEPENDS:=@TARGET_armsr +kmod-libphy +kmod-of-mdio +kmod-phylink
   TITLE:=NXP (Freescale) Lynx PCS
   HIDDEN:=1
   KCONFIG:=CONFIG_PCS_LYNX
@@ -47,20 +47,9 @@ endef
 
 $(eval $(call KernelPackage,fsl-pcs-lynx))
 
-define KernelPackage/pcs-xpcs
-  SUBMENU:=$(NETWORK_DEVICES_MENU)
-  TITLE:=Synopsis DesignWare PCS driver
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-phylink
-  KCONFIG:=CONFIG_PCS_XPCS
-  FILES:=$(LINUX_DIR)/drivers/net/pcs/pcs_xpcs.ko
-  AUTOLOAD:=$(call AutoLoad,20,pcs_xpcs)
-endef
-
-$(eval $(call KernelPackage,pcs-xpcs))
-
 define KernelPackage/fsl-fec
   SUBMENU:=$(NETWORK_DEVICES_MENU)
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-libphy +kmod-of-mdio \
+  DEPENDS:=@TARGET_armsr +kmod-libphy +kmod-of-mdio \
     +kmod-ptp +kmod-net-selftests
   TITLE:=NXP (Freescale) FEC Ethernet controller (i.MX)
   KCONFIG:=CONFIG_FEC
@@ -72,7 +61,7 @@ $(eval $(call KernelPackage,fsl-fec))
 
 define KernelPackage/fsl-xgmac-mdio
   SUBMENU=$(NETWORK_DEVICES_MENU)
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-libphy +kmod-of-mdio +kmod-acpi-mdio
+  DEPENDS:=@TARGET_armsr +kmod-libphy +kmod-of-mdio +kmod-acpi-mdio
   TITLE:=NXP (Freescale) MDIO bus
   KCONFIG:=CONFIG_FSL_XGMAC_MDIO
   FILES=$(LINUX_DIR)/drivers/net/ethernet/freescale/xgmac_mdio.ko
@@ -96,13 +85,14 @@ $(eval $(call KernelPackage,fsl-mc-dpio))
 define KernelPackage/fsl-enetc-net
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=:NXP ENETC (LS1028A) Ethernet
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-phylink +kmod-fsl-pcs-lynx
+  DEPENDS:=@TARGET_armsr +kmod-phylink +kmod-fsl-pcs-lynx
   KCONFIG:= \
     CONFIG_FSL_ENETC \
     CONFIG_FSL_ENETC_VF \
     CONFIG_FSL_ENETC_QOS=y
   FILES:= \
     $(LINUX_DIR)/drivers/net/ethernet/freescale/enetc/fsl-enetc.ko \
+    $(LINUX_DIR)/drivers/net/ethernet/freescale/enetc/fsl-enetc-core.ko \
     $(LINUX_DIR)/drivers/net/ethernet/freescale/enetc/fsl-enetc-vf.ko \
     $(LINUX_DIR)/drivers/net/ethernet/freescale/enetc/fsl-enetc-mdio.ko \
     $(LINUX_DIR)/drivers/net/ethernet/freescale/enetc/fsl-enetc-ierb.ko
@@ -114,7 +104,7 @@ $(eval $(call KernelPackage,fsl-enetc-net))
 define KernelPackage/fsl-dpaa1-net
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=NXP DPAA1 (LS1043/LS1046) Ethernet
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-fsl-xgmac-mdio +kmod-libphy +kmod-crypto-crc32
+  DEPENDS:=@TARGET_armsr +kmod-fsl-xgmac-mdio +kmod-libphy +kmod-crypto-crc32
   KCONFIG:= \
     CONFIG_FSL_DPAA=y \
     CONFIG_FSL_DPAA_ETH \
@@ -134,7 +124,7 @@ $(eval $(call KernelPackage,fsl-dpaa1-net))
 define KernelPackage/fsl-dpaa2-net
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=NXP DPAA2 Ethernet
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-fsl-xgmac-mdio +kmod-phylink \
+  DEPENDS:=@TARGET_armsr +kmod-fsl-xgmac-mdio +kmod-phylink \
     +kmod-fsl-pcs-lynx +kmod-fsl-mc-dpio
   KCONFIG:= \
     CONFIG_FSL_MC_UAPI_SUPPORT=y \
@@ -149,7 +139,7 @@ $(eval $(call KernelPackage,fsl-dpaa2-net))
 define KernelPackage/fsl-dpaa2-console
   SUBMENU:=$(OTHER_MENU)
   TITLE:=NXP DPAA2 Debug console
-  DEPENDS:=@(TARGET_armsr_armv8)
+  DEPENDS:=@TARGET_armsr
   KCONFIG:=CONFIG_DPAA2_CONSOLE
   FILES=$(LINUX_DIR)/drivers/soc/fsl/dpaa2-console.ko
   AUTOLOAD=$(call AutoLoad,40,dpaa2-console)
@@ -165,7 +155,7 @@ $(eval $(call KernelPackage,fsl-dpaa2-console))
 define KernelPackage/marvell-mdio
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Marvell Armada platform MDIO driver
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-libphy +kmod-of-mdio +kmod-acpi-mdio
+  DEPENDS:=@TARGET_armsr +kmod-libphy +kmod-of-mdio +kmod-acpi-mdio
   KCONFIG:=CONFIG_MVMDIO
   FILES=$(LINUX_DIR)/drivers/net/ethernet/marvell/mvmdio.ko
   AUTOLOAD=$(call AutoLoad,30,marvell-mdio)
@@ -176,7 +166,7 @@ $(eval $(call KernelPackage,marvell-mdio))
 define KernelPackage/mvneta
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Marvell Armada 370/38x/XP/37xx network driver
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-marvell-mdio +kmod-phylink
+  DEPENDS:=@TARGET_armsr +kmod-marvell-mdio +kmod-phylink
   KCONFIG:=CONFIG_MVNETA
   FILES:=$(LINUX_DIR)/drivers/net/ethernet/marvell/mvneta.ko
   AUTOLOAD=$(call AutoLoad,30,mvneta)
@@ -187,7 +177,7 @@ $(eval $(call KernelPackage,mvneta))
 define KernelPackage/mvpp2
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Marvell Armada 375/7K/8K network driver
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-marvell-mdio +kmod-phylink
+  DEPENDS:=@TARGET_armsr +kmod-marvell-mdio +kmod-phylink
   KCONFIG:=CONFIG_MVPP2 \
     CONFIG_MVPP2_PTP=n
   FILES=$(LINUX_DIR)/drivers/net/ethernet/marvell/mvpp2/mvpp2.ko
@@ -216,28 +206,10 @@ endef
 
 $(eval $(call KernelPackage,imx7-ulp-wdt))
 
-define KernelPackage/stmmac-core
-  SUBMENU=$(NETWORK_DEVICES_MENU)
-  TITLE:=Synopsis Ethernet Controller core (NXP,STMMicro,others)
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-pcs-xpcs +kmod-ptp \
-    +kmod-of-mdio
-  KCONFIG:=CONFIG_STMMAC_ETH \
-    CONFIG_STMMAC_SELFTESTS=n \
-    CONFIG_STMMAC_PLATFORM \
-    CONFIG_CONFIG_DWMAC_DWC_QOS_ETH=n \
-    CONFIG_DWMAC_GENERIC
-  FILES=$(LINUX_DIR)/drivers/net/ethernet/stmicro/stmmac/stmmac.ko \
-    $(LINUX_DIR)/drivers/net/ethernet/stmicro/stmmac/stmmac-platform.ko \
-    $(LINUX_DIR)/drivers/net/ethernet/stmicro/stmmac/dwmac-generic.ko
-  AUTOLOAD=$(call AutoLoad,40,stmmac stmmac-platform dwmac-generic)
-endef
-
-$(eval $(call KernelPackage,stmmac-core))
-
 define KernelPackage/dwmac-imx
   SUBMENU=$(NETWORK_DEVICES_MENU)
   TITLE:=NXP i.MX8 Ethernet controller
-  DEPENDS:=+kmod-stmmac-core
+  DEPENDS:=+kmod-stmmac-core +kmod-of-mdio
   KCONFIG:=CONFIG_DWMAC_IMX8
   FILES=$(LINUX_DIR)/drivers/net/ethernet/stmicro/stmmac/dwmac-imx.ko
   AUTOLOAD=$(call AutoLoad,45,dwmac-imx)
@@ -248,7 +220,7 @@ $(eval $(call KernelPackage,dwmac-imx))
 define KernelPackage/dwmac-sun8i
   SUBMENU=$(NETWORK_DEVICES_MENU)
   TITLE:=Allwinner H3/A83T/A64 (sun8i) Ethernet
-  DEPENDS:=+kmod-stmmac-core +kmod-mdio-bus-mux
+  DEPENDS:=+kmod-stmmac-core +kmod-of-mdio +kmod-mdio-bus-mux
   KCONFIG:=CONFIG_DWMAC_SUN8I
   FILES=$(LINUX_DIR)/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.ko
   AUTOLOAD=$(call AutoLoad,45,dwmac-sun8i)
@@ -259,7 +231,7 @@ $(eval $(call KernelPackage,dwmac-sun8i))
 define KernelPackage/dwmac-rockchip
   SUBMENU=$(NETWORK_DEVICES_MENU)
   TITLE:=Rockchip RK3328/RK3399/RK3568 Ethernet
-  DEPENDS:=+kmod-stmmac-core +kmod-mdio-bus-mux
+  DEPENDS:=+kmod-stmmac-core +kmod-of-mdio +kmod-mdio-bus-mux
   KCONFIG:=CONFIG_DWMAC_ROCKCHIP
   FILES=$(LINUX_DIR)/drivers/net/ethernet/stmicro/stmmac/dwmac-rk.ko
   AUTOLOAD=$(call AutoLoad,45,dwmac-rk)
@@ -270,7 +242,7 @@ $(eval $(call KernelPackage,dwmac-rockchip))
 define KernelPackage/mdio-thunder
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Marvell (Cavium) Thunder MDIO controller
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-of-mdio
+  DEPENDS:=@TARGET_armsr +kmod-of-mdio
   KCONFIG:=CONFIG_MDIO_THUNDER
   FILES=$(LINUX_DIR)/drivers/net/mdio/mdio-cavium.ko \
     $(LINUX_DIR)/drivers/net/mdio/mdio-thunder.ko
@@ -282,7 +254,7 @@ $(eval $(call KernelPackage,mdio-thunder))
 define KernelPackage/thunderx-net
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Marvell (Cavium) Thunder network drivers
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-phylink +kmod-mdio-thunder
+  DEPENDS:=@TARGET_armsr_armv8 +kmod-phylink +kmod-mdio-thunder
   KCONFIG:=CONFIG_NET_VENDOR_CAVIUM \
     CONFIG_THUNDER_NIC_PF \
     CONFIG_THUNDER_NIC_VF \
@@ -300,7 +272,7 @@ $(eval $(call KernelPackage,thunderx-net))
 define KernelPackage/octeontx2-net
   SUBMENU:=$(NETWORK_DEVICES_MENU)
   TITLE:=Marvell (Cavium) ThunderX2 network drivers
-  DEPENDS:=@(TARGET_armsr_armv8) +kmod-phylink +kmod-of-mdio +kmod-macsec \
+  DEPENDS:=@TARGET_armsr +kmod-phylink +kmod-of-mdio +kmod-macsec \
     +kmod-ptp
   KCONFIG:=CONFIG_OCTEONTX2_MBOX \
     CONFIG_OCTEONTX2_AF \
@@ -315,6 +287,21 @@ define KernelPackage/octeontx2-net
   AUTOLOAD=$(call AutoLoad,40,rvu_af rvu_mbox rvu_nicpf rvu_nicvf otx2_ptp)
 endef
 $(eval $(call KernelPackage,octeontx2-net))
+
+define KernelPackage/renesas-net-avb
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Renesas network drivers
+  DEPENDS:=@TARGET_armsr +kmod-phylink +kmod-mii +kmod-ptp +kmod-libphy +kmod-mdio-gpio
+  KCONFIG:=CONFIG_RAVB
+  FILES=$(LINUX_DIR)/drivers/net/ethernet/renesas/ravb.ko
+  AUTOLOAD:=$(call AutoProbe,ravb)
+endef
+ 
+define KernelPackage/renesas-net-avb/description
+  Support Renesas RZ platform Ethernet module
+endef
+ 
+$(eval $(call KernelPackage,renesas-net-avb))
 
 define KernelPackage/wdt-sp805
   SUBMENU:=$(OTHER_MENU)

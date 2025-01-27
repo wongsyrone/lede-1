@@ -391,6 +391,17 @@ define Device/tplink_cpe710-v1
 endef
 TARGET_DEVICES += tplink_cpe710-v1
 
+define Device/tplink_cpe710-v2
+  $(Device/tplink-safeloader-uimage)
+  SOC := qca9563
+  IMAGE_SIZE := 15680k
+  DEVICE_MODEL := CPE710
+  DEVICE_VARIANT := v2
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca9888-ct
+  TPLINK_BOARD_ID := CPE710V2
+endef
+TARGET_DEVICES += tplink_cpe710-v2
+
 define Device/tplink-eap2x5
   $(Device/tplink-safeloader)
   LOADER_TYPE := elf
@@ -531,6 +542,7 @@ define Device/tplink_rex5x-v1
   SOC := qca9558
   IMAGE_SIZE := 6016k
   DEVICE_PACKAGES := kmod-ath10k-ct-smallbuffers ath10k-firmware-qca988x-ct
+  DEFAULT := n
 endef
 
 define Device/tplink_re355-v1
@@ -560,6 +572,7 @@ define Device/tplink_re450-v2
   DEVICE_PACKAGES := kmod-ath10k-ct-smallbuffers ath10k-firmware-qca988x-ct
   TPLINK_BOARD_ID := RE450-V2
   LOADER_TYPE := elf
+  DEFAULT := n
 endef
 TARGET_DEVICES += tplink_re450-v2
 
@@ -681,7 +694,7 @@ define Device/tplink_tl-wdr6500-v2
   SOC := qca9561
   DEVICE_MODEL := TL-WDR6500
   DEVICE_VARIANT := v2
-  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-ledtrig-usbdev \
+  DEVICE_PACKAGES := kmod-usb-core kmod-usb2 kmod-usb-ledtrig-usbport \
 	kmod-ath9k kmod-ath10k-ct ath10k-firmware-qca988x-ct
   IMAGE_SIZE := 8000k
   KERNEL := kernel-bin | append-dtb | lzma | uImage lzma

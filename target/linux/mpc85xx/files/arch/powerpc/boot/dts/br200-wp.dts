@@ -43,9 +43,7 @@
 		reg = <0 0xffe05000 0 0x1000>;
 		ranges = <0x0 0x0 0x0 0xec000000 0x4000000>;
 
-		nor@0,0 {
-			#address-cells = <1>;
-			#size-cells = <1>;
+		nor@0 {
 			compatible = "cfi-flash";
 			reg = <0x0 0x0 0x4000000>;
 			bank-width = <2>;
@@ -87,12 +85,16 @@
 					label = "hw-info";
 					read-only;
 
-					compatible = "nvmem-cells";
-					#address-cells = <1>;
-					#size-cells = <1>;
+					nvmem-layout {
+						compatible = "fixed-layout";
+						#address-cells = <1>;
+						#size-cells = <1>;
 
-					macaddr_hwinfo_0: macaddr@0 {
-						reg = <0x0 0x6>;
+						macaddr_hwinfo_0: macaddr@0 {
+							compatible = "mac-base";
+							reg = <0x0 0x6>;
+							#nvmem-cell-cells = <1>;
+						};
 					};
 				};
 
@@ -154,8 +156,6 @@
 
 			switch@10 {
 				compatible = "qca,qca8327";
-				#address-cells = <1>;
-				#size-cells = <0>;
 				reg = <0x10>;
 				reset-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
 
@@ -167,43 +167,39 @@
 						reg = <1>;
 						label = "lan1";
 						phy-handle = <&phy_port1>;
-						nvmem-cells = <&macaddr_hwinfo_0>;
+						nvmem-cells = <&macaddr_hwinfo_0 2>;
 						nvmem-cell-names = "mac-address";
-						mac-address-increment = <2>;
 					};
 
 					port@2 {
 						reg = <2>;
 						label = "lan2";
 						phy-handle = <&phy_port2>;
-						nvmem-cells = <&macaddr_hwinfo_0>;
+						nvmem-cells = <&macaddr_hwinfo_0 3>;
 						nvmem-cell-names = "mac-address";
-						mac-address-increment = <3>;
 					};
 
 					port@3 {
 						reg = <3>;
 						label = "lan3";
 						phy-handle = <&phy_port3>;
-						nvmem-cells = <&macaddr_hwinfo_0>;
+						nvmem-cells = <&macaddr_hwinfo_0 4>;
 						nvmem-cell-names = "mac-address";
-						mac-address-increment = <4>;
 					};
 
 					port@4 {
 						reg = <4>;
 						label = "lan4";
 						phy-handle = <&phy_port4>;
-						nvmem-cells = <&macaddr_hwinfo_0>;
+						nvmem-cells = <&macaddr_hwinfo_0 5>;
 						nvmem-cell-names = "mac-address";
-						mac-address-increment = <5>;
 					};
 
 					port@5 {
 						reg = <5>;
 						label = "wan";
 						phy-handle = <&phy_port5>;
-						nvmem-cells = <&macaddr_hwinfo_0>;
+						nvmem-cells = <&macaddr_hwinfo_0 0>;
 						nvmem-cell-names = "mac-address";
 					};
 
@@ -232,7 +228,7 @@
 		enet0: ethernet@b0000 {
 			status = "okay";
 			phy-connection-type = "rgmii-id";
-			nvmem-cells = <&macaddr_hwinfo_0>;
+			nvmem-cells = <&macaddr_hwinfo_0 0>;
 			nvmem-cell-names = "mac-address";
 
 			fixed-link {
@@ -286,9 +282,8 @@
 				reg = <0x0000 0 0 0 0>;
 				#gpio-cells = <2>;
 				gpio-controller;
-				nvmem-cells = <&macaddr_hwinfo_0>;
+				nvmem-cells = <&macaddr_hwinfo_0 16>;
 				nvmem-cell-names = "mac-address";
-				mac-address-increment = <16>;
 			};
 		};
 	};
@@ -298,14 +293,12 @@
 
 		led_attention: led-0 {
 			gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
-			label = "amber:status";
 			color = <LED_COLOR_ID_AMBER>;
 			function = LED_FUNCTION_STATUS;
 		};
 
 		led_status: led-1 {
 			gpios = <&gpio0 12 GPIO_ACTIVE_LOW>;
-			label = "white:status";
 			color = <LED_COLOR_ID_WHITE>;
 			function = LED_FUNCTION_STATUS;
 		};
@@ -326,7 +319,7 @@
 
 / {
 	chosen {
-		linux,stdout-path = "/soc@ffe00000/serial@4500";
+		stdout-path = "/soc@ffe00000/serial@4500";
 	};
 
 	cpus {

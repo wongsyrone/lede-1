@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uhttpd
-PKG_RELEASE:=1
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/uhttpd.git
 PKG_SOURCE_DATE:=2023-06-25
 PKG_SOURCE_VERSION:=34a8a74dbdec3c0de38abc1b08f6a73c51263792
-PKG_MIRROR_HASH:=8206885eebed5d1827763bcc5bcf9ca3510ae22b0ad1f6432114f1136c32dde2
+PKG_MIRROR_HASH:=0603019dabb89b1b207d0f7916616c95ce8194a7ff9fd71f0ddd845dd2de944e
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=ISC
 
@@ -105,6 +105,13 @@ define Package/uhttpd-mod-ubus/install
 	$(INSTALL_DIR) $(1)/usr/lib $(1)/etc/uci-defaults
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uhttpd_ubus.so $(1)/usr/lib/
 	$(INSTALL_DATA) ./files/ubus.default $(1)/etc/uci-defaults/00_uhttpd_ubus
+endef
+
+define Package/uhttpd-mod-ubus/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ]; then
+	/etc/init.d/uhttpd reload
+fi
 endef
 
 define Package/uhttpd-mod-ucode/install

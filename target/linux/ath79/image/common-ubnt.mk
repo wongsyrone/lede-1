@@ -74,7 +74,7 @@ define Device/ubnt-2wa
   UBNT_BOARD := WA
   UBNT_CHIP := ar934x
   UBNT_TYPE := 2WA
-  UBNT_VERSION := 8.5.3
+  UBNT_VERSION := 8.7.4
 endef
 
 define Device/ubnt-wa
@@ -84,7 +84,7 @@ define Device/ubnt-wa
   UBNT_BOARD := WA
   UBNT_CHIP := ar934x
   UBNT_TYPE := WA
-  UBNT_VERSION := 8.5.3
+  UBNT_VERSION := 8.7.4
 endef
 
 define Device/ubnt-xc
@@ -93,7 +93,7 @@ define Device/ubnt-xc
   UBNT_BOARD := XC
   UBNT_CHIP := qca955x
   UBNT_TYPE := XC
-  UBNT_VERSION := 8.5.3
+  UBNT_VERSION := 8.7.4
 endef
 
 define Device/ubnt-xm
@@ -119,6 +119,13 @@ define Device/ubnt-xw
   UBNT_REVISION := 42.$(UBNT_REVISION)
   UBNT_TYPE := XW
   UBNT_VERSION := 6.0.4
+endef
+
+define Device/ubnt_unifiac
+  DEVICE_VENDOR := Ubiquiti
+  SOC := qca9563
+  IMAGE_SIZE := 15488k
+  DEVICE_PACKAGES := kmod-ath10k-ct ath10k-firmware-qca988x-ct
 endef
 
 define Device/ubnt-unifi-jffs2

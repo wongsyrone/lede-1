@@ -2,6 +2,8 @@ name: Bug report
 description: Create a bug report to help us improve
 labels:
   - bug
+  - bug-report
+  - to-triage
 body:
   - type: textarea
     id: description
@@ -17,6 +19,15 @@ body:
       description: |
         The OpenWrt release or commit hash where this bug occurs (use command below).
         ```. /etc/openwrt_release && echo $DISTRIB_REVISION```
+    validations:
+      required: true
+  - type: input
+    id: release
+    attributes:
+      label: OpenWrt release
+      description: |
+        The OpenWrt release or commit hash where this bug occurs (use command below).
+        ```. /etc/openwrt_release && echo $DISTRIB_RELEASE```
     validations:
       required: true
   - type: input

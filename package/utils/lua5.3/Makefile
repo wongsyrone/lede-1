@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lua
 PKG_VERSION:=5.3.5
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.lua.org/ftp/ \
@@ -30,7 +30,7 @@ define Package/lua5.3/Default
   SUBMENU:=Lua
   SECTION:=lang
   CATEGORY:=Languages
-  TITLE:=Lua programming language
+  TITLE:=Lua programming language (version 5.3)
   URL:=https://www.lua.org/
   MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 endef
@@ -42,7 +42,7 @@ define Package/lua5.3/Default/description
 endef
 
 define Package/liblua5.3
-$(call Package/lua53/Default)
+$(call Package/lua5.3/Default)
   SUBMENU:=
   SECTION:=libs
   CATEGORY:=Libraries
@@ -51,7 +51,7 @@ $(call Package/lua53/Default)
 endef
 
 define Package/liblua5.3/description
-$(call Package/lua53/Default/description)
+$(call Package/lua5.3/Default/description)
  This package contains the Lua shared libraries, needed by other programs.
 endef
 

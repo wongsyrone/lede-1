@@ -2,6 +2,7 @@
 
 /dts-v1/;
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 #include "mt7629.dtsi"
 
 / {
@@ -25,7 +26,8 @@
 		compatible = "gpio-leds";
 
 		led_cpu: cpu {
-			label = "orange:cpu";
+			function = LED_FUNCTION_CPU;
+			color = <LED_COLOR_ID_ORANGE>;
 			gpios = <&pio 57 GPIO_ACTIVE_LOW>;
 		};
 
@@ -42,7 +44,8 @@
 		};
 
 		wan {
-			label = "orange:wan";
+			function = LED_FUNCTION_WAN;
+			color = <LED_COLOR_ID_ORANGE>;
 			gpios = <&pio 12 GPIO_ACTIVE_HIGH>;
 		};
 	};
@@ -97,9 +100,8 @@
 		compatible = "mediatek,eth-mac";
 		reg = <0>;
 		phy-mode = "2500base-x";
-		nvmem-cells = <&macaddr_factory_4>;
+		nvmem-cells = <&macaddr_factory_4 3>;
 		nvmem-cell-names = "mac-address";
-		mac-address-increment = <3>;
 
 		fixed-link {
 			speed = <2500>;
@@ -113,9 +115,8 @@
 		reg = <1>;
 		phy-mode = "gmii";
 		phy-handle = <&phy0>;
-		nvmem-cells = <&macaddr_factory_4>;
+		nvmem-cells = <&macaddr_factory_4 1>;
 		nvmem-cell-names = "mac-address";
-		mac-address-increment = <1>;
 	};
 
 	mdio: mdio-bus {
@@ -126,9 +127,9 @@
 			reg = <0>;
 		};
 
-		switch@2 {
+		switch@1f {
 			compatible = "mediatek,mt7531";
-			reg = <2>;
+			reg = <31>;
 			reset-gpios = <&pio 28 0>;
 			interrupt-controller;
 			#interrupt-cells = <1>;
@@ -212,12 +213,16 @@
 				reg = <0x140000 0x80000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_factory_4: macaddr@4 {
-					reg = <0x4 0x6>;
+					macaddr_factory_4: macaddr@4 {
+						compatible = "mac-base";
+						reg = <0x4 0x6>;
+						#nvmem-cell-cells = <1>;
+					};
 				};
 			};
 

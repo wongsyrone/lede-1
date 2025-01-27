@@ -8,17 +8,17 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=json-c
-PKG_VERSION:=0.16
-PKG_RELEASE:=3
+PKG_VERSION:=0.18
+PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-nodoc.tar.gz
 PKG_SOURCE_URL:=https://s3.amazonaws.com/json-c_releases/releases/
-PKG_HASH:=ac8a3dd6820daaca579b23fbc74664310fbc3d67f52f6707cda67d21dde5570f
+PKG_HASH:=602cdefc1d2aab8318fc0814b7ce7d59e72514d4276ca3eff92f35f86cf1c160
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
-PKG_CPE_ID:=cpe:/a:json-c_project:json-c
+PKG_CPE_ID:=cpe:/a:json-c:json-c
 
 HOST_BUILD_PREFIX:=$(STAGING_DIR_HOST)
 

@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	compatible = "aruba,ap-115", "qca,qca9558";
@@ -36,12 +37,14 @@
 		compatible = "gpio-leds";
 
 		led_power_green: power-green {
-			label = "green:power";
+			function = LED_FUNCTION_POWER;
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
 		};
 		
 		led_power_red: power-red {
-			label = "red:power";
+			function = LED_FUNCTION_POWER;
+			color = <LED_COLOR_ID_RED>;
 			gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
 		};
 
@@ -83,7 +86,7 @@
 		regulator-name = "usb_vbus";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
-		gpio = <&gpio 3 GPIO_ACTIVE_HIGH>;
+		gpios = <&gpio 3 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
 	};
@@ -95,12 +98,9 @@
 	ath9k: wifi@0,0 {
 		compatible = "pci168c,0033";
 		reg = <0x0000 0 0 0 0>;
-		qca,no-eeprom;
 
-		nvmem-cells = <&macaddr_oemdata_1d>;
-		nvmem-cell-names = "mac-address";
-
-		mac-address-increment = <1>;
+		nvmem-cells = <&macaddr_oemdata_1d 1>, <&cal_oemdata_5000>;
+		nvmem-cell-names = "mac-address", "calibration";
 	};
 };
 
@@ -160,10 +160,30 @@
 				reg = <0x100000 0xe00000>;
 			};
 
-			oemdata: partition@fe0000 {
+			partition@fe0000 {
 				label = "oemdata";
 				reg = <0xfe0000 0x010000>;
 				read-only;
+
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					macaddr_oemdata_1d: macaddr@1d {
+						compatible = "mac-base";
+						reg = <0x1d 0x6>;
+						#nvmem-cell-cells = <1>;
+					};
+
+					cal_oemdata_1000: calibration@1000 {
+						reg = <0x1000 0x440>;
+					};
+
+					cal_oemdata_5000: calibration@5000 {
+						reg = <0x5000 0x440>;
+					};
+				};
 			};
 
 			partition@ff0000 {
@@ -177,9 +197,8 @@
 &wmac {
 	status = "okay";
 
-	qca,no-eeprom;
-	nvmem-cells = <&macaddr_oemdata_1d>;
-	nvmem-cell-names = "mac-address";
+	nvmem-cells = <&macaddr_oemdata_1d 0>, <&cal_oemdata_1000>;
+	nvmem-cell-names = "mac-address", "calibration";
 };
 
 &mdio0 {
@@ -200,7 +219,7 @@
 &eth0 {
 	status = "okay";
 
-	nvmem-cells = <&macaddr_oemdata_1d>;
+	nvmem-cells = <&macaddr_oemdata_1d 0>;
 	nvmem-cell-names = "mac-address";
 
 	phy-handle = <&phy0>;
@@ -219,21 +238,10 @@
 	};
 };
 
-&oemdata {
-	compatible = "nvmem-cells";
-	#address-cells = <1>;
-	#size-cells = <1>;
-
-	macaddr_oemdata_1d: macaddr@1d {
-		reg = <0x1d 0x6>;
-	};
-};
-
 &usb_phy0 {
 	status = "okay";
 };
 
 &usb0 {
-	dr_mode = "host";
 	status = "okay";
 };

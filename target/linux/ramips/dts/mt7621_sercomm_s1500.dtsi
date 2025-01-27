@@ -17,13 +17,13 @@
 	keys {
 		compatible = "gpio-keys";
 
-		reset {
+		button-0 {
 			label = "reset";
 			gpios = <&gpio 7 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;
 		};
 
-		wps {
+		button-1 {
 			label = "wps";
 			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_WPS_BUTTON>;
@@ -34,33 +34,29 @@
 		compatible = "gpio-leds";
 
 		led-0 {
-			label = "amber:lan4";
 			color = <LED_COLOR_ID_AMBER>;
 			function = LED_FUNCTION_LAN;
-			function-enumerator = <0>;
+			function-enumerator = <4>;
 			linux,default-trigger = "mt7530-0:00:1Gbps";
 			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
 		};
 
 		led-1 {
-			label = "green:lan4";
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_LAN;
-			function-enumerator = <1>;
+			function-enumerator = <4>;
 			gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
 		};
 
 		led-2 {
-			label = "amber:lan3";
 			color = <LED_COLOR_ID_AMBER>;
 			function = LED_FUNCTION_LAN;
-			function-enumerator = <2>;
+			function-enumerator = <3>;
 			linux,default-trigger = "mt7530-0:01:1Gbps";
 			gpios = <&gpio 10 GPIO_ACTIVE_LOW>;
 		};
 
 		led-3 {
-			label = "green:lan3";
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_LAN;
 			function-enumerator = <3>;
@@ -68,86 +64,73 @@
 		};
 
 		led-4 {
-			label = "amber:lan2";
 			color = <LED_COLOR_ID_AMBER>;
 			function = LED_FUNCTION_LAN;
-			function-enumerator = <4>;
+			function-enumerator = <2>;
 			linux,default-trigger = "mt7530-0:02:1Gbps";
 			gpios = <&gpio 14 GPIO_ACTIVE_LOW>;
 		};
 
 		led-5 {
-			label = "amber:lan1";
 			color = <LED_COLOR_ID_AMBER>;
 			function = LED_FUNCTION_LAN;
-			function-enumerator = <5>;
+			function-enumerator = <1>;
 			linux,default-trigger = "mt7530-0:03:1Gbps";
 			gpios = <&gpio 22 GPIO_ACTIVE_LOW>;
 		};
 
 		led-6 {
-			label = "green:lan1";
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_LAN;
-			function-enumerator = <6>;
+			function-enumerator = <1>;
 			gpios = <&gpio 23 GPIO_ACTIVE_LOW>;
 		};
 
 		led-7 {
-			label = "amber:wan";
 			color = <LED_COLOR_ID_AMBER>;
 			function = LED_FUNCTION_WAN;
-			function-enumerator = <0>;
 			linux,default-trigger = "mt7530-0:04:1Gbps";
 			gpios = <&gpio 24 GPIO_ACTIVE_LOW>;
 		};
 
 		led-8 {
-			label = "green:wan";
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_WAN;
-			function-enumerator = <1>;
 			gpios = <&gpio 25 GPIO_ACTIVE_LOW>;
 		};
 
 		led-9 {
-			label = "green:lan2";
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_LAN;
-			function-enumerator = <7>;
+			function-enumerator = <2>;
 			gpios = <&gpio 26 GPIO_ACTIVE_LOW>;
 		};
 
 		led-10 {
-			label = "white:wlan2g";
 			color = <LED_COLOR_ID_WHITE>;
 			function = LED_FUNCTION_WLAN;
-			function-enumerator = <0>;
-			linux,default-trigger = "phy1radio";
+			function-enumerator = <24>;
+			linux,default-trigger = "phy1tpt";
 			gpios = <&gpio 28 GPIO_ACTIVE_LOW>;
 		};
 
 		led_wps: led-11 {
 			function = LED_FUNCTION_WPS;
-			function-enumerator = <0>;
 			gpios = <&gpio 29 GPIO_ACTIVE_LOW>;
 			panic-indicator;
 		};
 
 		led_status: led-12 {
-			label = "white:status";
 			color = <LED_COLOR_ID_WHITE>;
 			function = LED_FUNCTION_STATUS;
-			function-enumerator = <0>;
 			gpios = <&gpio 30 GPIO_ACTIVE_LOW>;
 		};
 
 		led-13 {
-			label = "white:wlan5g";
 			color = <LED_COLOR_ID_WHITE>;
 			function = LED_FUNCTION_WLAN;
-			function-enumerator = <1>;
-			linux,default-trigger = "phy0radio";
+			function-enumerator = <50>;
+			linux,default-trigger = "phy0tpt";
 			gpios = <&gpio 32 GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -158,7 +141,7 @@
 };
 
 &gmac0 {
-	nvmem-cells = <&macaddr_factory_1000>;
+	nvmem-cells = <&macaddr_factory_1000 0>;
 	nvmem-cell-names = "mac-address";
 };
 
@@ -176,24 +159,29 @@
 			read-only;
 		};
 
-		factory: partition@100000 {
-			compatible = "nvmem-cells";
+		partition@100000 {
 			label = "Factory";
 			reg = <0x100000 0x100000>;
-			#address-cells = <1>;
-			#size-cells = <1>;
 			read-only;
 
-			eeprom_factory_0: eeprom@0 {
-				reg = <0x0 0x200>;
-			};
+			nvmem-layout {
+				compatible = "fixed-layout";
+				#address-cells = <1>;
+				#size-cells = <1>;
 
-			eeprom_factory_8000: eeprom@8000 {
-				reg = <0x8000 0x200>;
-			};
+				eeprom_factory_0: eeprom@0 {
+					reg = <0x0 0x200>;
+				};
 
-			macaddr_factory_1000: macaddr@1000 {
-				reg = <0x1000 0x6>;
+				eeprom_factory_8000: eeprom@8000 {
+					reg = <0x8000 0x200>;
+				};
+
+				macaddr_factory_1000: macaddr@1000 {
+					compatible = "mac-base";
+					reg = <0x1000 0x6>;
+					#nvmem-cell-cells = <1>;
+				};
 			};
 		};
 
@@ -228,19 +216,7 @@
 		reg = <0x0000 0 0 0 0>;
 		ieee80211-freq-limit = <5000000 6000000>;
 
-		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_factory_1000>;
-		nvmem-cell-names = "eeprom", "mac-address";
-		mac-address-increment = <2>;
-	};
-};
-
-&pcie1 {
-	wlan_2g: wifi@0,0 {
-		compatible = "mediatek,mt76";
-		reg = <0x0000 0 0 0 0>;
-		ieee80211-freq-limit = <2400000 2500000>;
-
-		nvmem-cells = <&eeprom_factory_0>, <&macaddr_factory_1000>;
+		nvmem-cells = <&eeprom_factory_8000>, <&macaddr_factory_1000 2>;
 		nvmem-cell-names = "eeprom", "mac-address";
 	};
 };
@@ -278,9 +254,8 @@
 			status = "okay";
 			label = "wan";
 
-			nvmem-cells = <&macaddr_factory_1000>;
+			nvmem-cells = <&macaddr_factory_1000 1>;
 			nvmem-cell-names = "mac-address";
-			mac-address-increment = <1>;
 		};
 	};
 };

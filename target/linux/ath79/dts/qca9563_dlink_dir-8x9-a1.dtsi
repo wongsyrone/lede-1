@@ -56,18 +56,19 @@
 				read-only;
 			};
 
-			bdcfg: partition@40000 {
-				compatible = "u-boot,env";
+			partition@40000 {
 				label = "bdcfg";
 				reg = <0x040000 0x010000>;
+
+				bdcfg: nvmem-layout {
+					compatible = "u-boot,env";
+				};
 			};
 
 			partition@50000 {
 				label = "devdata";
 				reg = <0x050000 0x010000>;
 				read-only;
-
-				compatible = "nvmem-cells";
 
 				nvmem-layout {
 					compatible = "fixed-layout";
@@ -106,17 +107,19 @@
 				reg = <0xff0000 0x010000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				calibration_ath9k: calibration@1000 {
-					reg = <0x1000 0x440>;
+					calibration_ath9k: calibration@1000 {
+						reg = <0x1000 0x440>;
+					};
+
+					calibration_ath10k: calibration@5000 {
+						reg = <0x5000 0x844>;
+					};
 				};
-
-				calibration_ath10k: calibration@5000 {
-					reg = <0x5000 0x844>;
-				};	
 			};
 		};
 	};

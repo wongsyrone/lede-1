@@ -63,24 +63,29 @@
 				read-only;
 			};
 
-			factory: partition@40000 {
-				compatible = "nvmem-cells";
+			partition@40000 {
 				label = "factory";
 				reg = <0x40000 0x10000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
 				read-only;
 
-				eeprom_factory_0: eeprom@0 {
-					reg = <0x0 0x4da8>;
-				};
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				eeprom_factory_8000: eeprom@8000 {
-					reg = <0x8000 0x4da8>;
-				};
+					eeprom_factory_0: eeprom@0 {
+						reg = <0x0 0x4da8>;
+					};
 
-				macaddr_factory_e00c: macaddr@e00c {
-					reg = <0xe00c 0x6>;
+					eeprom_factory_8000: eeprom@8000 {
+						reg = <0x8000 0x4da8>;
+					};
+
+					macaddr_factory_e00c: macaddr@e00c {
+						compatible = "mac-base";
+						reg = <0xe00c 0x6>;
+						#nvmem-cell-cells = <1>;
+					};
 				};
 			};
 
@@ -118,7 +123,7 @@
 };
 
 &gmac0 {
-	nvmem-cells = <&macaddr_factory_e00c>;
+	nvmem-cells = <&macaddr_factory_e00c 0>;
 	nvmem-cell-names = "mac-address";
 };
 
@@ -127,15 +132,12 @@
 	label = "wan";
 	phy-handle = <&ethphy4>;
 
-	nvmem-cells = <&macaddr_factory_e00c>;
+	nvmem-cells = <&macaddr_factory_e00c 1>;
 	nvmem-cell-names = "mac-address";
-	mac-address-increment = <1>;
 };
 
-&mdio {
-	ethphy4: ethernet-phy@4 {
-		reg = <4>;
-	};
+&ethphy4 {
+	/delete-property/ interrupts;
 };
 
 &switch0 {

@@ -1,3 +1,7 @@
+ifneq ($(KERNEL),6.1)
+DTS_DIR := $(DTS_DIR)/mediatek
+endif
+
 DEVICE_VARS += UBOOT_TARGET UBOOT_OFFSET UBOOT_IMAGE
 
 # The bootrom of MT7623 expects legacy MediaTek headers present in
@@ -96,7 +100,9 @@ define Device/bananapi_bpi-r2
   KERNEL := kernel-bin | gzip
   KERNEL_INITRAMFS_SUFFIX := -recovery.itb
   KERNEL_INITRAMFS := kernel-bin | gzip | fit gzip $$(DTS_DIR)/$$(DEVICE_DTS).dtb with-initrd
+ifeq ($(DUMP),)
   IMAGE_SIZE := $$(shell expr 48 + $$(CONFIG_TARGET_ROOTFS_PARTSIZE))m
+endif
   IMAGE/sysupgrade.itb := append-kernel | fit gzip $$(DTS_DIR)/$$(DEVICE_DTS).dtb external-static-with-rootfs | append-metadata
   ARTIFACT/preloader.bin := mt7623-mbr emmc |\
 			    pad-to 2k | append-preloader $$(UBOOT_TARGET)
@@ -114,6 +120,8 @@ define Device/bananapi_bpi-r2
 			    gzip
   ARTIFACTS := u-boot.bin preloader.bin sdcard.img.gz
   SUPPORTED_DEVICES := bananapi,bpi-r2
+  DEVICE_COMPAT_VERSION := 1.1
+  DEVICE_COMPAT_MESSAGE := Bootloader update required for switch to fitblk
 endef
 TARGET_DEVICES += bananapi_bpi-r2
 
@@ -130,7 +138,9 @@ define Device/unielec_u7623-02
   UBOOT_TARGET := mt7623a_unielec_u7623
   UBOOT_IMAGE := u-boot-mtk.bin
   UBOOT_PATH := $(STAGING_DIR_IMAGE)/$$(UBOOT_TARGET)-$$(UBOOT_IMAGE)
+ifeq ($(DUMP),)
   IMAGE_SIZE := $$(shell expr 48 + $$(CONFIG_TARGET_ROOTFS_PARTSIZE))m
+endif
   IMAGES := sysupgrade.itb
   KERNEL := kernel-bin | gzip
   KERNEL_INITRAMFS_SUFFIX := -recovery.itb

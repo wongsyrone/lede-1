@@ -1,9 +1,11 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_VERSION:=2023.07.02
-PKG_HASH:=6b6a48581c14abb0f95bd87c1af4d740922406d7b801002a9f94727fdde021d5
+PKG_VERSION:=2024.10
+PKG_HASH:=b28daf4ac17e43156363078bf510297584137f6df50fced9b12df34f61a92fb0
 PKG_BUILD_DEPENDS:=!(TARGET_ramips||TARGET_mediatek_mt7623):arm-trusted-firmware-tools/host
+
+UBOOT_USE_INTREE_DTC:=1
 
 include $(INCLUDE_DIR)/u-boot.mk
 include $(INCLUDE_DIR)/package.mk
@@ -73,6 +75,15 @@ define U-Boot/mt7621_nand_rfb
   UBOOT_IMAGE:=u-boot-mt7621.bin
 endef
 
+define U-Boot/mt7621_zbtlink_zbt-wg3526-16m
+  NAME:=Zbtlink ZBT-WG3526-16m
+  UBOOT_CONFIG:=mt7621_zbtlink_zbt-wg3526-16m
+  BUILD_DEVICES:=zbtlink_zbt-wg3526-16m
+  BUILD_TARGET:=ramips
+  BUILD_SUBTARGET:=mt7621
+  UBOOT_IMAGE:=u-boot-mt7621.bin
+endef
+
 define U-Boot/mt7622_rfb1
   NAME:=MT7622 Reference Board 1
   UBOOT_CONFIG:=mt7622_rfb
@@ -86,9 +97,9 @@ define U-Boot/mt7622_linksys_e8450
   BUILD_DEVICES:=linksys_e8450-ubi
   BUILD_SUBTARGET:=mt7622
   UBOOT_IMAGE:=u-boot.fip
-  BL2_BOOTDEV:=snand
+  BL2_BOOTDEV:=snand-ubi
   BL2_DDRBLOB:=1
-  DEPENDS:=+trusted-firmware-a-mt7622-snand-1ddr
+  DEPENDS:=+trusted-firmware-a-mt7622-snand-ubi-1ddr
 endef
 
 define U-Boot/mt7622_bananapi_bpi-r64-emmc
@@ -119,9 +130,9 @@ define U-Boot/mt7622_bananapi_bpi-r64-snand
   BUILD_DEVICES:=bananapi_bpi-r64
   BUILD_SUBTARGET:=mt7622
   UBOOT_IMAGE:=u-boot.fip
-  BL2_BOOTDEV:=snand
+  BL2_BOOTDEV:=snand-ubi
   BL2_DDRBLOB:=2
-  DEPENDS:=+trusted-firmware-a-mt7622-snand-2ddr
+  DEPENDS:=+trusted-firmware-a-mt7622-snand-ubi-2ddr
 endef
 
 define U-Boot/mt7622_ubnt_unifi-6-lr-v1
@@ -160,6 +171,14 @@ define U-Boot/mt7622_ubnt_unifi-6-lr-v3
   FIP_COMPRESS:=1
 endef
 
+define U-Boot/mt7622_xiaomi_redmi-router-ax6s-ubi-loader
+  NAME:=Xiaomi Redmi Router AX6S (as UBI loader)
+  UBOOT_CONFIG:=mt7622_xiaomi_redmi-router-ax6s-ubi-loader
+  BUILD_DEVICES:=xiaomi_redmi-router-ax6s
+  BUILD_SUBTARGET:=mt7622
+  UBOOT_IMAGE:=u-boot.bin
+endef
+
 define U-Boot/mt7623a_unielec_u7623
   NAME:=UniElec U7623 (mt7623)
   BUILD_DEVICES:=unielec_u7623-02
@@ -184,7 +203,7 @@ define U-Boot/mt7628_rfb
   UBOOT_IMAGE:=u-boot-with-spl.bin
 endef
 
-define U-Boot/ravpower_rp-wd009
+define U-Boot/mt7628_ravpower_rp-wd009
   NAME:=RAVPower RP-WD009
   BUILD_TARGET:=ramips
   BUILD_DEVICES:=ravpower_rp-wd009
@@ -200,6 +219,66 @@ define U-Boot/mt7629_rfb
   UBOOT_CONFIG:=mt7629_rfb
 endef
 
+define U-Boot/mt7981_abt_asr3000
+  NAME:=ABT ASR3000
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=abt_asr3000
+  UBOOT_CONFIG:=mt7981_abt_asr3000
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr3
+endef
+
+define U-Boot/mt7981_cmcc_rax3000m-emmc
+  NAME:=CMCC RAX3000M
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=cmcc_rax3000m
+  UBOOT_CONFIG:=mt7981_cmcc_rax3000m-emmc
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7981-emmc-ddr4
+endef
+
+define U-Boot/mt7981_cmcc_rax3000m-nand
+  NAME:=CMCC RAX3000M
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=cmcc_rax3000m
+  UBOOT_CONFIG:=mt7981_cmcc_rax3000m-nand
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr4
+endef
+
+define U-Boot/mt7981_glinet_gl-x3000
+  NAME:=GL.iNet GL-X3000
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=glinet_gl-x3000
+  UBOOT_CONFIG:=mt7981_glinet_gl-x3000
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7981-emmc-ddr4
+endef
+
+define U-Boot/mt7981_glinet_gl-xe3000
+  NAME:=GL.iNet GL-XE3000
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=glinet_gl-xe3000
+  UBOOT_CONFIG:=mt7981_glinet_gl-x3000
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7981-emmc-ddr4
+endef
+
 define U-Boot/mt7981_h3c_magic-nx30-pro
   NAME:=H3C Magic NX30 Pro
   BUILD_SUBTARGET:=filogic
@@ -210,6 +289,55 @@ define U-Boot/mt7981_h3c_magic-nx30-pro
   BL2_SOC:=mt7981
   BL2_DDRTYPE:=ddr3
   DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr3
+endef
+
+define U-Boot/mt7981_jcg_q30-pro
+  NAME:=JCG Q30 PRO
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=jcg_q30-pro
+  UBOOT_CONFIG:=mt7981_jcg_q30-pro
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr3
+endef
+
+define U-Boot/mt7981_nokia_ea0326gmp
+  NAME:=Nokia EA0326GMP
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=nokia_ea0326gmp
+  UBOOT_CONFIG:=mt7981_nokia_ea0326gmp
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr3
+endef
+
+define U-Boot/mt7981_openwrt_one-snand
+  NAME:=OpenWrt One NAND
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=openwrt_one
+  UBOOT_CONFIG:=mt7981_openwrt-one-spi-nand
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand-ubi
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ubi-ddr4
+endef
+
+define U-Boot/mt7981_openwrt_one-nor
+  NAME:=OpenWrt One NOR
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=openwrt_one
+  UBOOT_CONFIG:=mt7981_openwrt-one-nor
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=nor
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr4
+  FIP_COMPRESS:=1
+  DEPENDS:=+trusted-firmware-a-mt7981-nor-ddr4
 endef
 
 define U-Boot/mt7981_rfb-spim-nand
@@ -236,13 +364,26 @@ define U-Boot/mt7981_rfb-emmc
   DEPENDS:=+trusted-firmware-a-mt7981-emmc-ddr3
 endef
 
+define U-Boot/mt7981_gatonetworks_gdsp
+  NAME:=GatoNetworks GDSP
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=gatonetworks_gdsp
+  UBOOT_CONFIG:=mt7981_gatonetworks_gdsp
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=nor
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7981-nor-ddr3
+  FIP_COMPRESS:=1
+endef
+
 define U-Boot/mt7981_rfb-nor
   NAME:=MT7981 Reference Board
   BUILD_SUBTARGET:=filogic
   BUILD_DEVICES:=mediatek_mt7981-rfb
   UBOOT_CONFIG:=mt7981_nor_rfb
   UBOOT_IMAGE:=u-boot.fip
-  BL2_BOOTDEV:=spim-nand
+  BL2_BOOTDEV:=nor
   BL2_SOC:=mt7981
   BL2_DDRTYPE:=ddr3
   DEPENDS:=+trusted-firmware-a-mt7981-nor-ddr3
@@ -272,11 +413,35 @@ define U-Boot/mt7981_rfb-snfi
   DEPENDS:=+trusted-firmware-a-mt7981-snand-ddr3
 endef
 
+define U-Boot/mt7981_routerich_ax3000
+  NAME:=Routerich AX3000
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=routerich_ax3000-ubootmod
+  UBOOT_CONFIG:=mt7981_routerich_ax3000
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr3
+endef
+
 define U-Boot/mt7981_qihoo_360t7
   NAME:=Qihoo 360T7
   BUILD_SUBTARGET:=filogic
   BUILD_DEVICES:=qihoo_360t7
   UBOOT_CONFIG:=mt7981_qihoo-360t7
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr3
+endef
+
+define U-Boot/mt7981_xiaomi_mi-router-ax3000t
+  NAME:=Xiaomi Router AX3000T
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=xiaomi_mi-router-ax3000t-ubootmod
+  UBOOT_CONFIG:=mt7981_xiaomi_mi-router-ax3000t
   UBOOT_IMAGE:=u-boot.fip
   BL2_BOOTDEV:=spim-nand
   BL2_SOC:=mt7981
@@ -338,10 +503,10 @@ define U-Boot/mt7986_bananapi_bpi-r3-snand
   BUILD_DEVICES:=bananapi_bpi-r3
   UBOOT_CONFIG:=mt7986a_bpi-r3-snand
   UBOOT_IMAGE:=u-boot.fip
-  BL2_BOOTDEV:=spim-nand
+  BL2_BOOTDEV:=spim-nand-ubi
   BL2_SOC:=mt7986
   BL2_DDRTYPE:=ddr4
-  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ubi-ddr4
 endef
 
 define U-Boot/mt7986_bananapi_bpi-r3-nor
@@ -357,6 +522,30 @@ define U-Boot/mt7986_bananapi_bpi-r3-nor
   FIP_COMPRESS:=1
 endef
 
+define U-Boot/mt7986_bananapi_bpi-r3-mini-emmc
+  NAME:=BananaPi BPi-R3 Mini
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r3-mini
+  UBOOT_CONFIG:=mt7986a_bpi-r3-mini-emmc
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-emmc-ddr4
+endef
+
+define U-Boot/mt7986_bananapi_bpi-r3-mini-snand
+  NAME:=BananaPi BPi-R3 Mini
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r3-mini
+  UBOOT_CONFIG:=mt7986a_bpi-r3-mini-snand
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand-ubi
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ubi-ddr4
+endef
+
 define U-Boot/mt7986_glinet_gl-mt6000
   NAME:=GL.iNet GL-MT6000
   BUILD_SUBTARGET:=filogic
@@ -367,6 +556,42 @@ define U-Boot/mt7986_glinet_gl-mt6000
   BL2_SOC:=mt7986
   BL2_DDRTYPE:=ddr4
   DEPENDS:=+trusted-firmware-a-mt7986-emmc-ddr4
+endef
+
+define U-Boot/mt7986_jdcloud_re-cp-03
+  NAME:=JDCloud RE-CP-03
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=jdcloud_re-cp-03
+  UBOOT_CONFIG:=mt7986a_jdcloud_re-cp-03
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-emmc-ddr4
+endef
+
+define U-Boot/mt7986_mercusys_mr90x-v1
+  NAME:=MERCUSYS MR90X v1
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=mercusys_mr90x-v1-ubi
+  UBOOT_CONFIG:=mt7986_mercusys_mr90x-v1
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand-ubi
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ubi-ddr3
+endef
+
+define U-Boot/mt7986_netcore_n60
+  NAME:=Netcore N60
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=netcore_n60
+  UBOOT_CONFIG:=mt7986_netcore_n60
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ddr3
 endef
 
 define U-Boot/mt7986_tplink_tl-xdr4288
@@ -405,6 +630,18 @@ define U-Boot/mt7986_tplink_tl-xdr6088
   DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ddr3
 endef
 
+define U-Boot/mt7986_tplink_tl-xtr8488
+  NAME:=TP-LINK TL-XTR8488
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=tplink_tl-xtr8488
+  UBOOT_CONFIG:=mt7986_tplink_tl-xtr8488
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ddr4
+endef
+
 define U-Boot/mt7986_xiaomi_redmi-router-ax6000
   NAME:=Xiaomi Redmi AX6000
   BUILD_SUBTARGET:=filogic
@@ -417,6 +654,102 @@ define U-Boot/mt7986_xiaomi_redmi-router-ax6000
   DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ddr4
 endef
 
+define U-Boot/mt7986_zyxel_ex5601-t0
+  NAME:=Zyxel EX5601-T0
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=zyxel_ex5601-t0-ubootmod
+  UBOOT_CONFIG:=mt7986_zyxel_ex5601-t0
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand-4k
+  BL2_SOC:=mt7986
+  BL2_DDRTYPE:=ddr4
+  DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-4k-ddr4
+endef
+
+define U-Boot/mt7988_arcadyan_mozart
+  NAME:=Arcadyan Mozart
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=arcadyan_mozart
+  UBOOT_CONFIG:=mt7988a_arcadyan_mozart
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7988
+  BL2_DDRTYPE:=comb
+  DEPENDS:=+trusted-firmware-a-mt7988-emmc-comb
+endef
+
+define U-Boot/mt7988_bananapi_bpi-r4-emmc
+  NAME:=BananaPi BPi-R4
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r4
+  UBOOT_CONFIG:=mt7988a_bananapi_bpi-r4-emmc
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7988
+  BL2_DDRTYPE:=comb
+  DEPENDS:=+trusted-firmware-a-mt7988-emmc-comb
+endef
+
+define U-Boot/mt7988_bananapi_bpi-r4-sdmmc
+  NAME:=BananaPi BPi-R4
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r4
+  UBOOT_CONFIG:=mt7988a_bananapi_bpi-r4-sdmmc
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=sdmmc
+  BL2_SOC:=mt7988
+  BL2_DDRTYPE:=comb
+  DEPENDS:=+trusted-firmware-a-mt7988-sdmmc-comb
+endef
+
+define U-Boot/mt7988_bananapi_bpi-r4-snand
+  NAME:=BananaPi BPi-R4
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r4
+  UBOOT_CONFIG:=mt7988a_bananapi_bpi-r4-snand
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand-ubi
+  BL2_SOC:=mt7988
+  BL2_DDRTYPE:=comb
+  DEPENDS:=+trusted-firmware-a-mt7988-spim-nand-ubi-comb
+endef
+
+define U-Boot/mt7988_bananapi_bpi-r4-poe-emmc
+  NAME:=BananaPi BPi-R4 2.5GE
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r4-poe
+  UBOOT_CONFIG:=mt7988a_bananapi_bpi-r4-poe-emmc
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=emmc
+  BL2_SOC:=mt7988
+  BL2_DDRTYPE:=comb
+  DEPENDS:=+trusted-firmware-a-mt7988-emmc-comb
+endef
+
+define U-Boot/mt7988_bananapi_bpi-r4-poe-sdmmc
+  NAME:=BananaPi BPi-R4 2.5GE
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r4-poe
+  UBOOT_CONFIG:=mt7988a_bananapi_bpi-r4-poe-sdmmc
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=sdmmc
+  BL2_SOC:=mt7988
+  BL2_DDRTYPE:=comb
+  DEPENDS:=+trusted-firmware-a-mt7988-sdmmc-comb
+endef
+
+define U-Boot/mt7988_bananapi_bpi-r4-poe-snand
+  NAME:=BananaPi BPi-R4 2.5GE
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=bananapi_bpi-r4-poe
+  UBOOT_CONFIG:=mt7988a_bananapi_bpi-r4-poe-snand
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand-ubi
+  BL2_SOC:=mt7988
+  BL2_DDRTYPE:=comb
+  DEPENDS:=+trusted-firmware-a-mt7988-spim-nand-ubi-comb
+endef
+
 define U-Boot/mt7988_rfb-spim-nand
   NAME:=MT7988 Reference Board
   BUILD_SUBTARGET:=filogic
@@ -426,7 +759,7 @@ define U-Boot/mt7988_rfb-spim-nand
   BL2_BOOTDEV:=spim-nand
   BL2_SOC:=mt7988
   BL2_DDRTYPE:=comb
-  DEPENDS:=+trusted-firmware-a-mt7988-spim-nand-comb
+  DEPENDS:=+trusted-firmware-a-mt7988-spim-nand-comb +trusted-firmware-a-mt7988-spim-nand-ubi-comb
 endef
 
 define U-Boot/mt7988_rfb-snand
@@ -483,6 +816,7 @@ UBOOT_TARGETS := \
 	mt7620_rfb \
 	mt7621_nand_rfb \
 	mt7621_rfb \
+	mt7621_zbtlink_zbt-wg3526-16m \
 	mt7622_bananapi_bpi-r64-emmc \
 	mt7622_bananapi_bpi-r64-sdmmc \
 	mt7622_bananapi_bpi-r64-snand \
@@ -491,34 +825,67 @@ UBOOT_TARGETS := \
 	mt7622_ubnt_unifi-6-lr-v1 \
 	mt7622_ubnt_unifi-6-lr-v2 \
 	mt7622_ubnt_unifi-6-lr-v3 \
+	mt7622_xiaomi_redmi-router-ax6s-ubi-loader \
 	mt7623n_bpir2 \
 	mt7623a_unielec_u7623 \
 	mt7628_rfb \
-	ravpower_rp-wd009 \
+	mt7628_ravpower_rp-wd009 \
 	mt7629_rfb \
+	mt7981_abt_asr3000 \
+	mt7981_cmcc_rax3000m-emmc \
+	mt7981_cmcc_rax3000m-nand \
+	mt7981_gatonetworks_gdsp \
+	mt7981_glinet_gl-x3000 \
+	mt7981_glinet_gl-xe3000 \
 	mt7981_h3c_magic-nx30-pro \
+	mt7981_jcg_q30-pro \
+	mt7981_nokia_ea0326gmp \
+	mt7981_openwrt_one-snand \
+	mt7981_openwrt_one-nor \
 	mt7981_rfb-spim-nand \
 	mt7981_rfb-emmc \
 	mt7981_rfb-nor \
 	mt7981_rfb-sd \
 	mt7981_rfb-snfi \
+	mt7981_routerich_ax3000 \
 	mt7981_qihoo_360t7 \
+	mt7981_xiaomi_mi-router-ax3000t \
 	mt7981_xiaomi_mi-router-wr30u \
 	mt7986_bananapi_bpi-r3-emmc \
 	mt7986_bananapi_bpi-r3-sdmmc \
 	mt7986_bananapi_bpi-r3-snand \
 	mt7986_bananapi_bpi-r3-nor \
+	mt7986_bananapi_bpi-r3-mini-emmc \
+	mt7986_bananapi_bpi-r3-mini-snand \
 	mt7986_glinet_gl-mt6000 \
+	mt7986_jdcloud_re-cp-03 \
+	mt7986_mercusys_mr90x-v1 \
+	mt7986_netcore_n60 \
 	mt7986_tplink_tl-xdr4288 \
 	mt7986_tplink_tl-xdr6086 \
 	mt7986_tplink_tl-xdr6088 \
+	mt7986_tplink_tl-xtr8488 \
 	mt7986_xiaomi_redmi-router-ax6000 \
+	mt7986_zyxel_ex5601-t0 \
 	mt7986_rfb \
+	mt7988_arcadyan_mozart \
+	mt7988_bananapi_bpi-r4-emmc \
+	mt7988_bananapi_bpi-r4-sdmmc \
+	mt7988_bananapi_bpi-r4-snand \
+	mt7988_bananapi_bpi-r4-poe-emmc \
+	mt7988_bananapi_bpi-r4-poe-sdmmc \
+	mt7988_bananapi_bpi-r4-poe-snand \
 	mt7988_rfb-spim-nand \
 	mt7988_rfb-snand \
 	mt7988_rfb-nor \
 	mt7988_rfb-emmc \
 	mt7988_rfb-sd
+
+UBOOT_CUSTOMIZE_CONFIG := \
+	--disable TOOLS_KWBIMAGE \
+	--disable TOOLS_LIBCRYPTO \
+	--disable TOOLS_MKEFICAPSULE \
+	--enable SERIAL_RX_BUFFER
 
 ifdef CONFIG_TARGET_mediatek
 UBOOT_MAKE_FLAGS += $(UBOOT_IMAGE:.fip=.bin)

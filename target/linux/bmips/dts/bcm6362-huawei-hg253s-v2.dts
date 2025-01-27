@@ -41,13 +41,14 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led_phone_green: led@28 {
+		led_phone_green: led-28 {
 			label = "green:phone";
 			gpios = <&gpio 28 GPIO_ACTIVE_LOW>;
 		};
 
-		led@30 {
-			label = "green:usb";
+		led-30 {
+			function = LED_FUNCTION_USB;
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio 30 GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -160,10 +161,20 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			cferom: partition@0 {
+			partition@0 {
 				label = "cferom";
 				reg = <0x0000000 0x0020000>;
 				read-only;
+
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					macaddr_cferom_6a0: macaddr@6a0 {
+						reg = <0x6a0 0x6>;
+					};
+				};
 			};
 
 			partition@20000 {
@@ -223,14 +234,4 @@
 
 &usbh {
 	status = "okay";
-};
-
-&cferom {
-	compatible = "nvmem-cells";
-	#address-cells = <1>;
-	#size-cells = <1>;
-
-	macaddr_cferom_6a0: macaddr@6a0 {
-		reg = <0x6a0 0x6>;
-	};
 };

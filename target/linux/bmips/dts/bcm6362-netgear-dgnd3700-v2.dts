@@ -42,13 +42,14 @@
 	leds {
 		compatible = "gpio-leds";
 
-		led@28 {
+		led-28 {
 			label = "green:dsl";
 			gpios = <&gpio 28 GPIO_ACTIVE_LOW>;
 		};
 
-		led_power_red: led@34 {
-			label = "red:power";
+		led_power_red: led-34 {
+			function = LED_FUNCTION_POWER;
+			color = <LED_COLOR_ID_RED>;
 			gpios = <&gpio 34 GPIO_ACTIVE_LOW>;
 			panic-indicator;
 		};
@@ -85,13 +86,15 @@
 
 	led_power_green: led@8 {
 		reg = <8>;
-		label = "green:power";
+		function = LED_FUNCTION_POWER;
+		color = <LED_COLOR_ID_GREEN>;
 	};
 
 	led@9 {
 		reg = <9>;
 		active-low;
-		label = "green:wps";
+		function = LED_FUNCTION_WPS;
+		color = <LED_COLOR_ID_GREEN>;
 	};
 
 	led@10 {
@@ -212,10 +215,20 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			cferom: partition@0 {
+			partition@0 {
 				label = "cferom";
 				reg = <0x0000000 0x0004000>;
 				read-only;
+
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					macaddr_cferom_6a0: macaddr@6a0 {
+						reg = <0x6a0 0x6>;
+					};
+				};
 			};
 
 			partition@4000 {
@@ -297,14 +310,4 @@
 
 &usbh {
 	status = "okay";
-};
-
-&cferom {
-	compatible = "nvmem-cells";
-	#address-cells = <1>;
-	#size-cells = <1>;
-
-	macaddr_cferom_6a0: macaddr@6a0 {
-		reg = <0x6a0 0x6>;
-	};
 };

@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	aliases {
@@ -18,7 +19,8 @@
 		compatible = "gpio-leds";
 
 		usb {
-			label = "blue:usb";
+			function = LED_FUNCTION_USB;
+			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&gpio 7 GPIO_ACTIVE_LOW>;
 			trigger-sources = <&xhci_ehci_port1>;
 			linux,default-trigger = "usbport";
@@ -37,7 +39,8 @@
 		};
 
 		led_cpu: cpu {
-			label = "blue:cpu";
+			function = LED_FUNCTION_CPU;
+			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -65,7 +68,7 @@
 	flash@0 {
 		compatible = "jedec,spi-nor";
 		reg = <0>;
-		spi-max-frequency = <80000000>;
+		spi-max-frequency = <50000000>;
 		m25p,fast-read;
 
 		partitions {
@@ -73,20 +76,23 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			uboot: partition@0 {
-				compatible = "nvmem-cells";
+			partition@0 {
 				label = "u-boot";
 				reg = <0x0 0x20000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
 				read-only;
 
-				macaddr_uboot_1fc20: macaddr@1fc20 {
-					reg = <0x1fc20 0x6>;
-				};
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_uboot_1fc40: macaddr@1fc40 {
-					reg = <0x1fc40 0x6>;
+					macaddr_uboot_1fc20: macaddr@1fc20 {
+						reg = <0x1fc20 0x6>;
+					};
+
+					macaddr_uboot_1fc40: macaddr@1fc40 {
+						reg = <0x1fc40 0x6>;
+					};
 				};
 			};
 
@@ -96,20 +102,23 @@
 				read-only;
 			};
 
-			factory: partition@30000 {
-				compatible = "nvmem-cells";
+			partition@30000 {
 				label = "factory";
 				reg = <0x30000 0x10000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
 				read-only;
 
-				eeprom_factory_0: eeprom@0 {
-					reg = <0x0 0x4da8>;
-				};
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				eeprom_factory_8000: eeprom@8000 {
-					reg = <0x8000 0x4da8>;
+					eeprom_factory_0: eeprom@0 {
+						reg = <0x0 0x4da8>;
+					};
+
+					eeprom_factory_8000: eeprom@8000 {
+						reg = <0x8000 0x4da8>;
+					};
 				};
 			};
 
@@ -143,10 +152,8 @@
 	nvmem-cell-names = "mac-address";
 };
 
-&mdio {
-	ethphy0: ethernet-phy@0 {
-		reg = <0>;
-	};
+&ethphy0 {
+	/delete-property/ interrupts;
 };
 
 &switch0 {

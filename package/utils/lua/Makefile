@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lua
 PKG_VERSION:=5.1.5
-PKG_RELEASE:=10
+PKG_RELEASE:=11
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.lua.org/ftp/ \
@@ -20,6 +20,8 @@ PKG_BUILD_PARALLEL:=1
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYRIGHT
 PKG_CPE_ID:=cpe:/a:lua:lua
+
+PKG_BUILD_FLAGS:=no-lto
 
 HOST_PATCH_DIR := ./patches-host
 

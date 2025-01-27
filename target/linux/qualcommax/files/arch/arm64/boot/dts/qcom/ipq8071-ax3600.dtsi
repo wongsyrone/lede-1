@@ -151,28 +151,30 @@
 				reg = <0x800000 0x80000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_dp2: macaddr@6 {
-					reg = <0x6 0x6>;
-				};
+					macaddr_dp2: macaddr@6 {
+						reg = <0x6 0x6>;
+					};
 
-				macaddr_dp3: macaddr@c {
-					reg = <0xc 0x6>;
-				};
+					macaddr_dp3: macaddr@c {
+						reg = <0xc 0x6>;
+					};
 
-				macaddr_dp4: macaddr@12 {
-					reg = <0x12 0x6>;
-				};
+					macaddr_dp4: macaddr@12 {
+						reg = <0x12 0x6>;
+					};
 
-				macaddr_dp5: macaddr@18 {
-					reg = <0x18 0x6>;
-				};
+					macaddr_dp5: macaddr@18 {
+						reg = <0x18 0x6>;
+					};
 
-				caldata_qca9889: caldata@4d000 {
-					reg = <0x33000 0x844>;
+					caldata_qca9889: caldata@4d000 {
+						reg = <0x33000 0x844>;
+					};
 				};
 			};
 
@@ -211,57 +213,55 @@
 	pinctrl-names = "default";
 	reset-gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
 
-	qca8075_1: ethernet-phy@1 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <1>;
-	};
+	ethernet-phy-package@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "qcom,qca8075-package";
+		reg = <0>;
 
-	qca8075_2: ethernet-phy@2 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <2>;
-	};
+		qca8075_1: ethernet-phy@1 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <1>;
+		};
 
-	qca8075_3: ethernet-phy@3 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <3>;
-	};
+		qca8075_2: ethernet-phy@2 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <2>;
+		};
 
-	qca8075_4: ethernet-phy@4 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <4>;
+		qca8075_3: ethernet-phy@3 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <3>;
+		};
+
+		qca8075_4: ethernet-phy@4 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <4>;
+		};
 	};
 };
 
 &switch {
 	status = "okay";
 
-	switch_cpu_bmp = <0x1>;  /* cpu port bitmap */
-	switch_lan_bmp = <0x1e>; /* lan port bitmap */
-	switch_wan_bmp = <0x20>; /* wan port bitmap */
-	switch_mac_mode = <0x0>; /* mac mode for uniphy instance0*/
-	switch_mac_mode1 = <0xff>; /* mac mode for uniphy instance1*/
-	switch_mac_mode2 = <0xff>; /* mac mode for uniphy instance2*/
-	bm_tick_mode = <0>; /* bm tick mode */
-	tm_tick_mode = <0>; /* tm tick mode */
+	switch_lan_bmp = <(ESS_PORT3 | ESS_PORT4 | ESS_PORT5)>; /* lan port bitmap */
+	switch_wan_bmp = <ESS_PORT2>; /* wan port bitmap */
+	switch_mac_mode = <MAC_MODE_PSGMII>; /* mac mode for uniphy instance0*/
 
 	qcom,port_phyinfo {
-		port@0 {
-			port_id = <1>;
-			phy_address = <0>;
-		};
-		port@1 {
+		port@2 {
 			port_id = <2>;
 			phy_address = <1>;
 		};
-		port@2 {
+		port@3 {
 			port_id = <3>;
 			phy_address = <2>;
 		};
-		port@3 {
+		port@4 {
 			port_id = <4>;
 			phy_address = <3>;
 		};
-		port@4 {
+		port@5 {
 			port_id = <5>;
 			phy_address = <4>;
 		};

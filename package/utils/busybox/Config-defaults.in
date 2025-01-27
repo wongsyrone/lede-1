@@ -28,6 +28,9 @@ config BUSYBOX_DEFAULT_FEATURE_COMPRESS_USAGE
 config BUSYBOX_DEFAULT_LFS
 	bool
 	default y
+config BUSYBOX_DEFAULT_TIME64
+	bool
+	default n
 config BUSYBOX_DEFAULT_PAM
 	bool
 	default n
@@ -252,10 +255,10 @@ config BUSYBOX_DEFAULT_FEATURE_EDITING_HISTORY
 	default 256
 config BUSYBOX_DEFAULT_FEATURE_EDITING_SAVEHISTORY
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_FEATURE_EDITING_SAVE_ON_EXIT
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_FEATURE_REVERSE_SEARCH
 	bool
 	default n
@@ -1187,6 +1190,9 @@ config BUSYBOX_DEFAULT_FEATURE_FIND_EXEC
 config BUSYBOX_DEFAULT_FEATURE_FIND_EXEC_PLUS
 	bool
 	default n
+config BUSYBOX_DEFAULT_FEATURE_FIND_EXEC_OK
+	bool
+	default n
 config BUSYBOX_DEFAULT_FEATURE_FIND_USER
 	bool
 	default y
@@ -1339,7 +1345,7 @@ config BUSYBOX_DEFAULT_USE_BB_CRYPT
 	default n
 config BUSYBOX_DEFAULT_USE_BB_CRYPT_SHA
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_ADD_SHELL
 	bool
 	default n
@@ -1372,7 +1378,7 @@ config BUSYBOX_DEFAULT_CHPASSWD
 	default n
 config BUSYBOX_DEFAULT_FEATURE_DEFAULT_PASSWD_ALGO
 	string
-	default "md5"
+	default "sha256"
 config BUSYBOX_DEFAULT_CRYPTPW
 	bool
 	default n
@@ -1807,7 +1813,7 @@ config BUSYBOX_DEFAULT_FEATURE_SETPRIV_CAPABILITY_NAMES
 	default n
 config BUSYBOX_DEFAULT_SETSID
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_SWAPON
 	bool
 	default y
@@ -2055,6 +2061,9 @@ config BUSYBOX_DEFAULT_FLASH_UNLOCK
 	bool
 	default n
 config BUSYBOX_DEFAULT_FLASHCP
+	bool
+	default n
+config BUSYBOX_DEFAULT_GETFATTR
 	bool
 	default n
 config BUSYBOX_DEFAULT_HDPARM
@@ -2463,6 +2472,9 @@ config BUSYBOX_DEFAULT_FEATURE_IP_ADDRESS
 config BUSYBOX_DEFAULT_FEATURE_IP_LINK
 	bool
 	default y
+config BUSYBOX_DEFAULT_FEATURE_IP_LINK_CAN
+	bool
+	default n
 config BUSYBOX_DEFAULT_FEATURE_IP_ROUTE
 	bool
 	default y
@@ -2686,6 +2698,9 @@ config BUSYBOX_DEFAULT_ZCIP
 	bool
 	default n
 config BUSYBOX_DEFAULT_UDHCPD
+	bool
+	default n
+config BUSYBOX_DEFAULT_FEATURE_UDHCPD_BOOTP
 	bool
 	default n
 config BUSYBOX_DEFAULT_FEATURE_UDHCPD_BASE_IP_ON_MAC
@@ -3048,9 +3063,6 @@ config BUSYBOX_DEFAULT_ASH_PRINTF
 config BUSYBOX_DEFAULT_ASH_TEST
 	bool
 	default y
-config BUSYBOX_DEFAULT_ASH_SLEEP
-	bool
-	default n
 config BUSYBOX_DEFAULT_ASH_HELP
 	bool
 	default n

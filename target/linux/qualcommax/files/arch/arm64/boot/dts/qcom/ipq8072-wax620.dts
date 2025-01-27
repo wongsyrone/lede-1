@@ -15,6 +15,8 @@
 	aliases {
 		serial0 = &blsp1_uart5;
 		ethernet0 = &dp6;
+		label-mac-device = &dp6;
+
 		led-boot = &led_system_blue;
 		led-failsafe = &led_system_red;
 		led-running = &led_system_green;
@@ -106,7 +108,6 @@
 			label = "wlan5g:green";
 			gpios = <&led_gpio 5 GPIO_ACTIVE_HIGH>;
 		};
-
 	};
 };
 
@@ -117,17 +118,12 @@
 &switch {
 	status = "okay";
 
-	switch_cpu_bmp = <0x01>;	
-	switch_lan_bmp = <0x3e>;
-	switch_wan_bmp = <0x40>;
-	switch_mac_mode = <0x00>;
-	switch_mac_mode1 = <0xff>;
-	switch_mac_mode2 = <0x0f>;
-	bm_tick_mode = <0x00>;
-	tm_tick_mode = <0x00>;
+	switch_lan_bmp = <ESS_PORT6>;
+	switch_mac_mode = <MAC_MODE_PSGMII>;
+	switch_mac_mode2 = <MAC_MODE_SGMII_CHANNEL0>;
 
 	qcom,port_phyinfo {
-		port@5 {
+		port@6 {
 			port_id = <6>;
 			phy_address = <28>;
 			port_mac_sel = "QGMAC_PORT";

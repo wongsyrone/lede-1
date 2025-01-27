@@ -13,6 +13,7 @@
 
 	aliases {
 		ethernet0 = &gmac0;
+		label-mac-device = &gmac0;
 		led-boot = &led_power_r;
 		led-failsafe = &led_power_r;
 		led-running = &led_power_g;
@@ -84,6 +85,7 @@
 			default-state = "off";
 			gpios = <&pio 85 GPIO_ACTIVE_LOW>;
 			label = "wifin:green";
+			linux,default-trigger = "phy0tpt";
 		};
 
 		wifin_blue {
@@ -96,6 +98,7 @@
 			default-state = "off";
 			gpios = <&pio 2 GPIO_ACTIVE_HIGH>;
 			label = "wifia:green";
+			linux,default-trigger = "phy1tpt";
 		};
 
 		wifia_blue {
@@ -111,10 +114,6 @@
 };
 
 &bch {
-	status = "okay";
-};
-
-&btif {
 	status = "okay";
 };
 
@@ -147,13 +146,13 @@
 		#address-cells = <1>;
 		#size-cells = <0>;
 
-		switch@0 {
+		switch@1f {
 			compatible = "mediatek,mt7531";
+			reg = <31>;
 			#interrupt-cells = <1>;
 			interrupt-controller;
 			interrupt-parent = <&pio>;
 			interrupts = <53 IRQ_TYPE_LEVEL_HIGH>;
-			reg = <0>;
 			reset-gpios = <&pio 54 GPIO_ACTIVE_HIGH>;
 
 			ports {
@@ -405,19 +404,22 @@
 			};
 
 			factory: partition@1c0000 {
-				compatible = "nvmem-cells";
 				label = "Factory";
 				reg = <0x1c0000 0x0100000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
 				read-only;
 
-				macaddr_factory_7fff4: macaddr@7fff4 {
-					reg = <0x7fff4 0x6>;
-				};
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_factory_7fffa: macaddr@7fffa {
-					reg = <0x7fffa 0x6>;
+					macaddr_factory_7fff4: macaddr@7fff4 {
+						reg = <0x7fff4 0x6>;
+					};
+
+					macaddr_factory_7fffa: macaddr@7fffa {
+						reg = <0x7fffa 0x6>;
+					};
 				};
 			};
 

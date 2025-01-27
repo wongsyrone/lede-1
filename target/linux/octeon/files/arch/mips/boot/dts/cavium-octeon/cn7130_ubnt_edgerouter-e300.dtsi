@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	compatible = "ubnt,edgerouter-e300", "cavium,cn7130";
@@ -32,12 +33,14 @@
 		compatible = "gpio-leds";
 
 		led_power_blue: power_blue {
-			label = "blue:power";
+			function = LED_FUNCTION_POWER;
+			color = <LED_COLOR_ID_BLUE>;
 			gpios = <&gpio 17 GPIO_ACTIVE_HIGH>;
 		};
 
 		led_power_white: power_white {
-			label = "white:power";
+			function = LED_FUNCTION_POWER;
+			color = <LED_COLOR_ID_WHITE>;
 			gpios = <&gpio 15 GPIO_ACTIVE_HIGH>;
 		};
 	};
@@ -117,16 +120,20 @@
 			};
 
 			partition@400000 {
-				compatible = "nvmem-cells";
-				reg = <0x400000 0x10000>;
 				label = "eeprom";
 				read-only;
+				reg = <0x400000 0x10000>;
 
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_eeprom_0: macaddr@0 {
-					reg = <0x0 0x6>;
+					macaddr_eeprom_0: macaddr@0 {
+						compatible = "mac-base";
+						reg = <0x0 0x6>;
+						#nvmem-cell-cells = <1>;
+					};
 				};
 			};
 		};
@@ -194,9 +201,8 @@
 			status = "okay";
 			phy-mode = "sgmii";
 			phy-handle = <&phy5>;
-			nvmem-cells = <&macaddr_eeprom_0>;
+			nvmem-cells = <&macaddr_eeprom_0 1>;
 			nvmem-cell-names = "mac-address";
-			mac-address-increment = <(1)>;
 		};
 
 		ethernet@2 {
@@ -204,9 +210,8 @@
 			status = "okay";
 			phy-mode = "sgmii";
 			phy-handle = <&phy6>;
-			nvmem-cells = <&macaddr_eeprom_0>;
+			nvmem-cells = <&macaddr_eeprom_0 2>;
 			nvmem-cell-names = "mac-address";
-			mac-address-increment = <(2)>;
 		};
 
 		ethernet@3 {
@@ -214,10 +219,8 @@
 			status = "okay";
 			phy-mode = "sgmii";
 			phy-handle = <&phy7>;
-			nvmem-cells = <&macaddr_eeprom_0>;
+			nvmem-cells = <&macaddr_eeprom_0 3>;
 			nvmem-cell-names = "mac-address";
-			mac-address-increment = <(3)>;
 		};
 	};
 };
-

@@ -107,7 +107,7 @@ static int mt7620_gsw_config(struct fe_priv *priv)
 	return 0;
 }
 
-static void mt7620_set_mac(struct fe_priv *priv, unsigned char *mac)
+static void mt7620_set_mac(struct fe_priv *priv, const unsigned char *mac)
 {
 	struct mt7620_gsw *gsw = (struct mt7620_gsw *)priv->soc->swpriv;
 	unsigned long flags;
@@ -286,11 +286,6 @@ static void mt7620_port_init(struct fe_priv *priv, struct device_node *np)
 	}
 }
 
-static void mt7620_fe_reset(struct fe_priv *priv)
-{
-	fe_reset(MT7620A_RESET_FE | MT7620A_RESET_ESW);
-}
-
 static void mt7620_rxcsum_config(bool enable)
 {
 	if (enable)
@@ -348,7 +343,6 @@ static void mt7620_init_data(struct fe_soc_data *data,
 
 static struct fe_soc_data mt7620_data = {
 	.init_data = mt7620_init_data,
-	.reset_fe = mt7620_fe_reset,
 	.set_mac = mt7620_set_mac,
 	.fwd_config = mt7620_fwd_config,
 	.tx_dma = mt7620_tx_dma,

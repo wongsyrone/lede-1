@@ -48,45 +48,38 @@
 		compatible = "gpio-leds";
 
 		led_system_blue: system-blue {
-			label = "blue:system";
 			gpios = <&tlmm 48 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_BLUE>;
 		};
 
 		led_system_yellow: system-yellow {
-			label = "yellow:system";
 			gpios = <&tlmm 52 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_YELLOW>;
 		};
 
 		network-yellow {
-			label = "yellow:network";
 			gpios = <&tlmm 50 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_YELLOW>;
 		};
 
 		network-blue {
-			label = "blue:network";
 			gpios = <&tlmm 51 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_BLUE>;
 		};
 
 		top-red {
-			label = "red:top";
 			gpios = <&tlmm 63 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_RED>;
 			default-state = "keep";
 		};
 
 		top-green {
-			label = "green:top";
 			gpios = <&tlmm 64 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_GREEN>;
 			default-state = "keep";
 		};
 
 		top-blue {
-			label = "blue:top";
 			gpios = <&tlmm 66 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_BLUE>;
 			default-state = "keep";
@@ -280,32 +273,34 @@
 				reg = <0xf80000 0x80000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_dp1: macaddr@0 {
-					reg = <0x0 0x6>;
-				};
+					macaddr_dp1: macaddr@0 {
+						reg = <0x0 0x6>;
+					};
 
-				macaddr_dp2: macaddr@6 {
-					reg = <0x6 0x6>;
-				};
+					macaddr_dp2: macaddr@6 {
+						reg = <0x6 0x6>;
+					};
 
-				macaddr_dp3: macaddr@c {
-					reg = <0xc 0x6>;
-				};
+					macaddr_dp3: macaddr@c {
+						reg = <0xc 0x6>;
+					};
 
-				macaddr_dp4: macaddr@12 {
-					reg = <0x12 0x6>;
-				};
+					macaddr_dp4: macaddr@12 {
+						reg = <0x12 0x6>;
+					};
 
-				macaddr_dp5: macaddr@18 {
-					reg = <0x18 0x6>;
-				};
+					macaddr_dp5: macaddr@18 {
+						reg = <0x18 0x6>;
+					};
 
-				caldata_qca9889: caldata@4d000 {
-					reg = <0x4d000 0x844>;
+					caldata_qca9889: caldata@4d000 {
+						reg = <0x4d000 0x844>;
+					};
 				};
 			};
 
@@ -352,63 +347,129 @@
 	pinctrl-names = "default";
 	reset-gpios = <&tlmm 37 GPIO_ACTIVE_LOW>;
 
-	qca8075_0: ethernet-phy@0 {
-		compatible = "ethernet-phy-ieee802.3-c22";
+	ethernet-phy-package@0 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "qcom,qca8075-package";
 		reg = <0>;
-	};
 
-	qca8075_1: ethernet-phy@1 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <1>;
-	};
+		qcom,package-mode = "qsgmii";
 
-	qca8075_2: ethernet-phy@2 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <2>;
-	};
+		qca8075_0: ethernet-phy@0 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <0>;
 
-	qca8075_3: ethernet-phy@3 {
-		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <3>;
+			leds {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				led@0 {
+					reg = <0>;
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_LAN;
+					default-state = "keep";
+				};
+			};
+		};
+
+		qca8075_1: ethernet-phy@1 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <1>;
+
+			leds {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				led@0 {
+					reg = <0>;
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_LAN;
+					default-state = "keep";
+				};
+			};
+		};
+
+		qca8075_2: ethernet-phy@2 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <2>;
+
+			leds {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				led@0 {
+					reg = <0>;
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_LAN;
+					default-state = "keep";
+				};
+			};
+		};
+
+		qca8075_3: ethernet-phy@3 {
+			compatible = "ethernet-phy-ieee802.3-c22";
+			reg = <3>;
+
+			leds {
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				led@0 {
+					reg = <0>;
+					color = <LED_COLOR_ID_GREEN>;
+					function = LED_FUNCTION_LAN;
+					default-state = "keep";
+				};
+			};
+		};
 	};
 
 	qca8081: ethernet-phy@24 {
 		compatible = "ethernet-phy-id004d.d101";
 		reg = <24>;
+		reset-deassert-us = <10000>;
 		reset-gpios = <&tlmm 44 GPIO_ACTIVE_LOW>;
+
+		leds {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			led@0 {
+				reg = <0>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_WAN;
+				default-state = "keep";
+			};
+		};
 	};
 };
 
 &switch {
 	status = "okay";
 
-	switch_cpu_bmp = <0x1>;  /* cpu port bitmap */
-	switch_lan_bmp = <0x1e>; /* lan port bitmap */
-	switch_wan_bmp = <0x20>; /* wan port bitmap */
-	switch_mac_mode = <0xb>; /* mac mode for uniphy instance0*/
-	switch_mac_mode1 = <0xc>; /* mac mode for uniphy instance1*/
-	switch_mac_mode2 = <0xff>; /* mac mode for uniphy instance2*/
-	bm_tick_mode = <0>; /* bm tick mode */
-	tm_tick_mode = <0>; /* tm tick mode */
+	switch_lan_bmp = <(ESS_PORT1 | ESS_PORT2 | ESS_PORT3 | ESS_PORT4)>; /* lan port bitmap */
+	switch_wan_bmp = <ESS_PORT5>; /* wan port bitmap */
+	switch_mac_mode = <MAC_MODE_QSGMII>; /* mac mode for uniphy instance0*/
+	switch_mac_mode1 = <MAC_MODE_SGMII_PLUS>; /* mac mode for uniphy instance1*/
 
 	qcom,port_phyinfo {
-		port@0 {
+		port@1 {
 			port_id = <1>;
 			phy_address = <0>;
 		};
-		port@1 {
+		port@2 {
 			port_id = <2>;
 			phy_address = <1>;
 		};
-		port@2 {
+		port@3 {
 			port_id = <3>;
 			phy_address = <2>;
 		};
-		port@3 {
+		port@4 {
 			port_id = <4>;
 			phy_address = <3>;
 		};
-		port@4 {
+		port@5 {
 			port_id = <5>;
 			phy_address = <24>;
 			port_mac_sel = "QGMAC_PORT";
@@ -422,6 +483,7 @@
 
 &dp1 {
 	status = "okay";
+	phy-mode = "qsgmii";
 	phy-handle = <&qca8075_0>;
 	label = "lan4";
 	nvmem-cells = <&macaddr_dp1>;
@@ -430,6 +492,7 @@
 
 &dp2 {
 	status = "okay";
+	phy-mode = "qsgmii";
 	phy-handle = <&qca8075_1>;
 	label = "lan3";
 	nvmem-cells = <&macaddr_dp2>;
@@ -438,6 +501,7 @@
 
 &dp3 {
 	status = "okay";
+	phy-mode = "qsgmii";
 	phy-handle = <&qca8075_2>;
 	label = "lan2";
 	nvmem-cells = <&macaddr_dp3>;
@@ -446,6 +510,7 @@
 
 &dp4 {
 	status = "okay";
+	phy-mode = "qsgmii";
 	phy-handle = <&qca8075_3>;
 	label = "lan1";
 	nvmem-cells = <&macaddr_dp4>;
@@ -454,6 +519,7 @@
 
 &dp5 {
 	status = "okay";
+	phy-mode = "sgmii";
 	phy-handle = <&qca8081>;
 	label = "wan";
 	nvmem-cells = <&macaddr_dp5>;

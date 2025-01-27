@@ -5,6 +5,7 @@
 #include "ap/hostapd.h"
 #include "wpa_supplicant_i.h"
 #include "wps_supplicant.h"
+#include "ctrl_iface.h"
 #include "bss.h"
 #include "ucode.h"
 
@@ -255,6 +256,31 @@ uc_wpas_iface_status(uc_vm_t *vm, size_t nargs)
 	return ret;
 }
 
+static uc_value_t *
+uc_wpas_iface_ctrl(uc_vm_t *vm, size_t nargs)
+{
+	struct wpa_supplicant *wpa_s = uc_fn_thisval("wpas.iface");
+	uc_value_t *arg = uc_fn_arg(0);
+	size_t reply_len;
+	uc_value_t *ret;
+	char *reply;
+
+	if (!wpa_s || ucv_type(arg) != UC_STRING)
+		return NULL;
+
+	reply = wpa_supplicant_ctrl_iface_process(wpa_s, ucv_string_get(arg), &reply_len);
+	if (reply_len < 0)
+		return NULL;
+
+	if (reply_len && reply[reply_len - 1] == '\n')
+		reply_len--;
+
+	ret = ucv_string_new_length(reply, reply_len);
+	free(reply);
+
+	return ret;
+}
+
 int wpas_ucode_init(struct wpa_global *gl)
 {
 	static const uc_function_list_t global_fns[] = {
@@ -262,9 +288,11 @@ int wpas_ucode_init(struct wpa_global *gl)
 		{ "getpid", uc_wpa_getpid },
 		{ "add_iface", uc_wpas_add_iface },
 		{ "remove_iface", uc_wpas_remove_iface },
+		{ "udebug_set", uc_wpa_udebug_set },
 	};
 	static const uc_function_list_t iface_fns[] = {
 		{ "status", uc_wpas_iface_status },
+		{ "ctrl", uc_wpas_iface_ctrl },
 	};
 	uc_value_t *data, *proto;
 

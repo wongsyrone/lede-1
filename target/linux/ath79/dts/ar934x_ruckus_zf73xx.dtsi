@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 #include <dt-bindings/mtd/partitions/uimage.h>
 
 / {
@@ -51,7 +52,8 @@
 			    <&clks_disable_pins>;
 
 		power_green: power-green {
-			label = "green:power";
+			function = LED_FUNCTION_POWER;
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
 			default-state = "on";
 		};
@@ -102,9 +104,12 @@
 			};
 
 			partition@f40000 {
-				compatible = "u-boot,env";
 				label = "u-boot-env";
 				reg = <0xf40000 0x040000>;
+
+				nvmem-layout {
+					compatible = "u-boot,env";
+				};
 			};
 
 			board_data: partition@f80000 {
@@ -177,22 +182,4 @@
 
 &usb_phy {
 	status = "okay";
-};
-
-&board_data {
-	compatible = "nvmem-cells";
-	#address-cells = <1>;
-	#size-cells = <1>;
-
-	macaddr_board_data_60: macaddr@60 {
-		reg = <0x60 0x6>;
-	};
-
-	macaddr_board_data_66: macaddr@66 {
-		reg = <0x66 0x6>;
-	};
-
-	cal_board_data_41000: cal@41000 {
-		reg = <0x41000 0x440>;
-	};
 };

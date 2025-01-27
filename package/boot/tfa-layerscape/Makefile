@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tfa-layerscape
-PKG_VERSION:=lf-6.1.1-1.0.0
-PKG_RELEASE:=1
+PKG_VERSION:=6.6.23.2.0.0
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/nxp-qoriq/atf
-PKG_SOURCE_VERSION:=lf-6.1.1-1.0.0
-PKG_MIRROR_HASH:=c0e3c7d0cc9ee5f9ae68cd705ce7f07f714c4fe3fd4a5a79de5699e7865b759f
+PKG_SOURCE_VERSION:=lf-6.6.23-2.0.0
+PKG_MIRROR_HASH:=628a95ba60a593ae0575ee9ede1154445ec3a86a07b18e4947e06e13c2b67859
 PKG_BUILD_DEPENDS:=tfa-layerscape/host
 
 include $(INCLUDE_DIR)/host-build.mk
@@ -25,7 +25,7 @@ HOST_CFLAGS += -Wall -Werror -pedantic -std=c99
 define Host/Compile
 	$(MAKE) -C \
 		$(HOST_BUILD_DIR)/tools/fiptool \
-		PLAT_FIPTOOL_HELPER_MK="$(HOST_BUILD_DIR)/tools/nxp/plat_fiptool/plat_fiptool.mk" \
+		PLAT_FIPTOOL_HELPER_MK="$(HOST_BUILD_DIR)/tools/fiptool/plat_fiptool/nxp/plat_fiptool.mk" \
 		CFLAGS="$(HOST_CFLAGS)" \
 		LDFLAGS="$(HOST_LDFLAGS)" \
 		HOSTCCFLAGS="$(HOST_CFLAGS)"
@@ -161,6 +161,7 @@ TFA_TARGETS := \
   lx2160a-rdb-sdboot
 
 TFA_MAKE_FLAGS += \
+	$(if $(CONFIG_BINUTILS_VERSION_2_37)$(CONFIG_BINUTILS_VERSION_2_38),,LDFLAGS="-no-warn-rwx-segments") \
 	fip pbl \
 	BOOT_MODE=$(BOOT_MODE) \
 	RCW=$(STAGING_DIR_IMAGE)/fsl_$(BUILD_VARIANT)-rcw.bin \

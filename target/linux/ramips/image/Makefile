@@ -31,7 +31,7 @@ KERNEL_DTB = kernel-bin | append-dtb | lzma
 
 define Build/jcg-header
 	$(STAGING_DIR_HOST)/bin/jcgimage -v $(1) \
-		$(if $(JCG_MAXSIZE), -m $$(($(subst k, * 1024,$(JCG_MAXSIZE)))),) \
+		$(if $(JCG_MAXSIZE), -m $$(($(call exp_units,$(JCG_MAXSIZE)))),) \
 		-u $@ -o $@.new
 	mv $@.new $@
 endef
@@ -140,9 +140,9 @@ define Build/sign-dlink-ru
 endef
 
 define Build/trx
-	$(STAGING_DIR_HOST)/bin/trx $(1) \
+	-$(STAGING_DIR_HOST)/bin/trx $(1) \
 		-o $@ \
-		-m $$(($(subst k, * 1024,$(IMAGE_SIZE)))) \
+		-m $$(($(call exp_units,$(IMAGE_SIZE)))) \
 		-f $(IMAGE_KERNEL) \
 		-a 4 -f $(IMAGE_ROOTFS)
 endef
@@ -165,10 +165,6 @@ endef
 define Build/wrg-header
 	mkwrgimg -i $@ -d "/dev/mtdblock/2" -s $(1) -o $@.new
 	mv $@.new $@
-endef
-
-define Build/zyimage
-	$(STAGING_DIR_HOST)/bin/zyimage $(1) $@
 endef
 
 define Device/Default

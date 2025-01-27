@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	compatible = "linksys,re7000", "mediatek,mt7621-soc";
@@ -26,12 +27,14 @@
 		};
 
 		wps {
-			label = "orange:wps";
+			function = LED_FUNCTION_WPS;
+			color = <LED_COLOR_ID_ORANGE>;
 			gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
 		};
 
 		led_power: power {
-			label = "green:power";
+			function = LED_FUNCTION_POWER;
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio 25 GPIO_ACTIVE_HIGH>;
 		};
 	};
@@ -83,24 +86,27 @@
 				read-only;
 			};
 
-			factory: partition@40000 {
-				compatible = "nvmem-cells";
+			partition@40000 {
 				label = "factory";
 				reg = <0x40000 0x10000>;
-				#address-cells = <1>;
-				#size-cells = <1>;
 				read-only;
 
-				eeprom_factory_0: eeprom@0 {
-					reg = <0x0 0x400>;
-				};
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				eeprom_factory_8000: eeprom@8000 {
-					reg = <0x8000 0x4da8>;
-				};
+					eeprom_factory_0: eeprom@0 {
+						reg = <0x0 0x400>;
+					};
 
-				macaddr_factory_2e: macaddr@2e {
-					reg = <0x2e 0x6>;
+					eeprom_factory_8000: eeprom@8000 {
+						reg = <0x8000 0x4da8>;
+					};
+
+					macaddr_factory_2e: macaddr@2e {
+						reg = <0x2e 0x6>;
+					};
 				};
 			};
 

@@ -27,6 +27,13 @@ case "$board" in
 		hw_mac_addr=$(macaddr_unsetbit $hw_mac_addr 28)
 		[ "$PHYNBR" = "1" ] && macaddr_setbit_la $hw_mac_addr > /sys${DEVPATH}/macaddress
 		;;
+	buffalo,wsr-2533dhpls)
+		lan_mac_addr=$(mtd_get_mac_ascii board_data "mac")
+		[ "$PHYNBR" = "0" ] && \
+			macaddr_add $lan_mac_addr 1 > /sys${DEVPATH}/macaddress
+		[ "$PHYNBR" = "1" ] && \
+			macaddr_add $lan_mac_addr 8 > /sys${DEVPATH}/macaddress
+		;;
 	comfast,cf-e390ax)
 		[ "$PHYNBR" = "0" ] && echo -n "$(mtd_get_mac_binary factory 0x0004)" > /sys${DEVPATH}/macaddress
 		[ "$PHYNBR" = "1" ] && echo -n "$(mtd_get_mac_binary factory 0x8004)" > /sys${DEVPATH}/macaddress
@@ -46,12 +53,24 @@ case "$board" in
 		[ "$PHYNBR" = "1" ] && \
 			macaddr_add $lan_mac_addr 2 > /sys${DEVPATH}/macaddress
 		;;
+	dlink,covr-x1860-a1)
+		label_mac=$(mtd_get_mac_ascii config2 factory_mac)
+		[ "$PHYNBR" = "0" ] && \
+			macaddr_add $label_mac 1 > /sys${DEVPATH}/macaddress
+		[ "$PHYNBR" = "1" ] && \
+			macaddr_add $label_mac 2 > /sys${DEVPATH}/macaddress
+		;;
 	dlink,dap-x1860-a1)
 		hw_mac_addr="$(mtd_get_mac_binary factory 0x4)"
 		[ "$PHYNBR" = "0" ] && \
 			macaddr_add $hw_mac_addr 1 > /sys${DEVPATH}/macaddress
 		[ "$PHYNBR" = "1" ] && \
 			macaddr_add $hw_mac_addr 4 > /sys${DEVPATH}/macaddress
+		;;
+	dlink,dir-3040-a1)
+		lan_mac_addr="$(mtd_get_mac_binary factory 0xe000)"
+		[ "$PHYNBR" = "0" ] && \
+			macaddr_add $lan_mac_addr 2 > /sys${DEVPATH}/macaddress
 		;;
 	dlink,dir-853-a3)
 		[ "$PHYNBR" = "0" ] && \
@@ -65,7 +84,8 @@ case "$board" in
 			macaddr_setbit_la "$base_mac" > /sys${DEVPATH}/macaddress
 		fi
 		;;
-	glinet,gl-mt1300)
+	glinet,gl-mt1300|\
+	z-router,zr-2660)
 		[ "$PHYNBR" = "1" ] && \
 			macaddr_add "$(mtd_get_mac_binary factory 0x4)" 1 > /sys${DEVPATH}/macaddress
 		;;
@@ -106,6 +126,10 @@ case "$board" in
 		[ "$PHYNBR" = "1" ] && \
 			macaddr_setbit_la "$(mtd_get_mac_binary Factory 0x4)" > /sys${DEVPATH}/macaddress
 		;;
+	keenetic,kn-3510)
+		[ "$PHYNBR" = "1" ] && \
+			macaddr_setbit_la "$(mtd_get_mac_binary rf-eeprom 0x4)" > /sys${DEVPATH}/macaddress
+		;;
 	linksys,e5600|\
 	linksys,ea6350-v4|\
 	linksys,ea7300-v1|\
@@ -133,6 +157,19 @@ case "$board" in
 		[ "$PHYNBR" = "0" ] && macaddr_add $hw_mac_addr 2 > /sys${DEVPATH}/macaddress
 		[ "$PHYNBR" = "1" ] && macaddr_add $hw_mac_addr 3 > /sys${DEVPATH}/macaddress
 		;;
+	netgear,wax214v2)
+		hw_mac_addr=$(mtd_get_mac_ascii Config ethaddr)
+		[ "$PHYNBR" = "0" ] && macaddr_add $hw_mac_addr 2 > /sys${DEVPATH}/macaddress
+		[ "$PHYNBR" = "1" ] && macaddr_add $hw_mac_addr 3 > /sys${DEVPATH}/macaddress
+		;;
+	netis,n6)
+		hw_mac_addr="$(mtd_get_mac_binary Factory 0x4)"
+		hw_mac_addr=$(macaddr_setbit $hw_mac_addr 28)
+		hw_mac_2g=$(macaddr_unsetbit $hw_mac_addr 26)
+		hw_mac_5g=$(macaddr_setbit $hw_mac_addr 27)
+		[ "$PHYNBR" = "0" ] && echo -n "$hw_mac_2g" > /sys${DEVPATH}/macaddress
+		[ "$PHYNBR" = "1" ] && echo -n "$hw_mac_5g" > /sys${DEVPATH}/macaddress
+		;;
 	mercusys,mr70x-v1|\
 	tplink,archer-ax23-v1)
 		hw_mac_addr="$(mtd_get_mac_binary config 0x8)"
@@ -156,6 +193,11 @@ case "$board" in
 		[ "$PHYNBR" = "0" ] && \
 			macaddr_setbit_la "$(get_mac_label)" > /sys${DEVPATH}/macaddress
 		;;
+	ruijie,rg-ew1200g-pro-v1.1)
+		hw_mac_addr="$(mtd_get_mac_ascii product_info ethaddr)"
+		[ "$PHYNBR" = "0" ] && macaddr_add $hw_mac_addr 1 > /sys${DEVPATH}/macaddress
+		[ "$PHYNBR" = "1" ] && macaddr_add $hw_mac_addr 2 > /sys${DEVPATH}/macaddress
+		;;
 	snr,snr-cpe-me2-sfp)
 		hw_mac_addr="$(mtd_get_mac_binary factory 0x8004)"
 		[ "$PHYNBR" = "1" ] &&  echo -n "$hw_mac_addr" > /sys${DEVPATH}/macaddress
@@ -173,7 +215,12 @@ case "$board" in
 		hw_mac_addr="$(mtd_get_mac_binary product-info 0x8)"
 		macaddr_add "$hw_mac_addr" "$PHYNBR" > "/sys${DEVPATH}/macaddress"
 		;;
-	yuncore,ax820)
+	tplink,ex220-v1)
+		hw_mac_addr="$(mtd_get_mac_binary rom_file 0xf100)"
+		[ "$PHYNBR" = "1" ] &&  macaddr_add "$hw_mac_addr" 2 > "/sys${DEVPATH}/macaddress"
+		;;
+	yuncore,ax820|\
+	yuncore,g720)
 		[ "$PHYNBR" = "1" ] && \
 			macaddr_setbit_la "$(mtd_get_mac_binary Factory 0xe000)" > /sys${DEVPATH}/macaddress
 		;;

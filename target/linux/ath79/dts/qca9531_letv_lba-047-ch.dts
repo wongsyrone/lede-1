@@ -33,21 +33,18 @@
 		compatible = "gpio-leds";
 
 		led_status_blue: led-0 {
-			label = "blue:status";
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
 		};
 
 		led_status_green: led-1 {
-			label = "green:status";
 			color = <LED_COLOR_ID_GREEN>;
 			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
 		};
 
 		led_status_red: led-2 {
-			label = "red:status";
 			color = <LED_COLOR_ID_RED>;
 			function = LED_FUNCTION_STATUS;
 			gpios = <&gpio 11 GPIO_ACTIVE_LOW>;
@@ -119,20 +116,22 @@
 				reg = <0xff0000 0x10000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_art_0: macaddr@0 {
-					reg = <0x0 0x6>;
-				};
+					macaddr_art_0: macaddr@0 {
+						reg = <0x0 0x6>;
+					};
 
-				macaddr_art_6: macaddr@6 {
-					reg = <0x6 0x6>;
-				};
+					macaddr_art_6: macaddr@6 {
+						reg = <0x6 0x6>;
+					};
 
-				cal_art_1000: calibration@1000 {
-					reg = <0x1000 0x440>;
+					cal_art_1000: calibration@1000 {
+						reg = <0x1000 0x440>;
+					};
 				};
 			};
 		};

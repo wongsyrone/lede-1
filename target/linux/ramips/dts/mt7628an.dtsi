@@ -30,6 +30,28 @@
 		compatible = "mti,cpu-interrupt-controller";
 	};
 
+	mmc_reg_1v8: regulator-1v8 {
+		compatible = "regulator-fixed";
+
+		enable-active-high;
+
+		regulator-always-on;
+		regulator-max-microvolt = <1800000>;
+		regulator-min-microvolt = <1800000>;
+		regulator-name = "mmc_io";
+	};
+
+	mmc_reg_3v3: regulator-3v3 {
+		compatible = "regulator-fixed";
+
+		enable-active-high;
+
+		regulator-always-on;
+		regulator-max-microvolt = <3300000>;
+		regulator-min-microvolt = <3300000>;
+		regulator-name = "mmc_power";
+	};
+
 	palmbus: palmbus@10000000 {
 		compatible = "palmbus";
 		reg = <0x10000000 0x200000>;
@@ -39,7 +61,7 @@
 		#size-cells = <1>;
 
 		sysc: syscon@0 {
-			compatible = "ralink,mt7628-sysc", "syscon";
+			compatible = "ralink,mt7628-sysc", "ralink,mt7688-sysc", "syscon";
 			reg = <0x0 0x100>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
@@ -52,11 +74,8 @@
 		};
 
 		intc: intc@200 {
-			compatible = "ralink,mt7628an-intc", "ralink,rt2880-intc";
+			compatible = "ralink,rt2880-intc";
 			reg = <0x200 0x100>;
-
-			resets = <&sysc 9>;
-			reset-names = "intc";
 
 			interrupt-controller;
 			#interrupt-cells = <1>;
@@ -72,9 +91,6 @@
 		memc: memc@300 {
 			compatible = "ralink,mt7620a-memc", "ralink,rt3050-memc";
 			reg = <0x300 0x100>;
-
-			resets = <&sysc 10>;
-			reset-names = "mc";
 
 			interrupt-parent = <&intc>;
 			interrupts = <3>;
@@ -98,7 +114,7 @@
 			compatible = "mediatek,mt7621-i2c";
 			reg = <0x900 0x100>;
 
-			clocks = <&sysc 7>;
+			clocks = <&sysc 9>;
 			clock-names = "i2c";
 
 			resets = <&sysc 16>;
@@ -117,7 +133,7 @@
 			compatible = "mediatek,mt7628-i2s";
 			reg = <0xa00 0x100>;
 
-			clocks = <&sysc 8>;
+			clocks = <&sysc 10>;
 
 			resets = <&sysc 17>;
 			reset-names = "i2s";
@@ -139,7 +155,7 @@
 			compatible = "ralink,mt7621-spi";
 			reg = <0xb00 0x100>;
 
-			clocks = <&sysc 9>;
+			clocks = <&sysc 11>;
 			clock-names = "spi";
 
 			resets = <&sysc 18>;
@@ -162,7 +178,7 @@
 			reg-io-width = <4>;
 			no-loopback-test;
 
-			clocks = <&sysc 11>;
+			clocks = <&sysc 13>;
 
 			resets = <&sysc 12>;
 
@@ -181,7 +197,7 @@
 			reg-io-width = <4>;
 			no-loopback-test;
 
-			clocks = <&sysc 12>;
+			clocks = <&sysc 14>;
 
 			resets = <&sysc 19>;
 
@@ -202,7 +218,7 @@
 			reg-io-width = <4>;
 			no-loopback-test;
 
-			clocks = <&sysc 13>;
+			clocks = <&sysc 15>;
 
 			resets = <&sysc 20>;
 
@@ -219,9 +235,6 @@
 			compatible = "mediatek,mt7628-pwm";
 			reg = <0x5000 0x1000>;
 			#pwm-cells = <2>;
-
-			resets = <&sysc 31>;
-			reset-names = "pwm";
 
 			pinctrl-names = "default";
 			pinctrl-0 = <&pwm0_pins>, <&pwm1_pins>;
@@ -364,15 +377,34 @@
 		reset-names = "host", "device";
 	};
 
-	sdhci: sdhci@10130000 {
-		compatible = "ralink,mt7620-sdhci";
+	sdhci: mmc@10130000 {
+		compatible = "mediatek,mt7620-mmc", "ralink,mt7620-sdhci";
 		reg = <0x10130000 0x4000>;
+
+		bus-width = <4>;
+
+		cap-mmc-highspeed;
+		cap-sd-highspeed;
+
+		clocks = <&sysc 16>, <&sysc 16>;
+		clock-names = "source", "hclk";
+
+		disable-wp;
 
 		interrupt-parent = <&intc>;
 		interrupts = <14>;
 
-		pinctrl-names = "default";
+		max-frequency = <24000000>;
+
+		pinctrl-names = "default", "state_uhs";
 		pinctrl-0 = <&sdxc_pins>;
+		pinctrl-1 = <&sdxc_pins>;
+
+		resets = <&sysc 30>;
+		reset-names = "hrst";
+
+		vmmc-supply = <&mmc_reg_3v3>;
+		vqmmc-supply = <&mmc_reg_1v8>;
 
 		status = "disabled";
 	};
@@ -420,18 +452,18 @@
 		interrupt-parent = <&cpuintc>;
 		interrupts = <5>;
 
-		resets = <&sysc 21>;
-		reset-names = "fe";
+		resets = <&sysc 21>, <&sysc 23>;
+		reset-names = "fe", "esw";
 
 		mediatek,switch = <&esw>;
 	};
 
 	esw: esw@10110000 {
-		compatible = "mediatek,mt7628-esw", "ralink,rt3050-esw";
+		compatible = "ralink,rt3050-esw";
 		reg = <0x10110000 0x8000>;
 
-		resets = <&sysc 23>, <&sysc 24>;
-		reset-names = "esw", "ephy";
+		resets = <&sysc 24>;
+		reset-names = "ephy";
 
 		interrupt-parent = <&intc>;
 		interrupts = <17>;
@@ -477,7 +509,7 @@
 		compatible = "mediatek,mt7628-wmac";
 		reg = <0x10300000 0x100000>;
 
-		clocks = <&sysc 14>;
+		clocks = <&sysc 17>;
 
 		interrupt-parent = <&cpuintc>;
 		interrupts = <6>;

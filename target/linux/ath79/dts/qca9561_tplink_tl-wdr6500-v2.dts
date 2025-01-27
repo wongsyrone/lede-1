@@ -4,6 +4,7 @@
 
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/leds/common.h>
 
 / {
 	compatible = "tplink,tl-wdr6500-v2", "qca,qca9561";
@@ -51,7 +52,8 @@
 		};
 
 		wan {
-			label = "green:wan";
+			function = LED_FUNCTION_WAN;
+			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
 		};
 
@@ -81,12 +83,16 @@
 				reg = <0x000000 0x010000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				macaddr_uboot_0fc00: macaddr@0fc00 {
-					reg = <0x0fc00 0x6>;
+					macaddr_uboot_fc00: macaddr@fc00 {
+						compatible = "mac-base";
+						reg = <0xfc00 0x6>;
+						#nvmem-cell-cells = <1>;
+					};
 				};
 			};
 
@@ -101,16 +107,18 @@
 				reg = <0x7f0000 0x010000>;
 				read-only;
 
-				compatible = "nvmem-cells";
-				#address-cells = <1>;
-				#size-cells = <1>;
+				nvmem-layout {
+					compatible = "fixed-layout";
+					#address-cells = <1>;
+					#size-cells = <1>;
 
-				calibration_ath9k: calibration@1000 {
-					reg = <0x1000 0x440>;
-				};
+					calibration_ath9k: calibration@1000 {
+						reg = <0x1000 0x440>;
+					};
 
-				calibration_ath10k: calibration@5000 {
-					reg = <0x5000 0x844>;
+					calibration_ath10k: calibration@5000 {
+						reg = <0x5000 0x844>;
+					};
 				};
 			};
 		};
@@ -128,9 +136,8 @@
 		compatible = "qcom,ath10k";
 		reg = <0 0 0 0 0>;
 
-		nvmem-cells = <&macaddr_uboot_0fc00>, <&calibration_ath10k>;
+		nvmem-cells = <&macaddr_uboot_fc00 (-2)>, <&calibration_ath10k>;
 		nvmem-cell-names = "mac-address", "calibration";
-		mac-address-increment = <(-2)>;
 	};
 };
 
@@ -143,24 +150,22 @@
 
 	phy-handle = <&swphy4>;
 
-	nvmem-cells = <&macaddr_uboot_0fc00>;
+	nvmem-cells = <&macaddr_uboot_fc00 1>;
 	nvmem-cell-names = "mac-address";
-	mac-address-increment = <1>;
 };
 
 &eth1 {
 	status = "okay";
 
-	nvmem-cells = <&macaddr_uboot_0fc00>;
+	nvmem-cells = <&macaddr_uboot_fc00 0>;
 	nvmem-cell-names = "mac-address";
 };
 
 &wmac {
 	status = "okay";
 
-	nvmem-cells = <&macaddr_uboot_0fc00>, <&calibration_ath9k>;
+	nvmem-cells = <&macaddr_uboot_fc00 (-1)>, <&calibration_ath9k>;
 	nvmem-cell-names = "mac-address", "calibration";
-	mac-address-increment = <(-1)>;
 };
 
 &usb0 {
