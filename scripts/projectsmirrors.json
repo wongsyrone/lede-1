@@ -10,6 +10,7 @@
 		"https://mirrors.ustc.edu.cn/debian"
 	],
 	"@APACHE": [
+		"http://mirrors.ustc.edu.cn/apache",
 		"https://dlcdn.apache.org",
 		"https://mirror.aarnet.edu.au/pub/apache",
 		"https://mirror.csclub.uwaterloo.ca/apache",
@@ -26,6 +27,7 @@
                 "https://raw.githubusercontent.com"
         ],
 	"@GNU": [
+		"http://mirrors.ustc.edu.cn/gnu",
 		"https://ftpmirror.gnu.org",
 		"https://mirror.csclub.uwaterloo.ca/gnu",
 		"https://mirror.netcologne.de/gnu",
@@ -46,6 +48,7 @@
 		"https://cdimage.debian.org/mirror/gnu.org/savannah"
 	],
 	"@KERNEL": [
+		"http://mirrors.ustc.edu.cn/kernel.org",
 		"https://cdn.kernel.org/pub",
 		"https://mirrors.mit.edu/kernel",
 		"http://ftp.nara.wide.ad.jp/pub/kernel.org",
