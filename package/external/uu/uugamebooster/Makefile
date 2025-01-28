@@ -12,7 +12,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uugamebooster
-PKG_VERSION:=v3.6.2
+PKG_UPSTREAM_VERSION:=v8.0.12
+PKG_VERSION:=8.0.12
 PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -31,30 +32,30 @@ endef
 
 ifeq ($(ARCH),arm)
 	UU_ARCH:=arm
-	PKG_MD5SUM:=ee720928879208091c509c685f21db05
+	PKG_MD5SUM:=36bd566975c9dc268b7fb10f231ef3de
 endif
 
 ifeq ($(ARCH),aarch64)
 	UU_ARCH:=aarch64
-	PKG_MD5SUM:=279ec2a24f2765669aee8f57cb47e30d
+	PKG_MD5SUM:=be822752d4fb242d2b8e1a9f5291be22
 endif
 
 ifeq ($(ARCH),mipsel)
 	UU_ARCH:=mipsel
-	PKG_MD5SUM:=d2176e47a783e0be9bbecbceb606470b
+	PKG_MD5SUM:=031c579e1b7a5c1e1a02d82909ac4453
 endif
 
 ifeq ($(ARCH),x86_64)
 	UU_ARCH:=x86_64
-	PKG_MD5SUM:=3656d9cedbe369be7adc059248a9d4bd
+	PKG_MD5SUM:=78162cf2b0f10a2285bd6ee302444ad0
 endif
 
-PKG_SOURCE_URL:=https://uu.gdl.netease.com/uuplugin/openwrt-$(UU_ARCH)/$(PKG_VERSION)/uu.tar.gz?
-PKG_SOURCE:=$(PKG_NAME)-$(UU_ARCH)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://uu.gdl.netease.com/uuplugin/openwrt-$(UU_ARCH)/$(PKG_UPSTREAM_VERSION)/uu.tar.gz?
+PKG_SOURCE:=$(PKG_NAME)-$(UU_ARCH)-$(PKG_UPSTREAM_VERSION).tar.gz
 
 STRIP:=true
 
-UNTAR_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/$(PKG_NAME)-$(UU_ARCH)-bin
+UNTAR_DIR:=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_UPSTREAM_VERSION)/$(PKG_NAME)-$(UU_ARCH)-bin
 
 define Build/Prepare
 	mkdir -vp $(UNTAR_DIR)
