@@ -7,12 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kmod-igb-intel
-PKG_VERSION:=5.14.16
+PKG_VERSION:=5.18.7
 PKG_RELEASE:=1
 
-PKG_SOURCE:=igb-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://downloads.sourceforge.net/project/e1000/igb%20stable/$(PKG_VERSION)/
-PKG_MD5SUM:=eaacff1aa1c82c275d9733bad6234d76
+PKG_SOURCE_VERSION:=80b72d082854daffa3285f037dec49a5c3f5b807
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/intel/ethernet-linux-igb/tar.gz/$(PKG_SOURCE_VERSION)?
+PKG_HASH:=d8dacd621ec2b90abbabd402496e4559e8f48e35e10f354baad4eef373f1b7f0
 
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
