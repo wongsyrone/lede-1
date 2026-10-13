@@ -59,14 +59,14 @@
 &gpio {
 	gpio_ext_lna0 {
 		gpio-hog;
-		gpios = <15 0>;
+		gpios = <15 GPIO_ACTIVE_HIGH>;
 		output-high;
 		line-name = "ext:lna0";
 	};
 
 	gpio_ext_lna1 {
 		gpio-hog;
-		gpios = <18 0>;
+		gpios = <18 GPIO_ACTIVE_HIGH>;
 		output-high;
 		line-name = "ext:lna1";
 	};
@@ -79,9 +79,9 @@
 &mdio0 {
 	status = "okay";
 
-	switch0@1f {
+	ethernet-switch@10 {
 		compatible = "qca,ar8327";
-		reg = <0x1f>;
+		reg = <0x10>;
 
 		qca,ar8327-initvals = <
 			0x04 0x07600000 /* PORT0 PAD MODE CTRL */

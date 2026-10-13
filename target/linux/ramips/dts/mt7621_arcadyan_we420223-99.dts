@@ -145,6 +145,7 @@
 			partition@490000 {
 				label = "rootfs";
 				reg = <0x490000 0x1b20000>;
+				linux,rootfs;
 			};
 
 			partition@1000000 {
@@ -184,6 +185,10 @@
 	};
 };
 
+&usb_phy {
+	status = "disabled";
+};
+
 &xhci {
 	status = "disabled";
 };
@@ -212,7 +217,8 @@
 };
 
 &pcie1 {
-	mt76@0,0 {
+	wifi@0,0 {
+		compatible = "mediatek,mt76";
 		reg = <0x0000 0 0 0 0>;
 		nvmem-cells = <&eeprom_factory_0>;
 		nvmem-cell-names = "eeprom";

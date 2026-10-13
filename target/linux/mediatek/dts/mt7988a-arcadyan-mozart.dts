@@ -5,13 +5,14 @@
 #include <dt-bindings/input/input.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/leds/common.h>
+#include <dt-bindings/phy/phy.h>
 
 / {
 	compatible = "arcadyan,mozart", "mediatek,mt7988a";
 	model = "MediaTek / Arcadyan - Mozart";
 
 	aliases {
-		serial0 = &uart0;
+		serial0 = &serial0;
 		led-boot = &led_status_blue;
 		led-failsafe = &led_status_red;
 		led-running = &led_status_green;
@@ -59,40 +60,26 @@
 			gpios = <&pio 13 GPIO_ACTIVE_LOW>;
 		};
 	};
-};
 
-&pio {
-	mdio0_pins: mdio0-pins {
-		mux {
-			function = "eth";
-			groups = "mdc_mdio0";
-		};
-
-		conf {
-			groups = "mdc_mdio0";
-			drive-strength = <MTK_DRIVE_10mA>;
-		};
-	};
-
-	spic_pins: spi1-pins {
-		mux {
-			function = "spi";
-			groups = "spi1";
-		};
+	fan: pwm-fan {
+		compatible = "pwm-fan";
+		#cooling-cells = <2>;
+		#thermal-sensor-cells = <1>;
+		/* cooling level (0, 1, 2) : (0% duty, 50% duty, 100% duty) */
+		cooling-levels = <0 128 255>;
+		pwms = <&pwm 1 40000 0>;
 	};
 };
 
 &usxgmiisys0 {
-	mediatek,pnswap-rx;
+	rx-polarity = <PHY_POL_INVERT>;
 };
 
 &usxgmiisys1 {
-	mediatek,pnswap-rx;
+	rx-polarity = <PHY_POL_INVERT>;
 };
 
 &mdio_bus {
-	#address-cells = <1>;
-	#size-cells = <0>;
 	reset-gpios = <&pio 72 GPIO_ACTIVE_LOW>;
 	reset-assert-us = <100000>;
 	reset-deassert-us = <100000>;
@@ -173,23 +160,18 @@
 	};
 };
 
-&uart1 {
-	status = "okay";
-};
-
-&fan {
-	pwms = <&pwm 1 40000 0>;
-	status = "okay";
-};
-
 &pwm {
+	status = "okay";
+};
+
+&serial1 {
 	status = "okay";
 };
 
 &spi1 {
 	pinctrl-names = "default";
 	/* pin shared with snfi */
-	pinctrl-0 = <&spic_pins>;
+	pinctrl-0 = <&spi1_pins>;
 	status = "disabled";
 };
 
@@ -326,8 +308,11 @@
 
 	pcie@0,0 {
 		reg = <0x0000 0 0 0 0>;
+		#address-cells = <3>;
+		#size-cells = <2>;
 
-		mt7996@1,0 {
+		wifi@0,0 {
+			compatible = "mediatek,mt76";
 			reg = <0x0000 0 0 0 0>;
 			nvmem-cells = <&eeprom_factory_0>;
 			nvmem-cell-names = "eeprom";

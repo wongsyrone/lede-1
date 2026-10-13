@@ -1312,7 +1312,7 @@ static int mt7621_nfc_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int mt7621_nfc_remove(struct platform_device *pdev)
+static void mt7621_nfc_remove(struct platform_device *pdev)
 {
 	struct mt7621_nfc *nfc = platform_get_drvdata(pdev);
 	struct nand_chip *nand = &nfc->nand;
@@ -1321,18 +1321,16 @@ static int mt7621_nfc_remove(struct platform_device *pdev)
 	mtk_bmt_detach(mtd);
 	mtd_device_unregister(mtd);
 	nand_cleanup(nand);
-
-	return 0;
 }
 
 static const struct of_device_id mt7621_nfc_id_table[] = {
 	{ .compatible = "mediatek,mt7621-nfc" },
 	{ },
 };
-MODULE_DEVICE_TABLE(of, match);
+MODULE_DEVICE_TABLE(of, mt7621_nfc_id_table);
 
 static struct platform_driver mt7621_nfc_driver = {
-	.probe = mt7621_nfc_probe,
+	.probe  = mt7621_nfc_probe,
 	.remove = mt7621_nfc_remove,
 	.driver = {
 		.name = MT7621_NFC_NAME,

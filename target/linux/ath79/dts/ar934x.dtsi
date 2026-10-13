@@ -154,7 +154,7 @@
 		};
 
 		wmac: wmac@18100000 {
-			compatible = "qca,ar9340-wmac";
+			compatible = "qca,ar9340-wifi";
 			reg = <0x18100000 0x20000>;
 
 			status = "disabled";
@@ -283,6 +283,7 @@
 	clocks = <&pll ATH79_CLK_AHB>, <&pll ATH79_CLK_AHB>;
 	clock-names = "eth", "mdio";
 	phy-mode = "gmii";
+	builtin-switch;
 
 	fixed-link {
 		speed = <1000>;

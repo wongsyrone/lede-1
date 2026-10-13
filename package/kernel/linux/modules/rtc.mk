@@ -7,6 +7,24 @@
 
 RTC_MENU:=RTC Real-Time Clock Support
 
+define KernelPackage/rtc-bq32k
+  SUBMENU:=$(RTC_MENU)
+  TITLE:=Texas Instruments BQ32000 RTC support
+  DEFAULT:=m if ALL_KMODS && RTC_SUPPORT
+  DEPENDS:=+kmod-i2c-core
+  KCONFIG:=CONFIG_RTC_DRV_BQ32K \
+	CONFIG_RTC_CLASS=y
+  FILES:=$(LINUX_DIR)/drivers/rtc/rtc-bq32k.ko
+  AUTOLOAD:=$(call AutoProbe,rtc-bq32k)
+endef
+
+define KernelPackage/rtc-bq32k/description
+ Kernel module for Texas Instruments BQ32000 I2C RTC.
+endef
+
+$(eval $(call KernelPackage,rtc-bq32k))
+
+
 define KernelPackage/rtc-ds1307
   SUBMENU:=$(RTC_MENU)
   TITLE:=Dallas/Maxim DS1307 (and compatible) RTC support
@@ -116,11 +134,30 @@ endef
 $(eval $(call KernelPackage,rtc-mv))
 
 
+define KernelPackage/rtc-optee
+  SUBMENU:=$(RTC_MENU)
+  TITLE:=OP-TEE based RTC support
+  DEFAULT:=m if ALL_KMODS && RTC_SUPPORT
+  DEPENDS:=+kmod-optee
+  KCONFIG:=CONFIG_RTC_DRV_OPTEE \
+	CONFIG_RTC_CLASS=y
+  FILES:=$(LINUX_DIR)/drivers/rtc/rtc-optee.ko
+  AUTOLOAD:=$(call AutoProbe,rtc-optee)
+endef
+
+define KernelPackage/rtc-optee/description
+ Kernel module for the RTC service exposed by the OP-TEE Trusted
+ Execution Environment.
+endef
+
+$(eval $(call KernelPackage,rtc-optee))
+
+
 define KernelPackage/rtc-pcf8563
   SUBMENU:=$(RTC_MENU)
   TITLE:=Philips PCF8563/Epson RTC8564 RTC support
   DEFAULT:=m if ALL_KMODS && RTC_SUPPORT
-  DEPENDS:=+kmod-i2c-core
+  DEPENDS:=+kmod-i2c-core +!LINUX_6_12:kmod-regmap-i2c
   KCONFIG:=CONFIG_RTC_DRV_PCF8563 \
 	CONFIG_RTC_CLASS=y
   FILES:=$(LINUX_DIR)/drivers/rtc/rtc-pcf8563.ko
@@ -202,6 +239,23 @@ define KernelPackage/rtc-rs5c372a/description
 endef
 
 $(eval $(call KernelPackage,rtc-rs5c372a))
+
+define KernelPackage/rtc-rv3028
+  SUBMENU:=$(RTC_MENU)
+  TITLE:=Micro Crystal RV3028
+  DEFAULT:=m if ALL_KMODS && RTC_SUPPORT
+  DEPENDS:=+kmod-i2c-core  +kmod-regmap-i2c
+  KCONFIG:=CONFIG_RTC_DRV_RV3028 \
+	CONFIG_RTC_CLASS=y
+  FILES:=$(LINUX_DIR)/drivers/rtc/rtc-rv3028.ko
+  AUTOLOAD:=$(call AutoLoad,50,rtc-rv3028,1)
+endef
+
+define KernelPackage/rtc-rv3028/description
+ Kernel module for Micro Crystal RV3028 I2C RTC chip
+endef
+
+$(eval $(call KernelPackage,rtc-rv3028))
 
 define KernelPackage/rtc-rx8025
   SUBMENU:=$(RTC_MENU)

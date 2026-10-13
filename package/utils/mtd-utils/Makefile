@@ -8,17 +8,19 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mtd-utils
-PKG_VERSION:=2.2.1
+PKG_VERSION:=2.3.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://infraroot.at/pub/mtd/
-PKG_HASH:=f7ae20b2eb79ee83441468f0b99d897024cd96ff853eea59106fb1952065c803
+PKG_HASH:=03d9dc58ad10ea3549d9528f6b17a44d8944e18e96c0f31474f9f977078b83dc
 
 PKG_INSTALL:=1
 
 PKG_FLAGS:=nonshared
 PKG_BUILD_FLAGS:=gc-sections
+
+PKG_FIXUP:=autoreconf
 
 PKG_BUILD_DEPENDS:=util-linux
 
@@ -27,6 +29,8 @@ PKG_LICENSE_FILES:=
 PKG_CPE_ID:=cpe:/a:mtd-utils_project:mtd-utils
 
 PKG_MAINTAINER:=John Crispin <john@phrozen.org>
+
+PKG_BUILD_PARALLEL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -59,6 +63,7 @@ MAKE_FLAGS += LDLIBS+="$(LIBGCC_S)"
 
 CONFIGURE_ARGS += \
 	--enable-tests \
+	--disable-unit-tests \
 	--without-crypto \
 	--without-xattr \
 	--without-zstd \

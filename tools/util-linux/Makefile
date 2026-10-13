@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2006-2015 OpenWrt.org
+# Copyright (C) 2006-2025 OpenWrt.org
 #
 # This is free software, licensed under the GNU General Public License v2.
 # See /LICENSE for more information.
@@ -7,49 +7,22 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=util-linux
-PKG_VERSION:=2.40.2
+PKG_VERSION:=2.42.2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@KERNEL/linux/utils/$(PKG_NAME)/v2.40
-PKG_HASH:=d78b37a66f5922d70edf3bdfb01a6b33d34ed3c3cafd6628203b2a2b67c8e8b3
+PKG_SOURCE_URL:=@KERNEL/linux/utils/$(PKG_NAME)/v2.42
+PKG_HASH:=03a05d3adf9602ef128f2da05b84b3205ce60c351e5737c0370f74000679ce8a
 PKG_CPE_ID:=cpe:/a:kernel:util-linux
 
-PKG_FIXUP:=autoreconf
-
-HOST_BUILD_PARALLEL:=1
-
 include $(INCLUDE_DIR)/host-build.mk
+include $(INCLUDE_DIR)/meson.mk
 
-HOST_CONFIGURE_ARGS += \
-	--with-pic \
-	--disable-shared \
-	--disable-nls \
-	--disable-all-programs \
-	--enable-hexdump \
-	--enable-libuuid \
-	--without-util \
-	--without-selinux \
-	--without-audit \
-	--without-udev \
-	--without-ncursesw \
-	--without-ncurses \
-	--without-slang \
-	--without-tinfo \
-	--without-readline \
-	--without-utempter \
-	--without-cap-ng \
-	--without-libz \
-	--without-libmagic \
-	--without-user \
-	--without-btrfs \
-	--without-systemd \
-	--without-smack \
-	--without-econf \
-	--without-python \
-	--without-cryptsetup
-
-define Host/Uninstall
-	-$(call Host/Compile/Default,uninstall)
-endef
+MESON_HOST_ARGS += \
+	$(if $(findstring y,$(YEAR_2038)),,-Dallow-32bit-time=true) \
+	-Dauto_features=disabled \
+	-Dbuild-hexdump=enabled \
+	-Dbuild-libuuid=enabled \
+	-Dncurses=enabled \
+	-Dprogram-tests=false
 
 $(eval $(call HostBuild))

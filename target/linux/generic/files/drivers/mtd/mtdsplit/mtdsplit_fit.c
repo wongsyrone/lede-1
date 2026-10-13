@@ -206,18 +206,19 @@ mtdsplit_fit_parse(struct mtd_info *mtd,
 	struct mtd_partition *parts;
 	int ret, ndepth, noffset, images_noffset;
 	const void *img_data;
+	bool found_fit = false;
 	void *fit;
 
 	of_property_read_string(np, "openwrt,cmdline-match", &cmdline_match);
 	if (cmdline_match && !strstr(saved_command_line, cmdline_match))
-		return -ENODEV;
+		return -ENOENT;
 
 	of_property_read_u32(np, "openwrt,fit-offset", &offset_start);
 
 	hdr_len = sizeof(struct fdt_header);
 
 	/* Parse the MTD device & search for the FIT image location */
-	for(offset = 0; offset + hdr_len <= mtd->size; offset += mtd->erasesize) {
+	for (offset = 0; offset + offset_start + hdr_len <= mtd->size; offset += mtd->erasesize) {
 		ret = mtd_read(mtd, offset + offset_start, hdr_len, &retlen, (void*) &hdr);
 		if (ret) {
 			pr_err("read error in \"%s\" at offset 0x%llx\n",
@@ -238,7 +239,13 @@ mtdsplit_fit_parse(struct mtd_info *mtd,
 		}
 
 		/* We found a FIT image. Let's keep going */
+		found_fit = true;
 		break;
+	}
+
+	if (!found_fit) {
+		pr_info("No FIT image found in \"%s\"\n", mtd->name);
+		return -ENOENT;
 	}
 
 	fit_offset = offset;
@@ -247,7 +254,7 @@ mtdsplit_fit_parse(struct mtd_info *mtd,
 	if (fit_size == 0) {
 		pr_err("FIT image in \"%s\" at offset %llx has null size\n",
 		       mtd->name, (unsigned long long) fit_offset);
-		return -ENODEV;
+		return -ENOENT;
 	}
 
 	/*
@@ -258,7 +265,7 @@ mtdsplit_fit_parse(struct mtd_info *mtd,
 	 * hence we need to parse FDT structure to find the end of the
 	 * last external data refernced.
 	 */
-	if (fit_size > 0x1000) {
+	if (fit_size > 0x80000) {
 		enum mtdsplit_part_type type;
 
 		/* Search for the rootfs partition after the FIT image */
@@ -272,7 +279,7 @@ mtdsplit_fit_parse(struct mtd_info *mtd,
 
 		rootfs_size = mtd->size - rootfs_offset;
 
-		parts = kzalloc(2 * sizeof(*parts), GFP_KERNEL);
+		parts = kcalloc(2, sizeof(*parts), GFP_KERNEL);
 		if (!parts)
 			return -ENOMEM;
 
@@ -304,7 +311,7 @@ mtdsplit_fit_parse(struct mtd_info *mtd,
 		if (images_noffset < 0) {
 			pr_err("Can't find images parent node '%s' (%s)\n",
 			FIT_IMAGES_PATH, fdt_strerror(images_noffset));
-			return -ENODEV;
+			return -ENOENT;
 		}
 
 		for (ndepth = 0,
@@ -351,15 +358,4 @@ static struct mtd_part_parser uimage_parser = {
 	.type = MTD_PARSER_TYPE_FIRMWARE,
 };
 
-/**************************************************
- * Init
- **************************************************/
-
-static int __init mtdsplit_fit_init(void)
-{
-	register_mtd_parser(&uimage_parser);
-
-	return 0;
-}
-
-module_init(mtdsplit_fit_init);
+module_mtd_part_parser(uimage_parser);

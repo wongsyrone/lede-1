@@ -29,7 +29,6 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/mod_devicetable.h>
-#include <linux/version.h>
 #include <generated/utsrelease.h>
 #include <linux/types.h>
 #include <linux/fs.h>
@@ -185,7 +184,7 @@ static void *g_xdata_addr = NULL;
 static u32 *mei_arc_swap_buff = NULL;	//  holding swap pages
 
 extern void ltq_mask_and_ack_irq(struct irq_data *d);
-static void inline MEI_MASK_AND_ACK_IRQ(int x)
+static inline void MEI_MASK_AND_ACK_IRQ(int x)
 {
 	struct irq_data d;
 	d.hwirq = x;
@@ -1178,7 +1177,7 @@ DSL_BSP_AdslLedSet (DSL_DEV_Device_t * dev, DSL_DEV_LedId_t led_number, DSL_DEV_
 * \param       CMVMSG          The pointer to message buffer.
 * \ingroup     Internal
 */
-void
+static void
 makeCMV (u8 opcode, u8 group, u16 address, u16 index, int size, u16 * data, u16 *CMVMSG)
 {
         memset (CMVMSG, 0, MSG_LENGTH * 2);
@@ -1286,8 +1285,7 @@ IFX_MEI_RunAdslModem (DSL_DEV_Device_t *pDev)
 //	DSL_DEV_WinHost_Message_t m;
 
 	if (mei_arc_swap_buff == NULL) {
-		mei_arc_swap_buff =
-			(u32 *) kmalloc (MAXSWAPSIZE * 4, GFP_KERNEL);
+		mei_arc_swap_buff = kmalloc (MAXSWAPSIZE * 4, GFP_KERNEL);
 		if (mei_arc_swap_buff == NULL) {
 			IFX_MEI_EMSG (">>> malloc fail for codeswap buff!!! <<<\n");
 			return DSL_DEV_MEI_ERR_FAILURE;
@@ -1489,14 +1487,14 @@ IFX_MEI_DFEMemoryAlloc (DSL_DEV_Device_t * pDev, long size)
                         allocate_size = size;
                 else
                         allocate_size = SDRAM_SEGMENT_SIZE;
-        
+
 		org_mem_ptr = kmalloc (allocate_size, GFP_KERNEL);
 		if (org_mem_ptr == NULL) {
                         IFX_MEI_EMSG ("%d: kmalloc %d bytes memory fail!\n", idx, allocate_size);
 			err = -ENOMEM;
 			goto allocate_error;
 		}
-		
+
 		if (((unsigned long)org_mem_ptr) & (1023)) {
 			/* Pointer not 1k aligned, so free it and allocate a larger chunk
 			 * for further alignment.
@@ -1637,7 +1635,7 @@ DSL_BSP_FWDownload (DSL_DEV_Device_t * pDev, const char *buf,
 			retval = -ENOMEM;
 			goto error;
 		}
-		
+
 		if (((unsigned long)org_mem_ptr) & (1023)) {
 			/* Pointer not 1k aligned, so free it and allocate a larger chunk
 			 * for further alignment.
@@ -1654,7 +1652,7 @@ DSL_BSP_FWDownload (DSL_DEV_Device_t * pDev, const char *buf,
 		} else {
 			adsl_mem_info[XDATA_REGISTER].address = org_mem_ptr;
 		}
-		
+
 		adsl_mem_info[XDATA_REGISTER].org_address = org_mem_ptr;
 		adsl_mem_info[XDATA_REGISTER].size = SDRAM_SEGMENT_SIZE;
 
@@ -1770,7 +1768,7 @@ int DSL_BSP_EventCBUnregister(DSL_BSP_EventCallBack_t *p)
     IFX_MEI_EMSG("Dying Gasp! Shutting Down... (Work around for Amazon-S Venus emulator)\n");
 #else
 	IFX_MEI_EMSG("Dying Gasp! Shutting Down...\n");
-//	kill_proc (1, SIGINT, 1);   
+//	kill_proc (1, SIGINT, 1);
 #endif
         return IRQ_HANDLED;
 }
@@ -1787,6 +1785,7 @@ extern void ifx_usb_enable_afe_oc(void);
  */
 static irqreturn_t IFX_MEI_IrqHandle (int int1, void *void0)
 {
+	u32 stat;
 	u32 scratch;
 	DSL_DEV_Device_t *pDev = (DSL_DEV_Device_t *) void0;
 #if defined(CONFIG_LTQ_MEI_FW_LOOPBACK) && defined(DFE_PING_TEST)
@@ -1820,6 +1819,12 @@ static irqreturn_t IFX_MEI_IrqHandle (int int1, void *void0)
                 if (dsl_bsp_event_callback[event].function)
                         (*dsl_bsp_event_callback[event].function)(pDev, event, dsl_bsp_event_callback[event].pData);
         } else { // normal message
+                IFX_MEI_LongWordReadOffset (pDev, (u32) ME_ARC2ME_STAT, &stat);
+                if (!(stat & ARC_TO_MEI_MSGAV)) {
+                        // status register indicates there is no message
+                        return IRQ_NONE;
+                }
+
                 IFX_MEI_MailboxRead (pDev, DSL_DEV_PRIVATE(pDev)->CMV_RxMsg, MSG_LENGTH);
                 if (DSL_DEV_PRIVATE(pDev)-> cmv_waiting == 1) {
                         DSL_DEV_PRIVATE(pDev)-> arcmsgav = 1;
@@ -2444,7 +2449,7 @@ IFX_MEI_IoctlCopyTo (int from_kernel, char *dest, char *from, int size)
 	return ret;
 }
 
-int
+static int
 IFX_MEI_Ioctls (DSL_DEV_Device_t * pDev, int from_kernel, unsigned int command, unsigned long lon)
 {
 	int i = 0;
@@ -2771,16 +2776,12 @@ static int ltq_mei_probe(struct platform_device *pdev)
 	IFX_MEI_DMSG("Start loopback test...\n");
 	DFE_Loopback_Test ();
 #endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
-	dsl_class = class_create(THIS_MODULE, "ifx_mei");
-#else
 	dsl_class = class_create("ifx_mei");
-#endif
 	device_create(dsl_class, NULL, MKDEV(MEI_MAJOR, 0), NULL, "ifx_mei");
 	return 0;
 }
 
-static int ltq_mei_remove(struct platform_device *pdev)
+static void ltq_mei_remove(struct platform_device *pdev)
 {
 	int i = 0;
 	int num;
@@ -2794,7 +2795,6 @@ static int ltq_mei_remove(struct platform_device *pdev)
 			IFX_MEI_ExitDevice (i);
 		}
 	}
-	return 0;
 }
 
 static const struct of_device_id ltq_mei_match[] = {
@@ -2803,7 +2803,7 @@ static const struct of_device_id ltq_mei_match[] = {
 };
 
 static struct platform_driver ltq_mei_driver = {
-	.probe = ltq_mei_probe,
+	.probe  = ltq_mei_probe,
 	.remove = ltq_mei_remove,
 	.driver = {
 		.name = "lantiq,mei-xway",

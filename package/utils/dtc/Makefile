@@ -5,11 +5,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dtc
-PKG_VERSION:=1.7.1
+PKG_VERSION:=1.8.1
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_HASH:=9532f10098455711a4da37816fd567dfc8523bb01f59ad6c44887a112e553d9e
+PKG_HASH:=454e5cce748ce957c91e7f45e66da2cff5100ddb52155d7a909c43cbeaf1bcb0
 PKG_SOURCE_URL:=@KERNEL/software/utils/dtc
 
 PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
@@ -93,7 +93,7 @@ MESON_ARGS += \
 	-Dyaml=disabled \
 	-Dvalgrind=disabled \
 	-Dpython=disabled \
-	-Dstatic-build=$(if $(CONFIG_DTC_STATIC_BUILD),true,false)
+	$(if $(CONFIG_DTC_STATIC_BUILD),--prefer-static)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib

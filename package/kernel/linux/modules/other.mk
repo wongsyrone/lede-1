@@ -27,120 +27,6 @@ endef
 $(eval $(call KernelPackage,6lowpan))
 
 
-define KernelPackage/bluetooth
-  SUBMENU:=$(OTHER_MENU)
-  TITLE:=Bluetooth support
-  DEPENDS:=@USB_SUPPORT +kmod-usb-core +kmod-crypto-hash +kmod-crypto-ecb +kmod-lib-crc16 +kmod-hid +kmod-crypto-cmac +kmod-regmap-core +kmod-crypto-ecdh
-  KCONFIG:= \
-	CONFIG_BT \
-	CONFIG_BT_BREDR=y \
-	CONFIG_BT_DEBUGFS=n \
-	CONFIG_BT_LE=y \
-	CONFIG_BT_RFCOMM \
-	CONFIG_BT_BNEP \
-	CONFIG_BT_HCIBTUSB \
-	CONFIG_BT_HCIBTUSB_BCM=n \
-	CONFIG_BT_HCIBTUSB_MTK=y \
-	CONFIG_BT_HCIBTUSB_RTL=y \
-	CONFIG_BT_HCIUART \
-	CONFIG_BT_HCIUART_BCM=n \
-	CONFIG_BT_HCIUART_INTEL=n \
-	CONFIG_BT_HCIUART_H4 \
-	CONFIG_BT_HCIUART_NOKIA=n \
-	CONFIG_BT_HIDP
-  $(call AddDepends/rfkill)
-  FILES:= \
-	$(LINUX_DIR)/net/bluetooth/bluetooth.ko \
-	$(LINUX_DIR)/net/bluetooth/rfcomm/rfcomm.ko \
-	$(LINUX_DIR)/net/bluetooth/bnep/bnep.ko \
-	$(LINUX_DIR)/net/bluetooth/hidp/hidp.ko \
-	$(LINUX_DIR)/drivers/bluetooth/hci_uart.ko \
-	$(LINUX_DIR)/drivers/bluetooth/btusb.ko \
-	$(LINUX_DIR)/drivers/bluetooth/btintel.ko \
-	$(LINUX_DIR)/drivers/bluetooth/btrtl.ko \
-	$(LINUX_DIR)/drivers/bluetooth/btmtk.ko
-  AUTOLOAD:=$(call AutoProbe,bluetooth rfcomm bnep hidp hci_uart btusb)
-endef
-
-define KernelPackage/bluetooth/description
- Kernel support for Bluetooth devices
-endef
-
-$(eval $(call KernelPackage,bluetooth))
-
-define KernelPackage/ath3k
-  SUBMENU:=$(OTHER_MENU)
-  TITLE:=ATH3K Kernel Module support
-  DEPENDS:=+kmod-bluetooth +ar3k-firmware
-  KCONFIG:= \
-	CONFIG_BT_ATH3K \
-	CONFIG_BT_HCIUART_ATH3K=y
-  FILES:= \
-	$(LINUX_DIR)/drivers/bluetooth/ath3k.ko
-  AUTOLOAD:=$(call AutoProbe,ath3k)
-endef
-
-define KernelPackage/ath3k/description
- Kernel support for ATH3K Module
-endef
-
-$(eval $(call KernelPackage,ath3k))
-
-
-define KernelPackage/bluetooth-6lowpan
-  SUBMENU:=$(OTHER_MENU)
-  TITLE:=Bluetooth 6LoWPAN support
-  DEPENDS:=+kmod-6lowpan +kmod-bluetooth
-  KCONFIG:=CONFIG_BT_6LOWPAN
-  FILES:=$(LINUX_DIR)/net/bluetooth/bluetooth_6lowpan.ko
-  AUTOLOAD:=$(call AutoProbe,bluetooth_6lowpan)
-endef
-
-define KernelPackage/bluetooth-6lowpan/description
- Kernel support for 6LoWPAN over Bluetooth Low Energy devices
-endef
-
-$(eval $(call KernelPackage,bluetooth-6lowpan))
-
-
-define KernelPackage/btmrvl
-  SUBMENU:=$(OTHER_MENU)
-  TITLE:=Marvell Bluetooth Kernel Module support
-  DEPENDS:=+kmod-mmc +kmod-bluetooth +mwifiex-sdio-firmware
-  KCONFIG:= \
-	CONFIG_BT_MRVL \
-	CONFIG_BT_MRVL_SDIO
-  FILES:= \
-	$(LINUX_DIR)/drivers/bluetooth/btmrvl.ko \
-	$(LINUX_DIR)/drivers/bluetooth/btmrvl_sdio.ko
-  AUTOLOAD:=$(call AutoProbe,btmrvl btmrvl_sdio)
-endef
-
-define KernelPackage/btmrvl/description
- Kernel support for Marvell SDIO Bluetooth Module
-endef
-
-$(eval $(call KernelPackage,btmrvl))
-
-
-define KernelPackage/btsdio
-  SUBMENU:=$(OTHER_MENU)
-  TITLE:=Bluetooth HCI SDIO driver
-  DEPENDS:=+kmod-bluetooth +kmod-mmc
-  KCONFIG:= \
-	CONFIG_BT_HCIBTSDIO
-  FILES:= \
-	$(LINUX_DIR)/drivers/bluetooth/btsdio.ko
-  AUTOLOAD:=$(call AutoProbe,btsdio)
-endef
-
-define KernelPackage/btsdio/description
- Kernel support for Bluetooth device with SDIO interface
-endef
-
-$(eval $(call KernelPackage,btsdio))
-
-
 define KernelPackage/dma-buf
   SUBMENU:=$(OTHER_MENU)
   TITLE:=DMA shared buffer support
@@ -269,7 +155,9 @@ $(eval $(call KernelPackage,mlx_wdt))
 define KernelPackage/mlxreg
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Mellanox platform register access
-  DEPENDS:=@TARGET_x86 +kmod-i2c-mux-mlxcpld
+  DEPENDS:=@TARGET_x86 \
+	+kmod-i2c-mux-mlxcpld \
+	+kmod-i2c-mux-reg
   KCONFIG:= \
 	CONFIG_MELLANOX_PLATFORM=y \
 	CONFIG_MLX_PLATFORM \
@@ -278,7 +166,8 @@ define KernelPackage/mlxreg
 	CONFIG_SENSORS_MLXREG_FAN \
 	CONFIG_LEDS_MLXREG
   FILES:= \
-	$(LINUX_DIR)/drivers/platform/x86/mlx-platform.ko \
+	$(LINUX_DIR)/drivers/platform/x86/mlx-platform.ko@lt6.18 \
+	$(LINUX_DIR)/drivers/platform/mellanox/mlx-platform.ko@ge6.18 \
 	$(LINUX_DIR)/drivers/platform/mellanox/mlxreg-hotplug.ko \
 	$(LINUX_DIR)/drivers/platform/mellanox/mlxreg-io.ko \
 	$(LINUX_DIR)/drivers/hwmon/mlxreg-fan.ko \
@@ -334,7 +223,7 @@ define KernelPackage/pinctrl-mcp23s08
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Microchip MCP23xxx I/O expander
   HIDDEN:=1
-  DEPENDS:=@GPIO_SUPPORT +kmod-regmap-core
+  DEPENDS:=@GPIO_SUPPORT @PINCTRL_SUPPORT +kmod-regmap-core
   KCONFIG:=CONFIG_PINCTRL_MCP23S08
   FILES:=$(LINUX_DIR)/drivers/pinctrl/pinctrl-mcp23s08.ko
   AUTOLOAD:=$(call AutoLoad,40,pinctrl-mcp23s08)
@@ -423,7 +312,7 @@ $(eval $(call KernelPackage,parport-pc))
 define KernelPackage/lp
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Parallel port line printer device support
-  DEPENDS:=+kmod-ppdev
+  DEPENDS:=printer-support +kmod-ppdev
   KCONFIG:= \
 	CONFIG_PRINTER
   FILES:= \
@@ -638,6 +527,22 @@ endef
 $(eval $(call KernelPackage,mtdram))
 
 
+define KernelPackage/phram
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=MTD device backed by physical RAM
+  KCONFIG:=CONFIG_MTD_PHRAM
+  FILES:=$(LINUX_DIR)/drivers/mtd/devices/phram.ko
+  AUTOLOAD:=$(call AutoProbe,phram)
+endef
+
+define KernelPackage/phram/description
+  Exposes a physical memory range as an MTD device. Memory regions can be
+  specified via module parameters or device tree nodes with compatible="phram".
+endef
+
+$(eval $(call KernelPackage,phram))
+
+
 define KernelPackage/ramoops
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Ramoops (pstore-ram)
@@ -677,10 +582,9 @@ $(eval $(call KernelPackage,reed-solomon))
 define KernelPackage/serial-8250
   SUBMENU:=$(OTHER_MENU)
   TITLE:=8250 UARTs
+  DEPENDS:=@!TARGET_uml
   KCONFIG:= CONFIG_SERIAL_8250 \
 	CONFIG_SERIAL_8250_PCI \
-	CONFIG_SERIAL_8250_NR_UARTS=16 \
-	CONFIG_SERIAL_8250_RUNTIME_UARTS=16 \
 	CONFIG_SERIAL_8250_EXTENDED=y \
 	CONFIG_SERIAL_8250_MANY_PORTS=y \
 	CONFIG_SERIAL_8250_SHARE_IRQ=y \
@@ -698,6 +602,31 @@ define KernelPackage/serial-8250/description
  Kernel module for 8250 UART based serial ports
 endef
 
+define KernelPackage/serial-8250/config
+menu "Configuration"
+	depends on PACKAGE_kmod-serial-8250
+
+config KERNEL_SERIAL_8250_NR_UARTS
+	int "Maximum number of 8250/16550 serial ports"
+	default "16"
+	help
+	  Set this to the number of serial ports you want the driver
+	  to support.  This includes any ports discovered via ACPI or
+	  PCI enumeration and any ports that may be added at run-time
+	  via hot-plug, or any ISA multi-port serial cards.
+
+config KERNEL_SERIAL_8250_RUNTIME_UARTS
+	int "Number of 8250/16550 serial ports to register at runtime"
+	range 0 KERNEL_SERIAL_8250_NR_UARTS
+	default "16"
+	help
+	  Set this to the maximum number of serial ports you want
+	  the kernel to register at boot time.  This can be overridden
+	  with the module parameter "nr_uarts", or boot-time parameter
+	  8250.nr_uarts
+endmenu
+endef
+
 $(eval $(call KernelPackage,serial-8250))
 
 
@@ -707,7 +636,7 @@ define KernelPackage/serial-8250-exar
   KCONFIG:= CONFIG_SERIAL_8250_EXAR
   FILES:=$(LINUX_DIR)/drivers/tty/serial/8250/8250_exar.ko
   AUTOLOAD:=$(call AutoProbe,8250 8250_base 8250_exar)
-  DEPENDS:=@PCI_SUPPORT +kmod-serial-8250
+  DEPENDS:=@PCI_SUPPORT +kmod-serial-8250 +!LINUX_6_12:kmod-eeprom-93cx6
 endef
 
 define KernelPackage/serial-8250-exar/description
@@ -737,7 +666,7 @@ $(eval $(call KernelPackage,regmap-core))
 define KernelPackage/regmap-spi
   SUBMENU:=$(OTHER_MENU)
   TITLE:=SPI register map support
-  DEPENDS:=+kmod-regmap-core
+  DEPENDS:=+kmod-regmap-core @!TARGET_uml
   HIDDEN:=1
   KCONFIG:=CONFIG_REGMAP_SPI \
 	   CONFIG_SPI=y
@@ -801,6 +730,11 @@ $(eval $(call KernelPackage,ikconfig))
 
 define KernelPackage/zram
   SUBMENU:=$(OTHER_MENU)
+  DEPENDS:= \
+	+(KERNEL_ZRAM_BACKEND_LZO||KERNEL_ZRAM_DEF_COMP_LZORLE||KERNEL_ZRAM_DEF_COMP_LZO):kmod-lib-lzo \
+	+(KERNEL_ZRAM_BACKEND_LZ4||KERNEL_ZRAM_DEF_COMP_LZ4):kmod-lib-lz4 \
+	+(KERNEL_ZRAM_BACKEND_LZ4HC||KERNEL_ZRAM_DEF_COMP_LZ4HC):kmod-lib-lz4hc \
+	+(KERNEL_ZRAM_BACKEND_ZSTD||KERNEL_ZRAM_DEF_COMP_ZSTD):kmod-lib-zstd
   TITLE:=ZRAM
   KCONFIG:= \
 	CONFIG_ZSMALLOC \
@@ -820,29 +754,46 @@ endef
 
 define KernelPackage/zram/config
   if PACKAGE_kmod-zram
+    config KERNEL_ZRAM_BACKEND_LZO
+            bool "lzo and lzo-rle compression support"
+
+    config KERNEL_ZRAM_BACKEND_LZ4
+            bool "lz4 compression support"
+
+    config KERNEL_ZRAM_BACKEND_LZ4HC
+            bool "lz4hc compression support"
+
+    config KERNEL_ZRAM_BACKEND_ZSTD
+            bool "zstd compression support"
+
+    config KERNEL_ZRAM_BACKEND_FORCE_LZO
+            def_bool !KERNEL_ZRAM_BACKEND_LZ4 && \
+                     !KERNEL_ZRAM_BACKEND_LZ4HC && \
+                     !KERNEL_ZRAM_BACKEND_ZSTD
+            select KERNEL_ZRAM_BACKEND_LZO
     choice
       prompt "ZRAM Default compressor"
-      default ZRAM_DEF_COMP_LZORLE
+      default KERNEL_ZRAM_DEF_COMP_LZORLE
 
-    config ZRAM_DEF_COMP_LZORLE
+    config KERNEL_ZRAM_DEF_COMP_LZORLE
             bool "lzo-rle"
-            select PACKAGE_kmod-lib-lzo
+            depends on KERNEL_ZRAM_BACKEND_LZO
 
-    config ZRAM_DEF_COMP_LZO
+    config KERNEL_ZRAM_DEF_COMP_LZO
             bool "lzo"
-            select PACKAGE_kmod-lib-lzo
+            depends on KERNEL_ZRAM_BACKEND_LZO
 
-    config ZRAM_DEF_COMP_LZ4
+    config KERNEL_ZRAM_DEF_COMP_LZ4
             bool "lz4"
-            select PACKAGE_kmod-lib-lz4
+            depends on KERNEL_ZRAM_BACKEND_LZ4
 
-    config ZRAM_DEF_COMP_LZ4HC
+    config KERNEL_ZRAM_DEF_COMP_LZ4HC
             bool "lz4-hc"
-            select PACKAGE_kmod-lib-lz4hc
+            depends on KERNEL_ZRAM_BACKEND_LZ4HC
 
-    config ZRAM_DEF_COMP_ZSTD
+    config KERNEL_ZRAM_DEF_COMP_ZSTD
             bool "zstd"
-            select PACKAGE_kmod-lib-zstd
+            depends on KERNEL_ZRAM_BACKEND_ZSTD
 
     endchoice
   endif
@@ -908,6 +859,7 @@ define KernelPackage/ptp
   DEPENDS:=+kmod-pps
   KCONFIG:= \
 	CONFIG_PTP_1588_CLOCK \
+	CONFIG_PTP_1588_CLOCK_OPTIONAL \
 	CONFIG_NET_PTP_CLASSIFY=y
   FILES:=$(LINUX_DIR)/drivers/ptp/ptp.ko
   AUTOLOAD:=$(call AutoLoad,18,ptp,1)
@@ -926,7 +878,8 @@ define KernelPackage/ptp-qoriq
   TITLE:=Freescale QorIQ PTP support
   DEPENDS:=@(TARGET_mpc85xx||TARGET_qoriq) +kmod-ptp
   KCONFIG:=CONFIG_PTP_1588_CLOCK_QORIQ
-  FILES:=$(LINUX_DIR)/drivers/ptp/ptp-qoriq.ko
+  FILES:=$(LINUX_DIR)/drivers/ptp/ptp-qoriq.ko@lt6.18 \
+	$(LINUX_DIR)/drivers/ptp/ptp_qoriq.ko@ge6.18
   AUTOLOAD:=$(call AutoProbe,ptp-qoriq)
 endef
 
@@ -984,6 +937,7 @@ $(eval $(call KernelPackage,thermal))
 define KernelPackage/echo
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Line Echo Canceller
+  DEPENDS:=@LINUX_6_12
   KCONFIG:=CONFIG_ECHO
   FILES:=$(LINUX_DIR)/drivers/misc/echo/echo.ko
   AUTOLOAD:=$(call AutoLoad,50,echo)
@@ -995,6 +949,93 @@ define KernelPackage/echo/description
 endef
 
 $(eval $(call KernelPackage,echo))
+
+
+define KernelPackage/tee
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Trusted Execution Environment (TEE) support
+  DEPENDS:=+kmod-dma-buf
+  KCONFIG:=CONFIG_TEE
+  FILES:=$(LINUX_DIR)/drivers/tee/tee.ko
+  AUTOLOAD:=$(call AutoLoad,20,tee,1)
+endef
+
+define KernelPackage/tee/description
+  Generic Trusted Execution Environment subsystem, the interface used to
+  communicate with a trusted OS running in a secure environment.
+endef
+
+$(eval $(call KernelPackage,tee))
+
+
+define KernelPackage/optee
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=OP-TEE driver
+  DEPENDS:=+kmod-i2c-core +kmod-tee
+  KCONFIG:= \
+	CONFIG_OPTEE \
+	CONFIG_OPTEE_INSECURE_LOAD_IMAGE=n
+  FILES:=$(LINUX_DIR)/drivers/tee/optee/optee.ko
+  AUTOLOAD:=$(call AutoLoad,21,optee,1)
+endef
+
+define KernelPackage/optee/description
+  Driver for OP-TEE, the Open Portable Trusted Execution Environment running
+  in the Arm secure world, reached over the SMCCC or FF-A transport.
+endef
+
+$(eval $(call KernelPackage,optee))
+
+
+define KernelPackage/optee-rng
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=OP-TEE based Random Number Generator
+  DEPENDS:=+kmod-optee +kmod-random-core
+  KCONFIG:=CONFIG_HW_RANDOM_OPTEE
+  FILES:=$(LINUX_DIR)/drivers/char/hw_random/optee-rng.ko
+  AUTOLOAD:=$(call AutoLoad,22,optee-rng,1)
+endef
+
+define KernelPackage/optee-rng/description
+  Exposes the random number generator provided by OP-TEE through the kernel
+  hwrng interface.
+endef
+
+$(eval $(call KernelPackage,optee-rng))
+
+
+define KernelPackage/scmi-transport-optee
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=SCMI transport based on OP-TEE service
+  DEPENDS:=@(TARGET_rockchip||TARGET_stm32) +kmod-optee
+  KCONFIG:=CONFIG_ARM_SCMI_TRANSPORT_OPTEE
+  FILES:=$(LINUX_DIR)/drivers/firmware/arm_scmi/transports/scmi_transport_optee.ko
+  AUTOLOAD:=$(call AutoProbe,scmi_transport_optee)
+endef
+
+define KernelPackage/scmi-transport-optee/description
+  Arm SCMI transport using an OP-TEE service to communicate with the
+  platform firmware implementing the SCMI server.
+endef
+
+$(eval $(call KernelPackage,scmi-transport-optee))
+
+
+define KernelPackage/tee-stmm-efi
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TEE based EFI runtime variable service
+  DEPENDS:=@TARGET_armsr +kmod-optee
+  KCONFIG:=CONFIG_TEE_STMM_EFI
+  FILES:=$(LINUX_DIR)/drivers/firmware/efi/stmm/tee_stmm_efi.ko
+  AUTOLOAD:=$(call AutoProbe,tee_stmm_efi)
+endef
+
+define KernelPackage/tee-stmm-efi/description
+  Provides EFI runtime variable services through the StandAloneMM Trusted
+  Application running in OP-TEE.
+endef
+
+$(eval $(call KernelPackage,tee-stmm-efi))
 
 
 define KernelPackage/keys-encrypted
@@ -1041,8 +1082,7 @@ $(eval $(call KernelPackage,keys-trusted))
 define KernelPackage/tpm
   SUBMENU:=$(OTHER_MENU)
   TITLE:=TPM Hardware Support
-  DEPENDS:= +kmod-random-core +kmod-asn1-decoder \
-	  +kmod-asn1-encoder +kmod-oid-registry
+  DEPENDS:= +kmod-random-core
   KCONFIG:= CONFIG_TCG_TPM
   FILES:= $(LINUX_DIR)/drivers/char/tpm/tpm.ko
   AUTOLOAD:=$(call AutoLoad,10,tpm,1)
@@ -1054,10 +1094,43 @@ endef
 
 $(eval $(call KernelPackage,tpm))
 
+define KernelPackage/tpm-crb
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TCG CRB 2.0 TPM Interface
+  DEPENDS:=@(TARGET_x86||TARGET_armsr) +kmod-tpm
+  KCONFIG:=CONFIG_TCG_CRB
+  FILES:=$(LINUX_DIR)/drivers/char/tpm/tpm_crb.ko
+  AUTOLOAD:=$(call AutoLoad,15,tpm_crb,1)
+endef
+
+define KernelPackage/tpm-crb/description
+  This device driver implements the TPM interface as defined in
+  the TCG CRB 2.0 TPM specification.
+endef
+
+$(eval $(call KernelPackage,tpm-crb))
+
+define KernelPackage/tpm-ftpm-tee
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TEE based firmware TPM (fTPM)
+  DEPENDS:=+kmod-tpm +kmod-optee
+  KCONFIG:=CONFIG_TCG_FTPM_TEE
+  FILES:=$(LINUX_DIR)/drivers/char/tpm/tpm_ftpm_tee.ko
+  AUTOLOAD:=$(call AutoLoad,30,tpm_ftpm_tee,1)
+endef
+
+define KernelPackage/tpm-ftpm-tee/description
+  Driver for a firmware TPM (fTPM) running as a Trusted Application inside a
+  TEE such as OP-TEE. It presents the fTPM to Linux as a TPM 2.0 device,
+  bound over the TEE client bus or a microsoft,ftpm device tree node.
+endef
+
+$(eval $(call KernelPackage,tpm-ftpm-tee))
+
 define KernelPackage/tpm-tis
   SUBMENU:=$(OTHER_MENU)
   TITLE:=TPM TIS 1.2 Interface / TPM 2.0 FIFO Interface
-	DEPENDS:= @TARGET_x86 +kmod-tpm
+	DEPENDS:= @(TARGET_x86||TARGET_armsr||TARGET_imx) +kmod-tpm
   KCONFIG:= CONFIG_TCG_TIS
   FILES:= \
 	$(LINUX_DIR)/drivers/char/tpm/tpm_tis.ko \
@@ -1073,6 +1146,27 @@ define KernelPackage/tpm-tis/description
 endef
 
 $(eval $(call KernelPackage,tpm-tis))
+
+define KernelPackage/tpm-tis-spi
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TPM TIS 1.3 Interface SPI Interface
+	DEPENDS:= +kmod-tpm-tis +kmod-spi-dev
+  KCONFIG:= CONFIG_TCG_TIS_SPI \
+	CONFIG_TCG_TIS_SPI_CR50=n
+  FILES:= \
+	$(LINUX_DIR)/drivers/char/tpm/tpm_tis_spi.ko
+  AUTOLOAD:=$(call AutoLoad,20,tpm_tis_spi,1)
+endef
+
+define KernelPackage/tpm-tis-spi/description
+	If you have a TPM security chip which is connected to a regular,
+	non-tcg SPI master that is compliant with the
+	TCG TIS 1.3 TPM specification (TPM1.2) or the TCG PTP FIFO
+	specification (TPM2.0) say Yes and it will be accessible from
+	within Linux.
+endef
+
+$(eval $(call KernelPackage,tpm-tis-spi))
 
 define KernelPackage/tpm-i2c-atmel
   SUBMENU:=$(OTHER_MENU)
@@ -1152,3 +1246,20 @@ define KernelPackage/mhi-pci-generic/description
 endef
 
 $(eval $(call KernelPackage,mhi-pci-generic))
+
+
+define KernelPackage/regulator-userspace-consumer
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Userspace regulator consumer support
+  KCONFIG:=CONFIG_REGULATOR_USERSPACE_CONSUMER
+  FILES:=$(LINUX_DIR)/drivers/regulator/userspace-consumer.ko
+  AUTOLOAD:=$(call AutoLoad,10,userspace-consumer,1)
+endef
+
+define KernelPackage/regulator-userspace-consumer/description
+  There are some classes of devices that are controlled entirely
+  from user space. Userspace consumer driver provides ability to
+  control power supplies for such devices.
+endef
+
+$(eval $(call KernelPackage,regulator-userspace-consumer))

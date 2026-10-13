@@ -83,7 +83,7 @@ trx_fixup(int fd, const char *name)
 		goto err;
 	}
 
-	bfd = mtd_open(name, true);
+	bfd = mtd_open(name, true, true);
 	ptr = mmap(NULL, len, PROT_READ|PROT_WRITE, MAP_SHARED, bfd, 0);
 	if (!ptr || (ptr == (void *) -1)) {
 		perror("mmap");
@@ -94,7 +94,12 @@ trx_fixup(int fd, const char *name)
 	trx = ptr;
 	if (ntohl(trx->magic) != opt_trxmagic) {
 		fprintf(stderr, "TRX header not found\n");
-		goto err;
+		goto err2;
+	}
+
+	if (trx->len < sizeof(struct trx_header) || trx->len > len) {
+		fprintf(stderr, "Invalid TRX header length: %u\n", trx->len);
+		goto err2;
 	}
 
 	scan = ptr + offsetof(struct trx_header, flag_version);
@@ -104,6 +109,8 @@ trx_fixup(int fd, const char *name)
 	close(bfd);
 	return 0;
 
+err2:
+	munmap(ptr, len);
 err1:
 	close(bfd);
 err:
@@ -138,7 +145,7 @@ trx_check(int imagefd, const char *mtd, char *buf, int *len)
 	}
 
 	/* check if image fits to mtd device */
-	fd = mtd_check_open(mtd);
+	fd = mtd_check_open(mtd, true);
 	if(fd < 0) {
 		fprintf(stderr, "Could not open mtd device: %s\n", mtd);
 		exit(1);
@@ -168,7 +175,7 @@ mtd_fixtrx(const char *mtd, size_t offset, size_t data_size)
 	if (quiet < 2)
 		fprintf(stderr, "Trying to fix trx header in %s at 0x%zx...\n", mtd, offset);
 
-	fd = mtd_check_open(mtd);
+	fd = mtd_check_open(mtd, true);
 	if(fd < 0) {
 		fprintf(stderr, "Could not open mtd device: %s\n", mtd);
 		exit(1);

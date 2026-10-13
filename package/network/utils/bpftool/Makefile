@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=bpftool
-PKG_VERSION:=7.5.0
+PKG_VERSION:=7.8.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_URL:=https://github.com/libbpf/bpftool
-PKG_MIRROR_HASH:=1da7c08959e7819772145774322ffd876f3180065be1c3759336dca98ac9f666
+PKG_MIRROR_HASH:=d588927f9cc86b579e182b7cdc2848512832017a76c6982eedb9ff7f58a813a3
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v$(PKG_VERSION)
 
@@ -33,7 +33,7 @@ define Package/bpftool/Default
   CATEGORY:=Network
   TITLE:=bpftool - eBPF subsystem utility
   LICENSE:=GPL-2.0-only OR BSD-2-Clause
-  URL:=http://www.kernel.org
+  URL:=https://www.kernel.org
   DEPENDS:=+libelf
 endef
 
@@ -81,7 +81,8 @@ MAKE_FLAGS += \
 	feature-llvm=0 \
 	feature-libcap=0 \
 	feature-disassembler-four-args=1 \
-	feature-disassembler-init-styled=1
+	feature-disassembler-init-styled=1 \
+	SKIP_CRYPTO=1
 
 MAKE_PATH = src
 
@@ -101,7 +102,8 @@ HOST_MAKE_FLAGS += \
 	feature-llvm=0 \
 	feature-libcap=0 \
 	feature-disassembler-four-args=1 \
-	feature-disassembler-init-styled=1
+	feature-disassembler-init-styled=1 \
+	SKIP_CRYPTO=1
 
 HOST_MAKE_PATH = src
 

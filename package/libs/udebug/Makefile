@@ -11,9 +11,9 @@ PKG_NAME:=udebug
 CMAKE_INSTALL:=1
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/udebug.git
-PKG_MIRROR_HASH:=4dfe98b5d5813066dccd46d112502565b6961a4a7382083c529dfb423a626c2b
-PKG_SOURCE_DATE:=2023-12-06
-PKG_SOURCE_VERSION:=6d3f51f9fda706f0cf4732c762e4dbe8c21e12cf
+PKG_MIRROR_HASH:=b1696025aedcc68927d97b5e9503dbe6bd2fafa34495f7a5d90d63b7fa1970dc
+PKG_SOURCE_DATE:=2026-09-25
+PKG_SOURCE_VERSION:=6726e98ad69402e79b6d0b305012ace857ca0786
 PKG_ABI_VERSION:=$(call abi_version_str,$(PKG_SOURCE_DATE))
 
 PKG_LICENSE:=GPL-2.0
@@ -51,7 +51,7 @@ define Package/udebug-cli
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=OpenWrt debug service CLI
-  DEPENDS:=+udebugd +ucode-mod-udebug
+  DEPENDS:=+udebugd +ucode-mod-udebug +ucode-mod-uloop +ucode-mod-ubus
 endef
 
 define Package/libudebug/install
@@ -73,7 +73,7 @@ endef
 
 define Package/udebug-cli/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/udebug-cli $(1)/usr/sbin/udebug
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/udebug $(1)/usr/sbin/udebug
 endef
 
 $(eval $(call BuildPackage,libudebug))

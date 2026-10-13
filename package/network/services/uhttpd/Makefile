@@ -1,20 +1,17 @@
+# Copyright (C) 2010-2026 Jo-Philipp Wich <jo@mein.io>
 #
-# Copyright (C) 2010-2015 Jo-Philipp Wich <jo@mein.io>
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
-#
+# SPDX-License-Identifier: GPL-2.0-only
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uhttpd
-PKG_RELEASE:=4
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/uhttpd.git
-PKG_SOURCE_DATE:=2023-06-25
-PKG_SOURCE_VERSION:=34a8a74dbdec3c0de38abc1b08f6a73c51263792
-PKG_MIRROR_HASH:=0603019dabb89b1b207d0f7916616c95ce8194a7ff9fd71f0ddd845dd2de944e
+PKG_SOURCE_DATE:=2026-08-24
+PKG_SOURCE_VERSION:=373145f72c884c36a2b16f7f47e74ffae06bd754
+PKG_MIRROR_HASH:=3d1533281f0c78fc6f1118dd0635b7bd2d0c823e6c7ad63aec818769fac3cde9
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=ISC
 
@@ -34,7 +31,7 @@ endef
 
 define Package/uhttpd
   $(Package/uhttpd/default)
-  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c
+  DEPENDS:= +USE_GLIBC:libcrypt-compat +libubox +libblobmsg-json +libjson-script +libjson-c
 endef
 
 define Package/uhttpd/description

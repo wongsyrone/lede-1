@@ -71,7 +71,7 @@ mtdsplit_parse_trx(struct mtd_info *master,
 	int ret;
 
 	nr_parts = 2;
-	parts = kzalloc(nr_parts * sizeof(*parts), GFP_KERNEL);
+	parts = kcalloc(nr_parts, sizeof(*parts), GFP_KERNEL);
 	if (!parts)
 		return -ENOMEM;
 
@@ -100,7 +100,7 @@ mtdsplit_parse_trx(struct mtd_info *master,
 
 	if (trx_size == 0) {
 		pr_debug("no trx header found in \"%s\"\n", master->name);
-		ret = -ENODEV;
+		ret = -ENOENT;
 		goto err;
 	}
 
@@ -111,7 +111,7 @@ mtdsplit_parse_trx(struct mtd_info *master,
 
 	if (rootfs_size == 0) {
 		pr_debug("no rootfs found in \"%s\"\n", master->name);
-		ret = -ENODEV;
+		ret = -ENOENT;
 		goto err;
 	}
 
@@ -145,11 +145,4 @@ static struct mtd_part_parser trx_parser = {
 	.type = MTD_PARSER_TYPE_FIRMWARE,
 };
 
-static int __init mtdsplit_trx_init(void)
-{
-	register_mtd_parser(&trx_parser);
-
-	return 0;
-}
-
-module_init(mtdsplit_trx_init);
+module_mtd_part_parser(trx_parser);

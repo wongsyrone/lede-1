@@ -241,10 +241,10 @@ static int mtdsplit_parse_elf(struct mtd_info *mtd,
 
 	if (rootfs_offset == mtd->size) {
 		pr_debug("no rootfs found in \"%s\"\n", mtd->name);
-		return -ENODEV;
+		return -ENOENT;
 	}
 
-	parts = kzalloc(ELF_NR_PARTS * sizeof(*parts), GFP_KERNEL);
+	parts = kcalloc(ELF_NR_PARTS, sizeof(*parts), GFP_KERNEL);
 	if (!parts)
 		return -ENOMEM;
 
@@ -277,11 +277,4 @@ static struct mtd_part_parser mtdsplit_elf_parser = {
 	.type = MTD_PARSER_TYPE_FIRMWARE,
 };
 
-static int __init mtdsplit_elf_init(void)
-{
-	register_mtd_parser(&mtdsplit_elf_parser);
-
-	return 0;
-}
-
-subsys_initcall(mtdsplit_elf_init);
+module_mtd_part_parser(mtdsplit_elf_parser);

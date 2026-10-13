@@ -11,7 +11,7 @@
 	model = "COMFAST CF-E380AC";
 
 	aliases {
-		label-mac-device = &eth1;
+		label-mac-device = &eth0;
 		led-boot = &led_lan;
 		led-failsafe = &led_lan;
 		led-upgrade = &led_lan;
@@ -40,12 +40,6 @@
 			gpios = <&gpio 0 GPIO_ACTIVE_LOW>;
 		};
 
-		wlan2g {
-			label = "blue:wlan2g";
-			gpios = <&gpio 2 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger = "phy1tpt";
-		};
-
 		wlan5g {
 			label = "red:wlan5g";
 			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
@@ -55,7 +49,7 @@
 
 	watchdog {
 		compatible = "linux,wdt-gpio";
-		
+
 		gpios = <&gpio 17 GPIO_ACTIVE_LOW>;
 		hw_algo = "toggle";
 		hw_margin_ms = <1200>;
@@ -149,7 +143,7 @@
 };
 
 &wdt {
-	status = "okay";
+	status = "disabled";
 };
 
 &wmac {
@@ -157,4 +151,8 @@
 
 	nvmem-cells = <&macaddr_art_0 10>, <&cal_art_1000>;
 	nvmem-cell-names = "mac-address", "calibration";
+
+	led {
+		led-sources = <2>;
+	};
 };

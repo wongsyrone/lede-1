@@ -1,6 +1,6 @@
 --- a/configure.ac
 +++ b/configure.ac
-@@ -102,6 +102,8 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
+@@ -104,6 +104,8 @@ m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
  AC_CHECK_TOOL([READELF], [readelf])
  AC_CHECK_TOOL([NM], [nm])
  
@@ -9,7 +9,7 @@
  AC_CACHE_CHECK([whether gcc supports __attribute__((visibility()))],
  	ac_cv_visibility, [dnl
  save_CFLAGS="$CFLAGS"
-@@ -419,7 +421,10 @@ AS_HELP_STRING([--enable-install-elfh],[
+@@ -467,7 +469,10 @@ AS_HELP_STRING([--enable-install-elfh],[
  AM_CONDITIONAL(INSTALL_ELFH, test "$install_elfh" = yes)
  
  AM_CONDITIONAL(BUILD_STATIC, [dnl
@@ -23,7 +23,7 @@
  AS_HELP_STRING([--enable-tests-rpath],[build $ORIGIN-using rpath into tests]),
 --- a/libelf/Makefile.am
 +++ b/libelf/Makefile.am
-@@ -35,8 +35,11 @@ endif
+@@ -36,8 +36,11 @@ endif
  VERSION = 1
  
  lib_LIBRARIES = libelf.a
@@ -35,9 +35,9 @@
  include_HEADERS = libelf.h gelf.h nlist.h
  
  noinst_HEADERS = abstract.h common.h exttypes.h gelf_xlate.h libelfP.h \
-@@ -122,11 +125,15 @@ libelf.so: $(srcdir)/libelf.map $(libelf
- 	@$(textrel_check)
- 	$(AM_V_at)ln -fs $@ $@.$(VERSION)
+@@ -126,11 +129,15 @@ libelf.so: $(srcdir)/libelf.map $(libelf
+ libeu_objects = $(shell cat ../lib/libeu.manifest)
+ libelf_a_LIBADD = $(addprefix ../lib/,$(libeu_objects))
  
 +if BUILD_SHARED
  install: install-am libelf.so
@@ -64,7 +64,7 @@
  
  include_HEADERS = dwarf.h
  pkginclude_HEADERS = libdw.h known-dwarf.h
-@@ -121,11 +123,13 @@ libdw.so: $(srcdir)/libdw.map $(libdw_so
+@@ -120,11 +122,13 @@ libdw.so: $(srcdir)/libdw.map $(libdw_so
  	@$(textrel_check)
  	$(AM_V_at)ln -fs $@ $@.$(VERSION)
  
@@ -78,8 +78,8 @@
  
  uninstall: uninstall-am
  	rm -f $(DESTDIR)$(libdir)/libdw-$(PACKAGE_VERSION).so
-@@ -148,6 +152,10 @@ libdw_a_LIBADD += $(addprefix ../backend
- libcpu_objects = $(shell $(AR) t ../libcpu/libcpu.a)
+@@ -150,6 +154,10 @@ libdw_a_LIBADD += $(addprefix ../backend
+ libcpu_objects = $(shell cat ../libcpu/libcpu.manifest)
  libdw_a_LIBADD += $(addprefix ../libcpu/,$(libcpu_objects))
  
 +if !BUILD_SHARED
@@ -132,7 +132,7 @@
  
  libdebuginfod_a_SOURCES = debuginfod-client.c
  libdebuginfod_pic_a_SOURCES = debuginfod-client.c
-@@ -111,12 +113,16 @@ $(LIBDEBUGINFOD_SONAME): $(srcdir)/libde
+@@ -111,12 +113,17 @@ $(LIBDEBUGINFOD_SONAME): $(srcdir)/libde
  libdebuginfod.so: $(LIBDEBUGINFOD_SONAME)
  	ln -fs $< $@
  
@@ -146,21 +146,22 @@
 +else
 +libdebuginfod_a_LIBADD = $(foreach dep,$(wildcard $(libdebuginfod_so_LDLIBS:.so=.a)) $(LIBS:.so=.a),$(if $(findstring a,$(suffix $(dep))),$(addprefix $(dir $(dep)),$(shell cat $(basename $(dep)).manifest)),$(dep)))
 +endif
- 
++
  uninstall: uninstall-am
  	rm -f $(DESTDIR)$(libdir)/libdebuginfod-$(PACKAGE_VERSION).so
+ 	rm -f $(DESTDIR)$(libdir)/$(LIBDEBUGINFOD_SONAME)
 --- a/tests/Makefile.am
 +++ b/tests/Makefile.am
-@@ -50,7 +50,7 @@ check_PROGRAMS = arextract arsymtest new
+@@ -51,7 +51,7 @@ check_PROGRAMS = arextract arsymtest new
  		  dwfl-report-offline-memory \
  		  varlocs backtrace backtrace-child \
  		  backtrace-data backtrace-dwarf debuglink debugaltlink \
 -		  buildid deleted deleted-lib.so aggregate_size peel_type \
 +		  buildid aggregate_size peel_type \
  		  vdsosyms \
- 		  getsrc_die strptr newdata elfstrtab dwfl-proc-attach \
- 		  elfshphehdr elfstrmerge dwelfgnucompressed elfgetchdr \
-@@ -180,7 +180,7 @@ TESTS = run-arextract.sh run-arsymtest.s
+ 		  getsrc_die strptr newdata newzdata \
+ 		  elfstrtab dwfl-proc-attach \
+@@ -204,7 +204,7 @@ TESTS = run-arextract.sh run-arsymtest.s
  	run-readelf-addr.sh run-readelf-str.sh \
  	run-readelf-multi-noline.sh \
  	run-readelf-types.sh \
@@ -168,9 +169,9 @@
 +	run-readelf-dwz-multi.sh run-allfcts-multi.sh \
  	run-linkmap-cut.sh run-aggregate-size.sh run-peel-type.sh \
  	vdsosyms run-readelf-A.sh \
- 	run-getsrc-die.sh run-strptr.sh newdata elfstrtab dwfl-proc-attach \
-@@ -284,6 +284,11 @@ funcretval_test__11_SOURCES = funcretval
- TESTS += run-funcretval++11.sh
+ 	run-getsrc-die.sh run-strptr.sh newdata newzdata \
+@@ -341,6 +341,11 @@ if HAVE_LIBPFM
+ export HAVE_LIBPFM = 1
  endif
  
 +if BUILD_SHARED

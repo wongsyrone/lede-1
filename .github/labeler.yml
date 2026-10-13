@@ -7,10 +7,6 @@
 - changed-files:
   - any-glob-to-any-file:
     - "target/linux/apm821xx/**"
-"target/archs38":
-- changed-files:
-  - any-glob-to-any-file:
-    - "target/linux/archs38/**"
 "target/armsr":
 - changed-files:
   - any-glob-to-any-file:
@@ -58,6 +54,10 @@
     - "target/linux/d1/**"
     - "package/boot/uboot-d1/**"
     - "package/boot/opensbi/**"
+"target/econet":
+- changed-files:
+  - any-glob-to-any-file:
+    - "target/linux/econet/**"
 "target/gemini":
 - changed-files:
   - any-glob-to-any-file:
@@ -80,12 +80,18 @@
 - changed-files:
   - any-glob-to-any-file:
     - "target/linux/qualcommax/**"
+    - "package/kernel/qca-ssdk/**"
+    - "package/kernel/qca-nss-dp/**"
+"target/qualcommbe":
+- changed-files:
+  - any-glob-to-any-file:
+    - "target/linux/qualcommbe/**"
 "target/ixp4xx":
 - changed-files:
   - any-glob-to-any-file:
     - "target/linux/ixp4xx/**"
     - "package/boot/apex/Makefile/**"
-    - "package/firmware/ixp4xx-microcode/**"
+    - "package/firmware/linux-firmware/ixp4xx.mk"
 "target/kirkwood":
 - changed-files:
   - any-glob-to-any-file:
@@ -120,6 +126,12 @@
     - "target/linux/mediatek/**"
     - "package/boot/arm-trusted-firmware-mediatek/**"
     - "package/boot/uboot-mediatek/**"
+"target/microchipsw":
+- changed-files:
+  - any-glob-to-any-file:
+    - "target/linux/microchipsw/**"
+    - "package/boot/arm-trusted-firmware-microchipsw/**"
+    - "package/boot/uboot-microchipsw/**"
 "target/mpc85xx":
 - changed-files:
   - any-glob-to-any-file:

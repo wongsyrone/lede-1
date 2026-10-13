@@ -24,6 +24,23 @@ $(eval $(call KernelPackage,leds-gpio))
 
 LED_TRIGGER_DIR=$(LINUX_DIR)/drivers/leds/trigger
 
+define KernelPackage/leds-group-multicolor
+  SUBMENU:=$(LEDS_MENU)
+  TITLE:=LEDs group multicolor support
+  KCONFIG:=CONFIG_LEDS_GROUP_MULTICOLOR
+  FILES:=$(LINUX_DIR)/drivers/leds/rgb/leds-group-multicolor.ko
+  AUTOLOAD:=$(call AutoProbe,leds-group-multicolor)
+endef
+
+define KernelPackage/leds-group-multicolor/description
+ This option enables support for monochrome LEDs that are grouped
+ into multicolor LEDs which is useful in the case where LEDs of
+ different colors are physically grouped in a single multi-color LED
+ and driven by a controller that does not have multi-color support.
+endef
+
+$(eval $(call KernelPackage,leds-group-multicolor))
+
 define KernelPackage/ledtrig-activity
   SUBMENU:=$(LEDS_MENU)
   TITLE:=LED Activity Trigger
@@ -38,21 +55,6 @@ endef
 
 $(eval $(call KernelPackage,ledtrig-activity))
 
-define KernelPackage/ledtrig-audio
-  SUBMENU:=$(LEDS_MENU)
-  TITLE:=LED Audio Mute Trigger
-  KCONFIG:=CONFIG_LEDS_TRIGGER_AUDIO
-  FILES:=$(LED_TRIGGER_DIR)/ledtrig-audio.ko
-  AUTOLOAD:=$(call AutoLoad,50,ledtrig-audio)
-endef
-
-define KernelPackage/ledtrig-audio/description
- Kernel module that allows LEDs to be controlled by audio drivers
- to follow audio mute and mic-mute changes.
-endef
-
-$(eval $(call KernelPackage,ledtrig-audio))
-
 define KernelPackage/ledtrig-gpio
   SUBMENU:=$(LEDS_MENU)
   TITLE:=LED GPIO Trigger
@@ -66,6 +68,22 @@ define KernelPackage/ledtrig-gpio/description
 endef
 
 $(eval $(call KernelPackage,ledtrig-gpio))
+
+
+define KernelPackage/ledtrig-network
+  SUBMENU:=$(LEDS_MENU)
+  TITLE:=LED Network Trigger
+  KCONFIG:=CONFIG_LEDS_TRIGGER_NETWORK
+  FILES:=$(LED_TRIGGER_DIR)/ledtrig-network.ko
+  AUTOLOAD:=$(call AutoLoad,50,ledtrig-network)
+endef
+
+define KernelPackage/ledtrig-network/description
+ Kernel module that allows LEDs to be controlled by network interfaces
+ aggregated by family (lan/wan/wlan), with an optional per-LED '-online' mode.
+endef
+
+$(eval $(call KernelPackage,ledtrig-network))
 
 
 define KernelPackage/ledtrig-transient
@@ -239,7 +257,7 @@ define KernelPackage/leds-st1202
   DEPENDS:=+kmod-i2c-core +kmod-ledtrig-pattern
   KCONFIG:=CONFIG_LEDS_ST1202
   FILES:= $(LINUX_DIR)/drivers/leds/leds-st1202.ko
-  AUTOLOAD:=$(call AutoProbe,leds-st1202)
+  AUTOLOAD:=$(call AutoProbe,leds-st1202,1)
 endef
 
 define KernelPackage/leds-st1202/description
@@ -316,6 +334,40 @@ endef
 $(eval $(call KernelPackage,leds-lp55xx-common))
 
 
+define KernelPackage/leds-lp5521
+  SUBMENU:=$(LEDS_MENU)
+  TITLE:=LED driver for LP5521 controllers
+  DEPENDS:=+kmod-i2c-core +kmod-leds-lp55xx-common
+  KCONFIG:=CONFIG_LEDS_LP5521
+  FILES:=$(LINUX_DIR)/drivers/leds/leds-lp5521.ko
+  AUTOLOAD:=$(call AutoLoad,60,leds-lp5521,1)
+endef
+
+define KernelPackage/leds-lp5521/description
+ This option enables support for Texas Instruments LP5521
+ LED controllers.
+endef
+
+$(eval $(call KernelPackage,leds-lp5521))
+
+
+define KernelPackage/leds-lp5523
+  SUBMENU:=$(LEDS_MENU)
+  TITLE:=LED driver for LP5523/LP55231 controllers
+  DEPENDS:=+kmod-i2c-core +kmod-leds-lp55xx-common
+  KCONFIG:=CONFIG_LEDS_LP5523
+  FILES:=$(LINUX_DIR)/drivers/leds/leds-lp5523.ko
+  AUTOLOAD:=$(call AutoLoad,60,leds-lp5523,1)
+endef
+
+define KernelPackage/leds-lp5523/description
+ This option enables support for Texas Instruments LP5523/LP55231
+ LED controllers.
+endef
+
+$(eval $(call KernelPackage,leds-lp5523))
+
+
 define KernelPackage/leds-lp5562
   SUBMENU:=$(LEDS_MENU)
   TITLE:=LED driver for LP5562 controllers
@@ -331,3 +383,20 @@ define KernelPackage/leds-lp5562/description
 endef
 
 $(eval $(call KernelPackage,leds-lp5562))
+
+
+define KernelPackage/leds-lp5569
+  SUBMENU:=$(LEDS_MENU)
+  TITLE:=LED driver for LP5569 controllers
+  DEPENDS:=+kmod-i2c-core +kmod-leds-lp55xx-common
+  KCONFIG:=CONFIG_LEDS_LP5569
+  FILES:=$(LINUX_DIR)/drivers/leds/leds-lp5569.ko
+  AUTOLOAD:=$(call AutoProbe,leds-lp5569,1)
+endef
+
+define KernelPackage/leds-lp5569/description
+ This option enables support for Texas Instruments LP5569
+ LED controllers.
+endef
+
+$(eval $(call KernelPackage,leds-lp5569))

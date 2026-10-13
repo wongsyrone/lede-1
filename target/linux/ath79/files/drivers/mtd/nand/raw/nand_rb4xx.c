@@ -18,7 +18,6 @@
 #include <linux/mtd/rawnand.h>
 #include <linux/gpio/consumer.h>
 #include <linux/module.h>
-#include <linux/of_device.h>
 #include <linux/version.h>
 
 #include <mfd/rb4xx-cpld.h>
@@ -214,26 +213,17 @@ static int rb4xx_nand_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int rb4xx_nand_remove(struct platform_device *pdev)
+static void rb4xx_nand_remove(struct platform_device *pdev)
 {
 	struct rb4xx_nand *nand = platform_get_drvdata(pdev);
 
 	mtd_device_unregister(nand_to_mtd(&nand->chip));
 	nand_cleanup(&nand->chip);
-
-	return 0;
 }
 
-static const struct platform_device_id rb4xx_nand_id_table[] = {
-	{ "mikrotik,rb4xx-nand", },
-	{ },
-};
-MODULE_DEVICE_TABLE(platform, rb4xx_nand_id_table);
-
 static struct platform_driver rb4xx_nand_driver = {
-	.probe = rb4xx_nand_probe,
+	.probe  = rb4xx_nand_probe,
 	.remove = rb4xx_nand_remove,
-	.id_table = rb4xx_nand_id_table,
 	.driver = {
 		.name = "rb4xx-nand",
 	},

@@ -41,17 +41,11 @@
 			color = <LED_COLOR_ID_GREEN>;
 			gpios = <&gpio 4 GPIO_ACTIVE_LOW>;
 		};
-		
+
 		led_power_red: power-red {
 			function = LED_FUNCTION_POWER;
 			color = <LED_COLOR_ID_RED>;
 			gpios = <&gpio 2 GPIO_ACTIVE_LOW>;
-		};
-
-		radio-24-green {
-			label = "green:radio-24";
-			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
-			linux,default-trigger = "phy0tpt";
 		};
 
 		radio-24-amber {
@@ -113,7 +107,7 @@
 	 *
 	 * We can not support this with OpenWrt, as this
 	 * would require us to influence the pinmux based on the CS.
-	 * 
+	 *
 	 * We force-select Bank 1. Remember to blame Aruba for that.
 	 */
 	cs0_pin5: spi-cs0-pin5 {
@@ -199,6 +193,11 @@
 
 	nvmem-cells = <&macaddr_oemdata_1d 0>, <&cal_oemdata_1000>;
 	nvmem-cell-names = "mac-address", "calibration";
+
+	led {
+		led-sources = <13>;
+		led-active-low;
+	};
 };
 
 &mdio0 {

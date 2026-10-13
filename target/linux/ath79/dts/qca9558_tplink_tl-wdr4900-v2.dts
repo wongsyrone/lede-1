@@ -40,25 +40,9 @@
 			linux,default-trigger = "usbport";
 		};
 
-		wlan2g {
-			label = "blue:wlan2g";
-			gpios = <&gpio 12 GPIO_ACTIVE_LOW>;
-			linux,default-trigger = "phy0tpt";
-		};
-
 		qss {
 			label = "blue:qss";
 			gpios = <&gpio 15 GPIO_ACTIVE_LOW>;
-		};
-	};
-
-	ath9k-leds {
-		compatible = "gpio-leds";
-
-		wlan5g {
-			label = "blue:wlan5g";
-			gpios = <&ath9k 0 GPIO_ACTIVE_LOW>;
-			linux,default-trigger = "phy1tpt";
 		};
 	};
 
@@ -93,13 +77,16 @@
 &pcie1 {
 	status = "okay";
 
-	ath9k: wifi@0,0 {
+	wifi@0,0 {
 		compatible = "pci168c,0033";
 		reg = <0x0000 0 0 0 0>;
 		nvmem-cells = <&macaddr_uboot_1fc00 (-2)>, <&cal_ath9k_pci>;
 		nvmem-cell-names = "mac-address", "calibration";
-		#gpio-cells = <2>;
-		gpio-controller;
+
+		led {
+			led-sources = <0>;
+			led-active-low;
+		};
 	};
 };
 
@@ -182,8 +169,9 @@
 &mdio0 {
 	status = "okay";
 
-	phy0: ethernet-phy@0 {
-		reg = <0>;
+	ethernet-switch@10 {
+		compatible = "qca,ar8327";
+		reg = <0x10>;
 
 		qca,ar8327-initvals = <
 			0x04 0x00080080 /* PORT0 PAD MODE CTRL */
@@ -203,12 +191,16 @@
 
 	nvmem-cells = <&macaddr_uboot_1fc00 1>;
 	nvmem-cell-names = "mac-address";
-	phy-handle = <&phy0>;
 	pll-data = <0x56000000 0x00000101 0x00001616>;
 
 	gmac-config {
 		device = <&gmac>;
 		rgmii-enabled = <1>;
+	};
+
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
 	};
 };
 
@@ -230,4 +222,9 @@
 
 	nvmem-cells = <&macaddr_uboot_1fc00 (-1)>, <&cal_ath9k_soc>;
 	nvmem-cell-names = "mac-address", "calibration";
+
+	led {
+		led-sources = <12>;
+		led-active-low;
+	};
 };

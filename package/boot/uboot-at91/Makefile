@@ -104,7 +104,7 @@ endef
 define U-Boot/sama5d4_xplained_nandflash
   NAME:=SAMA5D4 Xplained board (NandFlash)
   BUILD_SUBTARGET:=sama5
-  BUILD_DEVICES:=microchip_sama5d3-xplained
+  BUILD_DEVICES:=microchip_sama5d4-xplained
 endef
 
 define U-Boot/sama5d27_som1_ek_mmc
@@ -177,6 +177,11 @@ define Build/Compile
 		KCFLAGS="$(filter-out -fstack-protector \
 		-mfloat-abi=hard, $(TARGET_CFLAGS)) -mfloat-abi=soft" \
 		$(UBOOT_MAKE_FLAGS)
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(STAGING_DIR_IMAGE)
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/$(UBOOT_IMAGE) $(STAGING_DIR_IMAGE)/$(BUILD_VARIANT)-$(UBOOT_IMAGE)
 endef
 
 $(eval $(call BuildPackage/U-Boot))

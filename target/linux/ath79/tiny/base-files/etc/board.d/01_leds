@@ -59,6 +59,12 @@ on,n150r)
 	ucidef_set_led_switch "lan1" "LAN1" "green:lan1" "switch0" "0x02" "0x0f"
 	ucidef_set_led_switch "lan2" "LAN2" "green:lan2" "switch0" "0x04" "0x0f"
 	;;
+tplink,re355-v1|\
+tplink,re450-v1|\
+tplink,re450-v2)
+	ucidef_set_led_netdev "lan_data" "LAN Data" "green:lan_data" "eth0" "tx rx"
+	ucidef_set_led_netdev "lan_link" "LAN Link" "green:lan_link" "eth0" "link"
+	;;
 tplink,tl-mr3020-v1|\
 tplink,tl-mr3040-v2|\
 tplink,tl-wa701nd-v1|\
@@ -111,6 +117,10 @@ tplink,tl-wpa8630p-v2-int|\
 tplink,tl-wpa8630p-v2.0-eu|\
 tplink,tl-wpa8630p-v2.1-eu)
 	ucidef_set_led_switch "lan" "LAN" "green:lan" "switch0" "0x3c"
+	;;
+tplink,tl-wr902ac-v1)
+	ucidef_set_led_netdev "lan" "LAN" "green:lan" "eth0"
+	ucidef_set_led_netdev "internet" "Internet" "green:internet" "eth0"
 	;;
 tplink,tl-wr940n-v3|\
 tplink,tl-wr940n-v4|\

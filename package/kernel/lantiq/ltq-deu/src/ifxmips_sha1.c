@@ -43,12 +43,7 @@
 #include <linux/module.h>
 #include <linux/mm.h>
 #include <linux/crypto.h>
-#include <linux/version.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-#include <crypto/sha.h>
-#else
 #include <crypto/sha1.h>
-#endif
 #include <crypto/hash.h>
 #include <crypto/internal/hash.h>
 #include <linux/types.h>
@@ -80,7 +75,7 @@ extern char debug_level;
 /*
  * \brief SHA1 private structure
 */
-struct sha1_ctx {
+struct ltq_sha1_ctx {
 	int started;
         u64 count;
 	u32 hash[5];
@@ -92,11 +87,11 @@ extern int disable_deudma;
 
 /*! \fn static void sha1_transform1 (u32 *state, const u32 *in)
  *  \ingroup IFX_SHA1_FUNCTIONS
- *  \brief main interface to sha1 hardware   
- *  \param state current state 
- *  \param in 64-byte block of input  
-*/                                 
-static void sha1_transform1 (struct sha1_ctx *sctx, u32 *state, const u32 *in)
+ *  \brief main interface to sha1 hardware
+ *  \param state current state
+ *  \param in 64-byte block of input
+*/
+static void sha1_transform1 (struct ltq_sha1_ctx *sctx, u32 *state, const u32 *in)
 {
     int i = 0;
     volatile struct deu_hash_t *hashs = (struct deu_hash_t *) HASH_START;
@@ -107,7 +102,7 @@ static void sha1_transform1 (struct sha1_ctx *sctx, u32 *state, const u32 *in)
     SHA_HASH_INIT;
 
     /* For context switching purposes, the previous hash output
-     * is loaded back into the output register 
+     * is loaded back into the output register
     */
     if (sctx->started) {
         hashs->D1R = *((u32 *) sctx->hash + 0);
@@ -119,15 +114,15 @@ static void sha1_transform1 (struct sha1_ctx *sctx, u32 *state, const u32 *in)
 
     for (i = 0; i < 16; i++) {
         hashs->MR = in[i];
-    };
+    }
 
     //wait for processing
     while (hashs->controlr.BSY) {
         // this will not take long
     }
-   
-    /* For context switching purposes, the output is saved into a 
-     * context struct which can be used later on 
+
+    /* For context switching purposes, the output is saved into a
+     * context struct which can be used later on
     */
     *((u32 *) sctx->hash + 0) = hashs->D1R;
     *((u32 *) sctx->hash + 1) = hashs->D2R;
@@ -142,29 +137,29 @@ static void sha1_transform1 (struct sha1_ctx *sctx, u32 *state, const u32 *in)
 
 /*! \fn static void sha1_init1(struct crypto_tfm *tfm)
  *  \ingroup IFX_SHA1_FUNCTIONS
- *  \brief initialize sha1 hardware   
- *  \param tfm linux crypto algo transform  
-*/                                 
+ *  \brief initialize sha1 hardware
+ *  \param tfm linux crypto algo transform
+*/
 static int sha1_init1(struct shash_desc *desc)
 {
-    struct sha1_ctx *sctx = shash_desc_ctx(desc);
-    
+    struct ltq_sha1_ctx *sctx = shash_desc_ctx(desc);
+
     sctx->started = 0;
     sctx->count = 0;
     return 0;
 }
 
-/*! \fn static void sha1_update(struct crypto_tfm *tfm, const u8 *data, unsigned int len)
+/*! \fn static void ltq_sha1_update(struct crypto_tfm *tfm, const u8 *data, unsigned int len)
  *  \ingroup IFX_SHA1_FUNCTIONS
- *  \brief on-the-fly sha1 computation   
- *  \param tfm linux crypto algo transform  
- *  \param data input data  
- *  \param len size of input data  
-*/                                 
-static int sha1_update(struct shash_desc * desc, const u8 *data,
+ *  \brief on-the-fly sha1 computation
+ *  \param tfm linux crypto algo transform
+ *  \param data input data
+ *  \param len size of input data
+*/
+static int ltq_sha1_update(struct shash_desc * desc, const u8 *data,
             unsigned int len)
 {
-    struct sha1_ctx *sctx = shash_desc_ctx(desc);
+    struct ltq_sha1_ctx *sctx = shash_desc_ctx(desc);
     unsigned int i, j;
 
     j = (sctx->count >> 3) & 0x3f;
@@ -186,15 +181,15 @@ static int sha1_update(struct shash_desc * desc, const u8 *data,
     return 0;
 }
 
-/*! \fn static void sha1_final(struct crypto_tfm *tfm, u8 *out)
+/*! \fn static void ltq_sha1_final(struct crypto_tfm *tfm, u8 *out)
  *  \ingroup IFX_SHA1_FUNCTIONS
- *  \brief compute final sha1 value   
- *  \param tfm linux crypto algo transform  
- *  \param out final md5 output value  
-*/                                 
-static int sha1_final(struct shash_desc *desc, u8 *out)
+ *  \brief compute final sha1 value
+ *  \param tfm linux crypto algo transform
+ *  \param out final md5 output value
+*/
+static int ltq_sha1_final(struct shash_desc *desc, u8 *out)
 {
-    struct sha1_ctx *sctx = shash_desc_ctx(desc);
+    struct ltq_sha1_ctx *sctx = shash_desc_ctx(desc);
     u32 index, padlen;
     u64 t;
     u8 bits[8] = { 0, };
@@ -222,10 +217,10 @@ static int sha1_final(struct shash_desc *desc, u8 *out)
     /* Pad out to 56 mod 64 */
     index = (sctx->count >> 3) & 0x3f;
     padlen = (index < 56) ? (56 - index) : ((64 + 56) - index);
-    sha1_update (desc, padding, padlen);
+    ltq_sha1_update (desc, padding, padlen);
 
     /* Append length */
-    sha1_update (desc, bits, sizeof bits);
+    ltq_sha1_update (desc, bits, sizeof bits);
 
     memcpy(out, sctx->hash, SHA1_DIGEST_SIZE);
 
@@ -235,15 +230,15 @@ static int sha1_final(struct shash_desc *desc, u8 *out)
     return 0;
 }
 
-/* 
+/*
  * \brief SHA1 function mappings
 */
 static struct shash_alg ifxdeu_sha1_alg = {
         .digestsize     =       SHA1_DIGEST_SIZE,
         .init           =       sha1_init1,
-        .update         =       sha1_update,
-        .final          =       sha1_final,
-        .descsize       =       sizeof(struct sha1_ctx),
+        .update         =       ltq_sha1_update,
+        .final          =       ltq_sha1_final,
+        .descsize       =       sizeof(struct ltq_sha1_ctx),
         .statesize      =       sizeof(struct sha1_state),
         .base           =       {
                 .cra_name       =       "sha1",
@@ -258,8 +253,8 @@ static struct shash_alg ifxdeu_sha1_alg = {
 
 /*! \fn int ifxdeu_init_sha1 (void)
  *  \ingroup IFX_SHA1_FUNCTIONS
- *  \brief initialize sha1 driver    
-*/                                 
+ *  \brief initialize sha1 driver
+*/
 int ifxdeu_init_sha1 (void)
 {
     int ret = -ENOSYS;
@@ -278,8 +273,8 @@ sha1_err:
 
 /*! \fn void ifxdeu_fini_sha1 (void)
  *  \ingroup IFX_SHA1_FUNCTIONS
- *  \brief unregister sha1 driver   
-*/                                 
+ *  \brief unregister sha1 driver
+*/
 void ifxdeu_fini_sha1 (void)
 {
     crypto_unregister_shash(&ifxdeu_sha1_alg);

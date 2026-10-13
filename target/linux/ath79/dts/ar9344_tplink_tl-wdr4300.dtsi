@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 
 #include "ar9344_tplink_tl-wdrxxxx.dtsi"
+#include <dt-bindings/leds/common.h>
 
 / {
 	aliases {
@@ -54,20 +55,25 @@
 
 &usb {
 	status = "okay";
-};
 
-&hub_port {
-	#address-cells = <1>;
-	#size-cells = <0>;
+	/delete-node/ port@1;
 
-	hub_port1: port@1 {
+	/* Genesys Logic GL850G 4-port USB hub */
+	hub@1 {
+		compatible = "usb5e3,608";
 		reg = <1>;
-		#trigger-source-cells = <0>;
-	};
+		#address-cells = <1>;
+		#size-cells = <0>;
 
-	hub_port2: port@2 {
-		reg = <2>;
-		#trigger-source-cells = <0>;
+		hub_port1: port@1 {
+			reg = <1>;
+			#trigger-source-cells = <0>;
+		};
+
+		hub_port2: port@2 {
+			reg = <2>;
+			#trigger-source-cells = <0>;
+		};
 	};
 };
 
@@ -87,19 +93,22 @@
 	ath9k: wifi@0,0 {
 		compatible = "pci168c,0033";
 		reg = <0x0000 0 0 0 0>;
-		#gpio-cells = <2>;
-		gpio-controller;
 		nvmem-cells = <&macaddr_uboot_1fc00 0>, <&cal_art_5000>;
 		nvmem-cell-names = "mac-address", "calibration";
+
+		led {
+			led-sources = <0>;
+			led-active-low;
+		};
 	};
 };
 
 &mdio0 {
 	status = "okay";
 
-	phy0: ethernet-phy@0 {
-		reg = <0>;
-		phy-mode = "rgmii";
+	ethernet-switch@10 {
+		compatible = "qca,ar8327";
+		reg = <0x10>;
 
 		qca,ar8327-initvals = <
 			0x04 0x07600000 /* PORT0 PAD MODE CTRL */
@@ -110,6 +119,47 @@
 			0x5c 0x0030c300 /* LED_CTRL3 */
 			0x7c 0x0000007e /* PORT0_STATUS */
 			>;
+
+		leds {
+			led@0 {
+				reg = <0>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_WAN;
+				qca,led-mode = <0>;
+			};
+
+			led@3 {
+				reg = <3>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_LAN;
+				function-enumerator = <1>;
+				qca,led-mode = <0>;
+			};
+
+			led@6 {
+				reg = <6>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_LAN;
+				function-enumerator = <2>;
+				qca,led-mode = <0>;
+			};
+
+			led@9 {
+				reg = <9>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_LAN;
+				function-enumerator = <3>;
+				qca,led-mode = <0>;
+			};
+
+			led@12 {
+				reg = <12>;
+				color = <LED_COLOR_ID_GREEN>;
+				function = LED_FUNCTION_LAN;
+				function-enumerator = <4>;
+				qca,led-mode = <0>;
+			};
+		};
 	};
 };
 
@@ -123,5 +173,9 @@
 	nvmem-cell-names = "mac-address";
 
 	phy-mode = "rgmii";
-	phy-handle = <&phy0>;
+
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+	};
 };

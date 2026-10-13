@@ -16,6 +16,13 @@ NO_EXPORT=1
 LOAD_STATE=1
 LIST_SEP=" "
 
+# check for valid hexdump and strip common separators and leading/trailing blanks
+# input can be single- or multi-line, separators can be none, dash, colon or one or more spaces/tabs
+hexdump_2hex() {
+	[ -z "$1" ] && return
+	echo -n "$1" | tr '\nA-F' ' a-f' | sed -nr '/^\s*[0-9a-f]{2}((\s+|[:-]?)[0-9a-f]{2})*\s*$/s/[[:space:]:-]*//pg'
+}
+
 # xor multiple hex values of the same length
 xor() {
 	local val
@@ -216,6 +223,10 @@ default_prerm() {
 	local filelist="${root}/usr/lib/opkg/info/${pkgname}.list"
 	[ -f "$root/lib/apk/packages/${pkgname}.list" ] && filelist="$root/lib/apk/packages/${pkgname}.list"
 
+	if [ -e "$root/lib/apk/packages/${pkgname}.alternatives" ]; then
+		update_alternatives remove "${pkgname}"
+	fi
+
 	if [ -f "$root/usr/lib/opkg/info/${pkgname}.prerm-pkg" ]; then
 		( . "$root/usr/lib/opkg/info/${pkgname}.prerm-pkg" )
 		ret=$?
@@ -352,8 +363,7 @@ default_postinst() {
 		add_group_and_user "${pkgname}"
 	fi
 
-	if [ -e "${root}/lib/apk/packages/${pkgname}.list" ]; then
-		filelist="${root}/lib/apk/packages/${pkgname}.list"
+	if [ -e "${root}/lib/apk/packages/${pkgname}.alternatives" ]; then
 		update_alternatives install "${pkgname}"
 	fi
 
@@ -379,7 +389,7 @@ default_postinst() {
 			uci commit
 		fi
 
-		rm -f /tmp/luci-indexcache
+		rm -f /tmp/luci-indexcache.*
 	fi
 
 	if [ -f "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" ]; then
@@ -444,7 +454,7 @@ find_mmc_part() {
 	fi
 
 	for DEVNAME in /sys/block/$ROOTDEV/mmcblk*p*; do
-		PARTNAME="$(grep PARTNAME ${DEVNAME}/uevent | cut -f2 -d'=')"
+		PARTNAME="$(grep PARTNAME ${DEVNAME}/uevent | cut -f2 -d'=' 2>/dev/null)"
 		[ "$PARTNAME" = "$1" ] && echo "/dev/$(basename $DEVNAME)" && return 0
 	done
 }

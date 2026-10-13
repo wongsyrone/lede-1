@@ -7,10 +7,10 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_VERSION:=2.10
+PKG_VERSION:=2.15.0
 PKG_RELEASE:=1
 
-PKG_HASH:=88215a62291b9ba87da8e50b077741103cdc08fb6c9e1ebd34dfaace746d3201
+PKG_HASH:=67b772aaa58218712c062ccd103f1d53cf74d9543e251f20ac037a6dbf821a10
 
 PKG_MAINTAINER:=Sarah Maedel <openwrt@tbspace.de>
 
@@ -33,16 +33,25 @@ define Trusted-Firmware-A/rk3399
   PLAT:=rk3399
 endef
 
+define Trusted-Firmware-A/rk3576
+  BUILD_SUBTARGET:=armv8
+  PLAT:=rk3576
+endef
+
+define Trusted-Firmware-A/rk3588
+  BUILD_SUBTARGET:=armv8
+  PLAT:=rk3588
+endef
+
 TFA_TARGETS:= \
 	rk3328 \
-	rk3399
-
-TFA_MAKE_FLAGS+= \
-	$(if $(CONFIG_BINUTILS_VERSION_2_37)$(CONFIG_BINUTILS_VERSION_2_38),,LDFLAGS="-no-warn-rwx-segments")
+	rk3399 \
+	rk3576 \
+	rk3588
 
 ifeq ($(BUILD_VARIANT),rk3399)
-  M0_GCC_NAME:=gcc-arm
-  M0_GCC_RELEASE:=11.2-2022.02
+  M0_GCC_NAME:=arm-gnu-toolchain
+  M0_GCC_RELEASE:=12.3.rel1
   M0_GCC_VERSION:=$(HOST_ARCH)-arm-none-eabi
   M0_GCC_SOURCE:=$(M0_GCC_NAME)-$(M0_GCC_RELEASE)-$(M0_GCC_VERSION).tar.xz
 
@@ -50,9 +59,9 @@ ifeq ($(BUILD_VARIANT),rk3399)
     FILE:=$(M0_GCC_SOURCE)
     URL:=https://developer.arm.com/-/media/Files/downloads/gnu/$(M0_GCC_RELEASE)/binrel
   ifeq ($(HOST_ARCH),aarch64)
-    HASH:=ef1d82e5894e3908cb7ed49c5485b5b95deefa32872f79c2b5f6f5447cabf55f
+    HASH:=14c0487d5753f6071d24e568881f7c7e67f80dd83165dec5164b3731394af431
   else
-    HASH:=8c5acd5ae567c0100245b0556941c237369f210bceb196edfe5a2e7532c60326
+    HASH:=12a2815644318ebcceaf84beabb665d0924b6e79e21048452c5331a56332b309
   endif
   endef
 

@@ -25,6 +25,7 @@
 #include <linux/phy.h>
 #include <linux/platform_device.h>
 #include <linux/reset.h>
+#include <linux/version.h>
 
 /* DMA channels */
 #define DMA_CHAN_WIDTH			0x10
@@ -280,12 +281,12 @@ static const struct of_device_id bcm6348_iudma_of_match[] = {
 	{ .compatible = "brcm,bcm6358-iudma", },
 	{ /* sentinel */ }
 };
-MODULE_DEVICE_TABLE(of, bcm6348_emac_of_match);
+MODULE_DEVICE_TABLE(of, bcm6348_iudma_of_match);
 
 static struct platform_driver bcm6348_iudma_driver = {
 	.driver = {
 		.name = "bcm6348-iudma",
-		.of_match_table = of_match_ptr(bcm6348_iudma_of_match),
+		.of_match_table = bcm6348_iudma_of_match,
 	},
 	.probe	= bcm6348_iudma_probe,
 };
@@ -572,7 +573,11 @@ static int bcm6348_emac_refill_rx(struct net_device *ndev)
  */
 static void bcm6348_emac_refill_rx_timer(struct timer_list *t)
 {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,16,0)
 	struct bcm6348_emac *emac = from_timer(emac, t, rx_timeout);
+#else
+	struct bcm6348_emac *emac = timer_container_of(emac, t, rx_timeout);
+#endif
 	struct net_device *ndev = emac->net_dev;
 
 	spin_lock(&emac->rx_lock);
@@ -1289,7 +1294,7 @@ static int bcm6348_emac_stop(struct net_device *ndev)
 	napi_disable(&emac->napi);
 	if (ndev->phydev)
 		phy_stop(ndev->phydev);
-	del_timer_sync(&emac->rx_timeout);
+	timer_delete_sync(&emac->rx_timeout);
 
 	/* mask all interrupts */
 	emac_writel(emac, 0, ENET_IRMASK_REG);
@@ -1565,7 +1570,10 @@ static int bcm6348_emac_probe(struct platform_device *pdev)
 	emac->old_duplex = -1;
 	emac->old_pause = -1;
 
-	of_get_mac_address(node, dev_addr);
+	ret = of_get_mac_address(node, dev_addr);
+	if (ret == -EPROBE_DEFER)
+		return ret;
+
 	if (is_valid_ether_addr(dev_addr)) {
 		dev_addr_set(ndev, dev_addr);
 		dev_info(dev, "mtd mac %pM\n", dev_addr);
@@ -1610,7 +1618,7 @@ static int bcm6348_emac_probe(struct platform_device *pdev)
 					   GFP_KERNEL);
 		if (IS_ERR_OR_NULL(emac->reset))
 			return PTR_ERR(emac->reset);
-		
+
 	}
 	for (i = 0; i < emac->num_resets; i++) {
 		emac->reset[i] = devm_reset_control_get_by_index(dev, i);
@@ -1675,7 +1683,7 @@ out_disable_clk:
 	return ret;
 }
 
-static int bcm6348_emac_remove(struct platform_device *pdev)
+static void bcm6348_emac_remove(struct platform_device *pdev)
 {
 	struct net_device *ndev = platform_get_drvdata(pdev);
 	struct bcm6348_emac *emac = netdev_priv(ndev);
@@ -1688,8 +1696,6 @@ static int bcm6348_emac_remove(struct platform_device *pdev)
 
 	for (i = 0; i < emac->num_clocks; i++)
 		clk_disable_unprepare(emac->clock[i]);
-
-	return 0;
 }
 
 static const struct of_device_id bcm6348_emac_of_match[] = {
@@ -1703,7 +1709,7 @@ MODULE_DEVICE_TABLE(of, bcm6348_emac_of_match);
 static struct platform_driver bcm6348_emac_driver = {
 	.driver = {
 		.name = "bcm6348-emac",
-		.of_match_table = of_match_ptr(bcm6348_emac_of_match),
+		.of_match_table = bcm6348_emac_of_match,
 	},
 	.probe	= bcm6348_emac_probe,
 	.remove	= bcm6348_emac_remove,

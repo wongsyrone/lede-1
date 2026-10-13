@@ -6,9 +6,9 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
-PKG_RELEASE:=1
-PKG_VERSION:=2022.10
-PKG_HASH:=50b4482a505bc281ba8470c399a3c26e145e29b23500bc35c50debd7fa46bdf8
+PKG_RELEASE:=2
+PKG_VERSION:=2026.04
+PKG_HASH:=ac7c04b8b7004923b00a4e5d6699c5df4d21233bac9fda690d8cfbc209fff2fd
 
 UBOOT_USE_INTREE_DTC:=1
 
@@ -44,6 +44,10 @@ UBOOT_TARGETS := \
 	sifive_unleashed \
 	sifive_unmatched
 
+# mkeficapsule host tool is disabled
+# due to a host-side GnuTLS dependency
+UBOOT_CUSTOMIZE_CONFIG := --disable TOOLS_MKEFICAPSULE
+
 UBOOT_MAKE_FLAGS += \
         OPENSBI=$(STAGING_DIR_IMAGE)/fw_dynamic-${OPENSBI}.bin
 
@@ -58,7 +62,7 @@ define Build/InstallDev
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/spl/u-boot-spl.bin $(STAGING_DIR_IMAGE)/$(BUILD_VARIANT)-$(UBOOT_IMAGE)-spl
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/$(DTS_DIR)/$(UBOOT_DTS) $(STAGING_DIR_IMAGE)/$(UBOOT_DTS)
 
-	mkimage -C none -A arm -T script -d uEnv-$(UENV).txt \
+	mkimage -C none -A riscv -T script -d uEnv-$(UENV).txt \
 		$(STAGING_DIR_IMAGE)/$(BUILD_DEVICES)-boot.scr
 endef
 

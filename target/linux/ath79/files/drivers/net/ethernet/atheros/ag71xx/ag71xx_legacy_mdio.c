@@ -221,12 +221,11 @@ static int ag71xx_mdio_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static int ag71xx_mdio_remove(struct platform_device *pdev)
+static void ag71xx_mdio_remove(struct platform_device *pdev)
 {
 	struct ag71xx_mdio *am = platform_get_drvdata(pdev);
 
 	mdiobus_unregister(am->mii_bus);
-	return 0;
 }
 
 static const struct of_device_id ag71xx_mdio_match[] = {
@@ -238,8 +237,8 @@ static const struct of_device_id ag71xx_mdio_match[] = {
 };
 
 static struct platform_driver ag71xx_mdio_driver = {
-	.probe		= ag71xx_mdio_probe,
-	.remove		= ag71xx_mdio_remove,
+	.probe	= ag71xx_mdio_probe,
+	.remove	= ag71xx_mdio_remove,
 	.driver = {
 		.name	 = "ag71xx-legacy-mdio",
 		.of_match_table = ag71xx_mdio_match,

@@ -9,6 +9,10 @@
 	model = "ZTE MF281";
 	compatible = "zte,mf281", "qca,qca9563";
 
+	aliases {
+		label-mac-device = &eth0;
+	};
+
 	leds {
 		pinctrl-names = "default";
 		pinctrl-0 = <&enable_wlan_led_gpio>;
@@ -158,6 +162,8 @@
 &wifi_ath10k {
 	nvmem-cells = <&macaddr_mac_0 1>, <&cal_caldata_5000>;
 	nvmem-cell-names = "mac-address", "pre-calibration";
+	/* Board file from stock firmware is shared with MF286C */
+	qcom,ath10k-calibration-variant = "ZTE-MF286C";
 };
 
 &pinmux {

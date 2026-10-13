@@ -11,6 +11,7 @@ ramips_setup_interfaces()
 	7links,wlr-1230|\
 	7links,wlr-1240|\
 	alfa-network,awusfree1|\
+	creality,wb-01|\
 	d-team,pbr-d1|\
 	dlink,dap-1325-a1|\
 	glinet,microuter-n300|\
@@ -21,6 +22,7 @@ ramips_setup_interfaces()
 	minew,g1-c|\
 	onion,omega2p|\
 	onion,omega2|\
+	qding,qc202|\
 	ravpower,rp-wd009|\
 	tama,w06|\
 	tplink,re200-v2|\
@@ -98,6 +100,20 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"4:lan" "6@eth0"
 		;;
+	cudy,lt300-v3)
+		ucidef_add_switch "switch0" "0:wan" "1:lan" "6@eth0"
+		ucidef_set_interface "wwan" device "usb0" protocol "dhcp"
+		uci add_list firewall.@zone[1].network='wwan'
+		uci add_list firewall.@zone[1].network='wwan6'
+		;;
+	cudy,lt400e-v1)
+		ucidef_add_switch "switch0" \
+			"3:lan:1" "2:lan:2" "1:lan:3" "0:lan:4" "6@eth0"
+		ucidef_set_interface "wwan" device "usb0" protocol "dhcp"
+		uci add_list firewall.@zone[1].network='wwan'
+		uci add_list firewall.@zone[1].network='wwan6'
+		;;
+	cudy,m1200-v1|\
 	cudy,tr1200-v1)
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:wan" "6@eth0"
@@ -107,13 +123,28 @@ ramips_setup_interfaces()
 			"2:lan:2" "3:lan:1" "4:wan" "6@eth0"
 		;;
 	duzun,dm06|\
-	glinet,gl-mt300n-v2)
+	glinet,gl-mt300n-v2|\
+	hongdian,h7920-v40|\
+	teltonika,rut200|\
+	teltonika,rut241)
 		ucidef_add_switch "switch0" \
 			"1:lan" "0:wan" "6@eth0"
 		;;
 	hiwifi,hc5761a)
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "4:wan" "6@eth0"
+		;;
+	cudy,wr300-v1|\
+	hongdian,h8850-v20|\
+	keenetic,kn-1112|\
+	keenetic,kn-1212|\
+	keenetic,kn-1510|\
+	keenetic,kn-1613|\
+	keenetic,kn-1713|\
+	motorola,mwr03|\
+	movingcomm,c120ev)
+		ucidef_add_switch "switch0" \
+			"1:lan" "2:lan" "3:lan" "0:wan" "6@eth0"
 		;;
 	iptime,a3|\
 	totolink,a3)
@@ -130,11 +161,9 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "2:lan" "6@eth0"
 		;;
-	keenetic,kn-1613|\
-	keenetic,kn-1713|\
-	motorola,mwr03)
+	keenetic,kn-1221)
 		ucidef_add_switch "switch0" \
-			"1:lan" "2:lan" "3:lan" "0:wan" "6@eth0"
+			"1:lan" "2:lan" "0:wan" "6@eth0"
 		;;
 	keenetic,kn-3211)
 		ucidef_add_switch "switch0" \
@@ -150,6 +179,11 @@ ramips_setup_interfaces()
 	linksys,e5400)
 		ucidef_add_switch "switch0" \
 			"0:lan:1" "1:lan:2" "2:lan:3" "3:lan:4" "4:wan" "6@eth0"
+		;;
+	mercusys,mb130-4g-v1)
+		ucidef_add_switch "switch0" \
+			"2:lan" "3:lan" "6@eth0"
+		ucidef_set_interface_wan "eth1"
 		;;
 	netgear,r6020|\
 	netgear,r6080|\
@@ -167,12 +201,26 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0:wan" "1:lan" "2:lan" "3:lan" "4:lan" "6t@eth0"
 		;;
+	teltonika,rut976|\
+	teltonika,rut9x1|\
+	teltonika,rut9x6)
+		ucidef_add_switch "switch0" \
+			"0:lan" "1:lan" "2:lan" "4:wan" "6t@eth0"
+		;;
 	tplink,archer-mr200-v5|\
 	tplink,archer-mr200-v6)
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "2:lan" "3:lan" "6t@eth0"
 		ucidef_set_interface "wan" device "/dev/cdc-wdm0" protocol "qmi"
 		;;
+	cudy,lt500-outdoor-v1)
+		ucidef_add_switch "switch0" \
+			"0:lan" "6@eth0"
+		ucidef_set_interface "wwan" device "usb0" protocol "dhcp"
+		uci add_list firewall.@zone[1].network='wwan'
+		uci add_list firewall.@zone[1].network='wwan6'
+		;;
+	cudy,re1200-outdoor-v1|\
 	tplink,tl-mr3020-v3)
 		ucidef_add_switch "switch0" \
 			"0:lan" "6@eth0"
@@ -181,7 +229,8 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"1:lan" "2:lan" "3:lan" "4:wan" "6@eth0"
 		;;
-	tplink,tl-mr6400-v5)
+	tplink,tl-mr6400-v5|\
+	tplink,tl-mr6400-v7)
 		ucidef_add_switch "switch0" \
 			"0:lan" "1:lan" "2:lan" "3:wan" "6@eth0"
 		;;
@@ -204,6 +253,10 @@ ramips_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"4:lan:1" "2:lan:2" "1:wan" "6@eth0"
 		;;
+	xiaomi,miwifi-3a)
+		ucidef_add_switch "switch0" \
+			"0:wan" "2:lan:1" "4:lan:2" "6@eth0"
+		;;
 	xiaomi,miwifi-3c)
 		ucidef_add_switch "switch0" \
 			"0:wan" "2:lan:2" "4:lan:1" "6@eth0"
@@ -211,6 +264,10 @@ ramips_setup_interfaces()
 	xiaomi,miwifi-nano)
 		ucidef_add_switch "switch0" \
 			"0:lan:2" "2:lan:1" "4:wan" "6@eth0"
+		;;
+	yuncore,1200f)
+		ucidef_add_switch "switch0" \
+			"4:lan" "3:wan" "6@eth0"
 		;;
 	yuncore,cpe200)
 		ucidef_add_switch "switch0" \
@@ -247,6 +304,13 @@ ramips_setup_macs()
 		lan_mac=$(mtd_get_mac_binary factory 0xe000)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
                 ;;
+	cudy,lt300-v3|\
+	hiwifi,hc5611|\
+	hiwifi,hc5661a|\
+	hiwifi,hc5761a|\
+	hiwifi,hc5861b)
+		wan_mac=$(macaddr_add "$(cat /sys/class/net/eth0/address)" 1)
+		;;
 	cudy,wr1000|\
 	hilink,hlk-7628n|\
 	hilink,hlk-7688a|\
@@ -258,21 +322,14 @@ ramips_setup_macs()
 		label_mac=$(mtd_get_mac_binary factory 0x4)
 		;;
 	duzun,dm06|\
+	hongdian,h7920-v40|\
+	hongdian,h8850-v20|\
 	netgear,r6020|\
 	netgear,r6080|\
 	netgear,r6120|\
 	wrtnode,wrtnode2p|\
 	wrtnode,wrtnode2r)
 		wan_mac=$(macaddr_add "$(mtd_get_mac_binary factory 0x4)" 1)
-		;;
-	hiwifi,hc5611|\
-	hiwifi,hc5661a|\
-	hiwifi,hc5761a|\
-	hiwifi,hc5861b)
-		lan_mac=$(mtd_get_mac_ascii bdinfo "Vfac_mac ")
-		label_mac=$lan_mac
-		[ -n "$lan_mac" ] || lan_mac=$(cat /sys/class/net/eth0/address)
-		wan_mac=$(macaddr_add "$lan_mac" 1)
 		;;
 	iptime,a3|\
 	iptime,a604m|\
@@ -286,6 +343,8 @@ ramips_setup_macs()
 	totolink,lr1200)
 		wan_mac=$(mtd_get_mac_binary factory 0x2e)
 		;;
+	keenetic,kn-1221|\
+	keenetic,kn-1510|\
 	keenetic,kn-1613|\
 	keenetic,kn-3211|\
 	zyxel,keenetic-extra-ii)
@@ -300,6 +359,9 @@ ramips_setup_macs()
 	motorola,mwr03)
 		label_mac=$(mtd_get_mac_binary factory 0x4)
 		wan_mac=$(macaddr_add "$label_mac" 2)
+		;;
+	movingcomm,c120ev)
+		wan_mac=$(mtd_get_mac_binary factory 0x28)
 		;;
 	onion,omega2|\
 	onion,omega2p|\

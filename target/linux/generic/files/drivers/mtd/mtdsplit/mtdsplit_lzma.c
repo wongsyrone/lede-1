@@ -14,8 +14,13 @@
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/partitions.h>
 #include <linux/of.h>
+#include <linux/version.h>
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,12,0)
 #include <asm/unaligned.h>
+#else
+#include <linux/unaligned.h>
+#endif
 
 #include "mtdsplit.h"
 
@@ -64,7 +69,7 @@ static int mtdsplit_parse_lzma(struct mtd_info *master,
 	if (err)
 		return err;
 
-	parts = kzalloc(LZMA_NR_PARTS * sizeof(*parts), GFP_KERNEL);
+	parts = kcalloc(LZMA_NR_PARTS, sizeof(*parts), GFP_KERNEL);
 	if (!parts)
 		return -ENOMEM;
 
@@ -94,11 +99,4 @@ static struct mtd_part_parser mtdsplit_lzma_parser = {
 	.type = MTD_PARSER_TYPE_FIRMWARE,
 };
 
-static int __init mtdsplit_lzma_init(void)
-{
-	register_mtd_parser(&mtdsplit_lzma_parser);
-
-	return 0;
-}
-
-subsys_initcall(mtdsplit_lzma_init);
+module_mtd_part_parser(mtdsplit_lzma_parser);

@@ -1,7 +1,7 @@
 ARCH:=mips
 SUBTARGET:=xrx200
 BOARDNAME:=XRX200
-FEATURES+=atm nand ramdisk
+FEATURES+=nand ramdisk
 CPU_TYPE:=24kc
 
 DEFAULT_PACKAGES+=kmod-leds-gpio \
@@ -12,6 +12,7 @@ DEFAULT_PACKAGES+=kmod-leds-gpio \
 	kmod-ltq-atm-vr9 \
 	kmod-ltq-deu-vr9 \
 	kmod-ltq-ptm-vr9 \
+	kmod-dsa-gswip \
 	ltq-vdsl-vr9-app \
 	dsl-vrx200-firmware-xdsl-a \
 	dsl-vrx200-firmware-xdsl-b-patch \

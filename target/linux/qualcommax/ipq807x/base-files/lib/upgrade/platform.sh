@@ -1,7 +1,7 @@
 PART_NAME=firmware
 REQUIRE_IMAGE_METADATA=1
 
-RAMFS_COPY_BIN='fw_printenv fw_setenv head'
+RAMFS_COPY_BIN='fw_printenv fw_setenv head seq'
 RAMFS_COPY_DATA='/etc/fw_env.config /var/lock/fw_printenv.lock'
 
 xiaomi_initramfs_prepare() {
@@ -108,6 +108,44 @@ tplink_do_upgrade() {
 	nand_do_upgrade "$1"
 }
 
+linksys_mx_pre_upgrade() {
+	local setenv_script="/tmp/fw_env_upgrade"
+
+	CI_UBIPART="rootfs"
+	boot_part="$(fw_printenv -n boot_part)"
+	if [ -n "$UPGRADE_OPT_USE_CURR_PART" ]; then
+		if [ "$boot_part" -eq "2" ]; then
+			CI_KERNPART="alt_kernel"
+			CI_UBIPART="alt_rootfs"
+		fi
+	else
+		if [ "$boot_part" -eq "1" ]; then
+			echo "boot_part 2" >> $setenv_script
+			CI_KERNPART="alt_kernel"
+			CI_UBIPART="alt_rootfs"
+		else
+			echo "boot_part 1" >> $setenv_script
+		fi
+	fi
+
+	boot_part_ready="$(fw_printenv -n boot_part_ready)"
+	if [ "$boot_part_ready" -ne "3" ]; then
+		echo "boot_part_ready 3" >> $setenv_script
+	fi
+
+	auto_recovery="$(fw_printenv -n auto_recovery)"
+	if [ "$auto_recovery" != "yes" ]; then
+		echo "auto_recovery yes" >> $setenv_script
+	fi
+
+	if [ -f "$setenv_script" ]; then
+		fw_setenv -s $setenv_script || {
+			echo "failed to update U-Boot environment"
+			return 1
+		}
+	fi
+}
+
 platform_check_image() {
 	return 0;
 }
@@ -127,17 +165,32 @@ platform_pre_upgrade() {
 
 platform_do_upgrade() {
 	case "$(board_name)" in
+	aliyun,ap8220)
+		active="$(fw_printenv -n active)"
+		if [ "$active" -eq "1" ]; then
+			CI_UBIPART="rootfs1"
+		else
+			CI_UBIPART="rootfs2"
+		fi
+		nand_do_upgrade "$1"
+		;;
 	arcadyan,aw1000|\
 	cmcc,rm2-6|\
 	compex,wpq873|\
 	dynalink,dl-wrx36|\
 	edimax,cax1800|\
 	netgear,rax120v2|\
+	netgear,rbr750|\
+	netgear,rbr850|\
+	netgear,rbs750|\
+	netgear,rbs850|\
 	netgear,sxr80|\
 	netgear,sxs80|\
 	netgear,wax218|\
 	netgear,wax620|\
-	netgear,wax630)
+	netgear,wax630|\
+	zyxel,nwa110ax|\
+	zyxel,nwa210ax)
 		nand_do_upgrade "$1"
 		;;
 	asus,rt-ax89x)
@@ -149,6 +202,7 @@ platform_do_upgrade() {
 	buffalo,wxr-5950ax12)
 		CI_KERN_UBIPART="rootfs"
 		CI_ROOT_UBIPART="user_property"
+		CI_DATA_UBIPART="user_property"
 		buffalo_upgrade_prepare
 		nand_do_flash_file "$1" || nand_do_upgrade_failed
 		nand_do_restore_config || nand_do_upgrade_failed
@@ -173,20 +227,15 @@ platform_do_upgrade() {
 		;;
 	linksys,mx4200v1|\
 	linksys,mx4200v2|\
-	linksys,mx4300|\
+	linksys,mx4300)
+		linksys_mx_pre_upgrade "$1"
+		remove_oem_ubi_volume squashfs
+		nand_do_upgrade "$1"
+		;;
 	linksys,mx5300|\
 	linksys,mx8500)
-		boot_part="$(fw_printenv -n boot_part)"
-		if [ "$boot_part" -eq "1" ]; then
-			fw_setenv boot_part 2
-			CI_KERNPART="alt_kernel"
-			CI_UBIPART="alt_rootfs"
-		else
-			fw_setenv boot_part 1
-			CI_UBIPART="rootfs"
-		fi
-		fw_setenv boot_part_ready 3
-		fw_setenv auto_recovery yes
+		linksys_mx_pre_upgrade "$1"
+		remove_oem_ubi_volume ubifs
 		nand_do_upgrade "$1"
 		;;
 	prpl,haze|\
@@ -212,6 +261,7 @@ platform_do_upgrade() {
 		# Kernel and rootfs are placed in 2 different UBI
 		CI_KERN_UBIPART="ubi_kernel"
 		CI_ROOT_UBIPART="rootfs"
+		CI_DATA_UBIPART="rootfs"
 		nand_do_upgrade "$1"
 		;;
 	spectrum,sax1v1k)
@@ -220,6 +270,11 @@ platform_do_upgrade() {
 		CI_DATAPART="rootfs_data"
 		emmc_do_upgrade "$1"
 		;;
+	tcl,linkhub-hh500v)
+		tcl_upgrade_prepare
+		nand_do_upgrade "$1"
+		;;
+	tplink,deco-x80-5g|\
 	tplink,eap620hd-v1|\
 	tplink,eap660hd-v1)
 		tplink_do_upgrade "$1"
@@ -251,6 +306,7 @@ platform_do_upgrade() {
 	zte,mf269)
 		CI_KERN_UBIPART="ubi_kernel"
 		CI_ROOT_UBIPART="rootfs"
+		CI_DATA_UBIPART="rootfs"
 		nand_do_upgrade "$1"
 		;;
 	zyxel,nbg7815)

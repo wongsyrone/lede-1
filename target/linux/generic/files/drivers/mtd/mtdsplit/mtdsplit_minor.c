@@ -63,46 +63,32 @@ static int mtdsplit_parse_minor(struct mtd_info *master,
 
 	hdr_len = sizeof(hdr);
 	err = mtd_read(master, 0, hdr_len, &retlen, (void *) &hdr);
-	if (err) {
-		pr_err("MiNOR mtd_read error: %d\n", err);
+	if (err)
 		return err;
-	}
 
-	if (retlen != hdr_len) {
-		pr_err("MiNOR mtd_read too short\n");
+	if (retlen != hdr_len)
 		return -EIO;
-	}
 
 	/* match header */
-	if (hdr.yaffs_type != YAFFS_OBJECT_TYPE_FILE) {
-		pr_info("MiNOR YAFFS first type not matched\n");
-		return 0;
-	}
+	if (hdr.yaffs_type != YAFFS_OBJECT_TYPE_FILE)
+		return -ENOENT;
 
-	if (hdr.yaffs_obj_id != YAFFS_OBJECTID_ROOT) {
-		pr_info("MiNOR YAFFS first objectid not matched\n");
-		return 0;
-	}
+	if (hdr.yaffs_obj_id != YAFFS_OBJECTID_ROOT)
+		return -ENOENT;
 
-	if (hdr.yaffs_sum_unused != YAFFS_SUM_UNUSED) {
-		pr_info("MiNOR YAFFS first sum not matched\n");
-		return 0;
-	}
+	if (hdr.yaffs_sum_unused != YAFFS_SUM_UNUSED)
+		return -ENOENT;
 
 	if ((memcmp(hdr.yaffs_name, YAFFS_NAME_KERNEL, sizeof(YAFFS_NAME_KERNEL))) &&
-	    (memcmp(hdr.yaffs_name, YAFFS_NAME_BOOTIMAGE, sizeof(YAFFS_NAME_BOOTIMAGE)))) {
-		pr_info("MiNOR YAFFS first name not matched\n");
-		return 0;
-	}
+	    (memcmp(hdr.yaffs_name, YAFFS_NAME_BOOTIMAGE, sizeof(YAFFS_NAME_BOOTIMAGE))))
+		return -ENOENT;
 
 	err = mtd_find_rootfs_from(master, master->erasesize, master->size,
 				   &rootfs_offset, NULL);
-	if (err) {
-		pr_info("MiNOR mtd_find_rootfs_from error: %d\n", err);
-		return 0;
-	}
+	if (err)
+		return err;
 
-	parts = kzalloc(MINOR_NR_PARTS * sizeof(*parts), GFP_KERNEL);
+	parts = kcalloc(MINOR_NR_PARTS, sizeof(*parts), GFP_KERNEL);
 	if (!parts)
 		return -ENOMEM;
 
@@ -132,11 +118,4 @@ static struct mtd_part_parser mtdsplit_minor_parser = {
 	.type = MTD_PARSER_TYPE_FIRMWARE,
 };
 
-static int __init mtdsplit_minor_init(void)
-{
-	register_mtd_parser(&mtdsplit_minor_parser);
-
-	return 0;
-}
-
-subsys_initcall(mtdsplit_minor_init);
+module_mtd_part_parser(mtdsplit_minor_parser);

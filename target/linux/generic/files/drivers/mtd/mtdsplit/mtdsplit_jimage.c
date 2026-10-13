@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2018 Paweł Dembicki <paweldembicki@gmail.com> 
+ *  Copyright (C) 2018 Paweł Dembicki <paweldembicki@gmail.com>
  *
  *  Based on: mtdsplit_uimage.c
  *  Copyright (C) 2013 Gabor Juhos <juhosg@openwrt.org>
@@ -108,7 +108,7 @@ static int __mtdsplit_parse_jimage(struct mtd_info *master,
 	enum mtdsplit_part_type type;
 
 	nr_parts = 2;
-	parts = kzalloc(nr_parts * sizeof(*parts), GFP_KERNEL);
+	parts = kcalloc(nr_parts, sizeof(*parts), GFP_KERNEL);
 	if (!parts)
 		return -ENOMEM;
 
@@ -147,7 +147,7 @@ static int __mtdsplit_parse_jimage(struct mtd_info *master,
 
 	if (jimage_size == 0) {
 		pr_debug("no jImage found in \"%s\"\n", master->name);
-		ret = -ENODEV;
+		ret = -ENOENT;
 		goto err_free_buf;
 	}
 
@@ -186,7 +186,7 @@ static int __mtdsplit_parse_jimage(struct mtd_info *master,
 
 	if (rootfs_size == 0) {
 		pr_debug("no rootfs found in \"%s\"\n", master->name);
-		ret = -ENODEV;
+		ret = -ENOENT;
 		goto err_free_buf;
 	}
 
@@ -270,15 +270,4 @@ static struct mtd_part_parser jimage_generic_parser = {
 	.type = MTD_PARSER_TYPE_FIRMWARE,
 };
 
-/**************************************************
- * Init
- **************************************************/
-
-static int __init mtdsplit_jimage_init(void)
-{
-	register_mtd_parser(&jimage_generic_parser);
-
-	return 0;
-}
-
-module_init(mtdsplit_jimage_init);
+module_mtd_part_parser(jimage_generic_parser);

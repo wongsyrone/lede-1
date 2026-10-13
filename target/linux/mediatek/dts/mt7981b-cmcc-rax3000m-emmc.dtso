@@ -32,6 +32,8 @@
 	fragment@3 {
 		target = <&mmc0>;
 		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
 			bus-width = <8>;
 			max-frequency = <26000000>;
 			no-sd;
@@ -61,6 +63,18 @@
 
 								eeprom_factory_0: eeprom@0 {
 									reg = <0x0 0x1000>;
+								};
+
+								macaddr_factory_4: macaddr@4 {
+									reg = <0x4 0x6>;
+									compatible = "mac-base";
+									#nvmem-cell-cells = <1>;
+								};
+
+								macaddr_factory_a: macaddr@a {
+									reg = <0xa 0x6>;
+									compatible = "mac-base";
+									#nvmem-cell-cells = <1>;
 								};
 
 								macaddr_factory_24: macaddr@24 {
@@ -110,6 +124,18 @@
 		__overlay__ {
 			nvmem-cells = <&eeprom_factory_0>;
 			nvmem-cell-names = "eeprom";
+
+			band@0 {
+				reg = <0>;
+				nvmem-cells = <&macaddr_factory_4 0>;
+				nvmem-cell-names = "mac-address";
+			};
+
+			band@1 {
+				reg = <1>;
+				nvmem-cells = <&macaddr_factory_a 0>;
+				nvmem-cell-names = "mac-address";
+			};
 		};
 	};
 };

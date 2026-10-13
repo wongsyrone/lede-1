@@ -114,6 +114,8 @@ define Build/cfe-jffs2
 	$(STAGING_DIR_HOST)/bin/mkfs.jffs2 \
 		--big-endian \
 		--pad \
+		--squash-uids \
+		--squash-perms \
 		--no-cleanmarkers \
 		--eraseblock=$(patsubst %k,%KiB,$(BLOCKSIZE)) \
 		--root=$(1) \
@@ -136,7 +138,7 @@ define Build/cfe-jffs2-cferam
 	# will have version 0 and let cferam be the second (version 1).
 	touch $@-cferam/1-openwrt
 	# Add cferam as the last file in the JFFS2 partition
-	cp $(KDIR)/bcm63xx-cfe/$(CFE_RAM_FILE) $@-cferam/$(CFE_RAM_JFFS2_NAME)
+	cp $(STAGING_DIR_IMAGE)/bcm63xx-cfe/$(CFE_RAM_FILE) $@-cferam/$(CFE_RAM_JFFS2_NAME)
 
 	# The JFFS2 partition creation should result in the following
 	# layout:
@@ -357,7 +359,7 @@ define Device/sercomm-nand
   $(Device/bcm63xx-nand)
   IMAGES := factory.img sysupgrade.bin
   IMAGE/factory.img := append-kernel | pad-to $$$$(KERNEL_SIZE) | append-ubi |\
-    cfe-sercomm-part | gzip | cfe-sercomm-load | cfe-sercomm-crypto
+    cfe-sercomm-part | libdeflate-gzip | cfe-sercomm-load | cfe-sercomm-crypto
   SERCOMM_FSVER :=
   SERCOMM_HWVER :=
   SERCOMM_SWVER :=
@@ -366,6 +368,7 @@ endef
 ### Package helpers ###
 ATH9K_PACKAGES := kmod-ath9k kmod-owl-loader wpad-basic-mbedtls
 B43_PACKAGES := kmod-b43 wpad-basic-mbedtls
+RT28_PACKAGES := kmod-rt2800-pci wpad-basic-mbedtls
 USB1_PACKAGES := kmod-usb-ohci kmod-usb-ledtrig-usbport
 USB2_PACKAGES := $(USB1_PACKAGES) kmod-usb2
 

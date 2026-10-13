@@ -45,6 +45,7 @@ platform_do_upgrade() {
 			fw_setenv --lock / bootImage 0 || exit 1
 		fi
 		;;
+	iptime,ax2002m|\
 	iptime,ax2004m)
 		if [ "$(fw_printenv -n boot_from 2>/dev/null)" != "firmware1" ]; then
 			fw_setenv boot_from firmware1 || exit 1
@@ -72,6 +73,7 @@ platform_do_upgrade() {
 	arcadyan,we420223-99|\
 	asus,rt-ac65p|\
 	asus,rt-ac85p|\
+	asus,rt-ac85u|\
 	asus,rt-ax53u|\
 	asus,rt-ax54|\
 	asus,4g-ax56|\
@@ -83,8 +85,9 @@ platform_do_upgrade() {
 	belkin,rt1800|\
 	dlink,covr-x1860-a1|\
 	dlink,dap-x1860-a1|\
+	dlink,dir-1360-a1|\
 	dlink,dir-1960-a1|\
-        dlink,dir-2055-a1|\
+	dlink,dir-2055-a1|\
 	dlink,dir-2150-a1|\
 	dlink,dir-2150-r1|\
 	dlink,dir-2640-a1|\
@@ -92,6 +95,9 @@ platform_do_upgrade() {
 	dlink,dir-3040-a1|\
 	dlink,dir-3060-a1|\
 	dlink,dir-853-a3|\
+	dlink,dir-x1860-b1|\
+	edup,ep-rt2960s|\
+	edup,ep-rt2983|\
 	elecom,wmc-x1800gst|\
 	elecom,wsc-x1800gs|\
 	etisalat,s3|\
@@ -103,9 +109,11 @@ platform_do_upgrade() {
 	gemtek,wvrtm-127acn|\
 	gemtek,wvrtm-130acn|\
 	iptime,a3004t|\
+	iptime,ax2002m|\
 	iptime,ax2004m|\
 	iptime,t5004|\
 	jcg,q20|\
+	keenetic,kn-1910|\
 	keenetic,kn-3510|\
 	linksys,e5600|\
 	linksys,e7350|\
@@ -138,7 +146,9 @@ platform_do_upgrade() {
 	sercomm,na502|\
 	sercomm,na502s|\
 	sim,simax1800t|\
+	sim,simax1800u|\
 	tplink,ec330-g5u-v1|\
+	tplink,ex220-v1-nand|\
 	wifire,s1500-nbn|\
 	xiaomi,mi-router-3g|\
 	xiaomi,mi-router-3-pro|\
@@ -149,6 +159,7 @@ platform_do_upgrade() {
 	xiaomi,mi-router-cr6609|\
 	xiaomi,redmi-router-ac2100|\
 	z-router,zr-2660|\
+	z-router,zr-2662|\
 	zyxel,nwa50ax|\
 	zyxel,nwa55axe)
 		nand_do_upgrade "$1"
@@ -157,8 +168,9 @@ platform_do_upgrade() {
 	buffalo,wsr-2533dhpls)
 		buffalo_do_upgrade "$1"
 		;;
-	dna,valokuitu-plus-ex400)
-		dna_do_upgrade "$1"
+	dna,valokuitu-plus-ex400|\
+	genexis,pulse-ex400)
+		inteno_do_upgrade "$1"
 		;;
 	elecom,wrc-x1800gs)
 		[ "$(fw_printenv -n bootmenu_delay)" != "0" ] || \
@@ -168,6 +180,7 @@ platform_do_upgrade() {
 		;;
 	iodata,wn-ax1167gr2|\
 	iodata,wn-ax2033gr|\
+	iodata,wn-ax2033gr2|\
 	iodata,wn-dx1167r|\
 	iodata,wn-dx2033gr)
 		iodata_mstc_set_flag "debugflag" "factory" "0xfe75" "0,1" "1"
@@ -183,6 +196,9 @@ platform_do_upgrade() {
 		iodata_mstc_set_flag "bootnum" "persist" "0x4" "1,2" "1"
 		nand_do_upgrade "$1"
 		;;
+	plasmacloud,pax1800-lite)
+		platform_do_upgrade_dualboot_datachk "$1"
+		;;
 	tplink,er605-v2)
 		echo "Upgrading tplink,er605-v2"
 		CI_UBIPART="firmware"
@@ -195,6 +211,7 @@ platform_do_upgrade() {
 		;;
 	zyxel,lte3301-plus|\
 	zyxel,lte5398-m904|\
+	zyxel,lte7490-m904|\
 	zyxel,nr7101)
 		fw_setenv CheckBypass 0
 		fw_setenv Image1Stable 0
@@ -213,6 +230,12 @@ platform_do_upgrade() {
 		;;
 	zyxel,wsm20)
 		zyxel_mstc_upgrade_prepare
+		nand_do_upgrade "$1"
+		;;
+	teltonika,rutm11|\
+	teltonika,rutm30|\
+	teltonika,rutm50)
+		CI_UBIPART="$(cmdline_get_var ubi.mtd)"
 		nand_do_upgrade "$1"
 		;;
 	*)

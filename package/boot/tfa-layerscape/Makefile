@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tfa-layerscape
-PKG_VERSION:=6.6.23.2.0.0
+PKG_VERSION:=6.18.2.1.0.0
 PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/nxp-qoriq/atf
-PKG_SOURCE_VERSION:=lf-6.6.23-2.0.0
-PKG_MIRROR_HASH:=628a95ba60a593ae0575ee9ede1154445ec3a86a07b18e4947e06e13c2b67859
+PKG_SOURCE_VERSION:=lf-6.18.2-1.0.0
+PKG_MIRROR_HASH:=4baa079cdc794bd6095c4d5cecb64d38d94273d592ad6d84da955cff3d443393
 PKG_BUILD_DEPENDS:=tfa-layerscape/host
 
 include $(INCLUDE_DIR)/host-build.mk
@@ -43,6 +43,7 @@ endef
 define Trusted-Firmware-A/Default
   BUILD_TARGET:=layerscape
   BUILD_SUBTARGET:=armv8_64b
+  BUILD_DEVICES:=fsl_$(1)
   DEPENDS:=+layerscape-rcw +u-boot-fsl_$(1)
 endef
 
@@ -161,7 +162,7 @@ TFA_TARGETS := \
   lx2160a-rdb-sdboot
 
 TFA_MAKE_FLAGS += \
-	$(if $(CONFIG_BINUTILS_VERSION_2_37)$(CONFIG_BINUTILS_VERSION_2_38),,LDFLAGS="-no-warn-rwx-segments") \
+	LDFLAGS="-Wl,--no-warn-rwx-segments" \
 	fip pbl \
 	BOOT_MODE=$(BOOT_MODE) \
 	RCW=$(STAGING_DIR_IMAGE)/fsl_$(BUILD_VARIANT)-rcw.bin \

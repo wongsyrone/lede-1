@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=procd
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/procd.git
-PKG_MIRROR_HASH:=41dbb5352eff931ecc78c4ce9a081645c26a7fb8dc57cdd6521a2f8d3a142567
-PKG_SOURCE_DATE:=2024-12-22
-PKG_SOURCE_VERSION:=42d3937654508b04da64969f9d764ac2ec411904
+PKG_MIRROR_HASH:=3aa9e70848dd7761c72ce48989965f1d1838fdd0965d971fffac120d1778833a
+PKG_SOURCE_DATE:=2026-10-07
+PKG_SOURCE_VERSION:=6a22d3964822f6d58fba4c4686e385ddb7e7fcb1
 CMAKE_INSTALL:=1
 
 PKG_LICENSE:=GPL-2.0
@@ -43,13 +43,14 @@ define Package/procd/Default
   DEPENDS:=+ubusd +ubus +libjson-script +ubox +libubox +libudebug \
 	  +libubus +libblobmsg-json +libjson-c +jshn
   TITLE:=OpenWrt system process manager
-  USERID:=:dialout=20 :audio=29
+  USERID:=:dialout=20
 endef
 
 define Package/procd
   $(call Package/procd/Default)
   VARIANT:=default
   CONFLICTS:=procd-selinux
+  DEFAULT_VARIANT:=1
 endef
 
 define Package/procd-selinux
@@ -64,21 +65,22 @@ define Package/procd-ujail
   SECTION:=base
   CATEGORY:=Base system
   DEPENDS:=@KERNEL_NAMESPACES +@KERNEL_UTS_NS +@KERNEL_IPC_NS +@KERNEL_PID_NS \
-	  +libubox +libubus +libuci +libblobmsg-json
+	  +libubox +libubus +libuci +libblobmsg-json +libudebug
+  PKGFLAGS+=nonshared
   TITLE:=OpenWrt process jail helper
 endef
 
 define Package/procd-seccomp
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=@USE_SECCOMP +libubox +libblobmsg-json
-  TITLE:=OpenWrt process seccomp helper + utrace
+  DEPENDS:=@USE_SECCOMP +ucode +ucode-mod-fs
+  TITLE:=OpenWrt process seccomp helper + trace2seccomp
 endef
 
 define Package/uxc
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+procd-ujail +libubus +libubox +libblobmsg-json +blockd +PACKAGE_uxc:rpcd
+  DEPENDS:=+procd-ujail +libubus +libubox +libblobmsg-json +blockd +odhcpd +ucode +ucode-mod-fs +ucode-mod-ubus +ucode-mod-uci +ucode-mod-uloop +PACKAGE_uxc:rpcd
   TITLE:=OpenWrt container management
   MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
 endef
@@ -111,7 +113,8 @@ SECCOMP=$(if $(CONFIG_PACKAGE_procd-seccomp),1,0)
 CMAKE_OPTIONS += -DSECCOMP_SUPPORT=$(SECCOMP) -DUTRACE_SUPPORT=$(SECCOMP)
 
 define Package/procd/install
-	$(INSTALL_DIR) $(1)/sbin $(1)/etc $(1)/lib/functions
+	$(INSTALL_DIR) $(1)/sbin $(1)/etc $(1)/etc/hotplug.json.d \
+		$(1)/etc/hotplug-preinit.json.d $(1)/lib/functions
 
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{init,procd,askfirst,udevtrigger,upgraded} $(1)/sbin/
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libsetlbf.so $(1)/lib
@@ -129,11 +132,10 @@ define Package/procd-ujail/install
 endef
 
 define Package/procd-seccomp/install
-	$(INSTALL_DIR) $(1)/sbin $(1)/lib
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libpreload-seccomp.so $(1)/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/utrace $(1)/sbin/
-	$(LN) utrace $(1)/sbin/seccomp-trace
-	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libpreload-trace.so $(1)/lib
+	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/trace2seccomp $(1)/sbin/
+	$(LN) trace2seccomp $(1)/sbin/utrace
+	$(LN) trace2seccomp $(1)/sbin/seccomp-trace
 endef
 
 define Package/uxc/conffiles
@@ -141,10 +143,15 @@ define Package/uxc/conffiles
 endef
 
 define Package/uxc/install
-	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_DIR) $(1)/sbin $(1)/usr/share/uxc
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/uxc $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/uxc-net $(1)/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/uxc-stack $(1)/sbin/
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/share/uxc/uxc-stack.uc $(1)/usr/share/uxc/
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/uxc.init $(1)/etc/init.d/uxc
+	$(INSTALL_DIR) $(1)/lib/functions
+	$(INSTALL_DATA) ./files/uxc.sh $(1)/lib/functions/
 endef
 
 $(eval $(call BuildPackage,procd))

@@ -10,14 +10,13 @@ sub target_config_features(@) {
 
 	while ($_ = shift @_) {
 		/^arm_v(\w+)$/ and $ret .= "\tselect arm_v$1\n";
-		/^audio$/ and $ret .= "\tselect AUDIO_SUPPORT\n";
 		/^boot-part$/ and $ret .= "\tselect USES_BOOT_PART\n";
 		/^broken$/ and $ret .= "\tdepends on BROKEN\n";
 		/^cpiogz$/ and $ret .= "\tselect USES_CPIOGZ\n";
-		/^display$/ and $ret .= "\tselect DISPLAY_SUPPORT\n";
 		/^dt$/ and $ret .= "\tselect USES_DEVICETREE\n";
 		/^dt-overlay$/ and $ret .= "\tselect HAS_DT_OVERLAY_SUPPORT\n";
 		/^emmc$/ and $ret .= "\tselect EMMC_SUPPORT\n";
+		/^erofs$/ and $ret .= "\tselect USES_EROFS\n";
 		/^ext4$/ and $ret .= "\tselect USES_EXT4\n";
 		/^fpu$/ and $ret .= "\tselect HAS_FPU\n";
 		/^gpio$/ and $ret .= "\tselect GPIO_SUPPORT\n";
@@ -32,9 +31,12 @@ sub target_config_features(@) {
 		/^pci$/ and $ret .= "\tselect PCI_SUPPORT\n";
 		/^pcie$/ and $ret .= "\tselect PCIE_SUPPORT\n";
 		/^pcmcia$/ and $ret .= "\tselect PCMCIA_SUPPORT\n";
+		/^pinctrl$/ and $ret .= "\tselect PINCTRL_SUPPORT\n";
+		/^pm$/ and $ret .= "\tselect USES_PM\n";
 		/^powerpc64$/ and $ret .= "\tselect powerpc64\n";
-		/^pwm$/ and $ret .= "\select PWM_SUPPORT\n";
+		/^pwm$/ and $ret .= "\tselect PWM_SUPPORT\n";
 		/^ramdisk$/ and $ret .= "\tselect USES_INITRAMFS\n";
+		/^regulator$/ and $ret .= "\tselect REGULATOR_SUPPORT\n";
 		/^rfkill$/ and $ret .= "\tselect RFKILL_SUPPORT\n";
 		/^rootfs-part$/ and $ret .= "\tselect USES_ROOTFS_PART\n";
 		/^rtc$/ and $ret .= "\tselect RTC_SUPPORT\n";
@@ -47,7 +49,10 @@ sub target_config_features(@) {
 		/^ubifs$/ and $ret .= "\tselect USES_UBIFS\n";
 		/^usb$/ and $ret .= "\tselect USB_SUPPORT\n";
 		/^usbgadget$/ and $ret .= "\tselect USB_GADGET_SUPPORT\n";
+		/^vdi$/ and $ret .= "\tselect USES_VDI\n";
+		/^vhdx$/ and $ret .= "\tselect USES_VHDX\n";
 		/^virtio$/ and $ret .= "\tselect VIRTIO_SUPPORT\n";
+		/^vmdk$/ and $ret .= "\tselect USES_VMDK\n";
 	}
 	return $ret;
 }
@@ -441,7 +446,7 @@ sub gen_profile_mk() {
 	my @targets = parse_target_metadata($file);
 	foreach my $cur (@targets) {
 		next unless $cur->{id} eq $target;
-		my @profile_ids_unique =  do { my %seen; grep { !$seen{$_}++} map { $_->{id} } @{$cur->{profiles}}};
+		my @profile_ids_unique =  do { my %seen; grep { !$seen{$_}++} map { $_->{id} } grep { $_->{default} !~ /^n/ } @{$cur->{profiles}}};
 		print "PROFILE_NAMES = ".join(" ", @profile_ids_unique)."\n";
 		foreach my $profile (@{$cur->{profiles}}) {
 			print $profile->{id}.'_NAME:='.$profile->{name}."\n";
