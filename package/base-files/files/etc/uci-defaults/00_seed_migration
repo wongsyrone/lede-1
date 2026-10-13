@@ -1,0 +1,111 @@
+#!/bin/sh
+# /etc/uci-defaults/00_seed_migration
+# In-place Sysupgrade Seamless Migration Engine
+# Restores WAN, LAN, DNS, Modem, and Static DHCP from seed if present,
+# and sanitizes defunct DNS/proxy forwarders.
+
+. /lib/functions.sh
+
+SEED_FILE="/etc/sysupgrade_seed.json"
+
+# 1. If seed file exists, restore clean configurations
+if [ -s "$SEED_FILE" ] && [ -x /usr/bin/jsonfilter ]; then
+    echo "[migration] Found $SEED_FILE, applying seed configuration..."
+
+    # 1.1 Dropbear Port
+    DB_PORT=$(jsonfilter -i "$SEED_FILE" -e '@.system.dropbear_port')
+    if [ -n "$DB_PORT" ]; then
+        uci -q set dropbear.@dropbear[0].Port="$DB_PORT"
+        uci -q commit dropbear
+    fi
+
+    # 1.2 LAN
+    LAN_IP=$(jsonfilter -i "$SEED_FILE" -e '@.network.lan.ipaddr')
+    LAN_NETMASK=$(jsonfilter -i "$SEED_FILE" -e '@.network.lan.netmask')
+    LAN_IP6ASSIGN=$(jsonfilter -i "$SEED_FILE" -e '@.network.lan.ip6assign')
+    [ -n "$LAN_IP" ] && uci -q set network.lan.ipaddr="$LAN_IP"
+    [ -n "$LAN_NETMASK" ] && uci -q set network.lan.netmask="$LAN_NETMASK"
+    [ -n "$LAN_IP6ASSIGN" ] && uci -q set network.lan.ip6assign="$LAN_IP6ASSIGN"
+
+    # 1.3 WAN
+    WAN_PROTO=$(jsonfilter -i "$SEED_FILE" -e '@.network.wan.proto')
+    WAN_DEV=$(jsonfilter -i "$SEED_FILE" -e '@.network.wan.device')
+    WAN_USER=$(jsonfilter -i "$SEED_FILE" -e '@.network.wan.username')
+    WAN_PASS=$(jsonfilter -i "$SEED_FILE" -e '@.network.wan.password')
+    [ -n "$WAN_PROTO" ] && uci -q set network.wan.proto="$WAN_PROTO"
+    [ -n "$WAN_DEV" ] && uci -q set network.wan.device="$WAN_DEV"
+    [ -n "$WAN_USER" ] && uci -q set network.wan.username="$WAN_USER"
+    [ -n "$WAN_PASS" ] && uci -q set network.wan.password="$WAN_PASS"
+    uci -q set network.wan.ipv6='auto'
+    uci -q set network.wan.ip6assign='64'
+
+    # 1.4 Modem access interface
+    MODEM_DEV=$(jsonfilter -i "$SEED_FILE" -e '@.network.modem.device')
+    MODEM_IP=$(jsonfilter -i "$SEED_FILE" -e '@.network.modem.ipaddr')
+    MODEM_NETMASK=$(jsonfilter -i "$SEED_FILE" -e '@.network.modem.netmask')
+    MODEM_GW=$(jsonfilter -i "$SEED_FILE" -e '@.network.modem.gateway')
+    if [ -n "$MODEM_IP" ] && [ -n "$MODEM_DEV" ]; then
+        uci -q batch <<-EOF
+            delete network.modem
+            set network.modem=interface
+            set network.modem.proto='static'
+            set network.modem.device='$MODEM_DEV'
+            set network.modem.ipaddr='$MODEM_IP'
+            set network.modem.netmask='$MODEM_NETMASK'
+            set network.modem.gateway='$MODEM_GW'
+            set network.modem.defaultroute='0'
+		EOF
+    fi
+    uci -q commit network
+
+    # 1.5 DHCP Static Hosts
+    HOST_COUNT=$(jsonfilter -i "$SEED_FILE" -e '@.dhcp_hosts.length')
+    if [ -n "$HOST_COUNT" ] && [ "$HOST_COUNT" -gt 0 ]; then
+        i=0
+        while [ "$i" -lt "$HOST_COUNT" ]; do
+            H_NAME=$(jsonfilter -i "$SEED_FILE" -e "@.dhcp_hosts[$i].name")
+            H_MAC=$(jsonfilter -i "$SEED_FILE" -e "@.dhcp_hosts[$i].mac")
+            H_IP=$(jsonfilter -i "$SEED_FILE" -e "@.dhcp_hosts[$i].ip")
+            if [ -n "$H_MAC" ] && [ -n "$H_IP" ]; then
+                uci -q batch <<-EOF
+                    add dhcp host
+                    set dhcp.@host[-1].name='$H_NAME'
+                    set dhcp.@host[-1].mac='$H_MAC'
+                    set dhcp.@host[-1].ip='$H_IP'
+				EOF
+            fi
+            i=$((i + 1))
+        done
+        uci -q commit dhcp
+    fi
+
+    # Mark seed applied
+    mv "$SEED_FILE" "${SEED_FILE}.applied"
+fi
+
+# 2. General Safety Sanitization: Clean dead pdnsd (8153) and defunct local forwarders
+if [ -d /etc/dnsmasq.d ]; then
+    for conf in /etc/dnsmasq.d/*.conf; do
+        [ -f "$conf" ] || continue
+        # If file references defunct pdnsd port 8153, remove or disable
+        if grep -q -E '(8153|5335|transocks|pdnsd)' "$conf" 2>/dev/null; then
+            echo "[migration] Neutralizing obsolete dnsmasq forwarder config: $conf"
+            mv "$conf" "${conf}.obsolete"
+        fi
+    done
+fi
+
+# 3. Ensure Firewall4 3-State FullCone NAT is active
+if [ -f /etc/config/firewall ]; then
+    uci -q set firewall.@defaults[0].fullcone='1'
+    uci -q delete firewall.@defaults[0].brcmfullcone
+    uci -q commit firewall
+fi
+
+# 4. Ensure Dnsmasq redirect does not conflict with Nikki
+if [ -f /etc/config/dhcp ]; then
+    uci -q set dhcp.@dnsmasq[0].dns_redirect='0'
+    uci -q commit dhcp
+fi
+
+exit 0
