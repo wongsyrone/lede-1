@@ -1,0 +1,214 @@
+From: Anders Kaseorg <andersk@mit.edu>
+Subject: [PATCH] mwlwifi: fix 88W8964 WPA3/PMF support and beacon RSNXE element
+
+Backport upstream Pull Request #429 from https://github.com/kaloz/mwlwifi/pull/429
+Fixes WPA3-SAE and 802.11w Protected Management Frames (PMF) on 88W8964
+(Linksys WRT3200ACM / WRT1900AC) and prevents firmware lockup:
+1. 88W8964: let mac80211 build CCMP header of protected mgmt frames (fixes kaloz/mwlwifi#389)
+2. 88W8964: don't claim mgmt frame CCMP header and MIC are stripped
+3. 88W8964: include MIC room in length of protected mgmt frames
+4. Pass RSN Extension element (RSNXE) to firmware for beacons (fixes SAE handshake reason 17)
+
+Origin: https://github.com/kaloz/mwlwifi/pull/429
+Signed-off-by: Anders Kaseorg <andersk@mit.edu>
+
+---
+diff --git a/core.h b/core.h
+index 9f1d61d..44abfee 100644
+--- a/core.h
++++ b/core.h
+@@ -375,6 +375,7 @@ struct beacon_info {
+ 	u8 *ie_rsn_ptr;
+ 	u8 *ie_rsn48_ptr;
+ 	u8 *ie_mde_ptr;
++	u8 *ie_rsnx_ptr;
+ 	u8 *ie_ht_ptr;
+ 	u8 *ie_vht_ptr;
+ 	u8 *ie_country_ptr;
+@@ -386,6 +387,7 @@ struct beacon_info {
+ 	u8 ie_rsn_len;
+ 	u8 ie_rsn48_len;
+ 	u8 ie_mde_len;
++	u8 ie_rsnx_len;
+ 	u8 ie_ht_len;
+ 	u8 ie_vht_len;
+ 	u8 ie_country_len;
+diff --git a/hif/fwcmd.c b/hif/fwcmd.c
+index ccf3f70..26a12ef 100644
+--- a/hif/fwcmd.c
++++ b/hif/fwcmd.c
+@@ -488,6 +488,10 @@ static void mwl_fwcmd_parse_beacon(struct mwl_priv *priv,
+ 			beacon_info->ie_mde_len = (elen + 2);
+ 			beacon_info->ie_mde_ptr = (pos - 2);
+ 			break;
++		case WLAN_EID_RSNX:
++			beacon_info->ie_rsnx_len = (elen + 2);
++			beacon_info->ie_rsnx_ptr = (pos - 2);
++			break;
+ 		case WLAN_EID_HT_CAPABILITY:
+ 		case WLAN_EID_HT_OPERATION:
+ 		case WLAN_EID_OVERLAP_BSS_SCAN_PARAM:
+@@ -614,6 +618,13 @@ static int mwl_fwcmd_set_ies(struct mwl_priv *priv, struct mwl_vif *mwl_vif)
+ 	       beacon->ie_mde_ptr, beacon->ie_mde_len);
+ 	ie_list_len_proprietary += mwl_vif->beacon_info.ie_mde_len;
+ 
++	if (ie_list_len_proprietary + beacon->ie_rsnx_len <=
++	    sizeof(pcmd->ie_list_proprietary)) {
++		memcpy(pcmd->ie_list_proprietary + ie_list_len_proprietary,
++		       beacon->ie_rsnx_ptr, beacon->ie_rsnx_len);
++		ie_list_len_proprietary += beacon->ie_rsnx_len;
++	}
++
+ 	pcmd->ie_list_len_proprietary = cpu_to_le16(ie_list_len_proprietary);
+ 
+ 	if (mwl_hif_exec_cmd(priv->hw, HOSTCMD_CMD_SET_IES)) {
+diff --git a/hif/pcie/8964/rx_ndp.c b/hif/pcie/8964/rx_ndp.c
+index c7289f4..b2ddfb6 100644
+--- a/hif/pcie/8964/rx_ndp.c
++++ b/hif/pcie/8964/rx_ndp.c
+@@ -369,10 +369,17 @@ static inline void pcie_rx_process_slow_data(struct mwl_priv *priv,
+ 			    is_multicast_ether_addr(wh->addr1) ||
+ 			    (ieee80211_is_mgmt(wh->frame_control) &&
+ 			    !is_multicast_ether_addr(wh->addr1))) {
+-				if (!ieee80211_is_auth(wh->frame_control))
++				if (!ieee80211_is_mgmt(wh->frame_control))
+ 					status->flag |= RX_FLAG_IV_STRIPPED |
+ 							RX_FLAG_DECRYPTED |
+ 							RX_FLAG_MMIC_STRIPPED;
++				else if (!ieee80211_is_auth(wh->frame_control))
++					/* The firmware decrypts protected
++					 * management frames in place, but
++					 * leaves the CCMP header and MIC for
++					 * mac80211 to remove.
++					 */
++					status->flag |= RX_FLAG_DECRYPTED;
+ 			}
+ 		}
+ 
+diff --git a/hif/pcie/8964/tx_ndp.c b/hif/pcie/8964/tx_ndp.c
+index 9301c32..896826c 100644
+--- a/hif/pcie/8964/tx_ndp.c
++++ b/hif/pcie/8964/tx_ndp.c
+@@ -41,6 +41,7 @@
+ #define TX_CTRL_TYPE_DATA       BIT(0)
+ #define TX_CTRL_EAPOL           BIT(1)
+ #define TX_CTRL_TCP_ACK         BIT(2)
++#define TX_CTRL_MIC_ROOM        BIT(3)
+ 
+ /* Transmission information to transmit a socket buffer.
+  */
+@@ -461,6 +462,10 @@ void pcie_tx_done_ndp(struct ieee80211_hw *hw)
+ 			dev_kfree_skb_any(skb);
+ 			goto bypass_ack;
+ 		} else {
++			if (tx_ctrl->flags & TX_CTRL_MIC_ROOM)
++				skb_trim(skb,
++					 skb->len - IEEE80211_CCMP_MIC_LEN);
++
+ 			/* Remove H/W dma header */
+ 			dma_data = (struct pcie_dma_data *)skb->data;
+ 
+@@ -521,6 +526,7 @@ void pcie_tx_xmit_ndp(struct ieee80211_hw *hw,
+ 	bool eapol_frame = false;
+ 	bool start_ba_session = false;
+ 	struct pcie_tx_ctrl_ndp *tx_ctrl;
++	int mic_room = 0;
+ 
+ 	tx_info = IEEE80211_SKB_CB(skb);
+ 	k_conf = tx_info->control.hw_key;
+@@ -596,7 +602,9 @@ void pcie_tx_xmit_ndp(struct ieee80211_hw *hw,
+ 			ieee80211_tx_status_skb(hw, ack_skb);
+ 		}
+ 
+-		pcie_tx_encapsulate_frame(priv, skb, k_conf);
++		mic_room = pcie_tx_encapsulate_frame(priv, skb, k_conf);
++		if (!k_conf || k_conf->cipher != WLAN_CIPHER_SUITE_CCMP)
++			mic_room = 0;
+ 	} else {
+ 		tid = qos & 0x7;
+ 		if (sta && sta->deflink.ht_cap.ht_supported && !eapol_frame &&
+@@ -654,12 +662,26 @@ void pcie_tx_xmit_ndp(struct ieee80211_hw *hw,
+ 		}
+ 	}
+ 
++	if (mic_room) {
++		/* The firmware expects the length of a protected
++		 * management frame to include room for the MIC.
++		 */
++		if (skb_tailroom(skb) < mic_room &&
++		    pskb_expand_head(skb, 0, mic_room, GFP_ATOMIC))
++			mic_room = 0;
++		else
++			skb_put_zero(skb, mic_room);
++		wh = &((struct pcie_dma_data *)skb->data)->wh;
++	}
++
+ 	index = SYSADPT_TX_WMM_QUEUES - index - 1;
+ 
+ 	tx_ctrl = (struct pcie_tx_ctrl_ndp *)tx_info->driver_data;
+ 	tx_ctrl->tx_que_priority = tx_que_priority;
+ 	tx_ctrl->hdrlen = ieee80211_hdrlen(wh->frame_control);
+ 	tx_ctrl->flags = 0;
++	if (mic_room)
++		tx_ctrl->flags |= TX_CTRL_MIC_ROOM;
+ 	tx_ctrl->qos = qos;
+ 	if (!mgmtframe)
+ 		tx_ctrl->flags |= TX_CTRL_TYPE_DATA;
+diff --git a/hif/pcie/dev.h b/hif/pcie/dev.h
+index 1317ae8..893dab4 100644
+--- a/hif/pcie/dev.h
++++ b/hif/pcie/dev.h
+@@ -787,10 +787,11 @@ static inline void pcie_tx_add_dma_header(struct mwl_priv *priv,
+ 		cpu_to_le16(skb->len - dma_hdrlen + tail_pad);
+ }
+ 
+-static inline void pcie_tx_encapsulate_frame(struct mwl_priv *priv,
++static inline int pcie_tx_encapsulate_frame(struct mwl_priv *priv,
+ 					     struct sk_buff *skb,
+ 					     struct ieee80211_key_conf *k_conf)
+ {
++	struct ieee80211_hdr *wh = (struct ieee80211_hdr *)skb->data;
+ 	int head_pad = 0;
+ 	int data_pad = 0;
+ 
+@@ -804,7 +805,12 @@ static inline void pcie_tx_encapsulate_frame(struct mwl_priv *priv,
+ 	 */
+ 
+ 	if (k_conf) {
+-		head_pad = k_conf->iv_len;
++		/* With IEEE80211_KEY_FLAG_GENERATE_IV_MGMT, mac80211 has
++		 * already inserted the CCMP header.
++		 */
++		if (!(ieee80211_is_mgmt(wh->frame_control) &&
++		      (k_conf->flags & IEEE80211_KEY_FLAG_GENERATE_IV_MGMT)))
++			head_pad = k_conf->iv_len;
+ 
+ 		switch (k_conf->cipher) {
+ 		case WLAN_CIPHER_SUITE_WEP40:
+@@ -821,6 +827,8 @@ static inline void pcie_tx_encapsulate_frame(struct mwl_priv *priv,
+ 	}
+ 
+ 	pcie_tx_add_dma_header(priv, skb, head_pad, data_pad);
++
++	return data_pad;
+ }
+ 
+ static inline void pcie_tx_prepare_info(struct mwl_priv *priv, u32 rate,
+diff --git a/mac80211.c b/mac80211.c
+index f3cecf5..e2d83b0 100644
+--- a/mac80211.c
++++ b/mac80211.c
+@@ -530,6 +530,13 @@ static int mwl_mac80211_set_key(struct ieee80211_hw *hw,
+ 			encr_type = ENCR_TYPE_AES;
+ 			if (priv->chip_type != MWL8964)
+ 				key->flags |= IEEE80211_KEY_FLAG_GENERATE_IV;
++			else
++				/* The 88W8964 firmware fills in the CCMP
++				 * header of data frames, but not of
++				 * protected management frames.
++				 */
++				key->flags |=
++					IEEE80211_KEY_FLAG_GENERATE_IV_MGMT;
+ 		} else if (key->cipher == WLAN_CIPHER_SUITE_TKIP) {
+ 			if (priv->chip_type != MWL8964)
+ 				key->flags |= IEEE80211_KEY_FLAG_GENERATE_MMIC | IEEE80211_KEY_FLAG_GENERATE_IV;
