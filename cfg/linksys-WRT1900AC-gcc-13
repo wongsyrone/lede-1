@@ -3,17 +3,10 @@ CONFIG_TARGET_mvebu_cortexa9=y
 CONFIG_TARGET_mvebu_cortexa9_DEVICE_linksys_wrt1900ac-v1=y
 CONFIG_DEVEL=y
 CONFIG_TOOLCHAINOPTS=y
-# CONFIG_BINUTILS_USE_VERSION_2_42 is not set
-CONFIG_BINUTILS_USE_VERSION_2_43=y
-CONFIG_BINUTILS_VERSION="2.43.1"
-CONFIG_BINUTILS_VERSION_2_43=y
-# CONFIG_GCC_USE_VERSION_13 is not set
-CONFIG_GCC_USE_VERSION_14=y
-CONFIG_GCC_VERSION="14.2.0"
-CONFIG_GCC_VERSION_14=y
 # CONFIG_GDB is not set
 # CONFIG_KERNEL_BTRFS_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_CIFS_ACL is not set
+# CONFIG_KERNEL_EROFS_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_EXT4_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_EXT4_FS_SECURITY is not set
 # CONFIG_KERNEL_F2FS_FS_POSIX_ACL is not set
@@ -21,7 +14,6 @@ CONFIG_GCC_VERSION_14=y
 # CONFIG_KERNEL_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_HFSPLUS_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_HFS_FS_POSIX_ACL is not set
-CONFIG_KERNEL_IO_URING=y
 # CONFIG_KERNEL_JFFS2_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_JFFS2_FS_SECURITY is not set
 # CONFIG_KERNEL_JFS_POSIX_ACL is not set
@@ -61,7 +53,6 @@ CONFIG_PACKAGE_kmod-dummy=y
 CONFIG_PACKAGE_kmod-hid=y
 CONFIG_PACKAGE_kmod-inet-diag=y
 CONFIG_PACKAGE_kmod-input-core=y
-CONFIG_PACKAGE_kmod-input-evdev=y
 CONFIG_PACKAGE_kmod-lib-crc16=y
 CONFIG_PACKAGE_kmod-mmc=y
 CONFIG_PACKAGE_kmod-mwifiex-sdio=y
@@ -72,12 +63,15 @@ CONFIG_PACKAGE_kmod-nft-tproxy=y
 CONFIG_PACKAGE_kmod-nls-base=y
 CONFIG_PACKAGE_kmod-regmap-core=y
 CONFIG_PACKAGE_kmod-tun=y
+CONFIG_PACKAGE_kmod-usb-common=y
 CONFIG_PACKAGE_kmod-usb-core=y
 # CONFIG_PACKAGE_knot-resolver_dnstap is not set
 CONFIG_PACKAGE_libatomic=y
 CONFIG_PACKAGE_libbpf=y
 CONFIG_PACKAGE_libcurl=y
 CONFIG_PACKAGE_libelf=y
+CONFIG_PACKAGE_libiwinfo=y
+CONFIG_PACKAGE_libiwinfo-data=y
 CONFIG_PACKAGE_liblua=y
 CONFIG_PACKAGE_liblucihttp=y
 CONFIG_PACKAGE_liblucihttp-lua=y
@@ -94,12 +88,12 @@ CONFIG_PACKAGE_luci-app-ddns=y
 CONFIG_PACKAGE_luci-app-firewall=y
 CONFIG_PACKAGE_luci-app-nikki=y
 CONFIG_PACKAGE_luci-app-package-manager=y
-CONFIG_PACKAGE_luci-app-turboacc_INCLUDE_SHORTCUT_FE=y
 CONFIG_PACKAGE_luci-base=y
 CONFIG_PACKAGE_luci-lib-base=y
 CONFIG_PACKAGE_luci-lib-ip=y
 CONFIG_PACKAGE_luci-lib-jsonc=y
 CONFIG_PACKAGE_luci-lib-nixio=y
+CONFIG_PACKAGE_luci-lib-uqr=y
 CONFIG_PACKAGE_luci-light=y
 CONFIG_PACKAGE_luci-lua-runtime=y
 CONFIG_PACKAGE_luci-mod-admin-full=y
@@ -120,6 +114,7 @@ CONFIG_PACKAGE_rpcd-mod-luci=y
 CONFIG_PACKAGE_rpcd-mod-rrdns=y
 CONFIG_PACKAGE_rpcd-mod-ucode=y
 CONFIG_PACKAGE_ucode-mod-html=y
+CONFIG_PACKAGE_ucode-mod-log=y
 CONFIG_PACKAGE_ucode-mod-lua=y
 CONFIG_PACKAGE_ucode-mod-math=y
 CONFIG_PACKAGE_uhttpd=y
