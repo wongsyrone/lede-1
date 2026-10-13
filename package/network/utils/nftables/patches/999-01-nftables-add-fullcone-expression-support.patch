@@ -1,4 +1,4 @@
-From b6e3ad4c0bb845a05d73ef1be46ffb73517d1565 Mon Sep 17 00:00:00 2001
+From 58c89e8768711a959fdc6e953df3ea2254ff93c1 Mon Sep 17 00:00:00 2001
 From: Syrone Wong <wong.syrone@gmail.com>
 Date: Sat, 9 Apr 2022 00:38:51 +0800
 Subject: [PATCH] nftables: add fullcone expression support
@@ -189,12 +189,12 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
  				$<stmt>0->nat.proto = $3;
 --- a/src/scanner.l
 +++ b/src/scanner.l
-@@ -462,6 +462,7 @@ addrstring	({macaddr}|{ip4addr}|{ip6addr
- "snat"			{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return SNAT; }
- "dnat"			{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return DNAT; }
- "masquerade"		{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return MASQUERADE; }
-+"fullcone"		{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return FULLCONE; }
- "redirect"		{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return REDIRECT; }
+@@ -486,6 +486,7 @@ addrstring	({macaddr}|{ip4addr}|{ip6addr
+ <*>"snat"		{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return SNAT; }
+ <*>"dnat"		{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return DNAT; }
+ <*>"masquerade"		{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return MASQUERADE; }
++<*>"fullcone"		{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return FULLCONE; }
+ <*>"redirect"		{ scanner_push_start_cond(yyscanner, SCANSTATE_STMT_NAT); return REDIRECT; }
  "random"		{ return RANDOM; }
  <SCANSTATE_STMT_NAT>{
 --- a/src/statement.c

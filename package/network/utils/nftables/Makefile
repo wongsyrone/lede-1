@@ -62,7 +62,7 @@ ifeq ($(BUILD_VARIANT),json)
 endif
 
 define Build/Patch
-	rm -v $(PKG_BUILD_DIR)/tests/shell/*.{orig,rej}
+	-rm -f $(PKG_BUILD_DIR)/tests/shell/*.orig $(PKG_BUILD_DIR)/tests/shell/*.rej 2>/dev/null || true
 	$(call Build/Patch/Default,)
 endef
 
