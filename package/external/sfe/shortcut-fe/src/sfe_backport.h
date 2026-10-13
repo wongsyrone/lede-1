@@ -151,6 +151,12 @@ static inline struct net_device *sfe_dev_get_master(struct net_device *dev)
 #define SFE_DEV_EVENT_PTR(PTR) (struct net_device *)(PTR)
 #endif
 
+/*
+ * declare function sfe_cm_device_event
+ */
+int sfe_cm_recv(struct sk_buff *skb);
+int sfe_cm_device_event(struct notifier_block *this, unsigned long event, void *ptr);
+
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0))
 #define SFE_NF_CONN_ACCT(NM) struct nf_conn_acct *NM
 #else
@@ -180,7 +186,7 @@ static inline struct net_device *sfe_dev_get_master(struct net_device *dev)
 #endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 4, 0))
-#define sfe_dst_get_neighbour(dst, daddr) dst_neigh_lookup(dst, daddr)
+#define sfe_dst_get_neighbour(dst, daddr) dst_neigh_lookup(dst, addr)
 #else
 static inline struct neighbour *
 sfe_dst_get_neighbour(struct dst_entry *dst, void *daddr)

@@ -16,7 +16,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=shortcut-fe
-PKG_RELEASE:=5
+PKG_RELEASE:=11
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -43,19 +43,15 @@ Shortcut is an in-Linux-kernel IP packet forwarding engine.
 endef
 
 define KernelPackage/shortcut-fe/install
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/etc/init.d/shortcut-fe $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) ./files/usr/bin/sfe_dump $(1)/usr/bin
 endef
-
-HAVE_ECM:=$(CONFIG_PACKAGE_kmod-qca-nss-ecm-premium)$(CONFIG_PACKAGE_kmod-qca-nss-ecm-noload)$(CONFIG_PACKAGE_kmod-qca-nss-ecm-premium-noload)$(CONFIG_PACKAGE_kmod-qca-nss-ecm-standard)
 
 define KernelPackage/shortcut-fe-cm
   SECTION:=kernel
   CATEGORY:=Kernel modules
   SUBMENU:=Network Support
-  DEPENDS:=+kmod-nf-conntrack +kmod-nf-conntrack6 +kmod-shortcut-fe
+  DEPENDS:=+kmod-ipt-conntrack +kmod-shortcut-fe
   TITLE:=Kernel driver for SFE
   FILES:=$(PKG_BUILD_DIR)/shortcut-fe-cm.ko
   KCONFIG:= \
@@ -74,8 +70,7 @@ define Build/Compile
 		$(KERNEL_MAKE_FLAGS) \
 		$(PKG_MAKE_FLAGS) \
 		M="$(PKG_BUILD_DIR)" \
-		EXTRA_CFLAGS+="-DSFE_SUPPORT_IPV6" SFE_SUPPORT_IPV6=y \
-		$(if $(HAVE_ECM),EXTRA_CFLAGS+="-DCONFIG_SFE_ECM" CONFIG_SFE_ECM=y,) \
+		SFE_SUPPORT_IPV6=y \
 		modules
 endef
 
