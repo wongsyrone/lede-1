@@ -15,6 +15,10 @@
 #include <sys/stat.h>
 #include <linux/videodev2.h>
 
+#ifndef V4L2_CAP_EDID
+#define V4L2_CAP_EDID 0x02000000
+#endif
+
 #include <libubox/blobmsg_json.h>
 
 static const struct {
