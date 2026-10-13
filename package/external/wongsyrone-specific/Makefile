@@ -21,13 +21,12 @@ define Package/wongsyrone-specific
 	SECTION:=wongsyrone
 	CATEGORY:=wongsyrone Specific
 	TITLE:=wongsyrone specific packages
-	DEPENDS:=+ipset +ip  \
-		+kmod-nf-nathelper +kmod-nf-nathelper-extra +kmod-nft-socket +kmod-nft-compat +kmod-nft-tproxy \
-		+transocks-wong +ipt2socks \
-		+pdnsd +trojan +v2ray +vlmcsd \
+	DEPENDS:=+ip-full \
+		+kmod-nf-nathelper +kmod-nf-nathelper-extra +kmod-nft-socket +kmod-nft-tproxy \
+		+nikki +luci-app-nikki \
+		+trojan +vlmcsd \
 		+luci-app-turboacc \
 		+ethtool \
-		+kmod-igb-intel +kmod-e1000e \
 		+kmod-nft-fullcone
 endef
 
