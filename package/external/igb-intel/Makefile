@@ -7,13 +7,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kmod-igb-intel
-PKG_VERSION:=5.18.7
+PKG_VERSION:=5.20.28
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=80b72d082854daffa3285f037dec49a5c3f5b807
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/intel/ethernet-linux-igb/tar.gz/$(PKG_SOURCE_VERSION)?
-PKG_HASH:=d8dacd621ec2b90abbabd402496e4559e8f48e35e10f354baad4eef373f1b7f0
+PKG_SOURCE:=igb-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://github.com/intel/ethernet-linux-igb/releases/download/v$(PKG_VERSION)/
+PKG_HASH:=b8ae91346053b7310f95ad7a030449cbc28ddd7904a43d1853e6253ab8755c4d
 
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
@@ -37,7 +36,7 @@ define Build/Compile
 		CONFFILE="$(LINUX_DIR)/.config" \
 		OUT="$(PKG_BUILD_DIR)/src/kcompat_generated_defs.h" \
 		bash kcompat-generator.sh
-	+$(KERNEL_MAKE) M=$(PKG_BUILD_DIR)/src modules
+	+$(KERNEL_MAKE) M=$(PKG_BUILD_DIR)/src KSRC="$(LINUX_DIR)" modules
 endef
 
 define KernelPackage/igb-intel/description
