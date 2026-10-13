@@ -66,7 +66,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
  		      expr/socket.c	\
 --- /dev/null
 +++ b/src/expr/fullcone.c
-@@ -0,0 +1,175 @@
+@@ -0,0 +1,174 @@
 +/*
 + * (C) 2022-2025 wongsyrone
 + *
@@ -97,7 +97,7 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
 +
 +static int
 +nftnl_expr_fullcone_set(struct nftnl_expr *e, uint16_t type,
-+		       const void *data, uint32_t data_len)
++		       const void *data, uint32_t data_len, uint32_t byteorder)
 +{
 +	struct nftnl_expr_fullcone *fullcone = nftnl_expr_data(e);
 +
@@ -241,7 +241,6 @@ Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
 +	.build		= nftnl_expr_fullcone_build,
 +	.output		= nftnl_expr_fullcone_snprintf,
 +};
-+
 --- a/src/expr_ops.c
 +++ b/src/expr_ops.c
 @@ -20,6 +20,7 @@ extern struct expr_ops expr_ops_limit;
