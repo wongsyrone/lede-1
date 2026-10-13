@@ -70,7 +70,7 @@ define Package/trojan
 	TITLE:=An unidentifiable mechanism that helps you bypass GFW
 	URL:=https://github.com/trojan-gfw/trojan
 	DEPENDS:=+libpthread +libstdcpp \
-		+boost +boost-system +boost-program_options +boost-date_time
+		+boost +boost-program_options +boost-date_time
 endef
 
 
