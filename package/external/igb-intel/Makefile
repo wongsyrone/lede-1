@@ -33,7 +33,7 @@ endef
 
 define Build/Compile
 	cd ${PKG_BUILD_DIR}/src; KSRC="$(LINUX_DIR)" \
-		CONFFILE="$(LINUX_DIR)/.config" \
+		CONFIG_FILE="$(LINUX_DIR)/.config" \
 		OUT="$(PKG_BUILD_DIR)/src/kcompat_generated_defs.h" \
 		bash kcompat-generator.sh
 	+$(KERNEL_MAKE) M=$(PKG_BUILD_DIR)/src KSRC="$(LINUX_DIR)" modules
