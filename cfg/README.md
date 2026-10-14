@@ -89,6 +89,13 @@ Export the normalized minimal delta back into `cfg/`:
 ./scripts/diffconfig.sh > cfg/x86_64
 ```
 
+For `x86_64`, library packages are selected through application dependencies
+instead of being pinned in the profile. `diffconfig.sh` may write these selections
+back, so review its output after removing an application. Check package metadata
+and install rules, including libraries outside the Libraries category, remove
+only redundant library selections, and use `make defconfig` to verify the
+resulting package list and unchanged target, kernel, and toolchain settings.
+
 ---
 
 ## 3. Layer 2: Kernel-Level Configuration (`target/linux/`)
