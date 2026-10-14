@@ -2,35 +2,25 @@ CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
 CONFIG_TARGET_x86_64_DEVICE_generic=y
 CONFIG_DEVEL=y
-CONFIG_TOOLCHAINOPTS=y
 CONFIG_BIND_ENABLE_DOH=y
-# CONFIG_BINUTILS_USE_VERSION_2_42 is not set
-CONFIG_BINUTILS_USE_VERSION_2_43=y
-CONFIG_BINUTILS_VERSION="2.43.1"
-CONFIG_BINUTILS_VERSION_2_43=y
+# CONFIG_BPF_TOOLCHAIN_BUILD_LLVM is not set
 CONFIG_BPF_TOOLCHAIN_HOST=y
 CONFIG_BPF_TOOLCHAIN_HOST_PATH="/usr"
-# CONFIG_BPF_TOOLCHAIN_NONE is not set
 CONFIG_BUILD_PATENTED=y
 # CONFIG_DROPBEAR_ED25519 is not set
 CONFIG_FFMPEG_LIBX264=y
-CONFIG_GCC_USE_GRAPHITE=y
-# CONFIG_GCC_USE_VERSION_13 is not set
-CONFIG_GCC_USE_VERSION_14=y
-CONFIG_GCC_VERSION="14.2.0"
-CONFIG_GCC_VERSION_14=y
 CONFIG_GNUTLS_ALPN=y
 CONFIG_GNUTLS_ANON=y
 CONFIG_GNUTLS_DTLS_SRTP=y
 CONFIG_GNUTLS_HEARTBEAT=y
 CONFIG_GNUTLS_OCSP=y
 CONFIG_GNUTLS_PSK=y
-CONFIG_HAS_BPF_TOOLCHAIN=y
 # CONFIG_JSON_OVERVIEW_IMAGE_INFO is not set
 # CONFIG_KERNEL_AIO is not set
 # CONFIG_KERNEL_BTRFS_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_CGROUPS is not set
 # CONFIG_KERNEL_CIFS_ACL is not set
+# CONFIG_KERNEL_EROFS_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_EXT4_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_EXT4_FS_SECURITY is not set
 # CONFIG_KERNEL_F2FS_FS_POSIX_ACL is not set
@@ -61,11 +51,10 @@ CONFIG_LIBCURL_HTTP_AUTH=y
 CONFIG_LIBCURL_NO_SMB="!"
 CONFIG_LIBCURL_PROXY=y
 CONFIG_LIBCURL_WOLFSSL=y
+CONFIG_LIBNCURSES_TERMINFO=""
 CONFIG_LIBSODIUM_MINIMAL=y
-# CONFIG_LUA_ECO_MBEDTLS is not set
-CONFIG_LUA_ECO_OPENSSL=y
 # CONFIG_MBEDTLS_ECP_DP_SECP521R1_ENABLED is not set
-# CONFIG_MUSL_DISABLE_CRYPT_SIZE_HACK is not set
+CONFIG_NEED_BPF_TOOLCHAIN=y
 CONFIG_OPENSSL_OPTIMIZE_SPEED=y
 CONFIG_OPENSSL_WITH_ASM=y
 CONFIG_OPENSSL_WITH_CHACHA_POLY1305=y
@@ -79,7 +68,6 @@ CONFIG_OPENSSL_WITH_TLS13=y
 # CONFIG_PACKAGE_TAR_POSIX_ACL is not set
 # CONFIG_PACKAGE_TAR_XATTR is not set
 CONFIG_PACKAGE_attr=y
-CONFIG_PACKAGE_avahi-dbus-daemon=y
 CONFIG_PACKAGE_bind-client=y
 CONFIG_PACKAGE_bind-dig=y
 CONFIG_PACKAGE_bind-libs=y
@@ -91,7 +79,6 @@ CONFIG_PACKAGE_boost-date_time=y
 CONFIG_PACKAGE_boost-program_options=y
 CONFIG_PACKAGE_cgi-io=y
 CONFIG_PACKAGE_curl=y
-CONFIG_PACKAGE_dbus=y
 CONFIG_PACKAGE_ddns-scripts=y
 CONFIG_PACKAGE_ddns-scripts-cloudflare=y
 CONFIG_PACKAGE_ddns-scripts-noip=y
@@ -107,12 +94,9 @@ CONFIG_PACKAGE_dnsmasq_full_ipset=y
 CONFIG_PACKAGE_dnsmasq_full_nftset=y
 CONFIG_PACKAGE_dnsmasq_full_noid=y
 CONFIG_PACKAGE_dnsmasq_full_tftp=y
-CONFIG_PACKAGE_e100-firmware=y
 CONFIG_PACKAGE_etherwake=y
 CONFIG_PACKAGE_ethtool=y
 CONFIG_PACKAGE_fdisk=y
-CONFIG_PACKAGE_fdk-aac=y
-CONFIG_PACKAGE_gdbserver=y
 CONFIG_PACKAGE_intel-microcode=y
 CONFIG_PACKAGE_ip-full=y
 CONFIG_PACKAGE_ip6tables-nft=y
@@ -121,6 +105,8 @@ CONFIG_PACKAGE_iptables-nft=y
 CONFIG_PACKAGE_iucode-tool=y
 CONFIG_PACKAGE_kmod-asn1-decoder=y
 # CONFIG_PACKAGE_kmod-bnx2 is not set
+CONFIG_PACKAGE_kmod-crypto-crc32c=y
+CONFIG_PACKAGE_kmod-crypto-hash=y
 CONFIG_PACKAGE_kmod-dummy=y
 # CONFIG_PACKAGE_kmod-forcedeth is not set
 CONFIG_PACKAGE_kmod-fs-ext4=y
@@ -130,10 +116,12 @@ CONFIG_PACKAGE_kmod-ifb=y
 # CONFIG_PACKAGE_kmod-igb is not set
 CONFIG_PACKAGE_kmod-igb-intel=y
 CONFIG_PACKAGE_kmod-inet-diag=y
-CONFIG_PACKAGE_kmod-input-evdev=y
 CONFIG_PACKAGE_kmod-ip6tables=y
+CONFIG_PACKAGE_kmod-ipt-conntrack=y
 CONFIG_PACKAGE_kmod-ipt-core=y
 CONFIG_PACKAGE_kmod-ipt-ipset=y
+CONFIG_PACKAGE_kmod-ipt-offload=y
+CONFIG_PACKAGE_kmod-iptables=y
 CONFIG_PACKAGE_kmod-lib-crc16=y
 CONFIG_PACKAGE_kmod-lib-textsearch=y
 CONFIG_PACKAGE_kmod-nf-conntrack-netlink=y
@@ -141,7 +129,17 @@ CONFIG_PACKAGE_kmod-nf-ipt=y
 CONFIG_PACKAGE_kmod-nf-ipt6=y
 CONFIG_PACKAGE_kmod-nf-nat6=y
 CONFIG_PACKAGE_kmod-nf-nathelper=y
+CONFIG_PACKAGE_kmod-nf-nathelper-amanda=y
+CONFIG_PACKAGE_kmod-nf-nathelper-broadcast=y
 CONFIG_PACKAGE_kmod-nf-nathelper-extra=y
+CONFIG_PACKAGE_kmod-nf-nathelper-h323=y
+CONFIG_PACKAGE_kmod-nf-nathelper-irc=y
+CONFIG_PACKAGE_kmod-nf-nathelper-netbios=y
+CONFIG_PACKAGE_kmod-nf-nathelper-pptp=y
+CONFIG_PACKAGE_kmod-nf-nathelper-sane=y
+CONFIG_PACKAGE_kmod-nf-nathelper-sip=y
+CONFIG_PACKAGE_kmod-nf-nathelper-snmp=y
+CONFIG_PACKAGE_kmod-nf-nathelper-tftp=y
 CONFIG_PACKAGE_kmod-nf-socket=y
 CONFIG_PACKAGE_kmod-nf-tproxy=y
 CONFIG_PACKAGE_kmod-nft-compat=y
@@ -154,10 +152,10 @@ CONFIG_PACKAGE_kmod-sched-core=y
 CONFIG_PACKAGE_kmod-scsi-core=y
 CONFIG_PACKAGE_kmod-shortcut-fe=y
 CONFIG_PACKAGE_kmod-shortcut-fe-cm=y
-CONFIG_PACKAGE_kmod-sound-core=y
 CONFIG_PACKAGE_kmod-tcp-bbr=y
 # CONFIG_PACKAGE_kmod-tg3 is not set
 CONFIG_PACKAGE_kmod-tun=y
+CONFIG_PACKAGE_kmod-usb-common=y
 CONFIG_PACKAGE_kmod-usb-core=y
 CONFIG_PACKAGE_kmod-usb-ehci=y
 CONFIG_PACKAGE_kmod-usb-hid=y
@@ -170,31 +168,21 @@ CONFIG_PACKAGE_kmod-usb2=y
 CONFIG_PACKAGE_kmod-usb3=y
 CONFIG_PACKAGE_kmod-vmxnet3=y
 # CONFIG_PACKAGE_knot-resolver_dnstap is not set
-CONFIG_PACKAGE_lame-lib=y
 CONFIG_PACKAGE_libatomic=y
 CONFIG_PACKAGE_libattr=y
-CONFIG_PACKAGE_libavahi-client=y
-CONFIG_PACKAGE_libavahi-dbus-support=y
 CONFIG_PACKAGE_libbpf=y
 CONFIG_PACKAGE_libbz2=y
 CONFIG_PACKAGE_libcap=y
 CONFIG_PACKAGE_libcap-ng=y
 CONFIG_PACKAGE_libcurl=y
-CONFIG_PACKAGE_libdaemon=y
-CONFIG_PACKAGE_libdbus=y
 CONFIG_PACKAGE_libdeflate=y
-CONFIG_PACKAGE_libdht=y
 CONFIG_PACKAGE_libelf=y
 CONFIG_PACKAGE_libevent2=y
 CONFIG_PACKAGE_libevent2-core=y
 CONFIG_PACKAGE_libevent2-pthreads=y
-CONFIG_PACKAGE_libexif=y
-CONFIG_PACKAGE_libexpat=y
 CONFIG_PACKAGE_libfdisk=y
-CONFIG_PACKAGE_libflac=y
 CONFIG_PACKAGE_libgmp=y
 CONFIG_PACKAGE_libgnutls=y
-CONFIG_PACKAGE_libid3tag=y
 CONFIG_PACKAGE_libidn2=y
 CONFIG_PACKAGE_libipset=y
 CONFIG_PACKAGE_libiptext=y
@@ -203,7 +191,6 @@ CONFIG_PACKAGE_libiptext6=y
 CONFIG_PACKAGE_libiwinfo=y
 CONFIG_PACKAGE_libiwinfo-data=y
 CONFIG_PACKAGE_libiwinfo-lua=y
-CONFIG_PACKAGE_libjpeg-turbo=y
 CONFIG_PACKAGE_liblua=y
 CONFIG_PACKAGE_liblucihttp=y
 CONFIG_PACKAGE_liblucihttp-lua=y
@@ -216,9 +203,9 @@ CONFIG_PACKAGE_libnetfilter-conntrack=y
 CONFIG_PACKAGE_libnettle=y
 CONFIG_PACKAGE_libnfnetlink=y
 CONFIG_PACKAGE_libnghttp2=y
-CONFIG_PACKAGE_libogg=y
 CONFIG_PACKAGE_libopenssl=y
 CONFIG_PACKAGE_libpcap=y
+CONFIG_PACKAGE_libpcre2=y
 CONFIG_PACKAGE_libpopt=y
 CONFIG_PACKAGE_libpsl=y
 CONFIG_PACKAGE_libreadline=y
@@ -232,9 +219,7 @@ CONFIG_PACKAGE_libuci-lua=y
 CONFIG_PACKAGE_libunistring=y
 CONFIG_PACKAGE_liburcu=y
 CONFIG_PACKAGE_liburing=y
-CONFIG_PACKAGE_libutp=y
 CONFIG_PACKAGE_libuv=y
-CONFIG_PACKAGE_libvorbis=y
 CONFIG_PACKAGE_libwolfssl=y
 CONFIG_PACKAGE_libxtables=y
 CONFIG_PACKAGE_lua=y
@@ -257,6 +242,7 @@ CONFIG_PACKAGE_luci-lib-ip=y
 CONFIG_PACKAGE_luci-lib-ipkg=y
 CONFIG_PACKAGE_luci-lib-jsonc=y
 CONFIG_PACKAGE_luci-lib-nixio=y
+CONFIG_PACKAGE_luci-lib-uqr=y
 CONFIG_PACKAGE_luci-light=y
 CONFIG_PACKAGE_luci-lua-runtime=y
 CONFIG_PACKAGE_luci-mod-admin-full=y
@@ -287,19 +273,18 @@ CONFIG_PACKAGE_tcpdump=y
 CONFIG_PACKAGE_terminfo=y
 CONFIG_PACKAGE_trojan=y
 CONFIG_PACKAGE_ucode-mod-html=y
+CONFIG_PACKAGE_ucode-mod-log=y
 CONFIG_PACKAGE_ucode-mod-lua=y
 CONFIG_PACKAGE_ucode-mod-math=y
 CONFIG_PACKAGE_uhttpd=y
 CONFIG_PACKAGE_uhttpd-mod-ubus=y
 CONFIG_PACKAGE_ustp=y
-CONFIG_PACKAGE_valgrind=y
-CONFIG_PACKAGE_valgrind-callgrind=y
-CONFIG_PACKAGE_valgrind-vgdb=y
 CONFIG_PACKAGE_vlmcsd=y
-CONFIG_PACKAGE_wsdd2=y
+CONFIG_PACKAGE_wget-ssl=y
 CONFIG_PACKAGE_xtables-nft=y
 CONFIG_PACKAGE_yq=y
 CONFIG_PACKAGE_zerotier=y
+CONFIG_PCRE2_JIT_ENABLED=y
 CONFIG_SQLITE3_COLUMN_METADATA=y
 CONFIG_SQLITE3_DYNAMIC_EXTENSIONS=y
 CONFIG_SQLITE3_FTS3=y
