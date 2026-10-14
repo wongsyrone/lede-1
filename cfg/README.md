@@ -33,6 +33,12 @@ OpenWrt separates configuration management into two distinct, decoupled layers:
 * **Legacy full `.config` files (~300 KB)**: Hardcode thousands of transitive dependencies, default booleans, and obsolete symbol names from historical builds. When upstream updates packages or bumps the kernel version, full `.config` files introduce merge conflicts, broken builds, and stale symbols.
 * **Minimal defconfigs (~2-5 KB)**: Store **only** non-default choices explicitly requested by the maintainer. OpenWrt's Kconfig resolver (`make defconfig`) automatically calculates and resolves all prerequisites, shared libraries, and dependencies dynamically against the active toolchain and kernel.
 
+The two Linksys profiles use the same default `mvebu/cortexa9` toolchain.
+Their `gcc-13` filename suffixes are historical; GCC and binutils versions follow
+the source tree's Kconfig defaults. Do not copy resolved version symbols from a
+full `.config` into these profiles. `DEVEL` and `TOOLCHAINOPTS` remain enabled so
+that their explicit choice to disable GDB is preserved.
+
 ### 2.2 Native Workflow for Device Configurations
 
 All target configurations under `cfg/` should be maintained as minimal defconfigs using **100% native OpenWrt upstream tools** (no third-party or custom-maintained scripts required).
