@@ -1,0 +1,573 @@
+name: Build and Release Firmware
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target(s) to build in cfg/ (default 'all', or comma/space separated, or glob e.g. 'x86_64, linksys*')"
+        required: false
+        default: "all"
+        type: string
+      upload_release:
+        description: "Upload and create release (creates/updates nightly if not tagged)"
+        required: false
+        default: "true"
+        type: boolean
+      force_rebuild:
+        description: "Ignore the tools/toolchain state cache and replace it after validation"
+        required: false
+        default: false
+        type: boolean
+  release:
+    types: [published]
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: ${{ github.workflow }}-state-cache
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  prepare:
+    name: Discover Build Targets
+    runs-on: ubuntu-latest
+    outputs:
+      targets: ${{ steps.discover.outputs.targets }}
+      empty: ${{ steps.discover.outputs.empty }}
+      groups: ${{ steps.group.outputs.groups }}
+      builds: ${{ steps.group.outputs.builds }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v6
+
+      - name: Prepare Build Environment
+        uses: ./.github/actions/build-dependencies
+
+      - name: Setup and Lock Feeds
+        run: |
+          if [ -f feeds.conf.wongsyrone ]; then
+            cp -v feeds.conf.wongsyrone feeds.conf
+          fi
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+          mkdir -p /tmp/feeds-artifact
+          python3 .github/workflows/scripts/lock_feeds.py feeds.conf /tmp/feeds-artifact/feeds.conf.locked
+          cp /tmp/feeds-artifact/feeds.conf.locked feeds.conf
+
+          echo "=== Pinned Feeds Configuration ==="
+          cat /tmp/feeds-artifact/feeds.conf.locked
+
+      - name: Upload Pinned Feeds Config
+        uses: actions/upload-artifact@v6
+        with:
+          name: feeds-conf
+          path: /tmp/feeds-artifact/feeds.conf.locked
+          retention-days: 7
+          overwrite: true
+
+      - name: Discover Targets
+        id: discover
+        env:
+          INPUT_TARGET: ${{ inputs.target }}
+        run: |
+          [ -z "$INPUT_TARGET" ] && INPUT_TARGET="all"
+
+          TARGETS=()
+          if [ "$INPUT_TARGET" != "all" ]; then
+            for item in $(echo "$INPUT_TARGET" | tr ',' ' '); do
+              matched=false
+              for f in cfg/$item; do
+                [ -e "$f" ] || continue
+                name=$(basename "$f")
+                case "$name" in
+                  README*|*.md|*.txt|*.diff|*.orig|*.bak) continue ;;
+                esac
+                TARGETS+=("$name")
+                matched=true
+              done
+              if [ "$matched" = "false" ]; then
+                echo "Warning: Target '$item' not matched in cfg/"
+              fi
+            done
+          else
+            for f in cfg/*; do
+              [ -e "$f" ] || continue
+              name=$(basename "$f")
+              case "$name" in
+                README*|*.md|*.txt|*.diff|*.orig|*.bak|*gcc-[78]*) continue ;;
+              esac
+              TARGETS+=("$name")
+            done
+          fi
+
+          # Deduplicate targets
+          TARGETS=($(echo "${TARGETS[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+
+          echo "Discovered targets: ${TARGETS[*]}"
+          if [ ${#TARGETS[@]} -eq 0 ]; then
+            echo "No valid targets found to build!"
+            echo "empty=true" >> "$GITHUB_OUTPUT"
+            echo "targets=[]" >> "$GITHUB_OUTPUT"
+          else
+            TARGETS_JSON=$(printf '%s\n' "${TARGETS[@]}" | jq -R . | jq -s -c .)
+            echo "targets=$TARGETS_JSON" >> "$GITHUB_OUTPUT"
+            echo "empty=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Group Native Tools and Toolchain Inputs
+        id: group
+        if: steps.discover.outputs.empty != 'true'
+        env:
+          TARGETS: ${{ steps.discover.outputs.targets }}
+        run: python3 .github/workflows/scripts/build_state_cache.py group --targets "$TARGETS"
+
+  tools:
+    name: Tools (${{ matrix.target }})
+    needs: prepare
+    if: needs.prepare.outputs.empty != 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.groups) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      FORCE_REBUILD: ${{ inputs.force_rebuild }}
+      STATE_GROUP: ${{ matrix.group }}
+      STATE_MEMBERS: ${{ toJson(matrix.members) }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v6
+
+      - name: Prepare Build Environment
+        uses: ./.github/actions/build-dependencies
+
+      - name: Download Pinned Feeds Config
+        uses: actions/download-artifact@v7
+        with:
+          name: feeds-conf
+          path: /tmp/feeds-download
+
+      - name: Setup Feeds
+        run: |
+          cp /tmp/feeds-download/feeds.conf.locked feeds.conf
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Verify Every Group Member on This Runner
+        id: state_inputs
+        run: python3 .github/workflows/scripts/build_state_cache.py check-group --group "$STATE_GROUP" --members "$STATE_MEMBERS"
+
+      - name: Restore Tools and Toolchain State
+        id: restore_state
+        if: env.FORCE_REBUILD != 'true'
+        uses: actions/cache/restore@v5
+        continue-on-error: true
+        with:
+          path: .ci-state/cache
+          key: ${{ steps.state_inputs.outputs.key }}
+          restore-keys: ${{ steps.state_inputs.outputs.prefix }}
+
+      - name: Verify and Restore Build State
+        env:
+          MATCHED_KEY: ${{ steps.restore_state.outputs.cache-matched-key }}
+        run: python3 .github/workflows/scripts/build_state_cache.py restore
+
+      - name: Compile or Check Tools and Toolchain
+        run: python3 .github/workflows/scripts/build_state_cache.py compile
+
+      - name: Prepare Verified Handoff
+        id: snapshot
+        continue-on-error: true
+        run: python3 .github/workflows/scripts/build_state_cache.py snapshot
+
+      - name: Upload Temporary State
+        id: handoff
+        if: steps.snapshot.outputs.handoff == 'true'
+        continue-on-error: true
+        uses: actions/upload-artifact@v6
+        with:
+          name: state-payload-${{ matrix.group }}-${{ github.run_attempt }}
+          path: .ci-state/cache/
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 1
+
+      - name: Record Producer Receipt
+        if: steps.handoff.outputs.artifact-id != ''
+        env:
+          STATE_ARTIFACT_ID: ${{ steps.handoff.outputs.artifact-id }}
+        run: python3 .github/workflows/scripts/build_state_cache.py receipt --group "$STATE_GROUP" --members "$STATE_MEMBERS"
+
+      - name: Upload Producer Receipt
+        if: steps.handoff.outputs.artifact-id != ''
+        uses: actions/upload-artifact@v6
+        with:
+          name: state-receipt-${{ matrix.group }}-${{ github.run_attempt }}
+          path: .ci-state/receipt.json
+          include-hidden-files: true
+          retention-days: 7
+
+      - name: Upload Rejected Generations
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: state-rejections-tools-${{ matrix.group }}-${{ github.run_attempt }}
+          path: .ci-state/rejections.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Upload Toolchain Diagnostics
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: toolchain-diagnostics-${{ matrix.target }}-${{ github.run_attempt }}
+          path: |
+            toolchain.log
+            .ci-state/plan.json
+            .config
+            ${{ matrix.target }}.diffconfig
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7
+
+  publish-cache:
+    name: Cache (${{ matrix.target }})
+    needs: [prepare, tools]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.prepare.outputs.empty != 'true' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix: ${{ fromJson(needs.prepare.outputs.groups) }}
+    runs-on: ubuntu-latest
+    env:
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      STATE_GROUP: ${{ matrix.group }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v6
+
+      - name: Select Producer Receipt
+        id: select
+        run: python3 .github/workflows/scripts/build_state_cache.py select --group "$STATE_GROUP" --publisher
+
+      - name: Download Verified Snapshot
+        if: steps.select.outputs.artifact_id != ''
+        uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          artifact-ids: ${{ steps.select.outputs.artifact_id }}
+          path: .ci-state/cache
+          merge-multiple: true
+
+      - name: Verify Snapshot for Publication
+        id: admit
+        continue-on-error: true
+        run: python3 .github/workflows/scripts/build_state_cache.py admit
+
+      - name: Save Shared Tools and Toolchain State
+        if: steps.admit.outputs.save == 'true'
+        uses: actions/cache/save@v5
+        continue-on-error: true
+        with:
+          path: .ci-state/cache
+          key: ${{ steps.select.outputs.key }}
+
+      - name: Confirm New Generation before Retirement
+        if: ${{ always() && steps.select.outputs.key != '' }}
+        continue-on-error: true
+        run: python3 .github/workflows/scripts/build_state_cache.py confirm
+
+  build:
+    name: Build (${{ matrix.target }})
+    needs: [prepare, tools, publish-cache]
+    if: ${{ !cancelled() && needs.prepare.result == 'success' && needs.prepare.outputs.empty != 'true' }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare.outputs.builds) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      BUILD_TARGET: ${{ matrix.target }}
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      FORCE_REBUILD: ${{ inputs.force_rebuild }}
+      STATE_GROUP: ${{ matrix.group }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v6
+
+      - name: Prepare Build Environment
+        uses: ./.github/actions/build-dependencies
+
+      - name: Download Pinned Feeds Config
+        uses: actions/download-artifact@v7
+        with:
+          name: feeds-conf
+          path: /tmp/feeds-download
+
+      - name: Setup Feeds
+        run: |
+          cp /tmp/feeds-download/feeds.conf.locked feeds.conf
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Generate Target Configuration
+        run: python3 .github/workflows/scripts/build_state_cache.py configure --target "$BUILD_TARGET"
+
+      - name: Resolve Native Make Cache Inputs
+        id: state_inputs
+        run: python3 .github/workflows/scripts/build_state_cache.py plan --target "$BUILD_TARGET"
+
+      - name: Select Producer Receipt
+        id: select
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/workflows/scripts/build_state_cache.py select --group "$STATE_GROUP"
+
+      - name: Download Shared Toolchain Handoff
+        id: handoff
+        if: steps.select.outputs.artifact_id != ''
+        uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          artifact-ids: ${{ steps.select.outputs.artifact_id }}
+          path: .ci-state/cache
+          merge-multiple: true
+
+      - name: Verify Handoff on This Runner
+        id: verify_handoff
+        if: steps.handoff.outcome == 'success'
+        env:
+          STATE_ORIGIN: artifact
+          MATCHED_KEY: ${{ steps.select.outputs.key }}
+        run: python3 .github/workflows/scripts/build_state_cache.py restore
+
+      - name: Restore Persistent State if Handoff Is Unavailable
+        id: restore_state
+        if: ${{ steps.verify_handoff.outputs.reused != 'true' && steps.verify_handoff.outputs.rejected != 'true' && (env.FORCE_REBUILD != 'true' || steps.select.outputs.key != '') }}
+        uses: actions/cache/restore@v5
+        continue-on-error: true
+        with:
+          path: .ci-state/cache
+          key: ${{ steps.select.outputs.key || steps.state_inputs.outputs.key }}
+          restore-keys: ${{ env.FORCE_REBUILD != 'true' && steps.state_inputs.outputs.prefix || '' }}
+
+      - name: Verify Persistent State
+        if: steps.verify_handoff.outputs.reused != 'true'
+        env:
+          MATCHED_KEY: ${{ steps.restore_state.outputs.cache-matched-key }}
+        run: python3 .github/workflows/scripts/build_state_cache.py restore
+
+      - name: Compile or Check Tools and Toolchain
+        id: compile_toolchain
+        run: python3 .github/workflows/scripts/build_state_cache.py compile
+
+      - name: Upload Rejected Generations
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: state-rejections-build-${{ matrix.target }}-${{ github.run_attempt }}
+          path: .ci-state/rejections.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 1
+
+      - name: Download Package Sources
+        run: make download -j8 SOURCE_DATE_EPOCH=0 REVISION=ci-tools
+
+      - name: Compile Target and Packages
+        id: compile_firmware
+        run: |
+          echo "Compiling target kernel, packages, and firmware for ${{ matrix.target }}..."
+          set -o pipefail
+          make -j$(nproc) 2>&1 | tee compile.log || make -j1 V=s 2>&1 | tee -a compile.log
+
+      - name: Extract Error on Failure
+        if: failure()
+        run: |
+          LOG_FILE="compile.log"
+          if [ "${{ steps.compile_toolchain.outcome }}" != "success" ]; then
+            LOG_FILE="toolchain.log"
+          fi
+          python3 .github/workflows/scripts/extract_build_errors.py \
+            --target "${{ matrix.target }}" \
+            --log "$LOG_FILE" \
+            --logs-dir logs \
+            --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Failure Logs
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: build-failure-logs-${{ matrix.target }}-${{ github.run_attempt }}
+          path: |
+            toolchain.log
+            compile.log
+            logs/
+            .ci-state/plan.json
+            .config
+            ${{ matrix.target }}.diffconfig
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 7
+
+      - name: Prepare Release Assets
+        id: prepare_assets
+        run: |
+          OUTPUT_DIR="release_assets/${{ matrix.target }}"
+          mkdir -p "$OUTPUT_DIR"
+          
+          # Find directory containing compiled firmware images
+          BIN_TARGET_DIR=$(find bin/targets -mindepth 2 -maxdepth 2 -type d | head -n 1)
+          if [ -z "$BIN_TARGET_DIR" ] || [ ! -d "$BIN_TARGET_DIR" ]; then
+            echo "Error: No compiled targets found in bin/targets"
+            exit 1
+          fi
+          
+          echo "Found target binary directory: $BIN_TARGET_DIR"
+          
+          # Copy firmware images and metadata
+          find "$BIN_TARGET_DIR" -maxdepth 1 -type f \( \
+            -name "*.img.gz" -o \
+            -name "*.bin" -o \
+            -name "*.tar" -o \
+            -name "*.tar.gz" -o \
+            -name "*manifest*" -o \
+            -name "*buildinfo*" -o \
+            -name "*.json" \
+          \) -exec cp -v {} "$OUTPUT_DIR/" \;
+          
+          # Include minified diffconfig
+          cp -v "${{ matrix.target }}.diffconfig" "$OUTPUT_DIR/"
+
+          python3 .github/workflows/scripts/release_assets.py package \
+            --target "$BUILD_TARGET" --directory "$OUTPUT_DIR"
+          
+          echo "assets_dir=$OUTPUT_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: firmware-${{ matrix.target }}
+          path: ${{ steps.prepare_assets.outputs.assets_dir }}/*
+          if-no-files-found: error
+          overwrite: true
+
+  finalize-state:
+    name: Retire Rejected State and Remove Temporary Handoffs
+    needs: [prepare, tools, publish-cache, build]
+    if: ${{ always() && needs.prepare.result == 'success' && needs.prepare.outputs.empty != 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v6
+
+      - name: Finalize Shared State
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 .github/workflows/scripts/build_state_cache.py finalize
+
+  publish-release:
+    name: Publish (${{ matrix.target }})
+    needs: [prepare, build]
+    if: >-
+      ${{
+        !cancelled() &&
+        needs.prepare.result == 'success' &&
+        needs.prepare.outputs.empty != 'true' &&
+        (
+          github.event_name == 'release' ||
+          startsWith(github.ref, 'refs/tags/v') ||
+          github.event.inputs.upload_release == 'true' ||
+          github.event.inputs.upload_release == true ||
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.upload_release != 'false' && github.event.inputs.upload_release != false)
+        )
+      }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        target: ${{ fromJson(needs.prepare.outputs.targets) }}
+    runs-on: ubuntu-latest
+    env:
+      BUILD_TARGET: ${{ matrix.target }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Find Successful Target Artifact
+        id: artifact
+        run: python3 .github/workflows/scripts/release_assets.py select --target "$BUILD_TARGET"
+
+      - name: Download Successful Target Artifact
+        id: firmware
+        if: steps.artifact.outputs.artifact_id != ''
+        uses: actions/download-artifact@v7
+        with:
+          artifact-ids: ${{ steps.artifact.outputs.artifact_id }}
+          path: release_assets/${{ matrix.target }}
+          merge-multiple: true
+
+      - name: Determine Release Tag and Setup Nightly
+        id: release_info
+        if: steps.firmware.outcome == 'success'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ "${{ startsWith(github.ref, 'refs/tags/v') }}" = "true" ]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            echo "Building tagged release: $TAG_NAME"
+            echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+            echo "release_name=Release $TAG_NAME" >> "$GITHUB_OUTPUT"
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          else
+            TAG_NAME="nightly"
+            echo "No version tag detected. Updating nightly tag to current commit..."
+
+            # Update the shared tag only when this target has a successful artifact.
+            git tag -f nightly "${{ github.sha }}"
+            git push -f origin nightly
+
+            echo "tag_name=nightly" >> "$GITHUB_OUTPUT"
+            echo "release_name=Nightly Build $(date -u +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Record Previous Nightly Target Assets
+        if: steps.firmware.outcome == 'success' && steps.release_info.outputs.tag_name == 'nightly'
+        run: python3 .github/workflows/scripts/release_assets.py prepare --target "$BUILD_TARGET"
+
+      - name: Publish GitHub Release
+        if: steps.firmware.outcome == 'success'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.release_info.outputs.tag_name }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ steps.release_info.outputs.release_name }}
+          prerelease: ${{ steps.release_info.outputs.prerelease == 'true' }}
+          files: release_assets/${{ matrix.target }}/*
+          fail_on_unmatched_files: true
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Confirm Upload and Retire Previous Nightly Target Assets
+        if: steps.firmware.outcome == 'success' && steps.release_info.outputs.tag_name == 'nightly'
+        run: |
+          python3 .github/workflows/scripts/release_assets.py retire \
+            --target "$BUILD_TARGET" --directory "release_assets/$BUILD_TARGET"
