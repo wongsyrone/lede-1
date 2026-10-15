@@ -206,7 +206,7 @@ rename firewall.@rule[-1]=zt_rule_allowInbound
 set firewall.@rule[-1].name='Allow-ZeroTier-Inbound'
 set firewall.@rule[-1].src='*'
 set firewall.@rule[-1].target='ACCEPT'
-add_list firewall.@rule[-1].proto='all'
+add_list firewall.@rule[-1].proto='udp'
 set firewall.@rule[-1].dest_port='$port'
 commit firewall
 add firewall forwarding
@@ -230,7 +230,7 @@ rename firewall.@rule[-1]=zt_rule_allowSecondPort
 set firewall.@rule[-1].name='Allow-ZeroTier-2ndPort'
 set firewall.@rule[-1].src='*'
 set firewall.@rule[-1].target='ACCEPT'
-add_list firewall.@rule[-1].proto='all'
+add_list firewall.@rule[-1].proto='udp'
 set firewall.@rule[-1].dest_port='$secondPort'
 commit firewall
 EOF
@@ -243,7 +243,7 @@ rename firewall.@rule[-1]=zt_rule_allowThirdPort
 set firewall.@rule[-1].name='Allow-ZeroTier-3rdPort'
 set firewall.@rule[-1].src='*'
 set firewall.@rule[-1].target='ACCEPT'
-add_list firewall.@rule[-1].proto='all'
+add_list firewall.@rule[-1].proto='udp'
 set firewall.@rule[-1].dest_port='$thirdPort'
 commit firewall
 EOF

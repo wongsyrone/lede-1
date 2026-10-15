@@ -10,7 +10,7 @@ LUCI_TITLE:=LuCI for Zerotier
 LUCI_DEPENDS:=+luci-base +zerotier
 LUCI_PKGARCH:=all
 PKG_VERSION:=1.0
-PKG_RELEASE:=21
+PKG_RELEASE:=22
 
 define Package/luci-app-zerotier/conffiles
 /etc/config/zerotier
