@@ -328,6 +328,22 @@ class BackupTest(unittest.TestCase):
         self.assertIn("etc/rc.d/S95trojan", entries)
         self.assertNotIn("etc/rc.d/S95pdnsd", entries)
 
+    def test_native_samba_link_and_busybox_history_are_preserved(self):
+        files = fixture("10.0.0.1")
+        files["etc/profile.d/busybox-history-file.sh"] = b"export HISTFILE=/tmp/.busybox_ash_history\n\n"
+        link = tarfile.TarInfo("etc/samba/smb.conf")
+        link.type, link.linkname = tarfile.SYMTYPE, "/var/etc/smb.conf"
+        entries, _ = self.prepare(self.archive(files, [(link, b"")]))
+        self.assertEqual(entries[link.name][0].linkname, link.linkname)
+        self.assertEqual(entries["etc/profile.d/busybox-history-file.sh"][1],
+                         files["etc/profile.d/busybox-history-file.sh"])
+        link.linkname = "/etc/shadow"
+        with self.assertRaises(migration.Rejected):
+            self.prepare(self.archive(files, [(link, b"")]))
+        files["etc/profile.d/busybox-history-file.sh"] += b"/usr/sbin/v2ray\n"
+        with self.assertRaises(migration.Rejected):
+            self.prepare(self.archive(files))
+
     def test_plan_confirmation_is_bound_to_exact_input_and_result(self):
         entries, plan = self.prepare(self.archive(fixture("10.0.0.1")))
         migration.verify_plan(plan, copy.deepcopy(plan))

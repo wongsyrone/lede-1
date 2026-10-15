@@ -76,7 +76,10 @@ The tool checks UCI semantic equality outside the allowed edits. It rejects
 missing authentication/host-key/identity files, unsafe or duplicate tar paths,
 non-directory parents, hard links, unknown symlinks, special files/modes,
 truncated gzip/tar and excessive archive size/count. Safe native `rc.d` service
-links are supported. It never extracts arbitrary archive paths onto the host.
+links and the native `etc/samba/smb.conf -> /var/etc/smb.conf` link are supported.
+The inspected BusyBox history hook is retained only with its exact history-file
+assignment; added commands are refused. It never extracts arbitrary archive paths
+onto the host.
 
 `shortcut:` layout checks deliberately target these two inspected legacy systems.
 If a layout, include, hook or service changes, inspect the new input and extend

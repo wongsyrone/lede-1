@@ -79,7 +79,9 @@ def read_backup(source):
                 require(not (item.mode & 0o7000), "Special permission bits: " + name)
                 if item.issym():
                     match = re.fullmatch(r"etc/rc\.d/[SK][0-9]{2}([A-Za-z0-9_+-]+)", name)
-                    require(match and item.linkname == "../init.d/" + match[1], "Unreviewed symbolic link: " + name)
+                    require((match and item.linkname == "../init.d/" + match[1])
+                            or (name == "etc/samba/smb.conf" and item.linkname == "/var/etc/smb.conf"),
+                            "Unreviewed symbolic link: " + name)
                 total += item.size
                 require(0 <= item.size <= 64 * 1024 * 1024 and total <= MAX_BYTES, "Archive payload exceeds size limit")
                 data = archive.extractfile(item).read() if item.isfile() else b""
@@ -203,7 +205,11 @@ def inspect_hooks(entries):
                     "Unreviewed saved service script: " + name)
         if name.startswith(("etc/crontabs/", "etc/udhcpc.user.d/", "etc/odhcp6c.user.d/",
                             "etc/hotplug.d/", "etc/ppp/", "etc/profile.d/")):
-            require(not active_lines(data), "Unreviewed startup/network hook: " + name)
+            if name == "etc/profile.d/busybox-history-file.sh":
+                require(active_lines(data) == ["export HISTFILE=/tmp/.busybox_ash_history"],
+                        "Unexpected BusyBox history hook")
+            else:
+                require(not active_lines(data), "Unreviewed startup/network hook: " + name)
         if name.startswith("usr/"):
             require(retired_path(name) or name == "usr/sbin/trojan", "Unreviewed saved program: " + name)
         require(not name.startswith(("usr/lib/opkg/", "lib/apk/db/", "usr/lib/apk/db/", "var/")),
