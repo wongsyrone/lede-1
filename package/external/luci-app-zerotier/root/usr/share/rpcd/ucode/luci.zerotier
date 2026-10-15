@@ -1,0 +1,62 @@
+'use strict';
+
+import { connect } from 'ubus';
+
+const ubus = connect();
+
+return {
+	'luci.zerotier': {
+		get_status: {
+			call: function(req) {
+				return ubus.defer('service', 'list', { name: 'zerotier' }, function(rc, data) {
+					if (rc)
+						return req.reply(null, rc);
+
+					let running = false;
+
+					for (let name, instance in data.zerotier?.instances)
+						if (instance.running)
+							running = true;
+
+					req.reply({ running });
+				});
+			}
+		},
+		get_interfaces: {
+			call: function(req) {
+				return ubus.defer('luci-rpc', 'getNetworkDevices', {}, function(rc, data) {
+					if (rc)
+						return req.reply(null, rc);
+
+					const devices = {};
+
+					for (let name, device in data)
+						if (match(name, /^zt/))
+							devices[name] = device;
+
+					req.reply({ devices });
+				});
+			}
+		},
+		get_networks: {
+			call: function(req) {
+				return ubus.defer('file', 'exec', {
+					command: '/usr/bin/zerotier-cli',
+					params: [ 'listnetworks' ]
+				}, function(rc, data) {
+					req.reply(data, rc);
+				});
+			}
+		},
+		get_peers: {
+			call: function(req) {
+				return ubus.defer('file', 'exec', {
+					command: '/usr/bin/zerotier-cli',
+					params: [ 'peers' ]
+				}, function(rc, data) {
+					req.reply(data, rc);
+				});
+			}
+		}
+	}
+};

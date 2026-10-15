@@ -1,0 +1,35 @@
+{
+	"admin/vpn": {
+		"title": "VPN",
+		"order": 45,
+		"action": {
+			"type": "firstchild"
+		}
+	},
+	"admin/vpn/zerotier": {
+		"title": "ZeroTier",
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-zerotier" ],
+			"uci": { "zerotier": true }
+		}
+	},
+	"admin/vpn/zerotier/general": {
+		"title": "Base Setting",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "zerotier/settings"
+		}
+	},
+	"admin/vpn/zerotier/log": {
+		"title": "Interface Info",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "zerotier/status"
+		}
+	}
+}

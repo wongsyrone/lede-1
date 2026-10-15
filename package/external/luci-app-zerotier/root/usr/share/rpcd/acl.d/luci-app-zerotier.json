@@ -1,11 +1,14 @@
 {
- 	"luci-app-zerotier": {
- 		"description": "Grant UCI access for luci-app-zerotier",
- 		"read": {
- 			"uci": [ "zerotier" ]
- 		},
- 		"write": {
- 			"uci": [ "zerotier" ]
- 		}
- 	}
+	"luci-app-zerotier": {
+		"description": "Manage ZeroTier settings and query its status",
+		"read": {
+			"ubus": {
+				"luci.zerotier": [ "get_status", "get_interfaces", "get_networks", "get_peers" ]
+			},
+			"uci": [ "zerotier" ]
+		},
+		"write": {
+			"uci": [ "zerotier" ]
+		}
+	}
 }
