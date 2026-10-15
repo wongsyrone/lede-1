@@ -2,226 +2,87 @@ CONFIG_TARGET_x86=y
 CONFIG_TARGET_x86_64=y
 CONFIG_TARGET_x86_64_DEVICE_generic=y
 CONFIG_DEVEL=y
-CONFIG_BIND_ENABLE_DOH=y
-# CONFIG_BPF_TOOLCHAIN_BUILD_LLVM is not set
 CONFIG_BPF_TOOLCHAIN_HOST=y
 CONFIG_BPF_TOOLCHAIN_HOST_PATH="/usr"
 CONFIG_BUILD_PATENTED=y
 # CONFIG_DROPBEAR_ED25519 is not set
-CONFIG_FFMPEG_LIBX264=y
 # CONFIG_JSON_OVERVIEW_IMAGE_INFO is not set
 # CONFIG_KERNEL_AIO is not set
-# CONFIG_KERNEL_BTRFS_FS_POSIX_ACL is not set
-CONFIG_KERNEL_CGROUPS=y
-# CONFIG_KERNEL_CIFS_ACL is not set
-# CONFIG_KERNEL_EROFS_FS_POSIX_ACL is not set
-# CONFIG_KERNEL_EXT4_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_EXT4_FS_SECURITY is not set
-# CONFIG_KERNEL_F2FS_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_F2FS_FS_SECURITY is not set
 # CONFIG_KERNEL_FANOTIFY is not set
 # CONFIG_KERNEL_FHANDLE is not set
-# CONFIG_KERNEL_FS_POSIX_ACL is not set
-# CONFIG_KERNEL_HFSPLUS_FS_POSIX_ACL is not set
-# CONFIG_KERNEL_HFS_FS_POSIX_ACL is not set
-# CONFIG_KERNEL_JFFS2_FS_POSIX_ACL is not set
 # CONFIG_KERNEL_JFFS2_FS_SECURITY is not set
-# CONFIG_KERNEL_JFS_POSIX_ACL is not set
 # CONFIG_KERNEL_KEYS is not set
 # CONFIG_KERNEL_NAMESPACES is not set
 # CONFIG_KERNEL_NET_L3_MASTER_DEV is not set
-# CONFIG_KERNEL_NFS_ACL_SUPPORT is not set
-# CONFIG_KERNEL_REISER_FS_POSIX_ACL is not set
-# CONFIG_KERNEL_TMPFS_POSIX_ACL is not set
 # CONFIG_KERNEL_UBIFS_FS_SECURITY is not set
 # CONFIG_KERNEL_WERROR is not set
-# CONFIG_KERNEL_XFS_POSIX_ACL is not set
-CONFIG_LIBCURL_COOKIES=y
-CONFIG_LIBCURL_FILE=y
-CONFIG_LIBCURL_FTP=y
-CONFIG_LIBCURL_HTTP=y
-CONFIG_LIBCURL_HTTP2=y
-CONFIG_LIBCURL_HTTP_AUTH=y
-CONFIG_LIBCURL_NO_SMB="!"
-CONFIG_LIBCURL_PROXY=y
 CONFIG_LIBCURL_WOLFSSL=y
-CONFIG_LIBNCURSES_TERMINFO=""
 # CONFIG_MBEDTLS_ECP_DP_SECP521R1_ENABLED is not set
-CONFIG_NEED_BPF_TOOLCHAIN=y
-CONFIG_OPENSSL_OPTIMIZE_SPEED=y
-CONFIG_OPENSSL_WITH_ASM=y
-CONFIG_OPENSSL_WITH_CHACHA_POLY1305=y
-CONFIG_OPENSSL_WITH_CMS=y
-CONFIG_OPENSSL_WITH_DEPRECATED=y
-CONFIG_OPENSSL_WITH_ERROR_MESSAGES=y
 CONFIG_OPENSSL_WITH_NPN=y
-CONFIG_OPENSSL_WITH_PSK=y
-CONFIG_OPENSSL_WITH_SRP=y
-CONFIG_OPENSSL_WITH_TLS13=y
-# CONFIG_PACKAGE_TAR_POSIX_ACL is not set
-# CONFIG_PACKAGE_TAR_XATTR is not set
 CONFIG_PACKAGE_attr=y
 CONFIG_PACKAGE_bind-client=y
 CONFIG_PACKAGE_bind-dig=y
 CONFIG_PACKAGE_block-mount=y
-# CONFIG_PACKAGE_bnx2-firmware is not set
-CONFIG_PACKAGE_cgi-io=y
-CONFIG_PACKAGE_curl=y
-CONFIG_PACKAGE_ddns-scripts=y
 CONFIG_PACKAGE_ddns-scripts-cloudflare=y
 CONFIG_PACKAGE_ddns-scripts-noip=y
-CONFIG_PACKAGE_ddns-scripts-services=y
 # CONFIG_PACKAGE_dnsmasq is not set
 CONFIG_PACKAGE_dnsmasq-full=y
-CONFIG_PACKAGE_dnsmasq_full_auth=y
-CONFIG_PACKAGE_dnsmasq_full_conntrack=y
-CONFIG_PACKAGE_dnsmasq_full_dhcp=y
-CONFIG_PACKAGE_dnsmasq_full_dhcpv6=y
-CONFIG_PACKAGE_dnsmasq_full_dnssec=y
 CONFIG_PACKAGE_dnsmasq_full_ipset=y
-CONFIG_PACKAGE_dnsmasq_full_nftset=y
-CONFIG_PACKAGE_dnsmasq_full_noid=y
-CONFIG_PACKAGE_dnsmasq_full_tftp=y
-CONFIG_PACKAGE_etherwake=y
 CONFIG_PACKAGE_ethtool=y
 CONFIG_PACKAGE_fdisk=y
 CONFIG_PACKAGE_intel-microcode=y
-CONFIG_PACKAGE_ip-full=y
 CONFIG_PACKAGE_ip6tables-nft=y
 CONFIG_PACKAGE_ipset=y
 CONFIG_PACKAGE_iptables-nft=y
 CONFIG_PACKAGE_iucode-tool=y
-CONFIG_PACKAGE_kmod-asn1-decoder=y
 # CONFIG_PACKAGE_kmod-bnx2 is not set
-CONFIG_PACKAGE_kmod-crypto-crc32c=y
-CONFIG_PACKAGE_kmod-crypto-hash=y
-CONFIG_PACKAGE_kmod-dummy=y
 # CONFIG_PACKAGE_kmod-forcedeth is not set
 CONFIG_PACKAGE_kmod-fs-ext4=y
-CONFIG_PACKAGE_kmod-hid=y
-CONFIG_PACKAGE_kmod-hid-generic=y
-CONFIG_PACKAGE_kmod-ifb=y
 # CONFIG_PACKAGE_kmod-igb is not set
 CONFIG_PACKAGE_kmod-igb-intel=y
-CONFIG_PACKAGE_kmod-inet-diag=y
-CONFIG_PACKAGE_kmod-ip6tables=y
-CONFIG_PACKAGE_kmod-ipt-conntrack=y
-CONFIG_PACKAGE_kmod-ipt-core=y
-CONFIG_PACKAGE_kmod-ipt-ipset=y
-CONFIG_PACKAGE_kmod-ipt-offload=y
-CONFIG_PACKAGE_kmod-iptables=y
-CONFIG_PACKAGE_kmod-lib-crc16=y
-CONFIG_PACKAGE_kmod-lib-textsearch=y
-CONFIG_PACKAGE_kmod-nf-conntrack-netlink=y
-CONFIG_PACKAGE_kmod-nf-ipt=y
-CONFIG_PACKAGE_kmod-nf-ipt6=y
 CONFIG_PACKAGE_kmod-nf-nat6=y
 CONFIG_PACKAGE_kmod-nf-nathelper=y
-CONFIG_PACKAGE_kmod-nf-nathelper-amanda=y
-CONFIG_PACKAGE_kmod-nf-nathelper-broadcast=y
 CONFIG_PACKAGE_kmod-nf-nathelper-extra=y
-CONFIG_PACKAGE_kmod-nf-nathelper-h323=y
-CONFIG_PACKAGE_kmod-nf-nathelper-irc=y
-CONFIG_PACKAGE_kmod-nf-nathelper-netbios=y
-CONFIG_PACKAGE_kmod-nf-nathelper-pptp=y
-CONFIG_PACKAGE_kmod-nf-nathelper-sane=y
-CONFIG_PACKAGE_kmod-nf-nathelper-sip=y
-CONFIG_PACKAGE_kmod-nf-nathelper-snmp=y
-CONFIG_PACKAGE_kmod-nf-nathelper-tftp=y
-CONFIG_PACKAGE_kmod-nf-socket=y
-CONFIG_PACKAGE_kmod-nf-tproxy=y
-CONFIG_PACKAGE_kmod-nft-compat=y
 CONFIG_PACKAGE_kmod-nft-fullcone=y
-CONFIG_PACKAGE_kmod-nft-socket=y
-CONFIG_PACKAGE_kmod-nft-tproxy=y
-CONFIG_PACKAGE_kmod-sched-bpf=y
-CONFIG_PACKAGE_kmod-sched-cake=y
-CONFIG_PACKAGE_kmod-sched-core=y
-CONFIG_PACKAGE_kmod-scsi-core=y
-CONFIG_PACKAGE_kmod-shortcut-fe=y
 CONFIG_PACKAGE_kmod-shortcut-fe-cm=y
-CONFIG_PACKAGE_kmod-tcp-bbr=y
 # CONFIG_PACKAGE_kmod-tg3 is not set
-CONFIG_PACKAGE_kmod-tun=y
-CONFIG_PACKAGE_kmod-usb-common=y
-CONFIG_PACKAGE_kmod-usb-core=y
-CONFIG_PACKAGE_kmod-usb-ehci=y
 CONFIG_PACKAGE_kmod-usb-hid=y
 CONFIG_PACKAGE_kmod-usb-ohci=y
-CONFIG_PACKAGE_kmod-usb-storage=y
 CONFIG_PACKAGE_kmod-usb-storage-extras=y
 CONFIG_PACKAGE_kmod-usb-uhci=y
-CONFIG_PACKAGE_kmod-usb-xhci-hcd=y
 CONFIG_PACKAGE_kmod-usb2=y
 CONFIG_PACKAGE_kmod-usb3=y
 CONFIG_PACKAGE_kmod-vmxnet3=y
 # CONFIG_PACKAGE_knot-resolver_dnstap is not set
-CONFIG_PACKAGE_lua=y
 CONFIG_PACKAGE_luci=y
 CONFIG_PACKAGE_luci-app-commands=y
 CONFIG_PACKAGE_luci-app-ddns=y
-CONFIG_PACKAGE_luci-app-firewall=y
 CONFIG_PACKAGE_luci-app-nikki=y
 CONFIG_PACKAGE_luci-app-nps=y
-CONFIG_PACKAGE_luci-app-package-manager=y
 CONFIG_PACKAGE_luci-app-turboacc=y
 CONFIG_PACKAGE_luci-app-uhttpd=y
 CONFIG_PACKAGE_luci-app-upnp=y
 CONFIG_PACKAGE_luci-app-wol=y
 CONFIG_PACKAGE_luci-app-zerotier=y
-CONFIG_PACKAGE_luci-base=y
 CONFIG_PACKAGE_luci-compat=y
-CONFIG_PACKAGE_luci-light=y
-CONFIG_PACKAGE_luci-lua-runtime=y
-CONFIG_PACKAGE_luci-mod-admin-full=y
 CONFIG_PACKAGE_luci-mod-dashboard=y
-CONFIG_PACKAGE_luci-mod-network=y
-CONFIG_PACKAGE_luci-mod-status=y
-CONFIG_PACKAGE_luci-mod-system=y
-CONFIG_PACKAGE_luci-proto-ipv6=y
-CONFIG_PACKAGE_luci-proto-ppp=y
-CONFIG_PACKAGE_luci-theme-bootstrap=y
-CONFIG_PACKAGE_mihomo-meta=y
-CONFIG_PACKAGE_miniupnpd-nftables=y
 CONFIG_PACKAGE_mount-utils=y
-CONFIG_PACKAGE_nikki=y
 CONFIG_PACKAGE_nikki-profile-default=y
-CONFIG_PACKAGE_npc=y
 CONFIG_PACKAGE_qosify=y
-CONFIG_PACKAGE_resolveip=y
-CONFIG_PACKAGE_rpcd=y
-CONFIG_PACKAGE_rpcd-mod-file=y
-CONFIG_PACKAGE_rpcd-mod-iwinfo=y
 CONFIG_PACKAGE_rpcd-mod-rpcsys=y
-CONFIG_PACKAGE_rpcd-mod-ucode=y
 CONFIG_PACKAGE_strace=y
 CONFIG_PACKAGE_tc-full=y
 CONFIG_PACKAGE_tcpdump=y
 CONFIG_PACKAGE_trojan=y
-CONFIG_PACKAGE_ucode-mod-html=y
-CONFIG_PACKAGE_ucode-mod-log=y
-CONFIG_PACKAGE_ucode-mod-lua=y
-CONFIG_PACKAGE_ucode-mod-math=y
-CONFIG_PACKAGE_uhttpd=y
-CONFIG_PACKAGE_uhttpd-mod-ubus=y
 CONFIG_PACKAGE_ustp=y
 CONFIG_PACKAGE_vlmcsd=y
-CONFIG_PACKAGE_wget-ssl=y
-CONFIG_PACKAGE_xtables-nft=y
-CONFIG_PACKAGE_yq=y
-CONFIG_PACKAGE_zerotier=y
-CONFIG_PCRE2_JIT_ENABLED=y
 # CONFIG_TARGET_EXT4_JOURNAL is not set
 CONFIG_TARGET_ROOTFS_PARTSIZE=256
 # CONFIG_USE_FS_ACL_ATTR is not set
-CONFIG_USE_LLVM_HOST=y
 # CONFIG_WOLFSSL_HAS_ECC25519 is not set
-CONFIG_WOLFSSL_HAS_NO_HW=y
 # CONFIG_WOLFSSL_HAS_OPENVPN is not set
-CONFIG_boost-compile-visibility-hidden=y
-CONFIG_boost-runtime-shared=y
-CONFIG_boost-static-and-shared-libs=y
-CONFIG_boost-variant-release=y
 # CONFIG_LIBCURL_UNIX_SOCKETS is not set
 # CONFIG_LIBCURL_ZLIB is not set
 # CONFIG_OPENSSL_ENGINE is not set

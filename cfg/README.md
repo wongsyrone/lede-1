@@ -97,6 +97,12 @@ and install rules, including libraries outside the Libraries category, remove
 only redundant library selections, and use `make defconfig` to verify the
 resulting package list and unchanged target, kernel, and toolchain settings.
 
+The same review applies to automatically selected applications, modules and
+package suboptions, not just libraries. Compare every symbol in the complete
+normalized configuration before and after pruning against the same source and
+feed revisions; an unchanged package count alone is not sufficient. Keep
+functional removals separate from this behavior-preserving cleanup.
+
 ---
 
 ## 3. Layer 2: Kernel-Level Configuration (`target/linux/`)
