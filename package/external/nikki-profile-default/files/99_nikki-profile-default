@@ -1,0 +1,41 @@
+#!/bin/sh
+
+[ "$(uci -q get nikki.config)" = config ] || exit 0
+[ "$(uci -q get nikki.mixin)" = mixin ] || exit 0
+
+bypass='nikki.@router_access_control[0]'
+users=$(uci -q get "$bypass.user")
+cgroups=$(uci -q get "$bypass.cgroup")
+
+# Extend the upstream scoped rule: a cgroup-only rule can become a wildcard if Trojan is absent.
+case " $users " in *" dnsmasq "*) ;; *) exit 0 ;; esac
+case " $cgroups " in *" services/zerotier "*) ;; *) exit 0 ;; esac
+[ "$(uci -q get "$bypass.enabled")" = 1 ] || exit 0
+[ "$(uci -q get "$bypass.dns")" = 0 ] || exit 0
+[ "$(uci -q get "$bypass.proxy")" = 0 ] || exit 0
+
+changed=0
+case " $cgroups " in
+    *" services/trojan "*) ;;
+    *) uci add_list "$bypass.cgroup=services/trojan" || exit 1; changed=1 ;;
+esac
+
+profile=$(uci -q get nikki.config.profile)
+select_default=0
+case "$profile" in
+    '') select_default=1 ;;
+    subscription:subscription)
+        url=$(uci -q get nikki.subscription.url)
+        case "$url" in ''|http://example.com/default.yaml) select_default=1 ;; esac
+        ;;
+esac
+
+# Never replace an enabled or user-selected profile, even if its file is temporarily unavailable.
+if [ "$select_default" = 1 ] && [ "$(uci -q get nikki.config.enabled)" = 0 ]; then
+    uci set nikki.config.profile='file:default.yaml' || exit 1
+    uci set nikki.mixin.api_listen='127.0.0.1:9090' || exit 1
+    changed=1
+fi
+
+[ "$changed" = 0 ] || uci commit nikki || exit 1
+exit 0

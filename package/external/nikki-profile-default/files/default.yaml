@@ -1,0 +1,1362 @@
+# Public router profile; Nikki owns listeners, TUN and transparent routing.
+# Add private nodes to providers/proxy/user.yaml; no proxy credentials are shipped.
+---
+ipv6: true
+mode: rule
+log-level: warning
+unified-delay: true
+tcp-concurrent: true
+find-process-mode: 'off'
+geodata-mode: false
+geo-auto-update: false
+profile:
+  store-selected: true
+  store-fake-ip: true
+sniffer:
+  enable: true
+  parse-pure-ip: true
+  override-destination: true
+  sniff:
+    TLS:
+      ports:
+      - 443
+      - 8443
+    HTTP:
+      ports:
+      - 80
+      - 8080-8880
+    QUIC:
+      ports:
+      - 443
+      - 8443
+  skip-domain:
+  - "+.push.apple.com"
+  - Mijia Cloud
+dns:
+  enable: true
+  ipv6: true
+  cache-algorithm: arc
+  use-hosts: true
+  use-system-hosts: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter-mode: blacklist
+  fake-ip-filter:
+  - "+.lan"
+  - "+.local"
+  - "+.arpa"
+  - localhost
+  - stun.*.*.*
+  - stun.*.*
+  - turn.*.*.*
+  - turn.*.*
+  - time.windows.com
+  - time.nist.gov
+  - time.apple.com
+  - time.asia.apple.com
+  - "+.ntp.org.cn"
+  - "+.pool.ntp.org"
+  - time1.cloud.tencent.com
+  - time.ustc.edu.cn
+  - ntp.ubuntu.com
+  - ntp.aliyun.com
+  - ntp1.aliyun.com
+  - ntp2.aliyun.com
+  - ntp3.aliyun.com
+  - ntp4.aliyun.com
+  - ntp5.aliyun.com
+  - ntp6.aliyun.com
+  - ntp7.aliyun.com
+  - time1.aliyun.com
+  - time2.aliyun.com
+  - time3.aliyun.com
+  - time4.aliyun.com
+  - time5.aliyun.com
+  - time6.aliyun.com
+  - time7.aliyun.com
+  - "+.time.edu.cn"
+  - time1.apple.com
+  - time2.apple.com
+  - time3.apple.com
+  - time4.apple.com
+  - time5.apple.com
+  - time6.apple.com
+  - time7.apple.com
+  - time1.google.com
+  - time2.google.com
+  - time3.google.com
+  - time4.google.com
+  - time.cloudflare.com
+  - "+.music.163.com"
+  - "+.126.net"
+  - musicapi.taihe.com
+  - music.taihe.com
+  - songsearch.kugou.com
+  - trackercdn.kugou.com
+  - "+.kuwo.cn"
+  - api-jooxtt.sanook.com
+  - api.joox.com
+  - joox.com
+  - "+.y.qq.com"
+  - streamoc.music.tc.qq.com
+  - mobileoc.music.tc.qq.com
+  - isure.stream.qqmusic.qq.com
+  - dl.stream.qqmusic.qq.com
+  - aqqmusic.tc.qq.com
+  - amobile.music.tc.qq.com
+  - "+.xiami.com"
+  - "+.music.migu.cn"
+  - "+.msftconnecttest.com"
+  - "+.msftncsi.com"
+  - localhost.ptlogin2.qq.com
+  - detectportal.firefox.com
+  - connectivitycheck.gstatic.com
+  - captive.apple.com
+  - "*.*.*.srv.nintendo.net"
+  - "*.*.stun.playstation.net"
+  - xbox.*.*.microsoft.com
+  - "*.ipv6.microsoft.com"
+  - "*.*.xboxlive.com"
+  - speedtest.cros.wr.pvp.net
+  - debian.map.fastlydns.net
+  - "*.*.*.*.*.3gppnetwork.org"
+  - "*.*.*.*.*.*.3gppnetwork.org"
+  proxy-server-nameserver: &1
+  - 180.76.76.76
+  - https://dns.pub/dns-query
+  - https://doh.360.cn/dns-query
+  - tls://dot.360.cn:853
+  default-nameserver:
+  - 180.76.76.76
+  - 119.29.29.29
+  nameserver-policy:
+    rule-set:gfw,greatfire:
+    - https://1.1.1.1/dns-query#dns-out
+    - https://8.8.8.8/dns-query#dns-out
+    ? rule-set:geosite-private,cn,geolocation-cn,category-cdn-cn,category-httpdns-cn,apple-cn,icloud-cn,microsoft-cn,steam-cn,category-games-cn
+    : *1
+    "+.music.163.com,+.126.net,+.kuwo.cn,+.kugou.com,+.taihe.com,+.migu.cn,+.xiami.com": *1
+    debian.map.fastlydns.net: *1
+    "+.lan,+.local,+.in-addr.arpa,+.ip6.arpa":
+    - 127.0.0.1:53
+  nameserver: *1
+  direct-nameserver: *1
+  direct-nameserver-follow-policy: true
+  listen: "[::]:1053"
+proxies: []
+proxy-providers:
+  user:
+    type: file
+    path: "/etc/nikki/run/providers/proxy/user.yaml"
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+proxy-groups:
+- name: dns-out
+  type: select
+  proxies:
+  - dns-auto
+  - DIRECT
+- name: dns-auto
+  type: fallback
+  include-all-providers: true
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  url: https://www.gstatic.com/generate_204
+  interval: 120
+  lazy: false
+- name: "\U0001F1ED\U0001F1F0 香港"
+  type: url-test
+  include-all-providers: true
+  filter: "(?i)港|\\b(hk|hong\\s*kong)\\b"
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  tolerance: 100
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+- name: "\U0001F1EF\U0001F1F5 日本"
+  type: url-test
+  include-all-providers: true
+  filter: "(?i)日|\\b(jp|japan)\\b"
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  tolerance: 100
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+- name: "\U0001F1F8\U0001F1EC 新加坡"
+  type: url-test
+  include-all-providers: true
+  filter: "(?i)新|\\b(sg|singapore)\\b"
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  tolerance: 100
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+- name: "\U0001F1F9\U0001F1FC 台湾"
+  type: url-test
+  include-all-providers: true
+  filter: "(?i)台|\\b(tw|taiwan)\\b"
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  tolerance: 100
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+- name: "\U0001F1F0\U0001F1F7 韩国"
+  type: url-test
+  include-all-providers: true
+  filter: "(?i)韩|首|\\b(kr|south\\s*korea)\\b"
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  tolerance: 100
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+- name: "\U0001F1FA\U0001F1F8 美国"
+  type: url-test
+  include-all-providers: true
+  filter: "(?i)美|\\b(us|united\\s*states)\\b"
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  tolerance: 100
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+- name: "\U0001F1EC\U0001F1E7 英国"
+  type: url-test
+  include-all-providers: true
+  filter: "(?i)英|\\b(uk|gb|united\\s*kingdom)\\b"
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  tolerance: 100
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+- name: "\U0001F1E9\U0001F1EA 德国"
+  type: url-test
+  include-all-providers: true
+  filter: "(?i)德|\\b(de|germany)\\b"
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  tolerance: 100
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+- name: "\U0001F680 节点选择"
+  type: select
+  proxies:
+  - "⚡ 自动选择"
+  - DIRECT
+  - REJECT
+  include-all: true
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+- name: "⚡ 自动选择"
+  type: url-test
+  include-all-providers: true
+  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 100
+- name: "\U0001F6D1 广告拦截"
+  type: select
+  proxies:
+  - REJECT
+  - DIRECT
+  - "\U0001F680 节点选择"
+- name: "\U0001F916 AI 服务"
+  type: select
+  proxies: &2
+  - "\U0001F680 节点选择"
+  - "⚡ 自动选择"
+  - "\U0001F1ED\U0001F1F0 香港"
+  - "\U0001F1EF\U0001F1F5 日本"
+  - "\U0001F1F8\U0001F1EC 新加坡"
+  - "\U0001F1F9\U0001F1FC 台湾"
+  - "\U0001F1F0\U0001F1F7 韩国"
+  - "\U0001F1FA\U0001F1F8 美国"
+  - "\U0001F1EC\U0001F1E7 英国"
+  - DIRECT
+  - REJECT
+- name: "\U0001F4F9 油管视频"
+  type: select
+  proxies: *2
+- name: "\U0001F3AC 奈飞"
+  type: select
+  proxies: *2
+- name: "\U0001F3F0 迪士尼+"
+  type: select
+  proxies: *2
+- name: "\U0001F4FA 欧美流媒体"
+  type: select
+  proxies: *2
+- name: "\U0001F38C 亚洲流媒体"
+  type: select
+  proxies: *2
+- name: "\U0001F50D 谷歌服务"
+  type: select
+  proxies: *2
+- name: Ⓜ️ 微软服务
+  type: select
+  proxies: *2
+- name: "\U0001F34F 苹果服务"
+  type: select
+  proxies: *2
+- name: "\U0001F4F2 电报消息"
+  type: select
+  proxies: *2
+- name: "\U0001F426 推特/X"
+  type: select
+  proxies: *2
+- name: "\U0001F4D8 Meta 系"
+  type: select
+  proxies: *2
+- name: "\U0001F399️ Discord"
+  type: select
+  proxies: *2
+- name: "\U0001F4AC 其他社交"
+  type: select
+  proxies: *2
+- name: "\U0001F3AE Steam"
+  type: select
+  proxies: *2
+- name: "\U0001F5A5️ PC 游戏"
+  type: select
+  proxies: *2
+- name: "\U0001F3AF 主机游戏"
+  type: select
+  proxies: *2
+- name: "\U0001F431 代码托管"
+  type: select
+  proxies: *2
+- name: "☁️ 云服务"
+  type: select
+  proxies: *2
+- name: "\U0001F6E0️ 开发工具"
+  type: select
+  proxies: *2
+- name: "\U0001F4BE 网盘存储"
+  type: select
+  proxies: *2
+- name: "\U0001F4B3 支付平台"
+  type: select
+  proxies: *2
+- name: "\U0001F4DA 教育学术"
+  type: select
+  proxies: *2
+- name: "\U0001F4F0 新闻资讯"
+  type: select
+  proxies: *2
+- name: "\U0001F6D2 海淘购物"
+  type: select
+  proxies: *2
+- name: "\U0001F51E 成人内容"
+  type: select
+  proxies: *2
+- name: "\U0001F3E0 私有网络"
+  type: select
+  proxies:
+  - DIRECT
+  - REJECT
+  - "\U0001F680 节点选择"
+- name: "\U0001F512 国内服务"
+  type: select
+  proxies:
+  - DIRECT
+  - REJECT
+  - "\U0001F680 节点选择"
+- name: "\U0001F30D 非中国"
+  type: select
+  proxies: *2
+- name: "\U0001F41F 漏网之鱼"
+  type: select
+  proxies:
+  - DIRECT
+  - "\U0001F680 节点选择"
+rule-providers:
+  proxy-domains-extra:
+    type: file
+    behavior: classical
+    interval: 3600
+    path: "/etc/nikki/run/providers/rule/proxy-domains-extra.yaml"
+  UK-wifi-call:
+    type: file
+    behavior: classical
+    interval: 3600
+    path: "/etc/nikki/run/providers/rule/UK-wifi-call.yaml"
+  US-wifi-call:
+    type: file
+    behavior: classical
+    interval: 3600
+    path: "/etc/nikki/run/providers/rule/US-wifi-call.yaml"
+  HK-wifi-call:
+    type: file
+    behavior: classical
+    interval: 3600
+    path: "/etc/nikki/run/providers/rule/HK-wifi-call.yaml"
+  DE-wifi-call:
+    type: file
+    behavior: classical
+    interval: 3600
+    path: "/etc/nikki/run/providers/rule/DE-wifi-call.yaml"
+  geosite-private:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/geosite-private.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs
+    proxy: DIRECT
+  geoip-private:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/geoip-private.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/private.mrs
+    proxy: DIRECT
+  category-ads:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/category-ads.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ads.mrs
+    proxy: DIRECT
+  category-cdn-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/category-cdn-cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-cdn-cn.mrs
+    proxy: DIRECT
+  category-httpdns-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/category-httpdns-cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-httpdns-cn.mrs
+    proxy: DIRECT
+  bytedance-!cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/bytedance-!cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bytedance@!cn.mrs
+    proxy: DIRECT
+  apple-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/apple-cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-cn.mrs
+    proxy: DIRECT
+  icloud-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/icloud-cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/icloud@cn.mrs
+    proxy: DIRECT
+  microsoft-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/microsoft-cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft@cn.mrs
+    proxy: DIRECT
+  steam-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/steam-cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam@cn.mrs
+    proxy: DIRECT
+  category-games-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/category-games-cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-games@cn.mrs
+    proxy: DIRECT
+  gfw:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/gfw.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/gfw.mrs
+    proxy: DIRECT
+  greatfire:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/greatfire.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/greatfire.mrs
+    proxy: DIRECT
+  openai:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/openai.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/openai.mrs
+    proxy: DIRECT
+  anthropic:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/anthropic.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/anthropic.mrs
+    proxy: DIRECT
+  category-ai-chat-!cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/category-ai-chat-!cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-ai-chat-!cn.mrs
+    proxy: DIRECT
+  youtube:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/youtube.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/youtube.mrs
+    proxy: DIRECT
+  netflix:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/netflix.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netflix.mrs
+    proxy: DIRECT
+  netflix-ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/netflix-ip.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/netflix.mrs
+    proxy: DIRECT
+  disney:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/disney.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/disney.mrs
+    proxy: DIRECT
+  hbo:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/hbo.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/hbo.mrs
+    proxy: DIRECT
+  hulu:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/hulu.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/hulu.mrs
+    proxy: DIRECT
+  primevideo:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/primevideo.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/primevideo.mrs
+    proxy: DIRECT
+  apple-tvplus:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/apple-tvplus.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple-tvplus.mrs
+    proxy: DIRECT
+  spotify:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/spotify.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/spotify.mrs
+    proxy: DIRECT
+  twitch:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/twitch.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitch.mrs
+    proxy: DIRECT
+  dazn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/dazn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/dazn.mrs
+    proxy: DIRECT
+  bahamut:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/bahamut.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bahamut.mrs
+    proxy: DIRECT
+  biliintl:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/biliintl.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/biliintl.mrs
+    proxy: DIRECT
+  niconico:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/niconico.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/niconico.mrs
+    proxy: DIRECT
+  abema:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/abema.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/abema.mrs
+    proxy: DIRECT
+  viu:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/viu.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/viu.mrs
+    proxy: DIRECT
+  kktv:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/kktv.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/kktv.mrs
+    proxy: DIRECT
+  google:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/google.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/google.mrs
+    proxy: DIRECT
+  google-ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/google-ip.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs
+    proxy: DIRECT
+  microsoft:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/microsoft.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/microsoft.mrs
+    proxy: DIRECT
+  onedrive:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/onedrive.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/onedrive.mrs
+    proxy: DIRECT
+  apple:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/apple.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/apple.mrs
+    proxy: DIRECT
+  icloud:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/icloud.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/icloud.mrs
+    proxy: DIRECT
+  telegram:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/telegram.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/telegram.mrs
+    proxy: DIRECT
+  telegram-ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/telegram-ip.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/telegram.mrs
+    proxy: DIRECT
+  twitter:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/twitter.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/twitter.mrs
+    proxy: DIRECT
+  twitter-ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/twitter-ip.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/twitter.mrs
+    proxy: DIRECT
+  facebook:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/facebook.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/facebook.mrs
+    proxy: DIRECT
+  facebook-ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/facebook-ip.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/facebook.mrs
+    proxy: DIRECT
+  instagram:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/instagram.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/instagram.mrs
+    proxy: DIRECT
+  whatsapp:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/whatsapp.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/whatsapp.mrs
+    proxy: DIRECT
+  discord:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/discord.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/discord.mrs
+    proxy: DIRECT
+  tiktok:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/tiktok.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tiktok.mrs
+    proxy: DIRECT
+  line:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/line.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/line.mrs
+    proxy: DIRECT
+  reddit:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/reddit.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/reddit.mrs
+    proxy: DIRECT
+  linkedin:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/linkedin.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/linkedin.mrs
+    proxy: DIRECT
+  snap:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/snap.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/snap.mrs
+    proxy: DIRECT
+  pinterest:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/pinterest.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/pinterest.mrs
+    proxy: DIRECT
+  tumblr:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/tumblr.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tumblr.mrs
+    proxy: DIRECT
+  steam:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/steam.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/steam.mrs
+    proxy: DIRECT
+  epicgames:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/epicgames.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/epicgames.mrs
+    proxy: DIRECT
+  ea:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/ea.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ea.mrs
+    proxy: DIRECT
+  ubisoft:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/ubisoft.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ubisoft.mrs
+    proxy: DIRECT
+  blizzard:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/blizzard.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/blizzard.mrs
+    proxy: DIRECT
+  gog:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/gog.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/gog.mrs
+    proxy: DIRECT
+  riot:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/riot.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/riot.mrs
+    proxy: DIRECT
+  playstation:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/playstation.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/playstation.mrs
+    proxy: DIRECT
+  xbox:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/xbox.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/xbox.mrs
+    proxy: DIRECT
+  nintendo:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/nintendo.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/nintendo.mrs
+    proxy: DIRECT
+  github:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/github.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/github.mrs
+    proxy: DIRECT
+  gitlab:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/gitlab.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/gitlab.mrs
+    proxy: DIRECT
+  atlassian:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/atlassian.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/atlassian.mrs
+    proxy: DIRECT
+  aws:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/aws.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/aws.mrs
+    proxy: DIRECT
+  azure:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/azure.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/azure.mrs
+    proxy: DIRECT
+  cloudflare:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/cloudflare.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cloudflare.mrs
+    proxy: DIRECT
+  cloudflare-ip:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/cloudflare-ip.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cloudflare.mrs
+    proxy: DIRECT
+  digitalocean:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/digitalocean.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/digitalocean.mrs
+    proxy: DIRECT
+  vercel:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/vercel.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/vercel.mrs
+    proxy: DIRECT
+  netlify:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/netlify.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/netlify.mrs
+    proxy: DIRECT
+  docker:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/docker.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/docker.mrs
+    proxy: DIRECT
+  npmjs:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/npmjs.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/npmjs.mrs
+    proxy: DIRECT
+  jetbrains:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/jetbrains.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/jetbrains.mrs
+    proxy: DIRECT
+  stackexchange:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/stackexchange.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/stackexchange.mrs
+    proxy: DIRECT
+  mozilla:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/mozilla.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/mozilla.mrs
+    proxy: DIRECT
+  golang:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/golang.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/golang.mrs
+    proxy: DIRECT
+  rust:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/rust.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/rust.mrs
+    proxy: DIRECT
+  python:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/python.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/python.mrs
+    proxy: DIRECT
+  archlinux:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/archlinux.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/archlinux.mrs
+    proxy: DIRECT
+  kernel:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/kernel.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/kernel.mrs
+    proxy: DIRECT
+  dropbox:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/dropbox.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/dropbox.mrs
+    proxy: DIRECT
+  notion:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/notion.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/notion.mrs
+    proxy: DIRECT
+  paypal:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/paypal.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/paypal.mrs
+    proxy: DIRECT
+  stripe:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/stripe.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/stripe.mrs
+    proxy: DIRECT
+  wise:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/wise.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/wise.mrs
+    proxy: DIRECT
+  category-scholar-!cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/category-scholar-!cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-scholar-!cn.mrs
+    proxy: DIRECT
+  coursera:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/coursera.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/coursera.mrs
+    proxy: DIRECT
+  udemy:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/udemy.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/udemy.mrs
+    proxy: DIRECT
+  edx:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/edx.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/edx.mrs
+    proxy: DIRECT
+  khanacademy:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/khanacademy.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/khanacademy.mrs
+    proxy: DIRECT
+  wikimedia:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/wikimedia.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/wikimedia.mrs
+    proxy: DIRECT
+  bbc:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/bbc.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bbc.mrs
+    proxy: DIRECT
+  cnn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/cnn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cnn.mrs
+    proxy: DIRECT
+  nytimes:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/nytimes.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/nytimes.mrs
+    proxy: DIRECT
+  wsj:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/wsj.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/wsj.mrs
+    proxy: DIRECT
+  bloomberg:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/bloomberg.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/bloomberg.mrs
+    proxy: DIRECT
+  amazon:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/amazon.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/amazon.mrs
+    proxy: DIRECT
+  ebay:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/ebay.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/ebay.mrs
+    proxy: DIRECT
+  category-porn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/category-porn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-porn.mrs
+    proxy: DIRECT
+  geolocation-cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/geolocation-cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-cn.mrs
+    proxy: DIRECT
+  geolocation-!cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/geolocation-!cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs
+    proxy: DIRECT
+  cn:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    path: "/etc/nikki/run/providers/rule/cn.mrs"
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs
+    proxy: DIRECT
+rules:
+- "RULE-SET,geoip-private,\U0001F3E0 私有网络,no-resolve"
+- "RULE-SET,geosite-private,\U0001F3E0 私有网络"
+- DOMAIN-SUFFIX,local,DIRECT
+- DOMAIN-SUFFIX,lan,DIRECT
+- DOMAIN-SUFFIX,msftconnecttest.com,DIRECT
+- DOMAIN-SUFFIX,msftncsi.com,DIRECT
+- "RULE-SET,category-ads,\U0001F6D1 广告拦截"
+- "RULE-SET,UK-wifi-call,\U0001F1EC\U0001F1E7 英国"
+- "RULE-SET,HK-wifi-call,\U0001F1ED\U0001F1F0 香港"
+- "RULE-SET,DE-wifi-call,\U0001F1E9\U0001F1EA 德国"
+- "RULE-SET,bytedance-!cn,\U0001F30D 非中国"
+- "RULE-SET,category-cdn-cn,\U0001F512 国内服务"
+- "RULE-SET,category-httpdns-cn,\U0001F512 国内服务"
+- "DOMAIN-SUFFIX,seagm.com,\U0001F512 国内服务"
+- "DOMAIN-SUFFIX,oyunfor.com,\U0001F512 国内服务"
+- "DOMAIN-SUFFIX,tello.com,\U0001F512 国内服务"
+- "DOMAIN-SUFFIX,esim.cc,\U0001F680 节点选择"
+- "DOMAIN-SUFFIX,linuxdo.org,\U0001F512 国内服务"
+- "DOMAIN-SUFFIX,cursor-cdn.com,\U0001F916 AI 服务"
+- "DOMAIN-SUFFIX,cursor.com,\U0001F916 AI 服务"
+- "DOMAIN-SUFFIX,cursor.sh,\U0001F916 AI 服务"
+- "DOMAIN-SUFFIX,cursorapi.com,\U0001F916 AI 服务"
+- "RULE-SET,openai,\U0001F916 AI 服务"
+- "RULE-SET,anthropic,\U0001F916 AI 服务"
+- "RULE-SET,category-ai-chat-!cn,\U0001F916 AI 服务"
+- "RULE-SET,proxy-domains-extra,\U0001F680 节点选择"
+- "RULE-SET,youtube,\U0001F4F9 油管视频"
+- "RULE-SET,netflix,\U0001F3AC 奈飞"
+- "RULE-SET,netflix-ip,\U0001F3AC 奈飞,no-resolve"
+- "RULE-SET,disney,\U0001F3F0 迪士尼+"
+- "RULE-SET,apple-tvplus,\U0001F4FA 欧美流媒体"
+- "RULE-SET,hbo,\U0001F4FA 欧美流媒体"
+- "RULE-SET,hulu,\U0001F4FA 欧美流媒体"
+- "RULE-SET,primevideo,\U0001F4FA 欧美流媒体"
+- "RULE-SET,spotify,\U0001F4FA 欧美流媒体"
+- "RULE-SET,twitch,\U0001F4FA 欧美流媒体"
+- "RULE-SET,dazn,\U0001F4FA 欧美流媒体"
+- "RULE-SET,bahamut,\U0001F38C 亚洲流媒体"
+- "RULE-SET,biliintl,\U0001F38C 亚洲流媒体"
+- "RULE-SET,niconico,\U0001F38C 亚洲流媒体"
+- "RULE-SET,abema,\U0001F38C 亚洲流媒体"
+- "RULE-SET,viu,\U0001F38C 亚洲流媒体"
+- "RULE-SET,kktv,\U0001F38C 亚洲流媒体"
+- "RULE-SET,telegram,\U0001F4F2 电报消息"
+- "RULE-SET,telegram-ip,\U0001F4F2 电报消息,no-resolve"
+- "RULE-SET,twitter,\U0001F426 推特/X"
+- "RULE-SET,twitter-ip,\U0001F426 推特/X,no-resolve"
+- "RULE-SET,facebook,\U0001F4D8 Meta 系"
+- "RULE-SET,instagram,\U0001F4D8 Meta 系"
+- "RULE-SET,whatsapp,\U0001F4D8 Meta 系"
+- "RULE-SET,facebook-ip,\U0001F4D8 Meta 系,no-resolve"
+- "RULE-SET,discord,\U0001F399️ Discord"
+- "RULE-SET,tiktok,\U0001F4AC 其他社交"
+- "RULE-SET,line,\U0001F4AC 其他社交"
+- "RULE-SET,reddit,\U0001F4AC 其他社交"
+- "RULE-SET,linkedin,\U0001F4AC 其他社交"
+- "RULE-SET,snap,\U0001F4AC 其他社交"
+- "RULE-SET,pinterest,\U0001F4AC 其他社交"
+- "RULE-SET,tumblr,\U0001F4AC 其他社交"
+- "RULE-SET,apple,\U0001F34F 苹果服务"
+- "RULE-SET,icloud,\U0001F34F 苹果服务"
+- "RULE-SET,microsoft-cn,\U0001F512 国内服务"
+- RULE-SET,microsoft,Ⓜ️ 微软服务
+- RULE-SET,onedrive,Ⓜ️ 微软服务
+- "RULE-SET,google,\U0001F50D 谷歌服务"
+- "RULE-SET,google-ip,\U0001F50D 谷歌服务,no-resolve"
+- "RULE-SET,steam,\U0001F3AE Steam"
+- "RULE-SET,epicgames,\U0001F5A5️ PC 游戏"
+- "RULE-SET,ea,\U0001F5A5️ PC 游戏"
+- "RULE-SET,ubisoft,\U0001F5A5️ PC 游戏"
+- "RULE-SET,blizzard,\U0001F5A5️ PC 游戏"
+- "RULE-SET,gog,\U0001F5A5️ PC 游戏"
+- "RULE-SET,riot,\U0001F5A5️ PC 游戏"
+- "RULE-SET,playstation,\U0001F3AF 主机游戏"
+- "RULE-SET,xbox,\U0001F3AF 主机游戏"
+- "RULE-SET,nintendo,\U0001F3AF 主机游戏"
+- "RULE-SET,github,\U0001F431 代码托管"
+- "RULE-SET,gitlab,\U0001F431 代码托管"
+- "RULE-SET,atlassian,\U0001F431 代码托管"
+- "RULE-SET,docker,\U0001F6E0️ 开发工具"
+- "RULE-SET,npmjs,\U0001F6E0️ 开发工具"
+- "RULE-SET,jetbrains,\U0001F6E0️ 开发工具"
+- "RULE-SET,stackexchange,\U0001F6E0️ 开发工具"
+- "RULE-SET,mozilla,\U0001F6E0️ 开发工具"
+- "RULE-SET,golang,\U0001F6E0️ 开发工具"
+- "RULE-SET,rust,\U0001F6E0️ 开发工具"
+- "RULE-SET,python,\U0001F6E0️ 开发工具"
+- "RULE-SET,archlinux,\U0001F6E0️ 开发工具"
+- "RULE-SET,kernel,\U0001F6E0️ 开发工具"
+- RULE-SET,aws,☁️ 云服务
+- RULE-SET,azure,☁️ 云服务
+- RULE-SET,cloudflare,☁️ 云服务
+- RULE-SET,digitalocean,☁️ 云服务
+- RULE-SET,vercel,☁️ 云服务
+- RULE-SET,netlify,☁️ 云服务
+- RULE-SET,cloudflare-ip,☁️ 云服务,no-resolve
+- "RULE-SET,dropbox,\U0001F4BE 网盘存储"
+- "RULE-SET,notion,\U0001F4BE 网盘存储"
+- "RULE-SET,paypal,\U0001F4B3 支付平台"
+- "RULE-SET,stripe,\U0001F4B3 支付平台"
+- "RULE-SET,wise,\U0001F4B3 支付平台"
+- "RULE-SET,category-scholar-!cn,\U0001F4DA 教育学术"
+- "RULE-SET,coursera,\U0001F4DA 教育学术"
+- "RULE-SET,udemy,\U0001F4DA 教育学术"
+- "RULE-SET,edx,\U0001F4DA 教育学术"
+- "RULE-SET,khanacademy,\U0001F4DA 教育学术"
+- "RULE-SET,wikimedia,\U0001F4DA 教育学术"
+- "RULE-SET,bbc,\U0001F4F0 新闻资讯"
+- "RULE-SET,cnn,\U0001F4F0 新闻资讯"
+- "RULE-SET,nytimes,\U0001F4F0 新闻资讯"
+- "RULE-SET,wsj,\U0001F4F0 新闻资讯"
+- "RULE-SET,bloomberg,\U0001F4F0 新闻资讯"
+- "RULE-SET,amazon,\U0001F6D2 海淘购物"
+- "RULE-SET,ebay,\U0001F6D2 海淘购物"
+- "RULE-SET,category-porn,\U0001F51E 成人内容"
+- "RULE-SET,US-wifi-call,\U0001F1FA\U0001F1F8 美国"
+- "RULE-SET,geolocation-!cn,\U0001F30D 非中国"
+- "MATCH,\U0001F41F 漏网之鱼"

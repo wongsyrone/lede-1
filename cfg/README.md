@@ -59,10 +59,11 @@ You can modify options using native OpenWrt mechanisms:
   ```bash
   cat << 'EOF' >> .config
   CONFIG_PACKAGE_nikki=y
+  CONFIG_PACKAGE_nikki-profile-default=y
   CONFIG_PACKAGE_luci-app-nikki=y
   CONFIG_PACKAGE_zerotier=y
   # CONFIG_PACKAGE_ipt2socks is not set
-  # CONFIG_PACKAGE_trojan is not set
+  CONFIG_PACKAGE_trojan=y
   EOF
   ```
 * **Interactive TUI**:
@@ -181,19 +182,25 @@ When migrating historical ~300 KB configs to modern minimal defconfigs:
    ```bash
    cp cfg/<target> .config
    ```
-2. **Apply Delta Fragment (Disable Obsolete Proxies & Enable Modern Replacements)**:
+2. **Apply Delta Fragment (Retire Legacy Redirection; Keep Standalone Trojan)**:
    ```bash
    cat << 'EOF' >> .config
    # CONFIG_PACKAGE_ipt2socks is not set
    # CONFIG_PACKAGE_transocks-wong is not set
-   # CONFIG_PACKAGE_trojan is not set
+   CONFIG_PACKAGE_trojan=y
    # CONFIG_PACKAGE_v2ray is not set
    # CONFIG_PACKAGE_pdnsd is not set
    CONFIG_PACKAGE_nikki=y
+   CONFIG_PACKAGE_nikki-profile-default=y
    CONFIG_PACKAGE_luci-app-nikki=y
    CONFIG_PACKAGE_zerotier=y
    EOF
    ```
+   Standalone Trojan remains a SOCKS upstream for Mihomo. Keep its configuration and
+   enabled state; the default profile package extends Nikki's existing scoped bypass
+   with `services/trojan`. Do not bypass the entire root UID or restore an old Trojan
+   binary/init script over the version shipped in the new firmware. The profile package
+   enables cgroups and socket cgroup support required by Nikki's process bypasses.
 3. **Re-expand against Active Kernel & Toolchain**:
    ```bash
    make defconfig

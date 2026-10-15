@@ -1,0 +1,31 @@
+---
+payload:
+- DOMAIN-KEYWORD,mcc310
+- DOMAIN-SUFFIX,mobilefuse.com
+- DOMAIN-SUFFIX,inmobi.com
+- DOMAIN-SUFFIX,crashlytics.com
+- DOMAIN-SUFFIX,talkatone.com
+- DOMAIN-SUFFIX,kochava.com
+- DOMAIN-SUFFIX,tktn.be
+- DOMAIN-SUFFIX,cohere.com
+- DOMAIN-SUFFIX,ip-api.com
+- DOMAIN-SUFFIX,agkn.com
+- DOMAIN-SUFFIX,tktn.at
+- DOMAIN-SUFFIX,inner-active.mobi
+- DOMAIN-SUFFIX,att.com
+- DOMAIN-SUFFIX,att.net
+- IP-CIDR,50.117.27.0/24,no-resolve
+- IP-CIDR,69.46.75.0/24,no-resolve
+- IP-CIDR,205.164.56.0/24,no-resolve
+- IP-CIDR,63.251.124.0/24,no-resolve
+- IP-CIDR,216.172.154.0/24,no-resolve
+- IP-CIDR,66.94.0.0/19,no-resolve
+- IP-CIDR,206.29.177.36/32,no-resolve
+- IP-CIDR,208.54.0.0/16,no-resolve
+- DOMAIN-KEYWORD,t-mobile
+- DOMAIN-SUFFIX,optimizely.com
+- DOMAIN-SUFFIX,redirect.ultra.me
+- DOMAIN-SUFFIX,ultramobile.com
+- DOMAIN-SUFFIX,mvnoc.ai
+- DOMAIN-SUFFIX,mzstatic.com
+- IP-CIDR,107.64.0.0/10,no-resolve

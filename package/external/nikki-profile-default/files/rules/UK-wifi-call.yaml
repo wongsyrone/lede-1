@@ -1,0 +1,12 @@
+---
+payload:
+- DOMAIN-KEYWORD,mcc234
+- DOMAIN-SUFFIX,entsrv-uk.vodafone.com
+- DOMAIN-SUFFIX,vuk-gto.prod.ondemandconnectivity.com
+- IP-CIDR,88.82.0.0/19,no-resolve
+- IP-CIDR,148.252.160.0/19,no-resolve
+- DOMAIN,vfgb.idemia.io
+- IP-CIDR,46.68.0.0/17,no-resolve
+- IP-CIDR,87.194.0.0/16,no-resolve
+- DOMAIN-SUFFIX,ct.ee.co.uk
+- IP-CIDR,31.94.0.0/16,no-resolve

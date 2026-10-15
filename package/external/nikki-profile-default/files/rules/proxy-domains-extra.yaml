@@ -1,0 +1,16 @@
+---
+payload:
+- DOMAIN-SUFFIX,maven.apache.org
+- DOMAIN-SUFFIX,maven.org
+- DOMAIN-SUFFIX,sonatype.org
+- DOMAIN-SUFFIX,gradle.org
+- DOMAIN-SUFFIX,bintray.com
+- DOMAIN-SUFFIX,amazonaws.com
+- DOMAIN-SUFFIX,typora.io
+- DOMAIN-SUFFIX,princeton.edu
+- DOMAIN-SUFFIX,berkeley.edu
+- DOMAIN-SUFFIX,qt.io
+- DOMAIN-SUFFIX,greatfire.org
+- DOMAIN-SUFFIX,torproject.org
+- DOMAIN,anyrouter.top
+- DOMAIN-SUFFIX,wireshark.org
