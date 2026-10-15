@@ -111,7 +111,7 @@ enum l2_entry_type {
  */
 struct rtldsa_l2_uc {
 	bool fdb_ref:1;		/* written by an fdb handler */
-	u8 l3_refcount:7;	/* routes forwarding through it */
+	u16 l3_refcount:15;	/* routes forwarding through it */
 };
 
 struct rtl838x_l2_entry {
@@ -359,10 +359,10 @@ struct rtldsa_config {
 	int imr_glb;
 	int n_counters;
 	int n_pie_blocks;
-	/* PIE rule ID doubles as the LOG-table counter ID (RTL930x); also
-	 * gates ingress cls_flower offload, which relies on that property.
-	 */
+	/* PIE rule ID doubles as the LOG-table counter ID (RTL930x) */
 	bool pie_rule_id_is_log_counter;
+	/* The PIE takes ingress tc flower rules */
+	bool pie_cls_flower;
 	u8 num_lag_ids;
 	u8 cpu_port;
 	u8 port_ignore;
@@ -482,13 +482,15 @@ struct rtldsa_config {
 	int (*lag_set_distribution_algorithm)(struct rtl838x_switch_priv *priv,
 					      int group, int algoidx,
 					      u32 algomask);
-	void (*lag_set_local_group_id)(int local_group, int global_group, bool valid);
+	void (*lag_set_local_group_id)(struct rtl838x_switch_priv *priv,
+				       int local_group, int global_group, bool valid);
 	void (*lag_write_data)(u32 data[], struct rtldsa_93xx_lag_entry *e);
 	void (*lag_fill_data)(u32 data[], struct rtldsa_93xx_lag_entry *e);
-	void (*lag_set_local_port2group)(int group, int port, bool valid);
+	void (*lag_set_local_port2group)(struct rtl838x_switch_priv *priv,
+					 int group, int port, bool valid);
 	void (*lag_set_port2group)(int group, int port, bool valid);
 	int (*lag_table)(void);
-	void (*lag_sync_tables)(void);
+	void (*lag_sync_tables)(struct rtl838x_switch_priv *priv);
 };
 
 struct rtl838x_switch_priv {
