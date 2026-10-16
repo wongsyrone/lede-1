@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=nikki-profile-default
 PKG_VERSION:=2026.10.16
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_LICENSE:=GPL-3.0-only
 PKG_LICENSE_FILES:=LICENSE.rules
 PKG_FILE_DEPENDS:=$(CURDIR)/rules.mk

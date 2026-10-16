@@ -14,7 +14,9 @@ default; an empty node file does not provide working proxy service.
   upstream keep.d also preserves profiles and provider data on later upgrades.
 - The first-boot script only replaces an empty/default-placeholder selection
   while Nikki is disabled. It leaves enabled/user-selected profiles, credentials
-  and unrelated UCI settings alone. The default API binds to localhost.
+  and unrelated UCI settings alone, including the API listen address. Nikki's
+  upstream default is `[::]:9090`, allowing the dashboard to connect from LAN
+  clients subject to the configured API secret and firewall policy.
 - The script adds `services/trojan` to Nikki's existing scoped business-traffic
   bypass and sends its DNS, including dnsmasq's public forwarding, through Mihomo.
   It does not create a cgroup-only rule: upstream filters missing cgroups,

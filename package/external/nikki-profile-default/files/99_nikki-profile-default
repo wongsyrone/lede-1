@@ -38,7 +38,6 @@ esac
 # Never replace an enabled or user-selected profile, even if its file is temporarily unavailable.
 if [ "$select_default" = 1 ] && [ "$(uci -q get nikki.config.enabled)" = 0 ]; then
     uci set nikki.config.profile='file:default.yaml' || exit 1
-    uci set nikki.mixin.api_listen='127.0.0.1:9090' || exit 1
     uci set nikki.mixin.dns_direct_nameserver_follow_policy='1' || exit 1
     changed=1
     profile='file:default.yaml'
