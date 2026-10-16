@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=nikki-profile-default
-PKG_VERSION:=2026.10.15
+PKG_VERSION:=2026.10.16
 PKG_RELEASE:=1
 PKG_LICENSE:=GPL-3.0-only
 PKG_LICENSE_FILES:=LICENSE.rules
@@ -14,7 +14,7 @@ define Package/nikki-profile-default
   CATEGORY:=Network
   TITLE:=Public router profile and initial rule data for Nikki
   PKGARCH:=all
-  DEPENDS:=+nikki +@KERNEL_CGROUPS +@KERNEL_CGROUP_BPF
+  DEPENDS:=+nikki +nikki-service-guard +@KERNEL_CGROUPS +@KERNEL_CGROUP_BPF
 endef
 
 define RuleDownload

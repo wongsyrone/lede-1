@@ -56,6 +56,11 @@ use native keep.d/conffiles rather than requiring this tool again.
   other UCI include paths are refused.
   Remove only recognized old default-server and per-domain proxy fragments.
   Preserve address/host-record/CNAME/SRV records in `migration-local.conf`.
+  Add `local=/lan/`, `local=/local/` and `bogus-priv` there so local names and
+  private reverse lookups terminate without a Mihomo/dnsmasq forwarding loop.
+  When Nikki is enabled, the guard captures public port 53 into Mihomo and
+  blocks plaintext output during a core failure; these base upstreams are used
+  directly again only after an explicit Nikki disable.
 - Remove `setmefree`/`setmefree6` UCI sets and `20-setmefree.nft`, preserving
   SSH filtering and ZeroTier's nft fragment.
 - Change the three existing named `zt_rule_allow*` protocols to UDP, retaining
@@ -64,6 +69,9 @@ use native keep.d/conffiles rather than requiring this tool again.
 - Keep `/etc/config/trojan`, `/etc/trojan.json` and the native disabled-services
   hook exactly. Keep the existing Trojan LAN-IP:1081 listener. Do not restore
   old `/usr/sbin/trojan` or `/etc/init.d/trojan` over firmware-provided versions.
+  Add only that verified local SOCKS listener to
+  `/etc/nikki/guard/providers/trojan.yaml`, with mode 0600 and no remote secrets.
+  An existing different provider is refused for separate review.
 - Exclude saved config/init/binaries/rc links for pdnsd, transocks,
   transocks-wong, ipt2socks and v2ray, plus their recognized standalone config
   paths and v2ctl. Remove those explicit retention lines from sysupgrade.conf;
@@ -121,5 +129,8 @@ Prepare and verify everything while the old router still serves the network.
 The outage should contain only flashing, reboot and base-network recovery.
 Confirm WAN/LAN/SSH/DHCP/DNS and bidirectional ZeroTier TCP/UDP/ICMP before
 separately enabling Nikki. Verify Trojan SOCKS, subscription bootstrap and
-cgroup bypass; stop Nikki before restarting Trojan and start Nikki afterwards.
+cgroup bypass. With the current managed profile, the service guard handles
+native restarts, refreshes cgroup rules and withdraws unready listeners. Confirm
+that its runtime state admits the intended listener after a restart; an older
+or custom profile needs the managed providers and DNS policies integrated first.
 Measure recovery times in the VM and keep a tested old-image/disk recovery path.

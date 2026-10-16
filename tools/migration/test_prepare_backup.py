@@ -207,6 +207,15 @@ class BackupTest(unittest.TestCase):
                 self.assertNotIn(b"/usr/sbin/v2ray", entries["etc/sysupgrade.conf"][1])
                 self.assertIn(b"address=/my-router.lan/127.0.0.1", entries["etc/dnsmasq.d/migration-local.conf"][1])
                 self.assertNotIn(b"222.222", entries["etc/dnsmasq.d/migration-local.conf"][1])
+                self.assertIn(b"local=/lan/\nlocal=/local/\nbogus-priv\n",
+                              entries["etc/dnsmasq.d/migration-local.conf"][1])
+                provider_path = "etc/nikki/guard/providers/trojan.yaml"
+                self.assertEqual(json.loads(entries[provider_path][1]), {"proxies": [{
+                    "name": "standalone-trojan", "type": "socks5",
+                    "server": device, "port": 1081, "udp": True,
+                }]})
+                self.assertEqual(entries[provider_path][0].mode, 0o600)
+                self.assertNotIn(b"fake-trojan-secret", entries[provider_path][1])
                 self.assertNotIn("fake-trojan-secret", json.dumps(plan))
                 self.assertNotIn("FAKE-HASH", json.dumps(plan))
                 self.assertTrue(any(c["action"] == "exclude" for c in plan["changes"]))
@@ -223,6 +232,17 @@ class BackupTest(unittest.TestCase):
         self.assertEqual(again["etc/zerotier/identity.secret"][0].mode, 0o600)
         with self.assertRaises(FileExistsError):
             migration.write_backup(output, entries)
+
+    def test_existing_different_provider_or_forwarding_local_fragment_rejected(self):
+        for path, data in (
+            ("etc/nikki/guard/providers/trojan.yaml", b'{"proxies":[]}'),
+            ("etc/nikki/guard/providers/trojan.yaml", b"proxies: []\n"),
+            ("etc/dnsmasq.d/migration-local.conf", b"server=/lan/127.0.0.1#1053\n"),
+        ):
+            files = fixture("10.0.0.1")
+            files[path] = data
+            with self.subTest(path=path, data=data), self.assertRaises(migration.Rejected):
+                self.prepare(self.archive(files))
 
     def test_wrong_device_or_identity_rejected(self):
         source = self.archive(fixture("10.0.0.1"))

@@ -7,7 +7,7 @@ providers = profile.fetch('rule-providers')
 groups = profile.fetch('proxy-groups')
 group_names = groups.map { |g| g.fetch('name') }
 raise 'duplicate groups' unless group_names.uniq == group_names
-raise 'missing classification groups' unless groups.length == 43
+raise 'missing classification groups' unless groups.length == 44
 raise 'embedded private proxies' unless profile.fetch('proxies').empty?
 raise 'nonempty public node file' unless YAML.safe_load_file(File.join(package, 'files/user.yaml')) == {'proxies' => []}
 raise 'Nikki owns listeners and routing' if (profile.keys & %w[tun listeners external-controller secret interface-name]).any?
@@ -42,7 +42,14 @@ profile.fetch('rules').each do |rule|
   raise "unresolved rule target: #{target}" unless targets.include?(target)
 end
 dns = profile.fetch('dns')
-raise 'local DNS loopback not explicit' unless dns.fetch('nameserver-policy').fetch('+.lan,+.local,+.in-addr.arpa,+.ip6.arpa') == ['127.0.0.1:53']
+local_policy = dns.fetch('nameserver-policy').find { |key, _| key.start_with?('+.lan,+.local,') }
+raise 'local DNS loopback not explicit' unless local_policy && local_policy.last == ['127.0.0.1:53']
+raise 'public PTR must use encrypted upstreams' if local_policy.first.include?('+.in-addr.arpa,') || local_policy.first.end_with?('+.ip6.arpa')
+%w[default-nameserver proxy-server-nameserver nameserver direct-nameserver].each do |key|
+  raise 'plaintext DNS' unless dns.fetch(key).all? { |s| s.start_with?('https://', 'tls://') }
+end
+raise 'external node policy must win' unless dns.fetch('nameserver-policy').keys.first == 'rule-set:external-proxy-domains'
+raise 'local authority must precede classification' unless dns.fetch('nameserver-policy').keys[1].start_with?('+.lan,+.local,')
 dns.fetch('nameserver-policy').each_key do |key|
   references.concat(key.delete_prefix('rule-set:').split(',')) if key.start_with?('rule-set:')
 end
@@ -59,6 +66,13 @@ raise 'missing immutable source' unless revision
 downloads = pins.scan(/^\$\(eval \$\(call RuleDownload,([^,]+),([^,]+),([a-f0-9]{64})\)\)$/).to_h { |name, path, hash| [name, [path, hash]] }
 providers.each do |name, provider|
   path = provider.fetch('path')
+  if name == 'external-proxy-domains'
+    raise 'unexpected native domain provider' unless provider == {
+      'type' => 'file', 'behavior' => 'domain', 'format' => 'yaml',
+      'path' => '/var/run/nikki-service-guard/domains.yaml'
+    }
+    next
+  end
   raise 'provider escapes Nikki directory' unless File.dirname(path) == '/etc/nikki/run/providers/rule'
   if provider['type'] == 'http'
     source, hash = downloads.fetch(name)

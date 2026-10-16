@@ -15,8 +15,9 @@ default; an empty node file does not provide working proxy service.
 - The first-boot script only replaces an empty/default-placeholder selection
   while Nikki is disabled. It leaves enabled/user-selected profiles, credentials
   and unrelated UCI settings alone. The default API binds to localhost.
-- The script adds `services/trojan` only to Nikki's existing scoped DNS/proxy
-  bypass. It does not create a cgroup-only rule: upstream filters missing cgroups,
+- The script adds `services/trojan` to Nikki's existing scoped business-traffic
+  bypass and sends its DNS, including dnsmasq's public forwarding, through Mihomo.
+  It does not create a cgroup-only rule: upstream filters missing cgroups,
   so such a rule could become an unconditional bypass when Trojan is absent.
   Unknown/custom access-control layouts require manual integration; the script
   does not rewrite them. Kernel cgroups and socket cgroup support are selected.
@@ -28,31 +29,44 @@ service's enabled/disabled state. Do not restore an old executable or init scrip
 over the version shipped in new firmware. Do not change an existing LAN-IP:1081
 listener to loopback without considering its existing clients.
 
-For an existing listener, add a private SOCKS5 node to `user.yaml`, for example:
+The offline migration tool creates a private entry for the verified existing
+listener in `/etc/nikki/guard/providers/trojan.yaml`, for example:
 
 ```yaml
 proxies:
   - name: standalone-trojan
     type: socks5
-    server: 192.0.2.1 # Replace with the service's actual listening address.
+    server: 192.0.2.1 # Use an address owned by this router.
     port: 1081
     udp: true
 ```
 
-For subscription bootstrap, define the SOCKS node in the private profile's
-top-level `proxies` (or Nikki's `nikki-proxies` mixin) and use its name as the
-subscription's `proxy`. It must be available before subscriptions are fetched.
-Keep private profiles outside Git and select them through Nikki rather than
-adding credentials to this package.
+Do not also put this managed entry in `user.yaml`: the unmanaged duplicate could
+remain selectable after the service is withdrawn. The `Native Trojan` group
+requires this independent implementation and rejects traffic when unavailable.
+Ordinary groups may select other healthy exits according to their own policy.
 
-Trojan boots at S95 and Nikki at S99. Verify the actual Trojan cgroup before
-enabling Nikki, and keep Trojan's bootstrap DNS independent of Nikki.
+`nikki-service-guard` prepares RAM providers at S90, gates the native Trojan
+process at S95, and waits for Nikki's encrypted bootstrap resolver at S99.
+procd owns finite crash recovery. The watcher checks service notifications and
+cgroup identity, renders Nikki's upstream rules under its native lock, and uses
+the provider API to admit or withdraw local listeners without a core restart.
+It derives native domains from the unchanged Trojan JSON and excludes them from
+fake-IP using a dynamic rule provider. Address validation reads the effective
+IPv4/IPv6 CIDRs after Nikki's UCI mixin; the profile's original pool may differ.
 
-`shortcut:` Nikki resolves service cgroups while generating firewall rules;
-after stopping/restarting Trojan, stop/restart Nikki around that operation until
-upstream supports cgroup lifecycle updates. Do not assume an old nft cgroup ID
-continues matching a recreated service. This ordering must be tested in a VM.
-No daemon watcher or fork of Nikki's firewall implementation is added here.
+The normal public DNS pools use encrypted transport. While Nikki remains
+enabled, its separate DNS guard keeps managed LAN port 53 captured and blocks
+plaintext public forwarding during a core failure or stop. An explicit user
+disable permits the base-network dnsmasq upstreams again. Local `.lan`/`.local`
+and private reverse zones must terminate in dnsmasq; the migration tool adds
+the required local boundaries. Application DoH is outside port 53 interception.
+
+The guard's supported profile structure is explicit; it does not convert an
+arbitrary third-party profile or overwrite a saved older/custom profile during
+sysupgrade. Adopt this profile's managed providers, policy ordering and
+`SAFE_PATHS` entry when integrating an existing custom profile. Keep all private
+sources outside Git, CI and firmware artifacts.
 
 ## Checks
 
@@ -78,7 +92,8 @@ UCI=/path/to/uci UCODE=/path/to/ucode YQ=/path/to/yq MIHOMO=/path/to/mihomo \
   python3 package/external/nikki-profile-default/tests/test_mixin.py
 ```
 
-These checks do not start transparent routing, test nft in the kernel, establish
-Trojan connections or exercise sysupgrade. VMware boot, WAN/LAN/DNS/ZeroTier,
-SOCKS TCP/UDP, subscription bootstrap, cgroup restart ordering and offline rule
+Also run the service guard's tests with the same native ucode and Mihomo.
+These host checks do not start transparent routing, test nft in the kernel,
+establish Trojan connections or exercise sysupgrade. VMware boot,
+WAN/LAN/DNS/ZeroTier, SOCKS TCP/UDP, cgroup restart ordering and offline rule
 loading remain separate acceptance gates. Do not flash based only on `-t`.

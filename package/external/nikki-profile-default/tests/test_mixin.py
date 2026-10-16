@@ -28,6 +28,13 @@ class MixinTest(unittest.TestCase):
         self.package_root = Path(os.environ["PKG_ROOT"])
         self.root = self.path / "root"
         shutil.copytree(self.package_root / "etc/nikki", self.root / "etc/nikki")
+        runtime = self.root / "var/run/nikki-service-guard"
+        runtime.mkdir(parents=True)
+        (runtime / "external-trojan.yaml").write_text(json.dumps({
+            "proxies": [{"name": "__guard_down__trojan", "type": "reject"}],
+        }))
+        (runtime / "domains.yaml").write_text('payload: []\n')
+        shutil.copyfile(defaults.PACKAGE / "files/default.yaml", self.root / "etc/nikki/profiles/default.yaml")
         self.modules = self.path / "modules"
         self.modules.mkdir()
         # Only ubus network status and host topology are mocked; UCI and generators are real.
@@ -64,10 +71,11 @@ class MixinTest(unittest.TestCase):
         self.assertEqual(data["dns"]["listen"], "[::]:1053")
         self.assertFalse(data["tun"]["auto-route"])
         self.assertFalse(data["tun"]["auto-redirect"])
+        self.assertTrue(data["dns"]["direct-nameserver-follow-policy"])
         self.assertEqual(data["socks-port"], 1080)  # Independent Trojan stays on 1081.
         for provider in [*data["proxy-providers"].values(), *data["rule-providers"].values()]:
             path = provider.get("path", "")
-            if path.startswith("/etc/nikki/"):
+            if path.startswith(("/etc/nikki/", "/var/run/nikki-service-guard/")):
                 provider["path"] = str(self.root / path.lstrip("/"))
                 self.assertTrue(Path(provider["path"]).is_file())
         final.write_text(json.dumps(data, ensure_ascii=False))
@@ -97,7 +105,7 @@ class MixinTest(unittest.TestCase):
                     cgroups.append("services/trojan")
                 template.write_text(source.replace("get_cgroups()", json.dumps(cgroups)))
                 rendered = self.run_command(self.ucode, "-L", str(self.modules), "-T", str(template))
-                self.assertEqual(rendered.count('"services/trojan"'), 3 if present else 0)
+                self.assertEqual(rendered.count('"services/trojan"'), 4 if present else 0)
                 self.assertNotRegex(rendered, r'meta (?:skuid|skgid) [^\n]*\broot\b')
                 chains = {name: rendered.split("\tchain " + name + " {", 1)[1].split("\n\t}", 1)[0]
                           for name in ("router_dns_hijack", "router_redirect", "router_tun")}

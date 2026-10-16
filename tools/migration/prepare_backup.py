@@ -218,7 +218,8 @@ def inspect_hooks(entries):
 
 def clean_dns(entries, replace, exclude):
     known = RULE_FILES | {"server.conf", "option.conf", "migration-local.conf"}
-    local_lines = []
+    # These namespaces must terminate locally when public DNS is captured by Mihomo.
+    local_lines = ["local=/lan/", "local=/local/", "bogus-priv"]
     for name, (item, data) in list(entries.items()):
         if not name.startswith("etc/dnsmasq.d/") or item.isdir():
             continue
@@ -247,7 +248,8 @@ def clean_dns(entries, replace, exclude):
                             "Unknown directive in legacy DNS fragment: " + name)
         exclude(name)
     if local_lines:
-        require(all(re.fullmatch(r"(address|host-record|cname|srv-host)=[^#]+", line) for line in local_lines),
+        require(all(re.fullmatch(r"(address|host-record|cname|srv-host)=[^#]+|local=/(lan|local)/|bogus-priv", line)
+                    for line in local_lines),
                 "Unexpected preserved local DNS content")
         replace("etc/dnsmasq.d/migration-local.conf", ("\n".join(dict.fromkeys(local_lines)) + "\n").encode())
     if "etc/dnsmasq.conf" in entries:
@@ -313,6 +315,19 @@ def prepare(source, device, identity_sha256, executable):
             raise Rejected("Invalid Trojan JSON") from None
         require(isinstance(trojan, dict) and trojan.get("run_type") == "client" and trojan.get("local_addr") == device
                 and trojan.get("local_port") == 1081, "Unexpected independent Trojan listener")
+        provider_path = "etc/nikki/guard/providers/trojan.yaml"
+        provider = {"proxies": [{"name": "standalone-trojan", "type": "socks5",
+                                 "server": device, "port": 1081, "udp": True}]}
+        if provider_path in entries:
+            info, data = entries[provider_path]
+            try:
+                existing = json.loads(data)
+            except (ValueError, UnicodeDecodeError):
+                raise Rejected("Existing managed Trojan provider needs separate review") from None
+            require(info.isfile() and info.uid == 0 and not info.mode & 0o022
+                    and existing == provider, "Existing managed Trojan provider needs separate review")
+        else:
+            replace(provider_path, (json.dumps(provider, indent=2) + "\n").encode())
         dns = only(dhcp, "dnsmasq")
         require(dns["options"].get("confdir") in (None, "/etc/dnsmasq.d")
                 and not any(k in dns["options"] for k in ("conf_file", "conf_file_path")),
@@ -387,6 +402,8 @@ def prepare(source, device, identity_sha256, executable):
             "Keep WAN/LAN/IPv6/modem/bridge/DHCP/authentication except the explicitly listed DNS fields.",
             "Remove only WAN DNS loopback entries; dnsmasq uses 119.29.29.29 and 114.114.114.114 with noresolv=1.",
             "Keep independent Trojan JSON/UCI and native disabled-service state unchanged.",
+            "Add only the verified local Trojan SOCKS listener to its managed provider; copy no remote credentials.",
+            "Terminate .lan/.local and private reverse DNS locally to prevent recursive public forwarding.",
             "Replace only the three dynamic ZeroTier input-rule protocols with UDP; keep ports/forwarding/NAT and all identity data.",
             "Exclude reviewed retired proxy files; preserve local DNS records and SSH/ZeroTier nft fragments.",
             "Nikki stays disabled during base-network recovery; enable it only after VMware and device acceptance.",

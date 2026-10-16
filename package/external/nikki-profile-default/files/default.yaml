@@ -42,6 +42,7 @@ dns:
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
+  - rule-set:external-proxy-domains
   - "+.lan"
   - "+.local"
   - "+.arpa"
@@ -122,14 +123,18 @@ dns:
   - "*.*.*.*.*.3gppnetwork.org"
   - "*.*.*.*.*.*.3gppnetwork.org"
   proxy-server-nameserver: &1
-  - 180.76.76.76
   - https://dns.pub/dns-query
   - https://doh.360.cn/dns-query
   - tls://dot.360.cn:853
   default-nameserver:
-  - 180.76.76.76
-  - 119.29.29.29
+  - https://223.5.5.5/dns-query
+  - https://223.6.6.6/dns-query
   nameserver-policy:
+    rule-set:external-proxy-domains:
+    - https://223.5.5.5/dns-query#DIRECT
+    - https://223.6.6.6/dns-query#DIRECT
+    "+.lan,+.local,+.10.in-addr.arpa,+.168.192.in-addr.arpa,+.16.172.in-addr.arpa,+.17.172.in-addr.arpa,+.18.172.in-addr.arpa,+.19.172.in-addr.arpa,+.20.172.in-addr.arpa,+.21.172.in-addr.arpa,+.22.172.in-addr.arpa,+.23.172.in-addr.arpa,+.24.172.in-addr.arpa,+.25.172.in-addr.arpa,+.26.172.in-addr.arpa,+.27.172.in-addr.arpa,+.28.172.in-addr.arpa,+.29.172.in-addr.arpa,+.30.172.in-addr.arpa,+.31.172.in-addr.arpa,+.d.f.ip6.arpa,+.c.f.ip6.arpa":
+    - 127.0.0.1:53
     rule-set:gfw,greatfire:
     - https://1.1.1.1/dns-query#dns-out
     - https://8.8.8.8/dns-query#dns-out
@@ -137,14 +142,19 @@ dns:
     : *1
     "+.music.163.com,+.126.net,+.kuwo.cn,+.kugou.com,+.taihe.com,+.migu.cn,+.xiami.com": *1
     debian.map.fastlydns.net: *1
-    "+.lan,+.local,+.in-addr.arpa,+.ip6.arpa":
-    - 127.0.0.1:53
   nameserver: *1
   direct-nameserver: *1
   direct-nameserver-follow-policy: true
   listen: "[::]:1053"
 proxies: []
 proxy-providers:
+  external-trojan:
+    type: file
+    path: "/var/run/nikki-service-guard/external-trojan.yaml"
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 120
   user:
     type: file
     path: "/etc/nikki/run/providers/proxy/user.yaml"
@@ -153,6 +163,13 @@ proxy-providers:
       url: https://www.gstatic.com/generate_204
       interval: 300
 proxy-groups:
+- name: Native Trojan
+  type: fallback
+  use:
+  - external-trojan
+  url: https://www.gstatic.com/generate_204
+  interval: 120
+  lazy: false
 - name: dns-out
   type: select
   proxies:
@@ -160,72 +177,90 @@ proxy-groups:
   - DIRECT
 - name: dns-auto
   type: fallback
+  proxies:
+  - REJECT
   include-all-providers: true
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   url: https://www.gstatic.com/generate_204
   interval: 120
   lazy: false
 - name: "\U0001F1ED\U0001F1F0 香港"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
   filter: "(?i)港|\\b(hk|hong\\s*kong)\\b"
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   tolerance: 100
   url: https://www.gstatic.com/generate_204
   interval: 300
 - name: "\U0001F1EF\U0001F1F5 日本"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
   filter: "(?i)日|\\b(jp|japan)\\b"
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   tolerance: 100
   url: https://www.gstatic.com/generate_204
   interval: 300
 - name: "\U0001F1F8\U0001F1EC 新加坡"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
   filter: "(?i)新|\\b(sg|singapore)\\b"
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   tolerance: 100
   url: https://www.gstatic.com/generate_204
   interval: 300
 - name: "\U0001F1F9\U0001F1FC 台湾"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
   filter: "(?i)台|\\b(tw|taiwan)\\b"
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   tolerance: 100
   url: https://www.gstatic.com/generate_204
   interval: 300
 - name: "\U0001F1F0\U0001F1F7 韩国"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
   filter: "(?i)韩|首|\\b(kr|south\\s*korea)\\b"
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   tolerance: 100
   url: https://www.gstatic.com/generate_204
   interval: 300
 - name: "\U0001F1FA\U0001F1F8 美国"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
   filter: "(?i)美|\\b(us|united\\s*states)\\b"
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   tolerance: 100
   url: https://www.gstatic.com/generate_204
   interval: 300
 - name: "\U0001F1EC\U0001F1E7 英国"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
   filter: "(?i)英|\\b(uk|gb|united\\s*kingdom)\\b"
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   tolerance: 100
   url: https://www.gstatic.com/generate_204
   interval: 300
 - name: "\U0001F1E9\U0001F1EA 德国"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
   filter: "(?i)德|\\b(de|germany)\\b"
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   tolerance: 100
   url: https://www.gstatic.com/generate_204
   interval: 300
@@ -236,11 +271,13 @@ proxy-groups:
   - DIRECT
   - REJECT
   include-all: true
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
 - name: "⚡ 自动选择"
   type: url-test
+  proxies:
+  - REJECT
   include-all-providers: true
-  exclude-filter: 剩|重置|到期|无法|更新|高倍率|域名
+  exclude-filter: ^__guard_down__|剩|重置|到期|无法|更新|高倍率|域名
   url: https://www.gstatic.com/generate_204
   interval: 300
   tolerance: 100
@@ -360,6 +397,11 @@ proxy-groups:
   - DIRECT
   - "\U0001F680 节点选择"
 rule-providers:
+  external-proxy-domains:
+    type: file
+    behavior: domain
+    format: yaml
+    path: "/var/run/nikki-service-guard/domains.yaml"
   proxy-domains-extra:
     type: file
     behavior: classical

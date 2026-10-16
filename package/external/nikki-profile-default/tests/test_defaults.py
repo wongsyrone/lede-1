@@ -52,6 +52,14 @@ class DefaultsTest(unittest.TestCase):
         self.assertEqual(self.uci("get", "nikki.config.enabled"), "0")
         self.assertEqual(self.uci("get", "nikki.mixin.api_listen"), "127.0.0.1:9090")
         self.assertEqual(self.uci("get", "nikki.config.test_profile"), "1")
+        self.assertEqual(self.uci("get", "nikki.procd.env_safe_paths"), "/var/run/nikki-service-guard")
+
+    def test_runtime_provider_path_preserves_existing_safe_paths(self):
+        self.uci("set", "nikki.procd.env_safe_paths=/etc/private:/mnt/providers")
+        self.uci("commit", "nikki")
+        self.apply()
+        self.assertEqual(self.uci("get", "nikki.procd.env_safe_paths"),
+                         "/etc/private:/mnt/providers:/var/run/nikki-service-guard")
 
     def test_empty_selection_uses_default(self):
         self.uci("delete", "nikki.config.profile")
@@ -88,7 +96,7 @@ class DefaultsTest(unittest.TestCase):
         self.assertIn("services/zerotier", self.uci("get", bypass + ".cgroup").split())
         self.assertIn("dnsmasq", self.uci("get", bypass + ".user").split())
         self.assertNotIn("root", self.uci("get", bypass + ".user").split())
-        self.assertEqual(self.uci("get", bypass + ".dns"), "0")
+        self.assertEqual(self.uci("get", bypass + ".dns"), "1")
         self.assertEqual(self.uci("get", bypass + ".proxy"), "0")
         self.assertEqual(self.uci("get", "nikki.@router_access_control[1].proxy"), "1")
 
