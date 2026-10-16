@@ -198,7 +198,8 @@ def inspect_hooks(entries):
                     and all(re.fullmatch(r"/etc/init\.d/[A-Za-z0-9_+-]+ disable", x) for x in lines[:-1]),
                     "Unexpected native service-disable hook")
         if name == "etc/rc.local":
-            require(active_lines(data) == ["echo 3 > /proc/sys/net/ipv4/tcp_fastopen", "exit 0"],
+            require(active_lines(data) in (["exit 0"],
+                                          ["echo 3 > /proc/sys/net/ipv4/tcp_fastopen", "exit 0"]),
                     "Unreviewed rc.local commands")
         if name.startswith("etc/init.d/"):
             require(name.removeprefix("etc/init.d/") in RETIRED + ("trojan",),
@@ -241,7 +242,7 @@ def clean_dns(entries, replace, exclude):
                     local_lines.append(line)
                 else:
                     require(re.fullmatch(
-                        r"server=/[^\s]+/(?:114\.114\.114\.114|119\.29\.29\.29|222\.222\.202\.202|222\.222\.222\.222)(?:#53)?"
+                        r"server=/[^\s]+[ \t]*/(?:114\.114\.114\.114|119\.29\.29\.29|222\.222\.202\.202|222\.222\.222\.222)(?:#53)?"
                         r"|nftset=/[^\s]+/4#inet#fw4#setmefree,6#inet#fw4#setmefree6"
                         r"|ipset=/[^\s]+/setmefree(?:,setmefree6)?"
                         r"|bogus-nxdomain=[0-9a-fA-F:.]+", line),

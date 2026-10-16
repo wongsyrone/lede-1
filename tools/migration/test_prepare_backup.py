@@ -233,6 +233,29 @@ class BackupTest(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             migration.write_backup(output, entries)
 
+    def test_inert_rc_local_and_trailing_space_in_retired_dns_domains(self):
+        for inert, spaces in ((True, False), (False, True), (True, True)):
+            with self.subTest(inert=inert, spaces=spaces):
+                files = fixture("10.0.1.1")
+                if inert:
+                    files["etc/rc.local"] = b"# No local startup customization\nexit 0\n"
+                path = "etc/dnsmasq.d/china-cdn-domain-whitelist.conf"
+                if spaces:
+                    files[path] = b"server=/example.cn /119.29.29.29#53\nserver=/example.org\t/119.29.29.29#53\n"
+                entries, plan = self.prepare(self.archive(files), "10.0.1.1", files)
+                self.assertNotIn(path, entries)
+                self.assertEqual(entries["etc/rc.local"][1], files["etc/rc.local"])
+                self.assertIn("etc/rc.local", plan["protected"])
+
+    def test_space_inside_domain_and_unknown_dns_resolver_still_rejected(self):
+        path = "etc/dnsmasq.d/china-cdn-domain-whitelist.conf"
+        for line in ("server=/exa mple.cn/119.29.29.29#53\n",
+                     "server=/example.cn /203.0.113.53#53\n"):
+            files = fixture("10.0.0.1")
+            files[path] = line.encode()
+            with self.subTest(line=line), self.assertRaises(migration.Rejected):
+                self.prepare(self.archive(files))
+
     def test_existing_different_provider_or_forwarding_local_fragment_rejected(self):
         for path, data in (
             ("etc/nikki/guard/providers/trojan.yaml", b'{"proxies":[]}'),

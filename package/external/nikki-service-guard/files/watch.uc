@@ -6,6 +6,9 @@ import * as ubus from 'ubus';
 import * as uloop from 'uloop';
 
 uloop.init();
+// procd stops this idle watcher; let the kernel close resources without uloop teardown.
+assert(signal('TERM', 'default') == 'default');
+assert(signal('INT', 'default') == 'default');
 let bus = ubus.connect();
 if (!bus)
 	exit(1);
