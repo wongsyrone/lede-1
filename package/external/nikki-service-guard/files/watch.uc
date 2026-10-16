@@ -6,9 +6,6 @@ import * as ubus from 'ubus';
 import * as uloop from 'uloop';
 
 uloop.init();
-// procd stops this idle watcher; let the kernel close resources without uloop teardown.
-assert(signal('TERM', 'default') == 'default');
-assert(signal('INT', 'default') == 'default');
 let bus = ubus.connect();
 if (!bus)
 	exit(1);
@@ -38,6 +35,9 @@ let timer = uloop.timer(1, function() {
 	schedule();
 	this.set(5000);
 });
+// ubus.connect() reinitializes uloop signals; restore kernel termination after setup.
+assert(signal('TERM', 'default') == 'default');
+assert(signal('INT', 'default') == 'default');
 uloop.run();
 // Release the subscription while its connection is still alive during shutdown.
 sub.remove();
