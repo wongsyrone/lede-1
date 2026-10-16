@@ -1,0 +1,2 @@
+# Add local SOCKS5/HTTP entries here; keep remote credentials in the native program's config.
+proxies: []

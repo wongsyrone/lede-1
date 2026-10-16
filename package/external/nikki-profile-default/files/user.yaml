@@ -1,0 +1,3 @@
+# Private nodes belong here, not in the public firmware or Git.
+# For an existing standalone Trojan, add a socks5 node using its real listen address and port.
+proxies: []

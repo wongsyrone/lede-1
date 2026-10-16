@@ -11,13 +11,11 @@ USE_PROCD=1
 PROG=/usr/sbin/trojan
 CONF=/etc/trojan.json
 
-config_load "trojan"
-
 parse_trojan() {
-    config_get ENABLED "$section" "enabled"
+    local section="$1"
+    config_get_bool selected "$section" "enabled" 0
+    [ "$selected" = 0 ] || ENABLED=1
 }
-
-config_foreach parse_trojan 'trojan'
 
 check_multicore() {
     local is_reuse_port=
@@ -47,6 +45,9 @@ check_multicore() {
 }
 
 start_service() {
+    local ENABLED=0 selected
+    config_load "trojan"
+    config_foreach parse_trojan 'trojan'
     check_multicore
     local cpunum=$?
     echo cpunum is $cpunum
@@ -54,7 +55,14 @@ start_service() {
         for i in $(seq 1 ${cpunum});
         do
             procd_open_instance
-            procd_set_param command $PROG --config $CONF
+            if [ -x /usr/libexec/nikki-guard-exec ]; then
+                procd_set_param command /usr/libexec/nikki-guard-exec trojan "$PROG" --config "$CONF"
+            else
+                procd_set_param command "$PROG" --config "$CONF"
+            fi
+            procd_set_param file "$CONF"
+            procd_set_param data guard_native_checksum="$(sha256sum "$CONF" | cut -d ' ' -f 1)"
+            procd_set_param respawn 3600 5 5
             procd_set_param user root # run service as user root
             procd_set_param stdout 1 # forward stdout of the command to logd
             procd_set_param stderr 1 # same for stderr
@@ -67,4 +75,8 @@ start_service() {
     else
         echo "trojan is disabled, please check /etc/config/trojan"
     fi
+}
+
+service_triggers() {
+    procd_add_reload_trigger trojan
 }
