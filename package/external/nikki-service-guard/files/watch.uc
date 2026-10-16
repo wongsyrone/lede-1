@@ -36,3 +36,7 @@ let timer = uloop.timer(1, function() {
 	this.set(5000);
 });
 uloop.run();
+// Release the subscription while its connection is still alive during shutdown.
+sub.remove();
+bus.disconnect();
+uloop.done();

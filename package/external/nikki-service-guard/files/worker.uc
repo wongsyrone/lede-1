@@ -395,14 +395,14 @@ function work() {
 
 try { work(); }
 catch (error) {
-	try {
-		proxy_guard(managed, {});
-		for (let proxy in managed) {
+	try { proxy_guard(managed, {}); } catch (ignored) {}
+	for (let proxy in managed) {
+		try {
 			atomic(proxy.path, withdrawn(proxy.service));
 			if (current_profile)
 				apply_provider(current_profile, proxy, withdrawn(proxy.service));
-		}
-	} catch (ignored) {}
+		} catch (ignored) {}
+	}
 	state.admitted = {};
 	state.gates = {};
 	try { atomic(runtime + '/state.json', state); } catch (ignored) {}
