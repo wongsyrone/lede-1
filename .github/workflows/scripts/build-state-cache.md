@@ -92,22 +92,30 @@ or quota exhaustion cause normal build fallback.
 ## Serialized publication and retirement
 
 Only the default branch writes persistent state. `owrt-state-v4` keys contain
-the full compatibility fingerprint plus run ID, attempt, and scheduling group:
-`owrt-state-v4-<fingerprint>-<run>-<attempt>-<group>`. Fingerprint restore prefixes
-select previous generations with the same native inputs. Only current-schema
-keys with an explicit group are accepted.
+the full compatibility fingerprint, run ID, attempt, scheduling group, and a
+retention scope:
+`owrt-state-v4-<fingerprint>-<run>-<attempt>-<group>-scope-<scope>`.
+Fingerprint restore prefixes select previous generations with the same native
+inputs. Retention scope is the hash of native Make's `BOARD` and `SUBTARGET`;
+it is stored outside compatibility inputs and never authorizes a restore.
+For example, x86/64 has one retention scope and both current Linksys profiles
+share mvebu/cortexa9. Compiler versions, common-source changes, and package
+selection do not create new retention scopes.
 
 There is no custom snapshot-size, repository-size, or group-count admission
 limit. The configured 10GB repository quota and capacity/idle eviction belong
 to GitHub. No other group is deleted to reserve space before an upload.
 
-Replacement uploads precede retirement within the same scheduling group.
+Replacement uploads precede retirement within the same retention scope.
 The publisher
 must confirm the exact key/ref and a visible cache ID through the API; a save
 action's success alone is insufficient. Confirmation failure retains previous
-generations. Once confirmed, only that group keeps one persistent generation,
-including when its compatibility fingerprint changes. Other groups, unrelated keys,
-and other refs are left alone. A replacement temporarily overlaps its previous
+generations. Once confirmed, the scope keeps one persistent generation even when
+common-source or compiler changes create a different scheduling group. The
+prepare job's complete group plan protects other groups required by this run;
+if several incompatible groups share a native target, each active group retains
+its own generation. Other scopes, unrelated keys, and other refs are left alone.
+A replacement temporarily overlaps its previous
 generation; failed uploads or failed retirement can leave extra entries until
 the next successful publication. GitHub eviction can still cause cache misses.
 
@@ -140,6 +148,26 @@ stamp differences. Most tools and the cross toolchain must be reused; a small
 number of native tool rebuilds is acceptable. A cache-hit message alone is not
 evidence of avoided builds. Do not add tool-specific exceptions just to obtain
 zero stamp changes or weaken restore validation to avoid native rebuilds.
+
+### Temporary unscoped-v4 migration (2026-10-21)
+
+Older v4 keys lack the retention scope. They remain restorable using their
+original strict fingerprint and group checks. A warm unchanged snapshot receives
+a scoped key and matching metadata without repacking its payload or altering
+its native inputs, source timestamps, or completion stamps.
+
+After a scoped replacement is visible, an old group is retired only when its
+origin run's exact key/ref receipt proves that every member profile is covered
+by the new producer. Missing or expired ownership metadata preserves the cache;
+unknown caches must not be classified by archive size or hash guessing.
+Same-group retirement continues to work without historical metadata.
+
+Removal criterion: after the default branch has successfully published scoped
+generations for all supported target groups and the live cache inventory has no
+unscoped v4 keys, remove `legacy_retirements`, its optional origin-run receipt
+lookup parameters, unscoped key/metadata acceptance, and the metadata-only
+snapshot retagging branch together. No production build-source migration is
+involved.
 
 ## Independent target releases
 

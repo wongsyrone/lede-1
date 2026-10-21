@@ -18,6 +18,8 @@ ROOTS = ["build_dir/host", "build_dir/toolchain-test",
          "staging_dir/host", "staging_dir/toolchain-test"]
 NATIVE_INPUTS = {"make": {}, "roots": ROOTS, "common_sources": {},
                  "tools_make_flags": cache.TOOLS_MAKE_FLAGS}
+SCOPE_METADATA = {"native_target": {"board": "x86", "subtarget": "64"}}
+SCOPE_METADATA["scope"] = cache.json_hash(SCOPE_METADATA["native_target"])
 
 
 class CacheTests(unittest.TestCase):
@@ -55,6 +57,8 @@ class CacheTests(unittest.TestCase):
 
         def query(*args, **kwargs):
             if args[0] == "make":
+                if args[-1] in ("val.BOARD", "val.SUBTARGET"):
+                    return {"val.BOARD": "x86", "val.SUBTARGET": "64"}[args[-1]]
                 return str(Path(ROOTS[("BUILD_DIR_HOST", "BUILD_DIR_TOOLCHAIN",
                                       "STAGING_DIR_HOST", "TOOLCHAIN_DIR").index(args[-1][4:])]).resolve())
             return "same installed packages"
@@ -71,9 +75,39 @@ class CacheTests(unittest.TestCase):
                 cache.plan("second")
             second = json.loads(cache.PLAN.read_text())
         self.assertEqual(first["fingerprint"], second["fingerprint"])
+        self.assertEqual(SCOPE_METADATA["scope"], first["scope"])
+        self.assertEqual(first["scope"], second["scope"])
+        self.assertNotIn("scope", first["inputs"])
         self.assertNotIn("target", first["inputs"])
         self.assertFalse({"machine", "kernel", "os_release", "image", "packages",
                           "environment"} & first["inputs"].keys())
+
+    def test_native_target_scope_survives_recipe_and_compiler_directory_changes(self):
+        self.fixture()
+        Path("cfg").mkdir()
+        Path("cfg/test").touch()
+        roots = ROOTS.copy()
+
+        def query(*args, **kwargs):
+            variable = args[-1][4:]
+            if variable in ("BOARD", "SUBTARGET"):
+                return {"BOARD": "x86", "SUBTARGET": "64"}[variable]
+            return str(Path(roots[("BUILD_DIR_HOST", "BUILD_DIR_TOOLCHAIN",
+                                   "STAGING_DIR_HOST", "TOOLCHAIN_DIR").index(variable)]).resolve())
+
+        sources = cache.source_records()
+        with patch.object(cache, "command", side_effect=query), \
+                patch.object(cache, "pinned_feeds"), \
+                patch.object(cache, "source_records", return_value=sources), \
+                patch.object(cache, "make_inputs", side_effect=[{"toolchain/gcc": "old"},
+                                                               {"toolchain/gcc": "new"}]):
+            first = cache.plan("test")
+            roots[1], roots[3] = "build_dir/toolchain-new", "staging_dir/toolchain-new"
+            second = cache.plan("test")
+        self.assertNotEqual(first["fingerprint"], second["fingerprint"])
+        self.assertNotEqual(cache.scheduling_group(first["inputs"]),
+                            cache.scheduling_group(second["inputs"]))
+        self.assertEqual(first["scope"], second["scope"])
 
     def test_failed_upload_or_invisible_generation_preserves_previous(self):
         self.fixture()
@@ -533,6 +567,28 @@ class CacheTests(unittest.TestCase):
         tagged = f"{cache.SCHEMA}-{'a' * 64}-123-1-{'b' * 64}"
         self.assertEqual("a" * 64, cache.key_fingerprint(tagged))
         self.assertEqual("b" * 64, cache.key_group(tagged))
+        scoped = tagged + "-scope-" + SCOPE_METADATA["scope"]
+        self.assertEqual("a" * 64, cache.key_fingerprint(scoped))
+        self.assertEqual("b" * 64, cache.key_group(scoped))
+        self.assertEqual(SCOPE_METADATA["scope"], cache.key_scope(scoped))
+        self.assertIsNone(cache.key_scope(tagged))
+        for suffix in ("-scope-short", "-scope-" + "z" * 64, "-unexpected"):
+            self.assertIsNone(cache.key_group(tagged + suffix))
+
+    def test_retention_metadata_corruption_rejects_before_unpack(self):
+        self.fixture()
+        fingerprint = cache.json_hash(NATIVE_INPUTS)
+        group = cache.scheduling_group(NATIVE_INPUTS)
+        key = f"{cache.SCHEMA}-{fingerprint}-123-1-{group}-scope-{SCOPE_METADATA['scope']}"
+        current = {**SCOPE_METADATA, "inputs": NATIVE_INPUTS, "fingerprint": fingerprint,
+                   "sources": cache.source_records(), "reused": False, "roots": ROOTS}
+        cache.write_json(cache.PLAN, current)
+        cache.write_json(cache.CACHE / "manifest.json", {
+            **current, "cache_key": key, "native_target": {"board": "mvebu", "subtarget": "cortexa9"}})
+        with patch.object(cache, "retire") as retire, patch.object(cache.subprocess, "Popen") as unpack:
+            cache.restore()
+        retire.assert_called_once()
+        unpack.assert_not_called()
 
     def test_changed_native_recipe_rejects_before_unpack(self):
         self.fixture()
@@ -577,6 +633,144 @@ class CacheTests(unittest.TestCase):
             self.assertEqual([("caches/1", "DELETE"), ("caches/6", "DELETE")],
                              [call.args for call in api.call_args_list])
 
+    def test_confirmed_scope_retires_old_input_groups_but_keeps_active_variants(self):
+        self.fixture()
+        group, active = "d" * 64, "e" * 64
+        scope = SCOPE_METADATA["scope"]
+        key = f"{cache.SCHEMA}-{'a' * 64}-456-1-{group}-scope-{scope}"
+        cache.write_json(cache.RECEIPT, {
+            **SCOPE_METADATA, "key": key, "fingerprint": "a" * 64, "group": group,
+            "members": ["x86_64"], "ref": "refs/heads/master"})
+        base = {"ref": "refs/heads/master", "size_in_bytes": 100}
+        old = {**base, "id": 1, "key": f"{cache.SCHEMA}-{'b' * 64}-123-1-{'c' * 64}-scope-{scope}"}
+        sibling = {**base, "id": 2, "key": f"{cache.SCHEMA}-{'b' * 64}-123-1-{'f' * 64}-scope-{'f' * 64}"}
+        same_group = {**base, "id": 3, "key": f"{cache.SCHEMA}-{'c' * 64}-123-1-{group}-scope-{scope}"}
+        visible = {**base, "id": 4, "key": key}
+        other_ref = {**old, "id": 5, "ref": "refs/heads/other"}
+        variant = {**base, "id": 6, "key": f"{cache.SCHEMA}-{'f' * 64}-123-1-{active}-scope-{scope}"}
+        unrelated = {**base, "id": 7, "key": "some-other-cache"}
+        environment = {
+            "GITHUB_REF": "refs/heads/master", "DEFAULT_BRANCH": "master",
+            "STATE_GROUPS": json.dumps({"include": [{"group": group}, {"group": active}]})}
+        with patch.dict(os.environ, environment), \
+                patch.object(cache, "caches", return_value=[
+                    old, sibling, same_group, visible, other_ref, variant, unrelated]), \
+                patch.object(cache, "api") as api:
+            cache.confirm()
+        self.assertEqual([("caches/1", "DELETE"), ("caches/3", "DELETE")],
+                         [call.args for call in api.call_args_list])
+
+    def test_scoped_upload_must_be_uniquely_visible_before_any_retirement(self):
+        self.fixture()
+        group = "d" * 64
+        key = f"{cache.SCHEMA}-{'a' * 64}-456-1-{group}-scope-{SCOPE_METADATA['scope']}"
+        cache.write_json(cache.RECEIPT, {
+            **SCOPE_METADATA, "key": key, "fingerprint": "a" * 64,
+            "group": group, "members": ["x86_64"], "ref": "refs/heads/master"})
+        previous = {"id": 1, "key": f"{cache.SCHEMA}-{'b' * 64}-123-1-{'c' * 64}",
+                    "ref": "refs/heads/master", "size_in_bytes": 100}
+        visible = {**previous, "id": 2, "key": key}
+        for replacement in ([], [{**visible, "size_in_bytes": 0}],
+                            [visible, {**visible, "id": 3}]):
+            with self.subTest(replacement=replacement), \
+                    patch.dict(os.environ, {"GITHUB_REF": "refs/heads/master",
+                                            "DEFAULT_BRANCH": "master", "STATE_GROUPS": '{"include":[]}'}), \
+                    patch.object(cache, "caches", return_value=[previous, *replacement]), \
+                    patch.object(cache.time, "sleep"), patch.object(cache, "api") as api, \
+                    patch.object(cache, "legacy_retirements") as legacy:
+                cache.confirm()
+            api.assert_not_called()
+            legacy.assert_not_called()
+
+    def test_unscoped_retirement_requires_exact_receipt_and_complete_profile_coverage(self):
+        group = "b" * 64
+        key = f"{cache.SCHEMA}-{'a' * 64}-123-1-{group}"
+        entry = {"id": 1, "key": key, "ref": "refs/heads/master", "size_in_bytes": 100}
+        artifact = {"id": 2, "name": f"state-receipt-{group}-1", "expired": False}
+        previous = {"schema": cache.SCHEMA, "group": group, "producer_attempt": "1",
+                    "run_id": "123", "ref": "refs/heads/master", "artifact_id": 3,
+                    "key": key, "fingerprint": "a" * 64, "members": ["first", "second"],
+                    "input_hashes": {}}
+        for changed, expected in (({}, {1}), ({"members": ["third"]}, set()),
+                                  ({"members": []}, set()), ({"run_id": "999"}, set()),
+                                  ({"ref": "refs/heads/other"}, set()),
+                                  ({"key": key.replace("-123-", "-122-")}, set())):
+            with self.subTest(changed=changed), \
+                    patch.dict(os.environ, {"GITHUB_REF": "refs/heads/master"}), \
+                    patch.object(cache, "artifacts", return_value=[artifact]) as artifacts, \
+                    patch.object(cache, "artifact_json", return_value={**previous, **changed}):
+                self.assertEqual(expected, cache.legacy_retirements(
+                    [entry], {"members": ["first", "second"]}))
+                artifacts.assert_called_once_with("123")
+        with patch.dict(os.environ, {"GITHUB_REF": "refs/heads/master"}), \
+                patch.object(cache, "artifacts", return_value=[artifact]), \
+                patch.object(cache, "artifact_json", return_value=previous):
+            self.assertEqual(set(), cache.legacy_retirements([entry], {"members": ["first"]}))
+
+    def test_missing_unscoped_ownership_is_preserved(self):
+        entry = {"id": 1, "key": f"{cache.SCHEMA}-{'a' * 64}-123-1-{'b' * 64}"}
+        error = urllib.error.HTTPError("https://api.github.com", 404, "missing", {}, None)
+        with patch.object(cache, "artifacts", side_effect=error), patch.object(cache, "api") as api:
+            self.assertEqual(set(), cache.legacy_retirements([entry], {"members": ["x86_64"]}))
+        api.assert_not_called()
+
+    def test_unscoped_snapshot_is_retagged_without_repacking_or_changing_inputs(self):
+        self.fixture()
+        inputs = NATIVE_INPUTS
+        fingerprint = cache.json_hash(inputs)
+        group = cache.scheduling_group(inputs)
+        sources, completion = cache.source_records(), cache.stamps(ROOTS)
+        cache.write_json(cache.PLAN, {
+            **SCOPE_METADATA, "inputs": inputs, "fingerprint": fingerprint, "roots": ROOTS,
+            "sources": sources, "restored_stamps": completion, "restored_downloads": {}})
+        cache.CACHE.mkdir()
+        payload = cache.CACHE / "state.tar.zst"
+        payload.write_bytes(b"existing sealed state")
+        original = {"cache_key": f"{cache.SCHEMA}-{fingerprint}-123-1-{group}",
+                    "inputs": inputs, "fingerprint": fingerprint,
+                    "payload_sha256": cache.digest(payload), "sources": sources, "stamps": completion}
+        cache.write_json(cache.CACHE / "manifest.json", original)
+        with patch.dict(os.environ, {"GITHUB_RUN_ID": "456", "GITHUB_RUN_ATTEMPT": "1"}), \
+                patch.object(cache, "source_records", return_value=sources), \
+                patch.object(cache.subprocess, "run") as run:
+            cache.snapshot()
+        run.assert_not_called()
+        saved = json.loads((cache.CACHE / "manifest.json").read_text())
+        self.assertEqual(SCOPE_METADATA["scope"], cache.key_scope(saved["cache_key"]))
+        self.assertEqual("456", cache.KEY_PATTERN.fullmatch(saved["cache_key"])["run"])
+        for name in ("inputs", "fingerprint", "payload_sha256", "sources", "stamps"):
+            self.assertEqual(original[name], saved[name])
+        self.assertEqual(b"existing sealed state", payload.read_bytes())
+
+    def test_scoped_snapshot_receipt_and_publisher_agree(self):
+        self.fixture()
+        inputs = NATIVE_INPUTS
+        fingerprint = cache.json_hash(inputs)
+        group = cache.scheduling_group(inputs)
+        cache.write_json(cache.PLAN, {
+            **SCOPE_METADATA, "inputs": inputs, "fingerprint": fingerprint,
+            "roots": ROOTS, "sources": cache.source_records()})
+        environment = {"GITHUB_RUN_ID": "456", "GITHUB_RUN_ATTEMPT": "1",
+                       "GITHUB_REF": "refs/heads/master", "DEFAULT_BRANCH": "master",
+                       "STATE_ARTIFACT_ID": "123"}
+        with patch.dict(os.environ, environment):
+            cache.snapshot()
+            cache.receipt(group, ["x86_64"])
+            saved = json.loads(cache.RECEIPT.read_text())
+            with patch.object(cache, "caches", return_value=[]), \
+                    patch.object(cache, "output") as output:
+                cache.admit()
+                self.assertEqual("true", dict(call.args for call in output.call_args_list)["save"])
+            artifact = {"id": 124, "name": f"state-receipt-{group}-1", "expired": False}
+            with patch.object(cache, "artifact_json", return_value=saved):
+                self.assertEqual(saved, cache.load_receipts([artifact])[group])
+            cache.write_json(cache.RECEIPT, {
+                **saved, "native_target": {"board": "mvebu", "subtarget": "cortexa9"}})
+            with patch.object(cache, "caches") as inventory:
+                with self.assertRaisesRegex(ValueError, "damaged or mismatched"):
+                    cache.admit()
+            inventory.assert_not_called()
+
     def test_make_check_metadata_does_not_upload_duplicate_state(self):
         self.fixture()
         completion = cache.stamps(ROOTS)
@@ -588,12 +782,14 @@ class CacheTests(unittest.TestCase):
         cache.CACHE.mkdir()
         payload = cache.CACHE / "state.tar.zst"
         payload.write_bytes(b"existing verified state")
-        key = f"{cache.SCHEMA}-{'a' * 64}-123-1-{'b' * 64}"
-        cache.write_json(cache.CACHE / "manifest.json", {"cache_key": key, "fingerprint": "a" * 64})
+        key = f"{cache.SCHEMA}-{'a' * 64}-123-1-{'b' * 64}-scope-{SCOPE_METADATA['scope']}"
+        saved = {**SCOPE_METADATA, "cache_key": key, "fingerprint": "a" * 64}
+        cache.write_json(cache.CACHE / "manifest.json", saved)
         with patch.object(cache, "api") as api:
             cache.snapshot()
             api.assert_not_called()
         self.assertEqual(b"existing verified state", payload.read_bytes())
+        self.assertEqual(saved, json.loads((cache.CACHE / "manifest.json").read_text()))
 
     def test_receipt_requires_matching_native_inputs_and_identity(self):
         self.fixture()
@@ -637,6 +833,7 @@ class CacheTests(unittest.TestCase):
         inputs = NATIVE_INPUTS
         fingerprint = cache.json_hash(inputs)
         cache.write_json(cache.PLAN, {
+            **SCOPE_METADATA,
             "roots": ROOTS, "sources": cache.source_records(), "reused": True,
             "restored_stamps": cache.stamps(ROOTS), "fingerprint": fingerprint,
             "inputs": inputs,

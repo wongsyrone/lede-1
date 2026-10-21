@@ -20,9 +20,10 @@ import zipfile
 from decimal import Decimal
 
 SCHEMA = "owrt-state-v4"
+# Temporary: accept unscoped v4 keys until the default-branch migration is complete.
 KEY_PATTERN = re.compile(
     re.escape(SCHEMA) + r"-(?P<fingerprint>[0-9a-f]{64})-(?P<run>[0-9]+)-[0-9]+"
-    r"-(?P<group>[0-9a-f]{64})")
+    r"-(?P<group>[0-9a-f]{64})(?:-scope-(?P<scope>[0-9a-f]{64}))?")
 WORK = Path(".ci-state")
 CACHE = WORK / "cache"
 PLAN = WORK / "plan.json"
@@ -204,9 +205,10 @@ def input_hashes(inputs):
     return {name: json_hash(value) for name, value in inputs.items()}
 
 
-def generation_key(fingerprint, inputs):
+def generation_key(fingerprint, inputs, scope):
     return (f"{SCHEMA}-{fingerprint}-" + os.environ.get("GITHUB_RUN_ID", "local") +
-            "-" + os.environ.get("GITHUB_RUN_ATTEMPT", "1") + "-" + scheduling_group(inputs))
+            "-" + os.environ.get("GITHUB_RUN_ATTEMPT", "1") + "-" + scheduling_group(inputs) +
+            "-scope-" + scope)
 
 
 def plan(target, emit=True):
@@ -217,6 +219,14 @@ def plan(target, emit=True):
         value = command("make", "--no-print-directory", "-s", f"val.{variable}")
         roots.append(str(Path(value).relative_to(Path.cwd())))
     check_roots(roots)
+    native_target = {
+        name.lower(): command("make", "--no-print-directory", "-s", f"val.{name}")
+        for name in ("BOARD", "SUBTARGET")
+    }
+    if not native_target["board"] or any(
+            not re.fullmatch(r"[A-Za-z0-9_.+-]*", value) for value in native_target.values()):
+        raise ValueError("Unexpected native target identity")
+    scope = json_hash(native_target)
     sources = source_records()
     pinned_feeds()
     inputs = {
@@ -231,9 +241,10 @@ def plan(target, emit=True):
     }
     fingerprint = json_hash(inputs)
     prefix = f"{SCHEMA}-{fingerprint}-"
-    key = generation_key(fingerprint, inputs)
+    key = generation_key(fingerprint, inputs, scope)
     result = {"inputs": inputs, "fingerprint": fingerprint, "sources": sources,
-              "target": target, "reused": False, "roots": roots, "cache_key": key}
+              "target": target, "reused": False, "roots": roots, "cache_key": key,
+              "native_target": native_target, "scope": scope}
     write_json(PLAN, result)
     if emit:
         output("prefix", prefix)
@@ -374,7 +385,8 @@ def restore():
         if (not isinstance(saved, dict) or not isinstance(saved.get("inputs"), dict) or
                 json_hash(saved["inputs"]) != saved["fingerprint"] or
                 key_fingerprint(saved["cache_key"]) != saved["fingerprint"] or
-                key_group(saved["cache_key"]) != scheduling_group(saved["inputs"])):
+                key_group(saved["cache_key"]) != scheduling_group(saved["inputs"]) or
+                not scope_metadata_matches(saved["cache_key"], saved)):
             raise ValueError("Snapshot manifest identity is corrupt")
         if saved.get("downloads") is not None:
             if not isinstance(saved["downloads"], dict):
@@ -557,6 +569,18 @@ def key_group(key):
     return match["group"] if match else None
 
 
+def key_scope(key):
+    match = KEY_PATTERN.fullmatch(key)
+    return match["scope"] if match else None
+
+
+def scope_metadata_matches(key, saved):
+    scope = key_scope(key)
+    if scope is None:
+        return "scope" not in saved and "native_target" not in saved
+    return scope == saved.get("scope") == json_hash(saved.get("native_target"))
+
+
 def snapshot():
     current = json.loads(PLAN.read_text())
     completion = stamps(current["roots"])
@@ -573,12 +597,20 @@ def snapshot():
         CACHE.mkdir(parents=True, exist_ok=True)
         subprocess.run(["tar", "--format=posix", "--pax-option=delete=atime,delete=ctime",
                         "-I", "zstd -T0 -3", "-cf", str(payload), *current["roots"]], check=True)
-        key = generation_key(current["fingerprint"], current["inputs"])
+        key = generation_key(current["fingerprint"], current["inputs"], current["scope"])
         write_json(CACHE / "manifest.json", {
             **current, "cache_key": key, "sources": sources, "stamps": completion,
             "downloads": download_records(),
             "payload_sha256": digest(payload), "run_id": os.environ["GITHUB_RUN_ID"],
         })
+    else:
+        saved = json.loads((CACHE / "manifest.json").read_text())
+        # Temporary unscoped-v4 migration; remove once no unscoped default-branch keys remain.
+        if key_scope(saved["cache_key"]) is None:
+            saved.update({name: current[name] for name in ("native_target", "scope")})
+            saved["cache_key"] = generation_key(current["fingerprint"], current["inputs"], current["scope"])
+            saved["run_id"] = os.environ["GITHUB_RUN_ID"]
+            write_json(CACHE / "manifest.json", saved)
     output("handoff", "true")
 
 
@@ -591,13 +623,14 @@ def receipt(group, members):
         "producer_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "1"),
         "run_id": os.environ["GITHUB_RUN_ID"], "ref": os.environ["GITHUB_REF"],
         "input_hashes": input_hashes(saved["inputs"]),
+        "native_target": saved["native_target"], "scope": saved["scope"],
     })
 
 
-def artifacts():
+def artifacts(run_id=None):
     result, page = [], 1
     while True:
-        batch = api(f"runs/{os.environ['GITHUB_RUN_ID']}/artifacts?per_page=100&page={page}")["artifacts"]
+        batch = api(f"runs/{run_id or os.environ['GITHUB_RUN_ID']}/artifacts?per_page=100&page={page}")["artifacts"]
         result.extend(batch)
         if len(batch) < 100:
             return result
@@ -611,7 +644,7 @@ def artifact_json(entry, filename):
         return json.loads(archive.read(filename))
 
 
-def load_receipts(entries, groups=None):
+def load_receipts(entries, groups=None, run_id=None):
     latest, result = {}, {}
     for entry in entries:
         match = re.fullmatch(r"state-receipt-([0-9a-f]{64})-([0-9]+)", entry["name"])
@@ -625,11 +658,12 @@ def load_receipts(entries, groups=None):
         try:
             saved = artifact_json(entry, "receipt.json")
             if (saved["schema"] != SCHEMA or saved["group"] != group or
-                    saved["run_id"] != os.environ["GITHUB_RUN_ID"] or
+                    saved["run_id"] != (run_id or os.environ["GITHUB_RUN_ID"]) or
                     saved["ref"] != os.environ["GITHUB_REF"] or
                     str(attempt) != saved["producer_attempt"] or
                     key_fingerprint(saved["key"]) != saved["fingerprint"] or
-                    key_group(saved["key"]) != group):
+                    key_group(saved["key"]) != group or
+                    not scope_metadata_matches(saved["key"], saved)):
                 raise ValueError("State receipt identity differs")
             result[group] = saved
         except (OSError, KeyError, ValueError, zipfile.BadZipFile) as error:
@@ -691,6 +725,9 @@ def admit():
             key_fingerprint(saved["key"]) != saved["fingerprint"] or
             scheduling_group(manifest["inputs"]) != saved["group"] or
             key_group(saved["key"]) != saved["group"] or
+            not scope_metadata_matches(saved["key"], saved) or
+            not scope_metadata_matches(manifest["cache_key"], manifest) or
+            saved.get("scope") != manifest.get("scope") or
             digest(payload) != manifest["payload_sha256"]):
         raise ValueError("Publisher received a damaged or mismatched snapshot")
     entries = caches()
@@ -701,14 +738,42 @@ def admit():
     output("save", "true")
 
 
+def legacy_retirements(entries, saved):
+    """Temporary unscoped-v4 migration; remove with the optional key scope parser."""
+    receipts, result = {}, set()
+    for entry in entries:
+        match = KEY_PATTERN.fullmatch(entry["key"])
+        if match is None or match["scope"] is not None:
+            continue
+        run_id = match["run"]
+        try:
+            if run_id not in receipts:
+                receipts[run_id] = load_receipts(artifacts(run_id), run_id=run_id)
+            previous = receipts[run_id].get(match["group"])
+            if (previous and previous["key"] == entry["key"] and previous["members"] and
+                    set(previous["members"]) <= set(saved["members"])):
+                result.add(entry["id"])
+            else:
+                report(f"Unscoped cache ID {entry['id']} retained; complete replacement ownership was not proven.")
+        except (OSError, KeyError, ValueError, zipfile.BadZipFile) as error:
+            receipts[run_id] = {}
+            report(f"::warning::Unscoped cache ownership unavailable for run {run_id}; retained: {error}")
+    return result
+
+
 def confirm():
     if not RECEIPT.exists() or os.environ["GITHUB_REF"] != "refs/heads/" + os.environ["DEFAULT_BRANCH"]:
         return
     saved = json.loads(RECEIPT.read_text())
     if (saved["ref"] != os.environ["GITHUB_REF"] or
             key_fingerprint(saved["key"]) != saved["fingerprint"] or
-            key_group(saved["key"]) != saved["group"]):
+            key_group(saved["key"]) != saved["group"] or
+            not scope_metadata_matches(saved["key"], saved)):
         raise ValueError("State receipt identity differs")
+    active_groups = {item["group"] for item in json.loads(
+        os.environ.get("STATE_GROUPS", '{"include":[]}'))["include"]}
+    if active_groups and saved["group"] not in active_groups:
+        raise ValueError("Publisher group is absent from the active build plan")
     for delay in (0, 2, 5, 10):
         if delay:
             time.sleep(delay)
@@ -717,10 +782,17 @@ def confirm():
                    entry["ref"] == os.environ["GITHUB_REF"] and entry["size_in_bytes"] > 0]
         if len(visible) == 1:
             report(f"Confirmed persisted generation ID {visible[0]['id']}: `{saved['key']}`")
-            for entry in entries:
-                if entry["ref"] != os.environ["GITHUB_REF"] or entry["id"] == visible[0]["id"]:
-                    continue
-                if key_group(entry["key"]) == saved["group"]:
+            candidates = [entry for entry in entries
+                          if entry["ref"] == os.environ["GITHUB_REF"] and
+                          entry["id"] != visible[0]["id"] and
+                          key_group(entry["key"]) not in active_groups - {saved["group"]}]
+            legacy = legacy_retirements(
+                [entry for entry in candidates if key_group(entry["key"]) != saved["group"]], saved
+            ) if saved.get("scope") is not None else set()
+            for entry in candidates:
+                if (key_group(entry["key"]) == saved["group"] or
+                        saved.get("scope") is not None and key_scope(entry["key"]) == saved["scope"] or
+                        entry["id"] in legacy):
                     delete_entry(entry)
             return
     report("::warning::New generation was not confirmed; previous generations retained.")

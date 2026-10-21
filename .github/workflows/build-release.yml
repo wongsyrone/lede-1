@@ -298,6 +298,8 @@ jobs:
       - name: Confirm New Generation before Retirement
         if: ${{ always() && steps.select.outputs.key != '' }}
         continue-on-error: true
+        env:
+          STATE_GROUPS: ${{ needs.prepare.outputs.groups }}
         run: python3 .github/workflows/scripts/build_state_cache.py confirm
 
   build:
