@@ -1,8 +1,9 @@
 include $(TOPDIR)/rules.mk
+include $(CURDIR)/rules.mk
 
 PKG_NAME:=nikki-profile-default
-PKG_VERSION:=2026.10.16
-PKG_RELEASE:=2
+PKG_VERSION:=$(or $(RULES_VERSION),2026.10.16)
+PKG_RELEASE:=3
 PKG_LICENSE:=GPL-3.0-only
 PKG_LICENSE_FILES:=LICENSE.rules
 PKG_FILE_DEPENDS:=$(CURDIR)/rules.mk
@@ -28,7 +29,7 @@ define RuleDownload
   RULE_NAMES += $(1)
 endef
 
-include $(CURDIR)/rules.mk
+$(Rules/Downloads)
 
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
@@ -59,6 +60,7 @@ define Package/nikki-profile-default/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults $(1)/usr/share/doc/nikki-profile-default
 	$(INSTALL_BIN) ./files/99_nikki-profile-default $(1)/etc/uci-defaults/99_nikki-profile-default
 	$(INSTALL_DATA) ./LICENSE.rules $(1)/usr/share/doc/nikki-profile-default/LICENSE.rules
+	$(INSTALL_DATA) ./rules.mk $(1)/usr/share/doc/nikki-profile-default/rules.mk
 endef
 
 $(eval $(call BuildPackage,nikki-profile-default))

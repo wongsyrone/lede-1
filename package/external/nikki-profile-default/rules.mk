@@ -2,6 +2,7 @@
 RULES_REV:=361f2c8a60b704d12220d3b370ced151f89c678c
 # License Git blob: f288702d2fa16d3cdf0035b15a9fcbc552cd88e7
 
+define Rules/Downloads
 $(eval $(call RuleDownload,geosite-private,geo/geosite/private.mrs,0f9ba48d4d0b0d192a4e7c3548486dde05e5a92e6e58e8ea8c9cc302712a1420))
 $(eval $(call RuleDownload,geoip-private,geo/geoip/private.mrs,076ea1da10b442f01c6fb3b86a66411727a15df69d70e8d600a8a458b07a8bb0))
 $(eval $(call RuleDownload,category-ads,geo/geosite/category-ads.mrs,a88063d7abf71317235db826457aead574e4401d0630f7cb5ba8132f72ebf019))
@@ -109,3 +110,4 @@ $(eval $(call RuleDownload,category-porn,geo/geosite/category-porn.mrs,5d18e6008
 $(eval $(call RuleDownload,geolocation-cn,geo/geosite/geolocation-cn.mrs,bf7b72841a389684e7da9a9cfd0b81053156d3ad90c98539b20e026ecb6299af))
 $(eval $(call RuleDownload,geolocation-!cn,geo/geosite/geolocation-!cn.mrs,141ca5746ddaca1a586f59de377522549a587ee0a61acd0663580699e18c8e10))
 $(eval $(call RuleDownload,cn,geo/geosite/cn.mrs,701e8a630d959e99b28baab9b855559126463ce1a989dc30f21257ad3f35fb31))
+endef

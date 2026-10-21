@@ -70,6 +70,47 @@ sysupgrade. Adopt this profile's managed providers, policy ordering and
 `SAFE_PATHS` entry when integrating an existing custom profile. Keep all private
 sources outside Git, CI and firmware artifacts.
 
+## Build-time Rule Snapshots
+
+The firmware workflow resolves `MetaCubeX/meta-rules-dat` branch `meta` once
+in its prepare job. It verifies the selected files against that commit's Git
+blob objects, computes their SHA-256 hashes, and shares the generated
+`nikki-rules.mk` with all build jobs alongside the pinned feeds configuration.
+
+`RuleDownload` uses immutable commit URLs, revision-specific cache names and
+normal OpenWrt SHA-256 validation. The rule commit appears in the package
+version. A changed snapshot therefore selects a new package build directory;
+an unchanged snapshot can reuse its verified downloads.
+
+The complete lock is installed at
+`/usr/share/doc/nikki-profile-default/rules.mk` and accompanies firmware as
+`nikki-rules.buildinfo`. The profile's runtime provider URLs and refresh
+intervals continue to control updates after installation.
+
+For a local firmware build, refresh the lock before downloading and compiling:
+
+```sh
+python3 package/external/nikki-profile-default/update-rules.py
+make download -j8
+make -j"$(nproc)"
+```
+
+Use `--revision FULL_COMMIT_SHA` to reproduce a prior snapshot. The committed
+lock remains an offline/reproducible baseline until explicitly refreshed
+locally; each new workflow run refreshes it automatically.
+
+Missing upstream rules, incomplete Git trees, network errors and mismatched
+content fail the refresh. Only a complete verified snapshot replaces the
+output lock; failures stop the workflow before building firmware with old
+rule data. The updater uses Python's standard library and makes bounded
+network retries.
+
+Run the isolated updater checks with:
+
+```sh
+python3 -m unittest discover -s package/external/nikki-profile-default/tests -v
+```
+
 ## Validation
 
 Verify the effective profile after Nikki's UCI mixin and check every initial

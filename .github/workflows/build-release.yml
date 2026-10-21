@@ -64,11 +64,22 @@ jobs:
           echo "=== Pinned Feeds Configuration ==="
           cat /tmp/feeds-artifact/feeds.conf.locked
 
+      - name: Lock Current Nikki Rules
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 package/external/nikki-profile-default/update-rules.py \
+            --output /tmp/feeds-artifact/nikki-rules.mk \
+            --download-dir "$RUNNER_TEMP/nikki-rule-downloads"
+          cp /tmp/feeds-artifact/nikki-rules.mk package/external/nikki-profile-default/rules.mk
+
       - name: Upload Pinned Feeds Config
         uses: actions/upload-artifact@v6
         with:
           name: feeds-conf
-          path: /tmp/feeds-artifact/feeds.conf.locked
+          path: |
+            /tmp/feeds-artifact/feeds.conf.locked
+            /tmp/feeds-artifact/nikki-rules.mk
           retention-days: 7
           overwrite: true
 
@@ -158,6 +169,7 @@ jobs:
       - name: Setup Feeds
         run: |
           cp /tmp/feeds-download/feeds.conf.locked feeds.conf
+          cp /tmp/feeds-download/nikki-rules.mk package/external/nikki-profile-default/rules.mk
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -318,6 +330,7 @@ jobs:
       - name: Setup Feeds
         run: |
           cp /tmp/feeds-download/feeds.conf.locked feeds.conf
+          cp /tmp/feeds-download/nikki-rules.mk package/external/nikki-profile-default/rules.mk
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -449,6 +462,7 @@ jobs:
           
           # Include minified diffconfig
           cp -v "${{ matrix.target }}.diffconfig" "$OUTPUT_DIR/"
+          cp -v package/external/nikki-profile-default/rules.mk "$OUTPUT_DIR/nikki-rules.buildinfo"
 
           python3 .github/workflows/scripts/release_assets.py package \
             --target "$BUILD_TARGET" --directory "$OUTPUT_DIR"
