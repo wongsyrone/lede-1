@@ -79,6 +79,15 @@
 		regulator-settling-time-up-us = <250>;
 		pwm-supply = <&vcc3v3_sys>;
 	};
+
+	vdd_logic_npu_vepu_fixed: regulator-vdd-logic-npu-vepu-fixed {
+		compatible = "regulator-fixed";
+		regulator-name = "vdd_logic_npu_vepu-fixed";
+		regulator-always-on;
+		regulator-boot-on;
+		regulator-min-microvolt = <825000>;
+		regulator-max-microvolt = <825000>;
+	};
 };
 
 &cpu0 {
@@ -251,6 +260,10 @@
 
 &uart2 {
 	status = "okay";
+};
+
+&venc {
+	venc-supply = <&vdd_logic_npu_vepu_fixed>;
 };
 
 &wdt {

@@ -534,7 +534,7 @@ define Device/asus_4g-ax56
   IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | \
 	check-size
   DEVICE_PACKAGES := kmod-mt7915-firmware kmod-usb3 kmod-usb-serial-option \
-	kmod-usb-net-cdc-ncm
+	kmod-usb-net-cdc-ncm comgt-ncm
 endef
 TARGET_DEVICES += asus_4g-ax56
 
@@ -3452,6 +3452,15 @@ define Device/wavlink_wl-wn533a8
   IMAGE_SIZE := 15040k
 endef
 TARGET_DEVICES += wavlink_wl-wn533a8
+
+define Device/wavlink_ws-wn552k1-c
+  $(Device/dsa-migration)
+  DEVICE_VENDOR := Wavlink
+  DEVICE_MODEL := WS-WN552K1-C
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615-firmware kmod-usb3 -uboot-envtools
+  IMAGE_SIZE := 15040k
+endef
+TARGET_DEVICES += wavlink_ws-wn552k1-c
 
 define Device/wavlink_ws-wn572hp3-4g
   $(Device/dsa-migration)
