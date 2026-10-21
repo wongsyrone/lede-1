@@ -39,6 +39,12 @@ the source tree's Kconfig defaults. Do not copy resolved version symbols from a
 full `.config` into these profiles. `DEVEL` and `TOOLCHAINOPTS` remain enabled so
 that their explicit choice to disable GDB is preserved.
 
+The x86_64 profile includes `luci-app-familycontrol` from the maintained
+`wongsyrone/familycontrol-1` feed. Its single package contains the ucode backend,
+LuCI status page and `/family/` editor for second-resolution access windows.
+Dependencies are selected by Kconfig; the profile does not list their libraries.
+With no people or devices configured it applies no device restrictions.
+
 ### 2.2 Native Workflow for Device Configurations
 
 All target configurations under `cfg/` should be maintained as minimal defconfigs using **100% native OpenWrt upstream tools** (no third-party or custom-maintained scripts required).
