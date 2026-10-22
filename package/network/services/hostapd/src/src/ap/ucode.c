@@ -345,7 +345,7 @@ uc_hostapd_bss_set_config(uc_vm_t *vm, size_t nargs)
 	uc_value_t *files_only = uc_fn_arg(2);
 	unsigned int i, idx = 0;
 	int ret = -1;
-	bool started;
+	bool started, beaconing;
 
 	if (!hapd || ucv_type(file) != UC_STRING)
 		goto out;
@@ -378,14 +378,15 @@ uc_hostapd_bss_set_config(uc_vm_t *vm, size_t nargs)
 	}
 
 	started = hapd->started;
+	beaconing = started && hapd->beacon_set_done;
 	__uc_hostapd_bss_stop(hapd);
 
 	/*
 	 * start_disabled is only meaningful for the initial apsta bring-up. When
-	 * re-applying config to a BSS that was already started, clear it so the
-	 * restart keeps beaconing instead of silently going quiet.
+	 * re-applying config to a beaconing BSS, clear it so the restart keeps
+	 * beaconing instead of silently going quiet.
 	 */
-	if (started)
+	if (beaconing)
 		conf->bss[idx]->start_disabled = 0;
 
 	old_bss = hapd->conf;
@@ -562,7 +563,8 @@ uc_hostapd_iface_add_bss(uc_vm_t *vm, size_t nargs)
 		goto free_hapd;
 
 	if (iface->state == HAPD_IFACE_ENABLED) {
-		hapd->conf->start_disabled = 0;
+		if (iface->bss[0]->beacon_set_done)
+			hapd->conf->start_disabled = 0;
 		if (hostapd_setup_bss(hapd, false, true))
 			goto deinit_ctrl;
 	}
@@ -674,6 +676,17 @@ uc_hostapd_bss_ctrl(uc_vm_t *vm, size_t nargs)
 		reply_len--;
 
 	return ucv_string_new_length(reply, reply_len);
+}
+
+static uc_value_t *
+uc_hostapd_bss_update_beacon(uc_vm_t *vm, size_t nargs)
+{
+	struct hostapd_data *hapd = uc_fn_thisval("hostapd.bss");
+
+	if (!hapd)
+		return NULL;
+
+	return ucv_boolean_new(!ieee802_11_update_beacon(hapd));
 }
 
 #ifdef CONFIG_IEEE80211BE
@@ -1471,6 +1484,7 @@ int hostapd_ucode_init(struct hapd_interfaces *ifaces)
 	};
 	static const uc_function_list_t bss_fns[] = {
 		{ "ctrl", uc_hostapd_bss_ctrl },
+		{ "update_beacon", uc_hostapd_bss_update_beacon },
 		{ "set_config", uc_hostapd_bss_set_config },
 		{ "rename", uc_hostapd_bss_rename },
 		{ "delete", uc_hostapd_bss_delete },
