@@ -12,6 +12,13 @@ default; an empty node file does not provide working proxy service.
   corresponding upstream `meta` paths and replace the same cache filenames.
 - The profile, private-node file and five local rule files are conffiles. Nikki's
   upstream keep.d also preserves profiles and provider data on later upgrades.
+- This package preserves the downloaded default Dashboard under
+  `/etc/nikki/run/ui/` through its own sysupgrade keep.d entry. A custom UI path
+  outside that directory needs its own retention entry. The running firmware
+  creates the upgrade backup, so this entry protects upgrades after it has been
+  installed; adding it only to the incoming image cannot preserve an existing
+  UI during that first upgrade. Fresh installations still download the UI
+  through Mihomo.
 - The first-boot script only replaces an empty/default-placeholder selection
   while Nikki is disabled. It leaves enabled/user-selected profiles, credentials
   and unrelated UCI settings alone, including the API listen address. Nikki's
