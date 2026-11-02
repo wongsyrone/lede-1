@@ -407,7 +407,7 @@ $(eval $(call KernelPackage,softdog))
 define KernelPackage/ssb
   SUBMENU:=$(OTHER_MENU)
   TITLE:=Silicon Sonics Backplane glue code
-  DEPENDS:=@PCI_SUPPORT @!TARGET_bcm47xx @!TARGET_bcm63xx
+  DEPENDS:=@PCI_SUPPORT @!TARGET_bcm47xx
   KCONFIG:=\
 	CONFIG_SSB \
 	CONFIG_SSB_B43_PCI_BRIDGE=y \
@@ -897,6 +897,27 @@ define KernelPackage/random-core/description
 endef
 
 $(eval $(call KernelPackage,random-core))
+
+
+define KernelPackage/seg-led-gpio
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=GPIO seven-segment display support
+  DEPENDS:=@GPIO_SUPPORT
+  KCONFIG:= \
+	CONFIG_AUXDISPLAY=y \
+	CONFIG_LINEDISP \
+	CONFIG_SEG_LED_GPIO
+  FILES:= \
+	$(LINUX_DIR)/drivers/auxdisplay/line-display.ko \
+	$(LINUX_DIR)/drivers/auxdisplay/seg-led-gpio.ko
+  AUTOLOAD:=$(call AutoProbe,seg-led-gpio)
+endef
+
+define KernelPackage/seg-led-gpio/description
+  Support for seven-segment displays connected to GPIO pins.
+endef
+
+$(eval $(call KernelPackage,seg-led-gpio))
 
 
 define KernelPackage/thermal
