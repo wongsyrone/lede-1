@@ -192,10 +192,10 @@ return view.extend({
 		o = s.option(form.ListValue, 'fullcone', _('Full cone NAT'),
 			_('Full cone NAT (NAT1) can improve gaming performance effectively.'));
 		o.value('0', _('Disable'))
-		if (features.hasXTFULLCONENAT || features.hasNFTFULLCONENAT) {
+		if (features.hasXTFULLCONENAT || features.hasNFTFULLCONENAT)
 			o.value('1', _('FULLCONENAT'));
+		if (features.hasBRCMFULLCONENAT)
 			o.value('2', _('Broadcom Fullcone NAT1'));
-		}
 		o.default = '0';
 		o.rmempty = false;
 

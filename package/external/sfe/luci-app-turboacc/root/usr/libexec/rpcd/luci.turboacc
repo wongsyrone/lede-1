@@ -46,7 +46,7 @@ local methods = {
 			local boardinfo = util.ubus("system", "board") or {}
 			local features  = {
 				hasIPV6           = fs.access("/proc/net/ipv6_route"),
-				hasFLOWOFFLOADING = fs.access("/lib/modules/" .. boardinfo.kernel .. "/xt_FLOWOFFLOAD.ko") or fs.access("/lib/modules/" .. boardinfo.kernel .. "/xt_FLOWOFFLOAD.ko"),
+				hasFLOWOFFLOADING = fs.access("/lib/modules/" .. boardinfo.kernel .. "/xt_FLOWOFFLOAD.ko") or fs.access("/lib/modules/" .. boardinfo.kernel .. "/nft_flow_offload.ko"),
 				hasFASTCLASSIFIER = fs.access("/lib/modules/" .. boardinfo.kernel .. "/fast-classifier.ko"),
 				hasSHORTCUTFECM   = fs.access("/lib/modules/" .. boardinfo.kernel .. "/shortcut-fe-cm.ko"),
 				hasNSSECM         = fs.access("/etc/init.d/qca-nss-ecm"),
@@ -55,6 +55,7 @@ local methods = {
 					has_mtkwed_module(boardinfo.kernel),
 				hasXTFULLCONENAT  = fs.access("/lib/modules/" .. boardinfo.kernel .. "/xt_FULLCONENAT.ko"),
 				hasNFTFULLCONENAT  = fs.access("/lib/modules/" .. boardinfo.kernel .. "/nft_fullcone.ko"),
+				hasBRCMFULLCONENAT = fs.access("/sbin/fw4"),
 				hasTCPCCA         = readfile("/proc/sys/net/ipv4/tcp_available_congestion_control")
 			}
 			print(json.stringify(features))
